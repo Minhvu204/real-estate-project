@@ -1,3 +1,4 @@
+// src/utils/responseHandler.ts
 import { Response } from "express";
 
 export const successResponse = (res: Response, message: string, data?: any) => {
