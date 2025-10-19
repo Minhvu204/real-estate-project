@@ -3,6 +3,7 @@ import { loginUser, registerUser } from "../../../services/auth.service";
 import { successResponse, errorResponse } from "../../../utils/responseHandler";
 import { validateEmail, validatePassword } from "../../../utils/validation";
 
+//register
 export const registerController = async (req: Request, res: Response) => {
   try {
     const { fullName, email, password, role } = req.body;
