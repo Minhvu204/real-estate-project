@@ -3,6 +3,7 @@ import User from "../models/user.model";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../config/jwt.config";
 
+//register
 export const registerUser = async (data: {
   fullName: string;
   email: string;
