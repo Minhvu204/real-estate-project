@@ -29,11 +29,10 @@ export const loginController = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     const result = await loginUser(email, password);
-    res.status(200).json({
-      message: "Đăng nhập thành công",
-      data: result,
-    });
+    if (result) {
+      return successResponse(res, "Đăng nhập thành công", result);
+    }
   } catch (error: any) {
-    res.status(400).json({ message: error.message });
+    return errorResponse(res, error.message);
   }
 };
