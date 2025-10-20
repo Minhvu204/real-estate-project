@@ -1,5 +1,11 @@
 // src/models/property.model.ts
 import mongoose, { Document, Schema } from "mongoose";
+// Import các model để Mongoose đăng ký schema trước khi populate
+import "./city.model";
+import "./category.model";
+import "./propertyType.model";
+import "./feature.model";
+import "./user.model";
 
 export interface IProperty extends Document {
   title: string;
