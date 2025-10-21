@@ -23,8 +23,7 @@ export const propertyService = {
         ...(maxPrice ? { $lte: Number(maxPrice) } : {}),
       };
     }
-    if (keyword)
-      query.title = { $regex: keyword, $options: "i" };
+    if (keyword) query.title = { $regex: keyword, $options: "i" };
 
     const pageNum = Number(page) || 1;
     const limitNum = Number(limit) || 10;
@@ -72,4 +71,3 @@ export const propertyService = {
   return property;
 },
 };
-
