@@ -8,6 +8,7 @@ export interface IUser extends Document {
   role: "buyer" | "seller" | "agent" | "admin";
   phone?: string;
   avatar?: string;
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
   comparePassword: (password: string) => Promise<boolean>;
