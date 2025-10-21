@@ -54,5 +54,22 @@ export const propertyService = {
       data: propertyList,
     };
   },
+  getPropertyById: async (id: string) => {
+  const property = await Property.findById(id)
+    .populate("city_id", "city_name")
+    .populate("category_id", "category_name")
+    .populate("type_id", "type_name")
+    .populate("owner_id", "fullName email phone avatar")
+    .populate("agent_id", "fullName email phone avatar")
+    .populate("features", "feature_name");
+
+  if (!property) {
+    const err: any = new Error("Property not found");
+    err.status = 404;
+    throw err;
+  }
+
+  return property;
+},
 };
 

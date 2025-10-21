@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { propertyService } from "../../services/property.service";
+import { propertyService} from "../../services/property.service";
 import { successResponse, errorResponse } from "../../utils/responseHandler";
 
 export const getAllProperties = async (req: Request, res: Response) => {
@@ -9,5 +9,27 @@ export const getAllProperties = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("getAllProperties error:", error);
     return errorResponse(res, "Server error", 500);
+  }
+};
+
+// [U005] Lấy chi tiết property theo ID
+export const getPropertyById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const property = await propertyService.getPropertyById(id);
+
+    // Nếu tìm thấy -> trả kết quả thành công
+    return successResponse(
+      res,
+      "Lấy chi tiết bất động sản thành công.",
+      property
+    );
+  } catch (error: any) {
+    console.error("Lỗi khi lấy chi tiết property:", error.message);
+    return errorResponse(
+      res,
+      error.message || "Không thể lấy thông tin bất động sản.",
+      error.status || 500
+    );
   }
 };
