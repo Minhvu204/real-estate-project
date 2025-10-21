@@ -1,12 +1,8 @@
-import { Button, HStack } from "@chakra-ui/react"
-
+import Nav from "./components/Nav"
 function App() {
 
   return (
-    <HStack>
-      <Button>Click me</Button>
-      <Button>Click me</Button>
-    </HStack>
+    <Nav />
   )
 }
 
