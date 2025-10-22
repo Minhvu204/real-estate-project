@@ -1,9 +1,9 @@
-import Nav from "./components/Nav"
+import SearchPage from "./pages/searchPage/SearchPage"
 function App() {
 
   return (
-    <Nav />
+    <SearchPage />
   )
 }
 
-export default App
+export default App;
