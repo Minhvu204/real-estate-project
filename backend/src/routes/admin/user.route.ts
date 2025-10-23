@@ -6,6 +6,6 @@ import { roleCheck } from "../../middlewares/roleCheck.middleware";
 const router = express.Router();
 
 router.get("/users", verifyToken, roleCheck("admin"), getAllUsers);
-router.put("/users/:id/status", roleCheck("admin"), updateUserStatus);
+router.patch("/users/:id/status", verifyToken, roleCheck("admin"), updateUserStatus);
 
 export default router;
