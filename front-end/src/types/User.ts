@@ -7,6 +7,7 @@ export interface User {
   address?: string;
   province?: string;
   district?: string;
+  password?: string; 
 }
 
 export interface UpdateProfileDto {
