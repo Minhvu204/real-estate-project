@@ -32,3 +32,19 @@ export const getAllUsers = async (role?: string, page = 1, limit = 10) => {
     })),
   };
 };
+
+export const updateUserStatus = async (userId: string, isActive: boolean) => {
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { isActive },
+    { new: true }
+  ).select("fullName email role isActive");
+
+  if (!updatedUser) {
+    const err: any = new Error("Không tìm thấy người dùng.");
+    err.status = 404;
+    throw err;
+  }
+
+  return updatedUser;
+};

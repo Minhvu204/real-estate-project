@@ -26,6 +26,8 @@ const UserSchema: Schema<IUser> = new Schema(
     },
     phone: { type: String },
     avatar: { type: String },
+    // ✅ Trạng thái hoạt động
+    isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
