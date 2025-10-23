@@ -1,7 +1,6 @@
 import React, { useState, useContext } from "react";
-import { Container, Paper, Typography, Box, TextField, Button, Checkbox, FormControlLabel, Divider, Stack, InputAdornment, IconButton, Fade, Zoom } from "@mui/material";
+import { Paper, Typography, Box, TextField, Button, Checkbox, FormControlLabel, Divider, Stack, InputAdornment, IconButton, Fade, Zoom } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
-import FacebookIcon from "@mui/icons-material/Facebook";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
@@ -43,12 +42,10 @@ const LoginPage: React.FC = () => {
         <Box
             sx={{
                 minHeight: "100vh",
+                height: { xs: "auto", md: "100vh" },
                 background: "#0f0c29",
                 backgroundImage: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                 display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                p: 2,
                 position: "relative",
                 overflow: "hidden",
                 "&::before": {
@@ -85,444 +82,450 @@ const LoginPage: React.FC = () => {
                 },
             }}
         >
-            <Container maxWidth="md" sx={{ position: "relative", zIndex: 1 }}>
-                <Fade in timeout={800}>
-                    <Box sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, gap: 0 }}>
-                        {/* Left Side - Brand */}
-                        <Zoom in timeout={1000}>
+            <Box sx={{
+                display: "flex",
+                flexDirection: { xs: "column", md: "row" },
+                width: "100%",
+                height: "100%",
+                position: "relative",
+                zIndex: 1,
+            }}>
+                {/* Left Side - Brand (60% width on desktop) */}
+                <Zoom in timeout={1000}>
+                    <Box
+                        sx={{
+                            flex: { xs: "1", md: "0 0 60%" },
+                            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                            borderRadius: { xs: "0px 0px 0 0", md: "0" },
+                            p: { xs: 4, md: 6 },
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            position: "relative",
+                            overflow: "hidden",
+                            boxShadow: { xs: "0 25px 50px rgba(0,0,0,0.3)", md: "none" },
+                            "&::before": {
+                                content: '""',
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                background: "url(https://cdnmedia.baotintuc.vn/Upload/GBzr0rzEkBb6ua36h4mJ9w/files/2022/09/P3.jpg)",
+                            },
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                position: "relative",
+                                zIndex: 1,
+                                textAlign: "center",
+                            }}
+                        >
                             <Box
                                 sx={{
-                                    flex: 1,
-                                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                    borderRadius: { xs: "24px 24px 0 0", md: "24px 0 0 24px" },
-                                    p: { xs: 4, md: 6 },
+                                    width: 100,
+                                    height: 100,
+                                    borderRadius: "24px",
+                                    background: "rgba(255,255,255,0.2)",
+                                    backdropFilter: "blur(10px)",
                                     display: "flex",
-                                    flexDirection: "column",
-                                    justifyContent: "center",
                                     alignItems: "center",
+                                    justifyContent: "center",
+                                    mb: 3,
+                                    mx: "auto",
+                                    boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
+                                    border: "2px solid rgba(255,255,255,0.3)",
+                                }}
+                            >
+                                <HomeIcon sx={{ fontSize: 50, color: "white" }} />
+                            </Box>
+                            <Typography
+                                variant="h3"
+                                sx={{
+                                    fontWeight: 900,
+                                    color: "white",
+                                    mb: 2,
+                                    letterSpacing: "-0.02em",
+                                    textShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                                }}
+                            >
+                                Dwello
+                            </Typography>
+                            <Typography
+                                sx={{
+                                    color: "rgba(255,255,255,0.9)",
+                                    fontSize: "1.1rem",
+                                    fontWeight: 400,
+                                    lineHeight: 1.6,
+                                    maxWidth: 500,
+                                    mx: "auto",
+                                }}
+                            >
+                                Your journey to finding the perfect home starts here
+                            </Typography>
+                            <Box
+                                sx={{
+                                    mt: 4,
+                                    display: "flex",
+                                    gap: 2,
+                                    justifyContent: "center",
+                                    flexWrap: "wrap",
+                                }}
+                            >
+                                {["10k+ Homes", "Trusted Platform", "24/7 Support"].map((item, i) => (
+                                    <Box
+                                        key={i}
+                                        sx={{
+                                            px: 2,
+                                            py: 1,
+                                            borderRadius: 3,
+                                            background: "rgba(255,255,255,0.15)",
+                                            backdropFilter: "blur(10px)",
+                                            border: "1px solid rgba(255,255,255,0.2)",
+                                            fontSize: "0.85rem",
+                                            fontWeight: 600,
+                                            color: "white",
+                                        }}
+                                    >
+                                        {item}
+                                    </Box>
+                                ))}
+                            </Box>
+                        </Box>
+                    </Box>
+                </Zoom>
+
+                {/* Right Side - Form (40% width on desktop) */}
+                <Zoom in timeout={1200}>
+                    <Box
+                        sx={{
+                            flex: { xs: "1", md: "0 0 40%" },
+                            p: { xs: 4, sm: 5, md: 5 },
+                            background: "rgba(255, 255, 255, 0.98)",
+                            backdropFilter: "blur(20px)",
+                            borderRadius: { xs: "0 0 24px 24px", md: "0" },
+                            boxShadow: { xs: "0 25px 50px rgba(0,0,0,0.3)", md: "none" },
+                            border: { xs: "1px solid rgba(255, 255, 255, 0.5)", md: "none" },
+                            display: "flex",
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            overflowY: "auto",
+                        }}
+                    >
+                        <Typography
+                            variant="h4"
+                            sx={{
+                                fontWeight: 800,
+                                mb: 1,
+                                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                backgroundClip: "text",
+                                textFillColor: "transparent",
+                                WebkitBackgroundClip: "text",
+                                WebkitTextFillColor: "transparent",
+                                letterSpacing: "-0.02em",
+                            }}
+                        >
+                            Welcome Back!
+                        </Typography>
+                        <Typography
+                            sx={{
+                                mb: 4,
+                                fontSize: "0.95rem",
+                                color: "rgba(0,0,0,0.5)",
+                                fontWeight: 400,
+                            }}
+                        >
+                            Login to access your account
+                        </Typography>
+
+                        <Box component="form" onSubmit={handleSubmit}>
+                            <TextField
+                                placeholder="Enter your email"
+                                fullWidth
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                sx={{
+                                    mb: 2.5,
+                                    "& .MuiOutlinedInput-root": {
+                                        borderRadius: 3,
+                                        backgroundColor: "#f8f9fa",
+                                        border: "2px solid transparent",
+                                        transition: "all 0.3s ease",
+                                        "& fieldset": {
+                                            border: "none",
+                                        },
+                                        "&:hover": {
+                                            backgroundColor: "#f1f3f5",
+                                            borderColor: "#e9ecef",
+                                        },
+                                        "&.Mui-focused": {
+                                            backgroundColor: "white",
+                                            borderColor: "#667eea",
+                                            boxShadow: "0 0 0 4px rgba(102,126,234,0.1)",
+                                        },
+                                    },
+                                }}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <EmailOutlinedIcon sx={{ color: "#667eea", fontSize: 22 }} />
+                                        </InputAdornment>
+                                    ),
+                                }}
+                                variant="outlined"
+                            />
+                            <TextField
+                                placeholder="Enter your password"
+                                type={showPassword ? "text" : "password"}
+                                fullWidth
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                sx={{
+                                    mb: 2,
+                                    "& .MuiOutlinedInput-root": {
+                                        borderRadius: 3,
+                                        backgroundColor: "#f8f9fa",
+                                        border: "2px solid transparent",
+                                        transition: "all 0.3s ease",
+                                        "& fieldset": {
+                                            border: "none",
+                                        },
+                                        "&:hover": {
+                                            backgroundColor: "#f1f3f5",
+                                            borderColor: "#e9ecef",
+                                        },
+                                        "&.Mui-focused": {
+                                            backgroundColor: "white",
+                                            borderColor: "#667eea",
+                                            boxShadow: "0 0 0 4px rgba(102,126,234,0.1)",
+                                        },
+                                    },
+                                }}
+                                InputProps={{
+                                    startAdornment: (
+                                        <InputAdornment position="start">
+                                            <LockOutlinedIcon sx={{ color: "#667eea", fontSize: 22 }} />
+                                        </InputAdornment>
+                                    ),
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                edge="end"
+                                                sx={{
+                                                    color: "#667eea",
+                                                    "&:hover": {
+                                                        backgroundColor: "rgba(102,126,234,0.1)",
+                                                    },
+                                                }}
+                                            >
+                                                {showPassword ? (
+                                                    <VisibilityOffOutlinedIcon />
+                                                ) : (
+                                                    <VisibilityOutlinedIcon />
+                                                )}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                                variant="outlined"
+                            />
+
+                            <Box
+                                sx={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    mb: 3,
+                                }}
+                            >
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            sx={{
+                                                color: "#667eea",
+                                                "&.Mui-checked": {
+                                                    color: "#667eea",
+                                                },
+                                            }}
+                                        />
+                                    }
+                                    label={
+                                        <Typography sx={{ fontSize: "0.9rem", color: "rgba(0,0,0,0.6)" }}>
+                                            Remember me
+                                        </Typography>
+                                    }
+                                />
+                                <Button
+                                    size="small"
+                                    sx={{
+                                        textTransform: "none",
+                                        color: "#667eea",
+                                        fontWeight: 700,
+                                        fontSize: "0.9rem",
+                                        "&:hover": {
+                                            backgroundColor: "rgba(102,126,234,0.08)",
+                                        },
+                                    }}
+                                    onClick={() => navigate("/forgot-password")}
+                                >
+                                    Forgot password?
+                                </Button>
+                            </Box>
+
+                            {error && (
+                                <Box
+                                    sx={{
+                                        mb: 2.5,
+                                        p: 2,
+                                        borderRadius: 3,
+                                        background: "linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)",
+                                        color: "white",
+                                        fontWeight: 500,
+                                        fontSize: "0.9rem",
+                                        boxShadow: "0 4px 12px rgba(238,90,111,0.3)",
+                                    }}
+                                >
+                                    {error}
+                                </Box>
+                            )}
+
+                            <Button
+                                type="submit"
+                                fullWidth
+                                disabled={loading}
+                                sx={{
+                                    py: 2,
+                                    borderRadius: 3,
+                                    textTransform: "none",
+                                    fontSize: "1.05rem",
+                                    fontWeight: 700,
+                                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                    color: "#fff",
+                                    boxShadow: "0 10px 30px rgba(102,126,234,0.4)",
                                     position: "relative",
                                     overflow: "hidden",
-                                    boxShadow: "0 25px 50px rgba(0,0,0,0.3)",
+                                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                                     "&::before": {
                                         content: '""',
                                         position: "absolute",
                                         top: 0,
-                                        left: 0,
-                                        right: 0,
-                                        bottom: 0,
-                                        background: "url(https://cdnmedia.baotintuc.vn/Upload/GBzr0rzEkBb6ua36h4mJ9w/files/2022/09/P3.jpg)",
+                                        left: "-100%",
+                                        width: "100%",
+                                        height: "100%",
+                                        background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
+                                        transition: "left 0.6s ease",
+                                    },
+                                    "&:hover": {
+                                        boxShadow: "0 15px 40px rgba(102,126,234,0.5)",
+                                        transform: "translateY(-3px)",
+                                        "&::before": {
+                                            left: "100%",
+                                        },
+                                    },
+                                    "&:active": {
+                                        transform: "translateY(-1px)",
+                                    },
+                                    "&:disabled": {
+                                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                        opacity: 0.6,
                                     },
                                 }}
                             >
-                                <Box
-                                    sx={{
-                                        position: "relative",
-                                        zIndex: 1,
-                                        textAlign: "center",
-                                    }}
-                                >
-                                    <Box
-                                        sx={{
-                                            width: 100,
-                                            height: 100,
-                                            borderRadius: "24px",
-                                            background: "rgba(255,255,255,0.2)",
-                                            backdropFilter: "blur(10px)",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            mb: 3,
-                                            mx: "auto",
-                                            boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
-                                            border: "2px solid rgba(255,255,255,0.3)",
-                                        }}
-                                    >
-                                        <HomeIcon sx={{ fontSize: 50, color: "white" }} />
-                                    </Box>
-                                    <Typography
-                                        variant="h3"
-                                        sx={{
-                                            fontWeight: 900,
-                                            color: "white",
-                                            mb: 2,
-                                            letterSpacing: "-0.02em",
-                                            textShadow: "0 4px 12px rgba(0,0,0,0.2)",
-                                        }}
-                                    >
-                                        Dwello
-                                    </Typography>
-                                    <Typography
-                                        sx={{
-                                            color: "rgba(255,255,255,0.9)",
-                                            fontSize: "1.1rem",
-                                            fontWeight: 400,
-                                            lineHeight: 1.6,
-                                            maxWidth: 300,
-                                            mx: "auto",
-                                        }}
-                                    >
-                                        Your journey to finding the perfect home starts here
-                                    </Typography>
-                                    <Box
-                                        sx={{
-                                            mt: 4,
-                                            display: "flex",
-                                            gap: 2,
-                                            justifyContent: "center",
-                                            flexWrap: "wrap",
-                                        }}
-                                    >
-                                        {["10k+ Homes", "Trusted Platform", "24/7 Support"].map((item, i) => (
-                                            <Box
-                                                key={i}
-                                                sx={{
-                                                    px: 2,
-                                                    py: 1,
-                                                    borderRadius: 3,
-                                                    background: "rgba(255,255,255,0.15)",
-                                                    backdropFilter: "blur(10px)",
-                                                    border: "1px solid rgba(255,255,255,0.2)",
-                                                    fontSize: "0.85rem",
-                                                    fontWeight: 600,
-                                                    color: "white",
-                                                }}
-                                            >
-                                                {item}
-                                            </Box>
-                                        ))}
-                                    </Box>
-                                </Box>
-                            </Box>
-                        </Zoom>
+                                {loading ? "Signing in..." : "Sign In"}
+                            </Button>
 
-                        {/* Right Side - Form */}
-                        <Zoom in timeout={1200}>
-                            <Paper
-                                elevation={0}
+                            <Divider
                                 sx={{
-                                    flex: 1,
-                                    p: { xs: 4, sm: 5 },
-                                    borderRadius: { xs: "0 0 24px 24px", md: "0 24px 24px 0" },
-                                    background: "rgba(255, 255, 255, 0.98)",
-                                    backdropFilter: "blur(20px)",
-                                    boxShadow: "0 25px 50px rgba(0,0,0,0.3)",
-                                    border: "1px solid rgba(255, 255, 255, 0.5)",
+                                    my: 3.5,
+                                    fontSize: "0.85rem",
+                                    color: "rgba(0,0,0,0.4)",
+                                    fontWeight: 500,
+                                    "&::before, &::after": {
+                                        borderColor: "rgba(0,0,0,0.1)",
+                                    },
+                                }}
+                            >
+                                OR
+                            </Divider>
+
+                            <Stack direction="row" spacing={2} sx={{ mb: 3.5 }}>
+                                <Button
+                                    fullWidth
+                                    variant="outlined"
+                                    startIcon={<GoogleIcon />}
+                                    sx={{
+                                        py: 1.5,
+                                        textTransform: "none",
+                                        borderRadius: 3,
+                                        fontWeight: 600,
+                                        fontSize: "0.95rem",
+                                        color: "#db4437",
+                                        borderColor: "#e0e0e0",
+                                        backgroundColor: "white",
+                                        borderWidth: 2,
+                                        transition: "all 0.3s ease",
+                                        "&:hover": {
+                                            backgroundColor: "#db4437",
+                                            color: "white",
+                                            borderColor: "#db4437",
+                                            transform: "translateY(-2px)",
+                                            boxShadow: "0 8px 20px rgba(219,68,55,0.3)",
+                                        },
+                                    }}
+                                    onClick={() => alert("Google OAuth not implemented")}
+                                >
+                                    Google
+                                </Button>
+                            </Stack>
+
+                            <Box
+                                sx={{
+                                    textAlign: "center",
+                                    p: 2.5,
+                                    borderRadius: 3,
+                                    background: "linear-gradient(135deg, rgba(102,126,234,0.08) 0%, rgba(118,75,162,0.08) 100%)",
                                 }}
                             >
                                 <Typography
-                                    variant="h4"
+                                    component="span"
                                     sx={{
-                                        fontWeight: 800,
-                                        mb: 1,
+                                        fontSize: "0.95rem",
+                                        color: "rgba(0,0,0,0.6)",
+                                        fontWeight: 500,
+                                    }}
+                                >
+                                    Don't have an account?{" "}
+                                </Typography>
+                                <Button
+                                    variant="text"
+                                    onClick={() => navigate("/signup")}
+                                    sx={{
+                                        textTransform: "none",
                                         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                                         backgroundClip: "text",
                                         textFillColor: "transparent",
                                         WebkitBackgroundClip: "text",
                                         WebkitTextFillColor: "transparent",
-                                        letterSpacing: "-0.02em",
-                                    }}
-                                >
-                                    Welcome Back!
-                                </Typography>
-                                <Typography
-                                    sx={{
-                                        mb: 4,
+                                        fontWeight: 800,
                                         fontSize: "0.95rem",
-                                        color: "rgba(0,0,0,0.5)",
-                                        fontWeight: 400,
+                                        p: 0,
+                                        minWidth: "auto",
+                                        "&:hover": {
+                                            backgroundColor: "transparent",
+                                            textDecoration: "underline",
+                                        },
                                     }}
                                 >
-                                    Login to access your account
-                                </Typography>
-
-                                <Box component="form" onSubmit={handleSubmit}>
-                                    <TextField
-                                        placeholder="Enter your email"
-                                        fullWidth
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        sx={{
-                                            mb: 2.5,
-                                            "& .MuiOutlinedInput-root": {
-                                                borderRadius: 3,
-                                                backgroundColor: "#f8f9fa",
-                                                border: "2px solid transparent",
-                                                transition: "all 0.3s ease",
-                                                "& fieldset": {
-                                                    border: "none",
-                                                },
-                                                "&:hover": {
-                                                    backgroundColor: "#f1f3f5",
-                                                    borderColor: "#e9ecef",
-                                                },
-                                                "&.Mui-focused": {
-                                                    backgroundColor: "white",
-                                                    borderColor: "#667eea",
-                                                    boxShadow: "0 0 0 4px rgba(102,126,234,0.1)",
-                                                },
-                                            },
-                                        }}
-                                        InputProps={{
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <EmailOutlinedIcon sx={{ color: "#667eea", fontSize: 22 }} />
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                        variant="outlined"
-                                    />
-                                    <TextField
-                                        placeholder="Enter your password"
-                                        type={showPassword ? "text" : "password"}
-                                        fullWidth
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        sx={{
-                                            mb: 2,
-                                            "& .MuiOutlinedInput-root": {
-                                                borderRadius: 3,
-                                                backgroundColor: "#f8f9fa",
-                                                border: "2px solid transparent",
-                                                transition: "all 0.3s ease",
-                                                "& fieldset": {
-                                                    border: "none",
-                                                },
-                                                "&:hover": {
-                                                    backgroundColor: "#f1f3f5",
-                                                    borderColor: "#e9ecef",
-                                                },
-                                                "&.Mui-focused": {
-                                                    backgroundColor: "white",
-                                                    borderColor: "#667eea",
-                                                    boxShadow: "0 0 0 4px rgba(102,126,234,0.1)",
-                                                },
-                                            },
-                                        }}
-                                        InputProps={{
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <LockOutlinedIcon sx={{ color: "#667eea", fontSize: 22 }} />
-                                                </InputAdornment>
-                                            ),
-                                            endAdornment: (
-                                                <InputAdornment position="end">
-                                                    <IconButton
-                                                        onClick={() => setShowPassword(!showPassword)}
-                                                        edge="end"
-                                                        sx={{
-                                                            color: "#667eea",
-                                                            "&:hover": {
-                                                                backgroundColor: "rgba(102,126,234,0.1)",
-                                                            },
-                                                        }}
-                                                    >
-                                                        {showPassword ? (
-                                                            <VisibilityOffOutlinedIcon />
-                                                        ) : (
-                                                            <VisibilityOutlinedIcon />
-                                                        )}
-                                                    </IconButton>
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                        variant="outlined"
-                                    />
-
-                                    <Box
-                                        sx={{
-                                            display: "flex",
-                                            justifyContent: "space-between",
-                                            alignItems: "center",
-                                            mb: 3,
-                                        }}
-                                    >
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    sx={{
-                                                        color: "#667eea",
-                                                        "&.Mui-checked": {
-                                                            color: "#667eea",
-                                                        },
-                                                    }}
-                                                />
-                                            }
-                                            label={
-                                                <Typography sx={{ fontSize: "0.9rem", color: "rgba(0,0,0,0.6)" }}>
-                                                    Remember me
-                                                </Typography>
-                                            }
-                                        />
-                                        <Button
-                                            size="small"
-                                            sx={{
-                                                textTransform: "none",
-                                                color: "#667eea",
-                                                fontWeight: 700,
-                                                fontSize: "0.9rem",
-                                                "&:hover": {
-                                                    backgroundColor: "rgba(102,126,234,0.08)",
-                                                },
-                                            }}
-                                            onClick={() => navigate("/forgot-password")}
-                                        >
-                                            Forgot password?
-                                        </Button>
-                                    </Box>
-
-                                    {error && (
-                                        <Box
-                                            sx={{
-                                                mb: 2.5,
-                                                p: 2,
-                                                borderRadius: 3,
-                                                background: "linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)",
-                                                color: "white",
-                                                fontWeight: 500,
-                                                fontSize: "0.9rem",
-                                                boxShadow: "0 4px 12px rgba(238,90,111,0.3)",
-                                            }}
-                                        >
-                                            {error}
-                                        </Box>
-                                    )}
-
-                                    <Button
-                                        type="submit"
-                                        fullWidth
-                                        disabled={loading}
-                                        sx={{
-                                            py: 2,
-                                            borderRadius: 3,
-                                            textTransform: "none",
-                                            fontSize: "1.05rem",
-                                            fontWeight: 700,
-                                            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                            color: "#fff",
-                                            boxShadow: "0 10px 30px rgba(102,126,234,0.4)",
-                                            position: "relative",
-                                            overflow: "hidden",
-                                            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                                            "&::before": {
-                                                content: '""',
-                                                position: "absolute",
-                                                top: 0,
-                                                left: "-100%",
-                                                width: "100%",
-                                                height: "100%",
-                                                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
-                                                transition: "left 0.6s ease",
-                                            },
-                                            "&:hover": {
-                                                boxShadow: "0 15px 40px rgba(102,126,234,0.5)",
-                                                transform: "translateY(-3px)",
-                                                "&::before": {
-                                                    left: "100%",
-                                                },
-                                            },
-                                            "&:active": {
-                                                transform: "translateY(-1px)",
-                                            },
-                                            "&:disabled": {
-                                                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                                opacity: 0.6,
-                                            },
-                                        }}
-                                    >
-                                        {loading ? "Signing in..." : "Sign In"}
-                                    </Button>
-
-                                    <Divider
-                                        sx={{
-                                            my: 3.5,
-                                            fontSize: "0.85rem",
-                                            color: "rgba(0,0,0,0.4)",
-                                            fontWeight: 500,
-                                            "&::before, &::after": {
-                                                borderColor: "rgba(0,0,0,0.1)",
-                                            },
-                                        }}
-                                    >
-                                        OR
-                                    </Divider>
-
-                                    <Stack direction="row" spacing={2} sx={{ mb: 3.5 }}>
-                                        <Button
-                                            fullWidth
-                                            variant="outlined"
-                                            startIcon={<GoogleIcon />}
-                                            sx={{
-                                                py: 1.5,
-                                                textTransform: "none",
-                                                borderRadius: 3,
-                                                fontWeight: 600,
-                                                fontSize: "0.95rem",
-                                                color: "#db4437",
-                                                borderColor: "#e0e0e0",
-                                                backgroundColor: "white",
-                                                borderWidth: 2,
-                                                transition: "all 0.3s ease",
-                                                "&:hover": {
-                                                    backgroundColor: "#db4437",
-                                                    color: "white",
-                                                    borderColor: "#db4437",
-                                                    transform: "translateY(-2px)",
-                                                    boxShadow: "0 8px 20px rgba(219,68,55,0.3)",
-                                                },
-                                            }}
-                                            onClick={() => alert("Google OAuth not implemented")}
-                                        >
-                                            Google
-                                        </Button>
-                                    </Stack>
-
-                                    <Box
-                                        sx={{
-                                            textAlign: "center",
-                                            p: 2.5,
-                                            borderRadius: 3,
-                                            background: "linear-gradient(135deg, rgba(102,126,234,0.08) 0%, rgba(118,75,162,0.08) 100%)",
-                                        }}
-                                    >
-                                        <Typography
-                                            component="span"
-                                            sx={{
-                                                fontSize: "0.95rem",
-                                                color: "rgba(0,0,0,0.6)",
-                                                fontWeight: 500,
-                                            }}
-                                        >
-                                            Don't have an account?{" "}
-                                        </Typography>
-                                        <Button
-                                            variant="text"
-                                            onClick={() => navigate("/signup")}
-                                            sx={{
-                                                textTransform: "none",
-                                                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                                backgroundClip: "text",
-                                                textFillColor: "transparent",
-                                                WebkitBackgroundClip: "text",
-                                                WebkitTextFillColor: "transparent",
-                                                fontWeight: 800,
-                                                fontSize: "0.95rem",
-                                                p: 0,
-                                                minWidth: "auto",
-                                                "&:hover": {
-                                                    backgroundColor: "transparent",
-                                                    textDecoration: "underline",
-                                                },
-                                            }}
-                                        >
-                                            Sign up free
-                                        </Button>
-                                    </Box>
-                                </Box>
-                            </Paper>
-                        </Zoom>
+                                    Sign up free
+                                </Button>
+                            </Box>
+                        </Box>
                     </Box>
-                </Fade>
-            </Container>
+                </Zoom>
+            </Box>
         </Box>
     );
 };
