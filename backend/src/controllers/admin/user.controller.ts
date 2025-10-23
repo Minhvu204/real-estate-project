@@ -15,3 +15,54 @@ export const getAllUsers = async (req: any, res: Response) => {
     return errorResponse(res, "Lấy danh sách người dùng thất bại", 500);
   }
 };
+
+export const getUserById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const user = await userService.getUserById(id);
+
+    if (!user) {
+      return errorResponse(res, "Không tìm thấy người dùng.", 404);
+    }
+
+    return successResponse(res, "Lấy thông tin người dùng thành công", user);
+  } catch (error: any) {
+    console.error("getUserById error:", error.message);
+    return errorResponse(
+      res,
+      error.message || "Lấy thông tin người dùng thất bại.",
+      error.status || 500
+    );
+  }
+};
+
+
+// [U007] Cập nhật / khóa người dùng (Admin)
+export const updateUserStatus = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { isActive } = req.body;
+
+    // Kiểm tra quyền (đảm bảo chỉ admin mới gọi được API này)
+    if (req.user?.role !== "admin") {
+      return errorResponse(res, "Bạn không có quyền thực hiện thao tác này.", 403);
+    }
+
+    // Gọi service để cập nhật trạng thái
+    const updatedUser = await userService.updateUserStatus(id, isActive);
+
+    return successResponse(
+      res,
+      `Cập nhật trạng thái người dùng thành công: ${updatedUser.fullName}`,
+      updatedUser
+    );
+  } catch (error: any) {
+    console.error("updateUserStatus error:", error.message);
+    return errorResponse(
+      res,
+      error.message || "Không thể cập nhật trạng thái người dùng.",
+      error.status || 500
+    );
+  }
+};
