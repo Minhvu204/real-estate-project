@@ -10,7 +10,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
         <div className="bg-white rounded-md shadow hover:shadow-lg transition-all duration-300 overflow-hidden">
             <div className="w-full aspect-[4/3] bg-gray-100">
                 <Carousel>
-                    {property.imageUrls.map((imageUrl, index) => (
+                    {property.images.map((imageUrl, index) => (
                         <img
                             key={index}
                             src={imageUrl}
@@ -26,9 +26,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
                 </h3>
                 <p className="text-xs text-gray-500 line-clamp-1">{property.address}</p>
                 <p className="text-blue-600 font-bold text-sm">
-                    {property.price >= 1_000_000_000
-                        ? `${(property.price / 1_000_000_000).toFixed(1)} Tỷ`
-                        : `${(property.price / 1_000_000).toFixed(0)} Triệu`}
+                    {property.price >= 1_000_000
+                        ? `$${(property.price / 1_000_000).toFixed(1)}M`
+                        : property.price >= 1_000 ? `$${(property.price / 1_000).toFixed(1)}K` : `$${property.price}`}
                 </p>
                 <p className="text-xs text-gray-600">
                     {property.bedrooms} phòng ngủ · {property.bathrooms} phòng tắm

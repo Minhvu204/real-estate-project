@@ -4,20 +4,41 @@ import PropertyMap from "../../components/property/PropertyMap";
 import type { Property } from '../../types/Property';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { getAllProperties } from '@/services/propertyService';
+import { getAllProperties } from '../../services/propertyService';
+import { useSearchParams } from 'react-router-dom';
 const SearchPage = () => {
-    const [query, setQuery] = useState('');
+    const [searchParams, setSearchParams] = useSearchParams();
+    const initialQuery = searchParams.get('q') || '';
+    const [query, setQuery] = useState(initialQuery);
     const [minPrice, setMinPrice] = useState<number | null>(null);
     const [maxPrice, setMaxPrice] = useState<number | null>(null);
     const [bedrooms, setBedrooms] = useState<number | null>(null);
     const [bathrooms, setBathrooms] = useState<number | null>(null);
-    // const [status, setStatus] = useState('');
+    const [type, setType] = useState<string | null>(null);
     const [properties, setProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
+    const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({
+        lat: 21.0285,
+        lng: 105.8542,
+    });
     useEffect(() => {
-        const load = async () => {
+        const savedFilters = localStorage.getItem('propertyFilters');
+        if (savedFilters) {
+            const f = JSON.parse(savedFilters);
+            setMinPrice(f.minPrice);
+            setMaxPrice(f.maxPrice);
+            setBedrooms(f.bedrooms);
+            setBathrooms(f.bathrooms);
+            setType(f.type);
+        }
+    }, []);
+    useEffect(() => {
+        const filters = { minPrice, maxPrice, bedrooms, bathrooms, type };
+        localStorage.setItem('propertyFilters', JSON.stringify(filters));
+    }, [minPrice, maxPrice, bedrooms, bathrooms, type]);
+    useEffect(() => {
+        const fetchProperties = async () => {
             try {
                 setLoading(true);
                 const data = await getAllProperties();
@@ -28,18 +49,63 @@ const SearchPage = () => {
                 setLoading(false);
             }
         }
+        fetchProperties();
     }, [])
 
     const filteredProperties = useMemo(() => {
+        const removeVietnameseTones = (str: string) => {
+            return str
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/đ/g, "d").replace(/Đ/g, "D")
+                .replace(/\s+/g, "")
+                .toLowerCase().trim();
+        };
+        const normalizedQuery = removeVietnameseTones(query);
         return properties.filter((p) => {
-            const matchesQuery = p.title.toLowerCase().includes(query.toLowerCase()) || p.address.toLowerCase().includes(query.toLowerCase());
+            const title = removeVietnameseTones(p.title);
+            const address = removeVietnameseTones(p.address);
+            const matchesQuery =
+                title.includes(normalizedQuery) || address.includes(normalizedQuery);
             const matchesPrice = (!minPrice || p.price >= minPrice) && (!maxPrice || p.price <= maxPrice);
             const matchesBed = bedrooms === null || p.bedrooms >= bedrooms;
             const matchesBath = bathrooms === null || p.bathrooms >= bathrooms;
-            // const matchesStatus = !status || p.status === status;
-            return matchesQuery && matchesPrice && matchesBed && matchesBath;
+            const matchesStatus = !type || p.type_id?.type_name && p.type_id?.type_name.toLowerCase().trim() === type.toLowerCase().trim();
+            return matchesPrice && matchesBed && matchesBath && matchesStatus && matchesQuery;
         })
-    }, [query, minPrice, maxPrice, bedrooms, bathrooms, properties])
+    }, [query, minPrice, maxPrice, bedrooms, bathrooms, type, properties]);
+    const handleSearch = async (q?: string) => {
+        const searchValue = q ?? query;
+        if (!searchValue.trim()) return;
+        setSearchParams({ q: searchValue.trim() });
+        try {
+            const openCaseApiKey = import.meta.env.VITE_OPEN_API_KEY;
+            const res = await fetch(
+                `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(searchValue)}&key=${openCaseApiKey}&limit=1&countrycode=vn`
+            )
+            const data = await res.json();
+            console.log(data);
+            if (data.results && data.results.length > 0) {
+                const { lat, lng } = data.results[0].geometry;
+                setMapCenter({ lat, lng });
+            } else {
+                alert("Không tìm thấy vị trí, vui lòng nhập lại.");
+            }
+        } catch (error) {
+            console.log("Geocoding error:", error);
+        }
+    }
+    useEffect(() => {
+        if (initialQuery) {
+            setQuery(initialQuery);
+            handleSearch(initialQuery);
+        }
+    }, [initialQuery]);
+    const clearSearch = () => {
+        setQuery('');
+        setSearchParams({});
+        setMapCenter({ lat: 21.0285, lng: 105.8542 }); // Reset về mặc định
+    };
     return (
         <>
             <div className="w-full flex flex-col md:flex-row md:items-center md:justify-center gap-3 p-3 bg-white shadow-sm">
@@ -49,12 +115,18 @@ const SearchPage = () => {
                         placeholder="Search by city, address..."
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleSearch();
+                            }
+                        }}
                         className="w-full outline-none bg-transparent text-gray-700"
                     />
                     <div className="flex items-center gap-1 ml-2 text-gray-500">
                         {query && (
                             <button
-                                onClick={() => setQuery('')}
+                                onClick={clearSearch}
                                 aria-label="cancel-icon"
                                 className="hover:text-red-500 transition"
                             >
@@ -64,48 +136,52 @@ const SearchPage = () => {
                         <button
                             aria-label="search-icon"
                             className="hover:text-blue-600 transition"
+                            onClick={() => handleSearch()}
                         >
                             <SearchOutlinedIcon fontSize="small" />
                         </button>
                     </div>
                 </div>
                 <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 w-full md:w-auto justify-center">
-                    <select aria-label="Select property type" className="border rounded-lg px-2 py-2 text-gray-700 focus:ring-2 focus:ring-gray-300">
-                        <option value="">For Sale</option>
-                        <option value="">For Rent</option>
-                        <option value="">Sold</option>
+                    <select aria-label="Select property type" className="border rounded-lg px-2 py-2 text-gray-700 focus:ring-2 focus:ring-gray-300"
+                        value={type ?? ''}
+                        onChange={(e) => setType(e.target.value || null)}
+                    >
+                        <option value="">All Types</option>
+                        <option value="For Sale">For Sale</option>
+                        <option value="For Rent">For Rent</option>
                     </select>
                     <select aria-label="Select property min price" className="border rounded-lg px-2 py-2 text-gray-700 focus:ring-2 focus:ring-gray-300"
-                        value={minPrice !== null ? minPrice / 1_000_000_000 : ''}
-                        onChange={(e) => {
-                            const val = e.target.value;
-                            if (val === "21") setMinPrice(20_000_000_000);
-                            else setMinPrice(Number(val) * 1_000_000_000 || null);
-                        }}
+                        value={minPrice ?? ''}
+                        onChange={(e) => setMinPrice(Number(e.target.value) || null)}
                     >
                         <option value="">Min Price</option>
-                        <option value="1">1 Tỷ</option>
-                        <option value="2">2 Tỷ</option>
-                        <option value="3">3 Tỷ</option>
-                        <option value="4">4 Tỷ</option>
-                        <option value="5">5 Tỷ</option>
-                        <option value="10">10 Tỷ</option>
-                        <option value="20">20 Tỷ</option>
-                        <option value="21">{`> 20 Tỷ`}</option>
+                        <option value="10000">$10K </option>
+                        <option value="20000">$20K </option>
+                        <option value="50000">$50K </option>
+                        <option value="100000">$100K </option>
+                        <option value="200000">$200K </option>
+                        <option value="500000">$500K </option>
+                        <option value="1000000">$1M </option>
+                        <option value="2000000">$2M </option>
+                        <option value="5000000">$5M </option>
+                        <option value="10000000">$10M </option>
                     </select>
                     <select aria-label="Select property max price" className="border rounded-lg px-2 py-2 text-gray-700 focus:ring-2 focus:ring-gray-300"
-                        value={maxPrice !== null ? maxPrice / 1_000_000_000 : ''}
-                        onChange={(e) => setMaxPrice(Number(e.target.value) * 1_000_000_000 || null)}
+                        value={maxPrice ?? ""}
+                        onChange={(e) => setMaxPrice(Number(e.target.value) || null)}
                     >
                         <option value="">Max Price</option>
-                        <option value="0">{`< 1 Tỷ`}</option>
-                        <option value="1">1 Tỷ</option>
-                        <option value="2">2 Tỷ</option>
-                        <option value="3">3 Tỷ</option>
-                        <option value="4">4 Tỷ</option>
-                        <option value="5">5 Tỷ</option>
-                        <option value="10">10 Tỷ</option>
-                        <option value="20">20 Tỷ</option>
+                        <option value="10000">$10K </option>
+                        <option value="20000">$20K </option>
+                        <option value="50000">$50K </option>
+                        <option value="100000">$100K </option>
+                        <option value="200000">$200K </option>
+                        <option value="500000">$500K </option>
+                        <option value="1000000">$M </option>
+                        <option value="2000000">$2M </option>
+                        <option value="5000000">$5M </option>
+                        <option value="10000000">$10M </option>
                     </select>
                     <select aria-label="Select property bedrooms" className="border rounded-lg px-2 py-2 text-gray-700 focus:ring-2 focus:ring-gray-300"
                         value={bedrooms ?? ''}
@@ -130,21 +206,32 @@ const SearchPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 h-[90vh]">
                 <div>
                     {loading ? (
-                        <div  ></div>
+                        <div className='flex justify-center items-center h-full' >Loading maps...</div>
+                    ) : error ? (
+                        <div className='flex justify-center items-center h-full text-red-500'>{error}</div>
+                    ) : (
+                        <PropertyMap properties={filteredProperties} center={mapCenter} />
                     )}
-                    <PropertyMap properties={filteredProperties} />
                 </div>
                 <div className="overflow-y-auto max-h-[90vh] p-3">
-                    <h1 className="text-xl font-semibold mb-2">Search Results</h1>
-                    <div className="flex justify-between mb-3 text-gray-600">
-                        <p>{filteredProperties.length} results found</p>
-                        <p>Sort by</p>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {filteredProperties.map((property: Property) => (
-                            <PropertyCard key={property.id} property={property} />
-                        ))}
-                    </div>
+                    {loading ? (
+                        <div className='flex justify-center items-center h-full' >Loading properties...</div>
+                    ) : error ? (
+                        <div className='flex justify-center items-center h-full text-red-500'>{error}</div>
+                    ) : (
+                        <>
+                            <h1 className="text-xl font-semibold mb-2">Search Results</h1>
+                            <div className="flex justify-between mb-3 text-gray-600">
+                                <p>{filteredProperties.length} results found</p>
+                                <p>Sort by</p>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {filteredProperties.map((property: Property) => (
+                                    <PropertyCard key={property._id} property={property} />
+                                ))}
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
         </>

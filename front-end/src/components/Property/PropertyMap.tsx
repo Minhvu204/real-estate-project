@@ -5,17 +5,18 @@ import PropertyCard from './PropertyCard';
 
 type PropertyMapProps = {
     properties: Property[];
+    center: {
+        lat: number,
+        lng: number
+    }
 }
 const mapContainerStyle = {
     width: "100%",
     height: "100%",
 };
 
-const center = {
-    lat: 21.0285,
-    lng: 105.8542,
-};
-const PropertyMap: React.FC<PropertyMapProps> = ({ properties }) => {
+
+const PropertyMap: React.FC<PropertyMapProps> = ({ properties, center }) => {
     const { isLoaded, loadError } = useLoadScript({
         googleMapsApiKey: import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY as string,
     });
@@ -32,13 +33,13 @@ const PropertyMap: React.FC<PropertyMapProps> = ({ properties }) => {
         >
             {properties.map((property) => (
                 <Marker
-                    key={property.id}
+                    key={property._id}
                     position={property.coordinates}
                     label={{
                         text:
-                            property.price >= 1_000_000_000
-                                ? `${(property.price / 1_000_000_000).toFixed(1)} Tỷ`
-                                : `${(property.price / 1_000_000).toFixed(0)} Tr`,
+                            property.price >= 1_000_000
+                                ? `$${(property.price / 1_000_000).toFixed(1)}M`
+                                : property.price >= 1_000 ? `$${(property.price / 1_000).toFixed(1)}K` : `$${property.price}`,
                         className:
                             'bg-white text-white font-semibold text-xs px-2 py-1 rounded-md shadow-md',
                     }}
