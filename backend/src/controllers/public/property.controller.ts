@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { propertyService} from "../../services/property.service";
+import { propertyService } from "../../services/property.service";
 import { successResponse, errorResponse } from "../../utils/responseHandler";
 
 export const getAllProperties = async (req: Request, res: Response) => {
@@ -9,6 +9,21 @@ export const getAllProperties = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("getAllProperties error:", error);
     return errorResponse(res, "Server error", 500);
+  }
+};
+
+// [U004] Lấy danh sách tất cả tọa độ property để hiển thị trên bản đồ
+export const getAllCoordinates = async (req: Request, res: Response) => {
+  try {
+    const data = await propertyService.getAllCoordinates();
+    return successResponse(res, "Danh sách tọa độ property", data);
+  } catch (error: any) {
+    console.error("getAllCoordinates error:", error.message);
+    return errorResponse(
+      res,
+      error.message || "Không thể lấy danh sách tọa độ property.",
+      error.status || 500
+    );
   }
 };
 
