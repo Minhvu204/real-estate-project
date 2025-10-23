@@ -1,8 +1,9 @@
 import { AppBar, Box, Button, IconButton, Toolbar, Typography } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu';
 import React from 'react'
+import { Link } from 'react-router-dom';
 
-const Nav = () => {
+const Nav: React.FC = () => {
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">
@@ -17,8 +18,9 @@ const Nav = () => {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        News
+                        <Button color="inherit" component={Link} to="/">Trang chủ</Button>
                     </Typography>
+                    <Button color="inherit" component={Link} to="/register">Đăng ký</Button>
                     <Button color="inherit">Login</Button>
                 </Toolbar>
             </AppBar>
