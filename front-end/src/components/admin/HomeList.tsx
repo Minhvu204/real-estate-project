@@ -14,7 +14,7 @@ import axios from 'axios';
 
 const ITEMS_PER_PAGE = 4;
 const HomeList = () => {
-    const baseUrl = "http://localhost:3000"
+    const baseUrl = "http://localhost:3000/api";
     const [allHome, setAllHome] = useState<Property[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [page, setPage] = useState(1);
