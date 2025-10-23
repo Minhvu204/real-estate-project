@@ -3,4 +3,7 @@ export type User = {
     fullName: String,
     email: String,
     role: String,
+    phone: String,
+    avatar: String,
+    createdAt: String
 }

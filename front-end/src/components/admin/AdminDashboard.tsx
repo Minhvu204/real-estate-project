@@ -19,14 +19,12 @@ import { Link, Outlet } from 'react-router-dom';
 import Divider from '@mui/material/Divider';
 import { useLocation } from 'react-router-dom';
 import LogoutIcon from '@mui/icons-material/Logout';
-import DataTable from './UserList';
-import HomeList from './HomeList';
-import ListHomeDetail from './ListHomeDetail';
+
 import { useState } from 'react';
 
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import StarBorder from '@mui/icons-material/StarBorder';
+
 import Collapse from '@mui/material/Collapse';
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
@@ -67,22 +65,22 @@ const AdminDashboard = () => {
         {
             text: 'Admin',
             icon: <SupervisorAccountIcon />,
-            path: '/admin/adminList'
+            path: '/admin/users?role=admin'
         },
         {
             text: 'Buyer',
             icon: <ShoppingBagIcon />,
-            path: '/admin/buyerList'
+            path: '/admin/users?role=buyer'
         },
         {
             text: 'Seller',
             icon: <HailIcon />,
-            path: '/admin/sellerList'
+            path: '/admin/users?role=seller'
         },
         {
             text: 'Agent',
             icon: <RealEstateAgentIcon />,
-            path: '/admin/agentList'
+            path: '/admin/users?role=agent'
         }
         ,
 
@@ -126,7 +124,8 @@ const AdminDashboard = () => {
                                     component={Link}
                                     to={item.path}
                                     onClick={item.text === 'List User' ? handleClick : undefined}
-                                    className={`rounded-lg ${location.pathname.startsWith(item.path) ? '!bg-blue-500' : ''}`}
+                                    className={`rounded-lg ${location.search.includes(item.path.split("=")[1]) ? '!bg-blue-500' : ''}`}
+
                                 >
                                     <ListItemIcon>{item.icon}</ListItemIcon>
                                     <ListItemText primary={item.text} />
@@ -180,7 +179,7 @@ const AdminDashboard = () => {
                 component="main"
                 sx={{
                     flexGrow: 1,
-                    paddingLeft: 20,
+                    paddingLeft: `${drawerWidth}px`,
                     bgcolor: '#fff',
                     minHeight: '100vh',
                 }}

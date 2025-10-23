@@ -1,53 +1,92 @@
-import * as React from 'react';
-import { DataGrid, renderActionsCell } from '@mui/x-data-grid';
-import type { GridColDef } from '@mui/x-data-grid';
+import { DataGrid } from '@mui/x-data-grid';
 import Paper from '@mui/material/Paper';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import Select from '@mui/material/Select';
+import { useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { getAllUsers } from '../../services/userService';
+import type { User } from '../../types/Users';
+const defaultUser = "/defaultUser.png";
 
 
-const columns = [
-    { field: "id", headerName: "ID", width: 70 },
+const columns = (navigate: any) => [
+    { field: "id", headerName: "ID", width: 180 },
+    {
+        field: "avatar",
+        headerName: "Avatar",
+        width: 80,
+        renderCell: (params: any) => (
+            <img
+                src={params.value || defaultUser}
+                alt="avatar"
+                style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    objectFit: "cover"
+                }}
+            />
+        )
+    },
     { field: "fullName", headerName: "Full Name", width: 200 },
-    { field: "email", headerName: "Email", width: 250 },
-    { field: "role", headerName: "Role", width: 150 },
-    { field: "action", headerName: "Action", width: 100,
-
-
-
-
-     }
+    { field: "email", headerName: "Email", width: 240 },
+    { field: "role", headerName: "Role", width: 120 },
+    {
+        field: "action",
+        headerName: "Action",
+        width: 120,
+        renderCell: () => (
+            <>
+                <button className="bg-blue-500 text-white px-2 py-1 rounded text-xs"
+                    onClick={() => navigate}>
+                    View
+                </button >
+                <button className="bg-red-500 text-white px-2 py-1 rounded text-xs">
+                    Update
+                </button>
+            </>
+        )
+    }
 ];
 
-
-
-const paginationModel = { page: 0, pageSize: 5 };
-
 export default function DataTable() {
-    const baseUrl = "http://localhost:3000"
-    const [rows, setRows] = useState([]);
+    const [searchParams] = useSearchParams();
+    const role = searchParams.get("role");
+    const navigate = useNavigate();
+
+    const [rows, setRows] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
 
-
     useEffect(() => {
-        axios.get(`${baseUrl}/users`)
-            .then((res) => {
-                setRows(res.data);
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const users = await getAllUsers();
+
+                if (role) {
+                    setRows(users.filter((u) => u.role === role));
+                } else {
+                    setRows(users);
+                }
+
+            } catch (error) {
+                console.error("Cannot fetch users", error);
+            } finally {
                 setLoading(false);
-            }).catch((err) => {
-                console.log('Cannot fetch data', err);
-            })
-    }, [])
+            }
+        };
+
+        fetchData();
+    }, [role]);
+
     return (
-        <Paper sx={{ height: 400, width: '100%' }}>
-            <h1 className='text-center pr-30 pb-7'>List All Users</h1>
+        <Paper sx={{ height: 500, width: '100%', p: 2 }}>
+            <h2 className="text-center pb-4 text-lg font-bold">User Management</h2>
+
             <DataGrid
                 rows={rows}
-                columns={columns}
+                columns={columns(navigate)}
                 loading={loading}
-                initialState={{ pagination: { paginationModel } }}
-                pageSizeOptions={[5, 10]}
+                pageSizeOptions={[5, 10, 20]}
                 checkboxSelection
                 sx={{ border: 0 }}
             />
