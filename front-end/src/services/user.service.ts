@@ -1,30 +1,46 @@
 import type { User, UpdateProfileDto, ChangePasswordDto } from '../types/User';
-import { mockUser } from '../data/mockUser';
+import api from '../api/api';
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 export const UserService = {
   getProfile: async (): Promise<User> => {
-    await delay(500);
-    const { password, ...userWithoutPassword } = mockUser;
-    return userWithoutPassword as User;
+    try {
+      const response = await api.get('/api/client/profile');
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(error?.response?.data?.message || 'Failed to fetch profile');
+    }
   },
 
   updateProfile: async (data: UpdateProfileDto): Promise<User> => {
-    await delay(800);
-    Object.assign(mockUser, data);
-    const { password, ...userWithoutPassword } = mockUser;
-    return userWithoutPassword as User;
+    try {
+      const formData = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined) {
+          if (key === 'avatar' && value instanceof File) {
+            formData.append('avatar', value);
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+
+      const response = await api.put('/api/client/profile', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(error?.response?.data?.message || 'Failed to update profile');
+    }
   },
   
   changePassword: async (data: ChangePasswordDto): Promise<void> => {
-    await delay(500);
-    if (!mockUser.password || data.currentPassword !== mockUser.password) {
-      throw new Error("Current password is incorrect");
+    try {
+      await api.post('/api/client/change-password', data);
+    } catch (error: any) {
+      const message = error?.response?.data?.message || 'Failed to change password';
+      throw new Error(message);
     }
-    if (data.newPassword !== data.confirmPassword) {
-      throw new Error("Confirmation password does not match");
-    }
-    mockUser.password = data.newPassword;
-    console.log("✅ Password changed successfully! New password:", mockUser.password);
   }
 };

@@ -39,7 +39,7 @@ export const ProfileLayout: React.FC = () => {
       <Box sx={{ flex: 1 }}>
         <Container maxWidth="lg" sx={{ py: 4 }}>
           <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
-            Quản lý tài khoản
+          Account Management
           </Typography>
           
           <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
@@ -47,7 +47,7 @@ export const ProfileLayout: React.FC = () => {
               <Tab 
                 label="Update information" 
                 component={NavLink}
-                to="/profile/personal-info"
+                to="/profile/info"
                 sx={{ textTransform: 'none', fontSize: '1rem' }}
               />
               <Tab 
@@ -59,7 +59,7 @@ export const ProfileLayout: React.FC = () => {
             </Tabs>
           </Box>
 
-          <Outlet />
+          <Outlet context={{ user, setUser }} />
         </Container>
       </Box>
     </Box>

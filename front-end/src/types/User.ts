@@ -4,9 +4,7 @@ export interface User {
   email: string;
   phone?: string;
   avatar?: string;
-  address?: string;
-  province?: string;
-  district?: string;
+  role?: string;
   password?: string; 
 }
 
@@ -14,9 +12,7 @@ export interface UpdateProfileDto {
   fullName?: string;
   email?: string;
   phone?: string;
-  address?: string;
-  province?: string;
-  district?: string;
+  role?: string;
   avatar?: File;
 }
 

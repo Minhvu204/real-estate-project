@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { ChangePasswordDto } from '../../types/User';
-import { validatePassword } from '../../untils/validation.ts';
+import { validatePassword } from '../../utils/validation.js';
 import { Box, TextField, Button, Typography } from '@mui/material';
 
 interface PasswordFormProps {
@@ -23,14 +23,7 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (name === 'newPassword') {
-      if (!validatePassword(value)) {
-        setErrors(prev => ({ 
-          ...prev, 
-          newPassword: 'Password must be at least 8 characters, including uppercase, lowercase, numbers and special characters' 
-        }));
-      } else {
-        setErrors(prev => ({ ...prev, newPassword: '' }));
-      }
+      setErrors(prev => ({ ...prev, newPassword: '' }));
     }
     
     if (name === 'confirmPassword') {
@@ -104,7 +97,11 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
             disabled={isLoading}
             sx={{ 
               textTransform: 'none',
-              px: 4
+              px: 4,
+              bgcolor: '#1f61cc',
+              '&:hover': {
+                bgcolor: '#4B5563'
+              }
             }}
           >
             💾 {isLoading ? 'Saving...' : 'Save changes'}

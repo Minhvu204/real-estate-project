@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { User, UpdateProfileDto } from '../../types/User';
-import { validatePhone } from '../../untils/validation.ts';
+import { validatePhone } from '../../utils/validation.js';
 import { Box, TextField, Button, Avatar, IconButton, Typography } from '@mui/material';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import PersonIcon from '@mui/icons-material/Person';
@@ -20,11 +20,19 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
     fullName: user.fullName,
     email: user.email,
     phone: user.phone || '',
-    address: user.address || '',
-    province: user.province || '',
-    district: user.district || '',
+    role: user.role || '',
   });
   const [avatar, setAvatar] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
+
+  // Cleanup preview URL when component unmounts
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,7 +48,17 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
-      setAvatar(e.target.files[0]);
+      const file = e.target.files[0];
+      setAvatar(file);
+      
+      // Cleanup old preview URL if exists
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      
+      // Create new preview URL
+      const newPreviewUrl = URL.createObjectURL(file);
+      setPreviewUrl(newPreviewUrl);
     }
   };
 
@@ -52,6 +70,7 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
     if (avatar) {
       updateData.avatar = avatar;
     }
+    console.log('Submitting data:', updateData);
     await onSubmit(updateData);
   };
 
@@ -71,7 +90,7 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
           />
           <label htmlFor="avatar-upload" style={{ cursor: 'pointer' }}>
             <Avatar
-              src={user.avatar || undefined}
+              src={previewUrl || user.avatar}
               sx={{ 
                 width: 100, 
                 height: 100,
@@ -152,47 +171,12 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
         </Box>
 
         <Box sx={{ display: 'grid', gridTemplateColumns: '200px 1fr', alignItems: 'center', gap: 2 }}>
-          <Typography>Province</Typography>
+          <Typography>Role</Typography>
           <TextField
             fullWidth
-            name="province"
-            value={formData.province}
-            onChange={handleChange}
-            select
-            SelectProps={{ native: true }}
-            size="small"
-          >
-            <option value="">Select Province</option>
-            <option value="Đà Nẵng">Đà Nẵng</option>
-          </TextField>
-        </Box>
-
-        <Box sx={{ display: 'grid', gridTemplateColumns: '200px 1fr', alignItems: 'center', gap: 2 }}>
-          <Typography>Ward/Commune</Typography>
-          <TextField
-            fullWidth
-            name="district"
-            value={formData.district}
-            onChange={handleChange}
-            select
-            SelectProps={{ native: true }}
-            size="small"
-          >
-            <option value="">Select Ward/Commune</option>
-            <option value="Phường Ngũ Hành Sơn">Phường Ngũ Hành Sơn</option>
-            <option value="Phường Hoà Khánh">Phường Hoà Khánh</option>
-            <option value="Phường An Khê">Phường An Khê</option>
-          </TextField>
-        </Box>
-
-        <Box sx={{ display: 'grid', gridTemplateColumns: '200px 1fr', alignItems: 'center', gap: 2 }}>
-          <Typography>Address</Typography>
-          <TextField
-            fullWidth
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            placeholder="House number, street name"
+            name="role"
+            value={formData.role}
+            disabled
             size="small"
           />
         </Box>
@@ -204,7 +188,11 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
             disabled={isLoading}
             sx={{ 
               textTransform: 'none',
-              px: 4
+              px: 4,
+              bgcolor: '#1f61cc',
+              '&:hover': {
+                bgcolor: '#4B5563'
+              }
             }}
           >
             💾 {isLoading ? 'Saving...' : 'Save changes'}
