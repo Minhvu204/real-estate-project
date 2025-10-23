@@ -16,6 +16,28 @@ export const getAllUsers = async (req: any, res: Response) => {
   }
 };
 
+export const getUserById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const user = await userService.getUserById(id);
+
+    if (!user) {
+      return errorResponse(res, "Không tìm thấy người dùng.", 404);
+    }
+
+    return successResponse(res, "Lấy thông tin người dùng thành công", user);
+  } catch (error: any) {
+    console.error("getUserById error:", error.message);
+    return errorResponse(
+      res,
+      error.message || "Lấy thông tin người dùng thất bại.",
+      error.status || 500
+    );
+  }
+};
+
+
 // [U007] Cập nhật / khóa người dùng (Admin)
 export const updateUserStatus = async (req: Request, res: Response) => {
   try {
