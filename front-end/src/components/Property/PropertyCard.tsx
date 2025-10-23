@@ -7,9 +7,9 @@ type PropertyCardProps = {
 
 const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
     return (
-        <div className="bg-white rounded-xl shadow hover:shadow-lg transition-all duration-300 overflow-hidden">
+        <div className="bg-white rounded-md shadow hover:shadow-lg transition-all duration-300 overflow-hidden">
             <div className="w-full aspect-[4/3] bg-gray-100">
-                <Carousel >
+                <Carousel>
                     {property.imageUrls.map((imageUrl, index) => (
                         <img
                             key={index}
