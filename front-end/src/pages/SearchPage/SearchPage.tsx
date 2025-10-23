@@ -10,11 +10,14 @@ const SearchPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const initialQuery = searchParams.get('q') || '';
     const [query, setQuery] = useState(initialQuery);
-    const [minPrice, setMinPrice] = useState<number | null>(null);
-    const [maxPrice, setMaxPrice] = useState<number | null>(null);
-    const [bedrooms, setBedrooms] = useState<number | null>(null);
-    const [bathrooms, setBathrooms] = useState<number | null>(null);
-    const [type, setType] = useState<string | null>(null);
+    const savedFilters = JSON.parse(localStorage.getItem('propertyFilters') || '{}');
+    const [minPrice, setMinPrice] = useState<number | null>(savedFilters.minPrice ?? null);
+    const [maxPrice, setMaxPrice] = useState<number | null>(savedFilters.maxPrice ?? null);
+    const [bedrooms, setBedrooms] = useState<number | null>(savedFilters.bedrooms ?? null);
+    const [bathrooms, setBathrooms] = useState<number | null>(savedFilters.bathrooms ?? null);
+    const [type, setType] = useState<string | null>(
+        savedFilters.type && typeof savedFilters.type === 'string' ? savedFilters.type : null
+    );
     const [properties, setProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -22,17 +25,6 @@ const SearchPage = () => {
         lat: 21.0285,
         lng: 105.8542,
     });
-    useEffect(() => {
-        const savedFilters = localStorage.getItem('propertyFilters');
-        if (savedFilters) {
-            const f = JSON.parse(savedFilters);
-            setMinPrice(f.minPrice);
-            setMaxPrice(f.maxPrice);
-            setBedrooms(f.bedrooms);
-            setBathrooms(f.bathrooms);
-            setType(f.type);
-        }
-    }, []);
     useEffect(() => {
         const filters = { minPrice, maxPrice, bedrooms, bathrooms, type };
         localStorage.setItem('propertyFilters', JSON.stringify(filters));
