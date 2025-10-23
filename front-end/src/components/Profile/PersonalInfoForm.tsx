@@ -25,7 +25,6 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
   const [avatar, setAvatar] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | undefined>(undefined);
 
-  // Cleanup preview URL when component unmounts
   useEffect(() => {
     return () => {
       if (previewUrl) {
@@ -50,13 +49,9 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
     if (e.target.files?.[0]) {
       const file = e.target.files[0];
       setAvatar(file);
-      
-      // Cleanup old preview URL if exists
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
       }
-      
-      // Create new preview URL
       const newPreviewUrl = URL.createObjectURL(file);
       setPreviewUrl(newPreviewUrl);
     }

@@ -37,7 +37,8 @@ export const UserService = {
   
   changePassword: async (data: ChangePasswordDto): Promise<void> => {
     try {
-      await api.post('/api/client/change-password', data);
+      const { confirmPassword, ...payload } = data;
+      await api.patch('/api/client/profile/change-password', payload);
     } catch (error: any) {
       const message = error?.response?.data?.message || 'Failed to change password';
       throw new Error(message);

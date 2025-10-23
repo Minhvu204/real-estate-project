@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import type { ChangePasswordDto } from '../../types/User';
-import { validatePassword } from '../../utils/validation.js';
 import { Box, TextField, Button, Typography } from '@mui/material';
 
 interface PasswordFormProps {
@@ -13,7 +12,7 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
   isLoading
 }) => {
   const [formData, setFormData] = useState<ChangePasswordDto>({
-    currentPassword: '',
+    oldPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
@@ -49,8 +48,8 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
           <TextField
             fullWidth
             type="password"
-            name="currentPassword"
-            value={formData.currentPassword}
+            name="oldPassword"
+            value={formData.oldPassword}
             onChange={handleChange}
             required
             placeholder="Enter password"
