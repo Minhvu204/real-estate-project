@@ -11,6 +11,13 @@ export interface IProperty extends Document {
   title: string;
   description: string;
   price: number;
+  address: string;
+  bedrooms: number;
+  bathrooms: number;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
   city_id: mongoose.Types.ObjectId;
   type_id: mongoose.Types.ObjectId;
   category_id: mongoose.Types.ObjectId;
@@ -29,6 +36,13 @@ const PropertySchema: Schema = new Schema(
     title: { type: String, required: true },
     description: String,
     price: { type: Number, required: true },
+    address: { type: String, required: true },
+    bedrooms: { type: Number, default: 0 },
+    bathrooms: { type: Number, default: 0 },
+    coordinates: {
+      lat: { type: Number, required: false },
+      lng: { type: Number, required: false },
+    },
     city_id: { type: Schema.Types.ObjectId, ref: "City", required: true },
     type_id: { type: Schema.Types.ObjectId, ref: "PropertyType", required: true },
     category_id: { type: Schema.Types.ObjectId, ref: "Category", required: true },
