@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import PropertyCard from '../../components/property/PropertyCard';
 import PropertyMap from "../../components/property/PropertyMap";
-import { MOCK_PROPERTIES } from '../../data/mockProperties';
 import type { Property } from '../../types/Property';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { getAllProperties } from '@/services/propertyService';
 const SearchPage = () => {
     const [query, setQuery] = useState('');
     const [minPrice, setMinPrice] = useState<number | null>(null);
@@ -12,8 +12,26 @@ const SearchPage = () => {
     const [bedrooms, setBedrooms] = useState<number | null>(null);
     const [bathrooms, setBathrooms] = useState<number | null>(null);
     // const [status, setStatus] = useState('');
+    const [properties, setProperties] = useState<Property[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const load = async () => {
+            try {
+                setLoading(true);
+                const data = await getAllProperties();
+                setProperties(data);
+            } catch (error: any) {
+                setError(error.message || "Khong the tai duoc du lieu");
+            } finally {
+                setLoading(false);
+            }
+        }
+    }, [])
+
     const filteredProperties = useMemo(() => {
-        return MOCK_PROPERTIES.filter((p) => {
+        return properties.filter((p) => {
             const matchesQuery = p.title.toLowerCase().includes(query.toLowerCase()) || p.address.toLowerCase().includes(query.toLowerCase());
             const matchesPrice = (!minPrice || p.price >= minPrice) && (!maxPrice || p.price <= maxPrice);
             const matchesBed = bedrooms === null || p.bedrooms >= bedrooms;
@@ -21,7 +39,7 @@ const SearchPage = () => {
             // const matchesStatus = !status || p.status === status;
             return matchesQuery && matchesPrice && matchesBed && matchesBath;
         })
-    }, [query, minPrice, maxPrice, bedrooms, bathrooms])
+    }, [query, minPrice, maxPrice, bedrooms, bathrooms, properties])
     return (
         <>
             <div className="w-full flex flex-col md:flex-row md:items-center md:justify-center gap-3 p-3 bg-white shadow-sm">
@@ -111,6 +129,9 @@ const SearchPage = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 h-[90vh]">
                 <div>
+                    {loading ? (
+                        <div  ></div>
+                    )}
                     <PropertyMap properties={filteredProperties} />
                 </div>
                 <div className="overflow-y-auto max-h-[90vh] p-3">
