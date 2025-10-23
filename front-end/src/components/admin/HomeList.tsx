@@ -32,6 +32,7 @@ const HomeList = () => {
     const startIndex = (page - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
     const currentHomes = allHome.slice(startIndex, endIndex);
+    if (isLoading === true) return <p>Loading..........</p>
     return (
         <>
             <h1 className="text-2xl font-bold text-center mb-10 pr-35 ">List all home</h1>

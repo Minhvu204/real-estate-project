@@ -72,17 +72,17 @@ const AdminDashboard = () => {
         {
             text: 'Buyer',
             icon: <ShoppingBagIcon />,
-            path: '/buyer/buyerList'
+            path: '/admin/buyerList'
         },
         {
             text: 'Seller',
             icon: <HailIcon />,
-            path: '/seller/sellerList'
+            path: '/admin/sellerList'
         },
         {
             text: 'Agent',
             icon: <RealEstateAgentIcon />,
-            path: '/agent/agentList'
+            path: '/admin/agentList'
         }
         ,
 
