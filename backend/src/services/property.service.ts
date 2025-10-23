@@ -23,8 +23,7 @@ export const propertyService = {
         ...(maxPrice ? { $lte: Number(maxPrice) } : {}),
       };
     }
-    if (keyword)
-      query.title = { $regex: keyword, $options: "i" };
+    if (keyword) query.title = { $regex: keyword, $options: "i" };
 
     const pageNum = Number(page) || 1;
     const limitNum = Number(limit) || 10;
@@ -38,6 +37,7 @@ export const propertyService = {
         .populate("owner_id", "fullName email")
         .populate("agent_id", "fullName email")
         .populate("features", "feature_name")
+        .populate('type_id', 'type_name')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limitNum),
@@ -54,5 +54,59 @@ export const propertyService = {
       data: propertyList,
     };
   },
-};
 
+  getPropertyById: async (id: string) => {
+    const property = await Property.findById(id)
+      .populate("city_id", "city_name")
+      .populate("category_id", "category_name")
+      .populate("type_id", "type_name")
+      .populate("owner_id", "fullName email phone avatar")
+      .populate("agent_id", "fullName email phone avatar")
+      .populate("features", "feature_name")
+      .populate('type_id', 'type_name')
+      .lean();
+
+    if (!property) {
+      const err: any = new Error("Property not found");
+      err.status = 404;
+      throw err;
+    }
+
+    return {
+      id: property._id,
+      title: property.title,
+      description: property.description,
+      price: property.price,
+      address: property.address,
+      bedrooms: property.bedrooms,
+      bathrooms: property.bathrooms,
+      coordinates: property.coordinates,
+      status: property.status, // available, sold, v.v.
+      images: property.images || [],
+      city: property.city_id,
+      category: property.category_id,
+      type: property.type_id,
+      features: property.features,
+      owner: property.owner_id,
+      agent: property.agent_id,
+      createdAt: property.createdAt,
+      updatedAt: property.updatedAt,
+    };
+  },
+
+  async getAllCoordinates() {
+    const properties = await Property.find(
+      { deleted: false },
+      {
+        _id: 1,
+        title: 1,
+        coordinates: 1,
+        address: 1,
+        price: 1,
+        listingType: 1,
+      }
+    );
+
+    return properties;
+  },
+};

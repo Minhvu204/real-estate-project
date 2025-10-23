@@ -1,8 +1,8 @@
 import express from "express";
+import userRoutes from "./user.route";
+
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  res.send("Admin routes ready");
-});
+router.use("/", userRoutes);
 
 export default router;
