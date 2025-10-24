@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
-import { getProfile, updateProfile } from "../../../controllers/client/common/user.controller";
+import { changePassword, getProfile, updateProfile } from "../../../controllers/client/common/user.controller";
 import { verifyToken } from "../../../middlewares/auth.middleware";
 import { body } from "express-validator";
 import { upload } from "../../../middlewares/uploadCloundinary.middleware";
@@ -27,5 +27,7 @@ router.put(
   ],
   updateProfile
 );
+
+router.patch("/profile/change-password", verifyToken, changePassword);
 
 export default router;

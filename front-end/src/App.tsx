@@ -1,16 +1,10 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom"
-import SearchPage from "./pages/searchPage/SearchPage"
+import AdminDashboard from "./components/admin/AdminDashboard"
 
-const router = createBrowserRouter([{
-  path: "/search",
-  element: <SearchPage />
-},
-]);
 function App() {
 
   return (
-    <RouterProvider router={router} />
+    <AdminDashboard></AdminDashboard>
   )
 }
 
-export default App;
+export default App
