@@ -4,7 +4,6 @@ const Carousel = ({
     children: slides,
     autoSlide = false,
     autoSlideInterval = 4000,
-
 }) => {
     const [curr, setCurr] = useState(0);
     const prev = () => setCurr((curr) => (curr === 0 ? slides.length - 1 : curr - 1));

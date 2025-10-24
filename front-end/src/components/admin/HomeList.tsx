@@ -70,8 +70,7 @@ export default function DataTable() {
                 getRowId={(row) => row._id}
                 loading={loading}
                 initialState={{ pagination: { paginationModel } }}
-                pageSizeOptions={[5, 10]}
-                checkboxSelection
+                pageSizeOptions={[5, 10]} 
                 sx={{ border: 0 }}
             />
         </Paper>

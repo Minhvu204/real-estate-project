@@ -145,7 +145,7 @@ const SearchPage = () => {
                         </button>
                     </div>
                 </div>
-                <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 w-full md:w-auto justify-center">
+                <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 w-full md:w-auto justify-center ">
                     <select aria-label="Select property type" className="border rounded-lg px-2 py-2 text-gray-700 focus:ring-2 focus:ring-gray-300"
                         value={type ?? ''}
                         onChange={(e) => setType(e.target.value || null)}
