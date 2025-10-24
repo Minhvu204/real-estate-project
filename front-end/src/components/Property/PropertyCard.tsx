@@ -1,11 +1,18 @@
 import React, { useState } from "react";
 import type { Property } from "../../types/Property";
 import Carousel from "./Carousel";
+import { useNavigate } from "react-router-dom";
 type PropertyCardProps = {
     property: Property;
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
+    const navigate = useNavigate();
+
+    const handleDetail = () => {
+        navigate(`/property/detail/${property._id}`);
+    };
+
     return (
         <div className="bg-white rounded-md shadow hover:shadow-lg transition-all duration-300 overflow-hidden">
             <div className="aspect-[4/3] w-full relative">
@@ -33,6 +40,12 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
                 <p className="text-xs text-gray-600">
                     {property.bedrooms} phòng ngủ · {property.bathrooms} phòng tắm
                 </p>
+                <button
+                    onClick={handleDetail}
+                    className="mt-2 w-full py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                >
+                    View Detail
+                </button>
             </div>
         </div>
     );
