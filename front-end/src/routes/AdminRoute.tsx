@@ -13,7 +13,6 @@ const AdminRoute = () => {
                 <Route path="users" element={<DataTable />} />
                 <Route path="properties" element={<HomeList />} />
                 <Route path="users/:id" element={<UserDetails />} />
-
                 <Route index element={<HomeList />} /> {/* /admin → redirect hoặc default */}
             </Route>
         </Routes>

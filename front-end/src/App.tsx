@@ -1,10 +1,13 @@
-import AdminDashboard from "./components/admin/AdminDashboard"
+import AdminRoute from "./routes/AdminRoute";
+import SearchPage from "./pages/searchPage/SearchPage";
 
 function App() {
 
   return (
-    <AdminDashboard></AdminDashboard>
-  )
+    <>
+      <AdminRoute>
+      </AdminRoute>
+    </>)
 }
 
-export default App
+export default App;
