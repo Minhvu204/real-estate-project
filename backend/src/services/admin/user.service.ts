@@ -32,3 +32,42 @@ export const getAllUsers = async (role?: string, page = 1, limit = 10) => {
     })),
   };
 };
+
+export const getUserById = async (userId: string) => {
+  const user = await User.findById(userId).select("-password");
+
+  if (!user) {
+    const err: any = new Error("Không tìm thấy người dùng.");
+    err.status = 404;
+    throw err;
+  }
+
+  return {
+    id: user._id,
+    fullName: user.fullName,
+    email: user.email,
+    role: user.role,
+    phone: user.phone,
+    avatar: user.avatar,
+    isActive: user.isActive,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
+};
+
+
+export const updateUserStatus = async (userId: string, isActive: boolean) => {
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { isActive },
+    { new: true }
+  ).select("fullName email role isActive");
+
+  if (!updatedUser) {
+    const err: any = new Error("Không tìm thấy người dùng.");
+    err.status = 404;
+    throw err;
+  }
+
+  return updatedUser;
+};
