@@ -4,6 +4,7 @@ import DataTable from '../components/admin/UserList';
 import { Route } from 'react-router-dom';
 import { Routes } from 'react-router-dom';
 import GradientTooltip from '../components/admin/Dashboard';
+import UserDetails from '../components/admin/UserDetails';
 const AdminRoute = () => {
     return (
         <Routes>
@@ -11,6 +12,8 @@ const AdminRoute = () => {
                 <Route path="dashboard" element={<GradientTooltip />} />
                 <Route path="users" element={<DataTable />} />
                 <Route path="properties" element={<HomeList />} />
+                <Route path="users/:id" element={<UserDetails />} />
+
                 <Route index element={<HomeList />} /> {/* /admin → redirect hoặc default */}
             </Route>
         </Routes>

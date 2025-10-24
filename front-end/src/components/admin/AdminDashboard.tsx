@@ -31,6 +31,7 @@ import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import HailIcon from '@mui/icons-material/Hail';
 import RealEstateAgentIcon from '@mui/icons-material/RealEstateAgent';
 const drawerWidth = 240;
+const paddingLeft = 150;
 
 const AdminDashboard = () => {
     const location = useLocation();
@@ -124,7 +125,7 @@ const AdminDashboard = () => {
                                     component={Link}
                                     to={item.path}
                                     onClick={item.text === 'List User' ? handleClick : undefined}
-                                    className={`rounded-lg ${location.search.includes(item.path.split("=")[1]) ? '!bg-blue-500' : ''}`}
+                                    className={`rounded-lg ${location.search.includes(item.path.split("=")[1]) ? 'bg-blue-500!' : ''}`}
 
                                 >
                                     <ListItemIcon>{item.icon}</ListItemIcon>
@@ -141,7 +142,7 @@ const AdminDashboard = () => {
                                                 key={i.text}
                                                 component={Link}
                                                 to={i.path}
-                                                className={`rounded-lg ${location.pathname.startsWith(i.path) ? '!bg-blue-500' : ''}`}
+                                                className={`rounded-lg ${location.pathname.startsWith(i.path) ? 'bg-blue-500!' : ''}`}
                                                 sx={{ pl: 4 }}
                                             >
                                                 <ListItemIcon>{i.icon}</ListItemIcon>
@@ -179,7 +180,7 @@ const AdminDashboard = () => {
                 component="main"
                 sx={{
                     flexGrow: 1,
-                    paddingLeft: `${drawerWidth}px`,
+                    paddingLeft: `${paddingLeft}px`,
                     bgcolor: '#fff',
                     minHeight: '100vh',
                 }}
