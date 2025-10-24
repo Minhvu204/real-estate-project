@@ -1,16 +1,23 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import { createBrowserRouter, RouterProvider, useRoutes } from "react-router-dom"
 import SearchPage from "./pages/SearchPage/SearchPage";
+import LoginRoute from "./routes/LoginRoute";
+import AdminRoute from "./routes/AdminRoute";
+import { SearchPropertiesRoute } from "./routes/SearchPropertiesRoute";
+import { PropertyDetailRoute } from "./routes/PropertyDetailRoute"
 
-const router = createBrowserRouter([{
-  path: "/search",
-  element: <SearchPage />
-},
-]);
 function App() {
-
+  const search = useRoutes(SearchPropertiesRoute);
+  const propertyDetail = useRoutes(PropertyDetailRoute);
 
   return (
-    <RouterProvider router={router} />
+    <>
+
+      <LoginRoute></LoginRoute>
+      {/* <AdminRoute></AdminRoute> */}
+      {search}
+      {propertyDetail}
+
+    </>
   )
 }
 

@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import PropertyCard from '../../components/property/PropertyCard';
-import PropertyMap from "../../components/property/PropertyMap";
+
 import type { Property } from '../../types/Property';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { getAllProperties } from '../../services/propertyService';
 import { useSearchParams } from 'react-router-dom';
+import PropertyMap from '../../components/Property/PropertyMap';
+import PropertyCard from '../../components/property/PropertyCard';
 const SearchPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const initialQuery = searchParams.get('q') || '';

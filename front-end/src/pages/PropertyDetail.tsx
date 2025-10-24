@@ -4,7 +4,8 @@ import { Box, Chip, Container, Divider, Grid, Paper, Stack, Typography, Avatar, 
 import PlaceIcon from "@mui/icons-material/Place";
 import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
-import Carousel from "../components/Property/Carousel";
+import Carousel from "../components/property/Carousel";
+
 
 const PropertyDetail = () => {
     const { id } = useParams();
