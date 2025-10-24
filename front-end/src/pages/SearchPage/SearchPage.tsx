@@ -25,10 +25,11 @@ const SearchPage = () => {
         lat: 21.0285,
         lng: 105.8542,
     });
+    const [sortBy, setSortBy] = useState<string>(savedFilters.sortBy ?? null);
     useEffect(() => {
-        const filters = { minPrice, maxPrice, bedrooms, bathrooms, type };
+        const filters = { minPrice, maxPrice, bedrooms, bathrooms, type, sortBy };
         localStorage.setItem('propertyFilters', JSON.stringify(filters));
-    }, [minPrice, maxPrice, bedrooms, bathrooms, type]);
+    }, [minPrice, maxPrice, bedrooms, bathrooms, type, sortBy]);
     useEffect(() => {
         const fetchProperties = async () => {
             try {
@@ -54,7 +55,7 @@ const SearchPage = () => {
                 .toLowerCase().trim();
         };
         const normalizedQuery = removeVietnameseTones(query);
-        return properties.filter((p) => {
+        let result = properties.filter((p) => {
             const title = removeVietnameseTones(p.title);
             const address = removeVietnameseTones(p.address);
             const matchesQuery =
@@ -65,7 +66,16 @@ const SearchPage = () => {
             const matchesStatus = !type || p.type_id?.type_name && p.type_id?.type_name.toLowerCase().trim() === type.toLowerCase().trim();
             return matchesPrice && matchesBed && matchesBath && matchesStatus && matchesQuery;
         })
-    }, [query, minPrice, maxPrice, bedrooms, bathrooms, type, properties]);
+        if (sortBy === 'priceAsc') result = [...result].sort((a, b) => a.price - b.price);
+        if (sortBy === 'priceDesc') result = [...result].sort((a, b) => b.price - a.price);
+        if (sortBy === 'titleAsc') result = [...result].sort((a, b) => a.title.localeCompare(b.title));
+        if (sortBy === 'titleDesc') result = [...result].sort((a, b) => b.title.localeCompare(a.title));
+        if (sortBy === 'bedAsc') result = [...result].sort((a, b) => a.bedrooms - b.bedrooms);
+        if (sortBy === 'bedDesc') result = [...result].sort((a, b) => b.bedrooms - a.bedrooms);
+        if (sortBy === 'bathAsc') result = [...result].sort((a, b) => a.bathrooms - b.bathrooms);
+        if (sortBy === 'bathDesc') result = [...result].sort((a, b) => b.bathrooms - a.bathrooms);
+        return result;
+    }, [query, minPrice, maxPrice, bedrooms, bathrooms, type, properties, sortBy]);
     const handleSearch = async (q?: string) => {
         const searchValue = q ?? query;
         if (!searchValue.trim()) return;
@@ -213,9 +223,24 @@ const SearchPage = () => {
                     ) : (
                         <>
                             <h1 className="text-xl font-semibold mb-2">Search Results</h1>
-                            <div className="flex justify-between mb-3 text-gray-600">
+                            <div className="flex justify-between items-center mb-3 text-gray-600">
                                 <p>{filteredProperties.length} results found</p>
-                                <p>Sort by</p>
+                                <select
+                                    aria-label='select sort'
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                    className="border rounded-lg px-2 py-1 text-gray-700 focus:ring-2 focus:ring-gray-300"
+                                >
+                                    <option value="">Sort by</option>
+                                    <option value="priceAsc">Price ↑</option>
+                                    <option value="priceDesc">Price ↓</option>
+                                    <option value="titleAsc">Title A–Z</option>
+                                    <option value="titleDesc">Title Z–A</option>
+                                    <option value="bedAsc">Bedrooms ↑</option>
+                                    <option value="bedDesc">Bedrooms ↓</option>
+                                    <option value="bathAsc">Bathrooms ↑</option>
+                                    <option value="bathDesc">Bathrooms ↓</option>
+                                </select>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 {filteredProperties.map((property: Property) => (
