@@ -8,14 +8,14 @@ type PropertyCardProps = {
 const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
     return (
         <div className="bg-white rounded-md shadow hover:shadow-lg transition-all duration-300 overflow-hidden">
-            <div className="w-full aspect-[4/3] bg-gray-100">
+            <div className="aspect-[4/3] w-full relative">
                 <Carousel>
                     {property.images.map((imageUrl, index) => (
                         <img
                             key={index}
                             src={imageUrl}
-                            alt={`Ảnh bất động sản ${index + 1}`}
-                            className="w-full h-full object-contain rounded-none"
+                            alt={`Ảnh ${index + 1}`}
+                            className="w-full h-full object-cover"
                         />
                     ))}
                 </Carousel>
