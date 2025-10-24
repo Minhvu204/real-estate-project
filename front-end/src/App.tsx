@@ -1,9 +1,10 @@
 import AdminDashboard from "./components/admin/AdminDashboard"
-
+import LoginRoute from "./routes/LoginRoute"
 function App() {
 
   return (
-    <AdminDashboard></AdminDashboard>
+    <LoginRoute></LoginRoute>
+
   )
 }
 
