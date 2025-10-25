@@ -1,4 +1,4 @@
-import type { User } from "@/types/User";
+import type { User } from "@/types/Users";
 import {
   Avatar,
   Box,
@@ -13,8 +13,10 @@ import {
   TableRow,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-
-const BlockUser = () => {
+type BlockUserProps = {
+  userId: string;
+};
+const BlockUser = ({ userId }: BlockUserProps) => {
   const [open, setOpen] = useState<boolean>(false);
   const [user, setUser] = useState<User>();
 
@@ -26,7 +28,7 @@ const BlockUser = () => {
   };
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/admin/users/68fa2d758f773f72fdf48d45")
+    fetch(`http://localhost:3000/api/admin/users/${userId}`)
       .then((res) => res.json())
       .then((data) => {
         setUser(data.data);
@@ -61,9 +63,17 @@ const BlockUser = () => {
     <>
       {user && (
         <Button
-          variant="outlined"
+          variant="contained"
+          size="small"
           color={user.isActive ? "error" : "success"}
           onClick={handleOpen}
+          sx={{
+            px: 1.5,
+            fontSize: "0.75rem",
+            borderRadius: "4px",
+            textTransform: "none",
+            minWidth: "auto",
+          }}
         >
           {user.isActive ? "Block" : "Unblock"}
         </Button>

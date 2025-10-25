@@ -1,19 +1,23 @@
-import type { User } from "@/types/User";
 import { useEffect, useState } from "react";
 import FormUpdateUser from "./FormUpdateUser";
+import type { User } from "@/types/Users";
+import { useParams } from "react-router-dom";
 
 const UpdateUser = () => {
   const [user, setUser] = useState<User>();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const Role = ["admin", "agent", "seller", "buyer"];
-
+  const { id } = useParams();
+  console.log(id);
   useEffect(() => {
-    fetch("http://localhost:3000/api/admin/users/68fa2d758f773f72fdf48d45")
+    fetch(`http://localhost:3000/api/admin/users/${id}`)
       .then((res) => res.json())
       .then((data) => {
+        console.log(data);
         setUser(data.data);
       });
   }, []);
+  console.log(id);
 
   const validateUpdateUser = () => {
     const newError: Record<string, string> = {};

@@ -1,12 +1,9 @@
-import BlockUser from "./components/admin/userInfor/BlockUser";
-import UpdateUser from "./components/admin/userInfor/UpdateUser";
-// import Nav from "./components/Nav";
+import AdminRoute from "./routes/AdminRoute";
+
 function App() {
   return (
     <>
-      {/* <Nav /> */}
-      <UpdateUser />
-      <BlockUser />
+      <AdminRoute />
     </>
   );
 }

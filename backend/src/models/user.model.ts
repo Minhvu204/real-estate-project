@@ -8,6 +8,7 @@ export interface IUser extends Document {
   role: "buyer" | "seller" | "agent" | "admin";
   phone?: string;
   avatar?: string;
+  isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
   comparePassword: (password: string) => Promise<boolean>;
@@ -25,6 +26,8 @@ const UserSchema: Schema<IUser> = new Schema(
     },
     phone: { type: String },
     avatar: { type: String },
+    // ✅ Trạng thái hoạt động
+    isActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

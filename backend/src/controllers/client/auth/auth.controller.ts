@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { loginUser, registerUser } from "../../../services/auth.service";
+import { loginUser, loginWithGoogle, registerUser } from "../../../services/auth.service";
 import { successResponse, errorResponse } from "../../../utils/responseHandler";
 import { validateEmail, validatePassword } from "../../../utils/validation";
 
@@ -36,3 +36,17 @@ export const loginController = async (req: Request, res: Response) => {
     return errorResponse(res, error.message);
   }
 };
+
+//login GG
+export const googleAuthController = async (req: Request, res: Response) => {
+  try {
+    const { idToken } = req.body;
+    if (!idToken) return errorResponse(res, "Missing Google token");
+
+    const data = await loginWithGoogle(idToken);
+    return successResponse(res, "Đăng nhập bằng Google thành công", data);
+  } catch (error: any) {
+    return errorResponse(res, error.message);
+  }
+};
+
