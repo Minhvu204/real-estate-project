@@ -1,11 +1,11 @@
-import * as React from 'react';
+
 import { BarChart } from '@mui/x-charts/BarChart';
 
 export default function GradientTooltip() {
     return (
         <BarChart
             series={[
-                
+
                 {
                     label: 'series A',
                     data: [50],

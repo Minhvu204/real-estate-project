@@ -14,7 +14,7 @@ import theme from "../theme";
 const LoginRoute = () => {
     return (
         <ThemeProvider theme={theme}>
-            <AuthProvider>
+            <AuthProvider >
 
                 <Navbar />
                 <Routes>
