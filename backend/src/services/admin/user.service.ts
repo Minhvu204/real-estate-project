@@ -55,6 +55,36 @@ export const getUserById = async (userId: string) => {
   };
 };
 
+export const updateUserInfo = async (
+  userId: string,
+  data: { fullName?: string; phone?: string; role?: string; avatar?: string; isActive?: boolean }
+) => {
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { $set: data },
+    { new: true, runValidators: true }
+  ).select("-password");
+
+  if (!updatedUser) {
+    const err: any = new Error("Không tìm thấy người dùng.");
+    err.status = 404;
+    throw err;
+  }
+
+  return {
+    id: updatedUser._id,
+    fullName: updatedUser.fullName,
+    email: updatedUser.email,
+    phone: updatedUser.phone,
+    role: updatedUser.role,
+    avatar: updatedUser.avatar,
+    isActive: updatedUser.isActive,
+    createdAt: updatedUser.createdAt,
+    updatedAt: updatedUser.updatedAt,
+  };
+};
+
+
 
 export const updateUserStatus = async (userId: string, isActive: boolean) => {
   const updatedUser = await User.findByIdAndUpdate(

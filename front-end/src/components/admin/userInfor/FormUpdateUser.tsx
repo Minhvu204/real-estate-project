@@ -31,22 +31,13 @@ const FormUpdateUser: React.FC<FormUpdateUserProps> = ({
 }) => {
   return (
     <>
-      <Button
-        variant="outlined"
-        color="secondary"
-        onClick={handleBack}
-        sx={{ mt: 3, ml: 3, textTransform: "none", fontWeight: "bold" }}
-      >
-        ← Quay lại
-      </Button>
-
-      <Container maxWidth="xl" sx={{ mt: 5, mb: 5 }}>
+      <Container maxWidth="md">
         <Typography
           variant="h4"
           fontWeight="bold"
           textAlign="center"
-          mb={4}
           color="primary"
+          sx={{ mt: 3 }}
         >
           Update User
         </Typography>
@@ -68,8 +59,8 @@ const FormUpdateUser: React.FC<FormUpdateUserProps> = ({
               alt={user.fullName}
               src={user.avatar}
               sx={{
-                width: 250,
-                height: 250,
+                width: 210,
+                height: 210,
                 mb: 2,
                 border: "2px solid #1976d2",
               }}
@@ -107,15 +98,6 @@ const FormUpdateUser: React.FC<FormUpdateUserProps> = ({
                 helperText={errors.phone}
                 onChange={handleChange}
               />
-              {/* <TextField
-                label="Password"
-                variant="outlined"
-                value={user.password}
-                name="password"
-                error={!!errors.password}
-                helperText={errors.password}
-                onChange={handleChange}
-              /> */}
               <TextField
                 label="Role"
                 select
@@ -132,25 +114,47 @@ const FormUpdateUser: React.FC<FormUpdateUserProps> = ({
               </TextField>
             </Box>
 
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleUpdate}
+            <Box
               sx={{
-                alignSelf: "flex-center",
+                display: "flex",
+                justifyContent: "center",
+                gap: 2,
                 mt: 2,
-                px: 4,
-                py: 1,
-                borderRadius: 2,
-                textTransform: "none",
-                fontWeight: "bold",
-                "&:hover": {
-                  backgroundColor: "#1565c0",
-                },
               }}
             >
-              Update
-            </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                onClick={handleBack}
+                sx={{
+                  px: 4,
+                  py: 1,
+                  borderRadius: 2,
+                  textTransform: "none",
+                  fontWeight: "bold",
+                }}
+              >
+                Quay lại
+              </Button>
+
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleUpdate}
+                sx={{
+                  px: 4,
+                  py: 1,
+                  borderRadius: 2,
+                  textTransform: "none",
+                  fontWeight: "bold",
+                  "&:hover": {
+                    backgroundColor: "#1565c0",
+                  },
+                }}
+              >
+                Update
+              </Button>
+            </Box>
           </Box>
         )}
       </Container>
