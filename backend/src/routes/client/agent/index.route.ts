@@ -1,8 +1,10 @@
 import express from "express";
-import userRoutes from "./user.route";
+import testRoutes from './agent.route';
 
 const router = express.Router();
 
-router.use("/", userRoutes);
+router.use("/", testRoutes);
+
+
 
 export default router;

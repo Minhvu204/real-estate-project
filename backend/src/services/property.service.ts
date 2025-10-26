@@ -1,5 +1,6 @@
 // src/services/property.service.ts
 import Property from "../models/property.model";
+import mongoose from "mongoose";
 
 export const propertyService = {
   async getAllProperties(filters: any) {
@@ -64,6 +65,8 @@ export const propertyService = {
       .populate("agent_id", "fullName email phone avatar")
       .populate("features", "feature_name")
       .populate('type_id', 'type_name')
+      .populate("assignmentHistory.agent_id", "fullName email phone avatar")
+      .populate("assignmentHistory.assignedBy", "fullName email")
       .lean();
 
     if (!property) {
@@ -108,5 +111,76 @@ export const propertyService = {
     );
 
     return properties;
+  },
+
+  async assignAgent(propertyId: string, agentId: string, options?: { actorId?: string }) {
+    const property = await Property.findById(propertyId);
+    if (!property) {
+      const err: any = new Error("Property không tồn tại");
+      err.status = 404;
+      throw err;
+    }
+
+    // Validate agentId is a valid ObjectId
+    if (!mongoose.isValidObjectId(agentId)) {
+      const err: any = new Error("agent_id không hợp lệ");
+      err.status = 400;
+      throw err;
+    }
+
+    // Push assignment history
+    property.assignmentHistory = property.assignmentHistory || [];
+    property.assignmentHistory.push({
+      agent_id: new mongoose.Types.ObjectId(agentId),
+      assignedBy: options?.actorId ? new mongoose.Types.ObjectId(options.actorId) : undefined,
+      action: "assign",
+      assignedAt: new Date(),
+    } as any);
+
+    property.agent_id = new mongoose.Types.ObjectId(agentId);
+    await property.save();
+    return property;
+  },
+
+  async removeAgent(propertyId: string, options?: { actorId?: string }) {
+    const property = await Property.findById(propertyId);
+    if (!property) {
+      const err: any = new Error("Property không tồn tại");
+      err.status = 404;
+      throw err;
+    }
+
+    // If no agent, nothing to remove
+    if (!property.agent_id) {
+      const err: any = new Error("Property chưa có agent để huỷ");
+      err.status = 400;
+      throw err;
+    }
+
+    // Save old agent into history
+    property.assignmentHistory = property.assignmentHistory || [];
+    property.assignmentHistory.push({
+      agent_id: property.agent_id,
+      assignedBy: options?.actorId ? new mongoose.Types.ObjectId(options.actorId) : undefined,
+      action: "remove",
+      assignedAt: new Date(),
+    } as any);
+
+    property.agent_id = undefined;
+    await property.save();
+    return property;
+  },
+
+  async getPropertiesByAgent(agentId: string) {
+    const list = await Property.find({ agent_id: agentId, deleted: false })
+      .populate("city_id", "city_name")
+      .populate("category_id", "category_name")
+      .populate("type_id", "type_name")
+      .populate("owner_id", "fullName email phone avatar")
+      .populate("features", "feature_name")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return list;
   },
 };

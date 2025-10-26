@@ -23,6 +23,12 @@ export interface IProperty extends Document {
   category_id: mongoose.Types.ObjectId;
   owner_id: mongoose.Types.ObjectId;
   agent_id?: mongoose.Types.ObjectId;
+  assignmentHistory?: Array<{
+    agent_id?: mongoose.Types.ObjectId;
+    assignedBy?: mongoose.Types.ObjectId;
+    action: "assign" | "remove";
+    assignedAt: Date;
+  }>;
   features?: mongoose.Types.ObjectId[];
   images?: string[];
   status: "available" | "pending" | "approved" | "sold" | "rejected";
@@ -48,6 +54,15 @@ const PropertySchema: Schema = new Schema(
     category_id: { type: Schema.Types.ObjectId, ref: "Category", required: true },
     owner_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
     agent_id: { type: Schema.Types.ObjectId, ref: "User" },
+    // Lịch sử gán/huỷ agent (audit trail)
+    assignmentHistory: [
+      {
+        agent_id: { type: Schema.Types.ObjectId, ref: "User" },
+        assignedBy: { type: Schema.Types.ObjectId, ref: "User" },
+        action: { type: String, enum: ["assign", "remove"] },
+        assignedAt: { type: Date, default: Date.now },
+      },
+    ],
     features: [{ type: Schema.Types.ObjectId, ref: "Feature" }],
     images: [String],
     status: {

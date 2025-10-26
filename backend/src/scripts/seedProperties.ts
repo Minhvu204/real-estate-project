@@ -71,22 +71,24 @@ async function seed() {
     console.log("✨ Features seeded!");
 
     // 👤 Users
-    const hashedPassword = await bcrypt.hash("123456", 10); // hash mật khẩu mẫu
+    // const hashedPassword = await bcrypt.hash("123456", 10); // hash mật khẩu mẫu
 
     const users = await User.create([
       {
         fullName: "Nguyen Van A",
         email: "owner@example.com",
-        password: hashedPassword,
+        password: "123456",
         role: "seller",
         phone: "0901234567",
+        isActive: true
       },
       {
         fullName: "Le Thi B",
         email: "agent@example.com",
-        password: hashedPassword,
+        password: "123456",
         role: "agent",
         phone: "0907654321",
+        isActive: true
       },
     ]);
     console.log("👤 Users seeded!");
