@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import { Box, Container, Tabs, Tab, Typography } from '@mui/material';
+import { ToastContainer } from 'react-toastify';
 import { ProfileSidebar } from '../../components/Profile/ProfileSidebar';
 import { UserService } from '../../services/user.service';
 import type { User } from '../../types/User';
@@ -34,6 +35,18 @@ export const ProfileLayout: React.FC = () => {
 
   return (
     <Box sx={{ display: 'flex' }}>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <ProfileSidebar user={user} />
 
       <Box sx={{ flex: 1 }}>
