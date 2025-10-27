@@ -14,7 +14,7 @@
     "@emotion/styled": "^11.14.1",
     "@fontsource/roboto": "^5.2.8",
     "@mui/icons-material": "^7.3.4",
-    "@mui/material": "^7.3.4",
+    "@mui/material": "^5.16.7",
     "@mui/x-charts": "^8.15.0",
     "@mui/x-data-grid": "^8.15.0",
     "@react-google-maps/api": "^2.20.7",
