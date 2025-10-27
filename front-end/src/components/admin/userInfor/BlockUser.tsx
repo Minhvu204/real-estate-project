@@ -73,6 +73,7 @@ const BlockUser = ({ userId }: BlockUserProps) => {
             borderRadius: "4px",
             textTransform: "none",
             minWidth: "auto",
+            height: "28px",
           }}
         >
           {user.isActive ? "Block" : "Unblock"}

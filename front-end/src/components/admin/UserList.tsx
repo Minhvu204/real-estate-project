@@ -35,22 +35,25 @@ const columns = (navigate: any) => [
     headerName: "Action",
     width: 210,
     renderCell: (param: any) => (
-      <div className="flex space-x-2 items-center  ">
-        <button
-          className="bg-blue-500 text-white px-2 py-1 rounded text-xs "
-          onClick={() => navigate(`${param.row.id}`)}
-        >
-          View
-        </button>
-        <button
-          className="bg-red-500 text-white px-2 py-1 rounded text-xs"
-          onClick={() => navigate(`edit/${param.row.id}`)}
-        >
-          Update
-        </button>
-        {/* <button className="bg-gray-500 text-white px-2 py-1 rounded text-xs">
-          Block
-        </button> */}
+      <div className="flex justify-center items-center space-x-2">
+        <div>
+          <button
+            className="bg-blue-500 text-white px-3 rounded text-xs font-medium hover:bg-blue-600 transition-all h-7"
+            onClick={() => navigate(`${param.row.id}`)}
+          >
+            View
+          </button>
+        </div>
+
+        <div>
+          <button
+            className="bg-red-500 text-white px-3 rounded text-xs font-medium hover:bg-red-600 transition-all h-7"
+            onClick={() => navigate(`edit/${param.row.id}`)}
+          >
+            Update
+          </button>
+        </div>
+
         <BlockUser userId={param.row.id} />
       </div>
     ),

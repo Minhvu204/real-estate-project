@@ -89,7 +89,7 @@ const FormUpdateUser: React.FC<FormUpdateUserProps> = ({
                 name="email"
                 InputProps={{ readOnly: true }}
               />
-              <TextField
+              {/* <TextField
                 label="Phone"
                 variant="outlined"
                 value={user.phone}
@@ -97,7 +97,7 @@ const FormUpdateUser: React.FC<FormUpdateUserProps> = ({
                 error={!!errors.phone}
                 helperText={errors.phone}
                 onChange={handleChange}
-              />
+              /> */}
               <TextField
                 label="Role"
                 select
