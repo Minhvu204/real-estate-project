@@ -10,7 +10,6 @@ const LoginRoute = () => {
     return (
         <ThemeProvider theme={theme}>
             <AuthProvider>
-
                 <Navbar />
                 <Routes>
                     <Route path="/" element={<Navigate to="/home" />} />
@@ -19,7 +18,6 @@ const LoginRoute = () => {
                         <HomePage />
                     } />
                 </Routes>
-
             </AuthProvider>
         </ThemeProvider>
 

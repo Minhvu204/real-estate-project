@@ -14,7 +14,6 @@ function App() {
       <AdminRoute></AdminRoute>
       {search}
       {propertyDetail}
-
     </>
   )
 }
