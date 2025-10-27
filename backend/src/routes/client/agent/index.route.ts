@@ -1,10 +1,9 @@
 import express from "express";
-import testRoutes from './agent.route';
+import assignmentRoutes from './assignment.route';
 
 const router = express.Router();
 
-router.use("/", testRoutes);
-
+router.use("/assignments", assignmentRoutes);
 
 
 export default router;

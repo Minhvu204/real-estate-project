@@ -56,8 +56,7 @@ export const removeAgentFromProperty = async (req: Request, res: Response) => {
     if (!property) return errorResponse(res, "Property không tồn tại", 404);
 
     const isOwner = property.owner_id?.toString() === (user?.id || user?._id);
-    const isAdmin = (user?.role || "") === "admin";
-    if (!isOwner && !isAdmin) return errorResponse(res, "Không có quyền huỷ agent", 403);
+    if (!isOwner) return errorResponse(res, "Không có quyền huỷ agent", 403);
 
     const updated = await propertyService.removeAgent(propertyId, {
       actorId: (user?.id || user?._id),

@@ -1,11 +1,11 @@
-// src/routes/client/seller/properties.route.ts
 import express from "express";
 import { verifyToken } from "../../../middlewares/auth.middleware";
 import { roleCheck } from "../../../middlewares/roleCheck.middleware";
 import {
-  assignAgentToProperty,
   removeAgentFromProperty,
 } from "../../../controllers/client/seller/property.controller";
+import { createAssignmentRequest } from "../../../controllers/client/seller/assignment.controller";
+
 
 const router = express.Router();
 
@@ -14,11 +14,11 @@ router.post(
   "/:id/assign-agent",
   verifyToken,
   roleCheck("seller"),
-  assignAgentToProperty
+  createAssignmentRequest
 );
 
 // Seller huỷ gán
-router.post(
+router.patch(
   "/:id/remove-agent",
   verifyToken,
   roleCheck("seller"),

@@ -26,7 +26,7 @@ export interface IProperty extends Document {
   assignmentHistory?: Array<{
     agent_id?: mongoose.Types.ObjectId;
     assignedBy?: mongoose.Types.ObjectId;
-    action: "assign" | "remove";
+    action: "assign" | "remove" | "reject" | "cancel" | "request";
     assignedAt: Date;
   }>;
   features?: mongoose.Types.ObjectId[];
@@ -59,7 +59,7 @@ const PropertySchema: Schema = new Schema(
       {
         agent_id: { type: Schema.Types.ObjectId, ref: "User" },
         assignedBy: { type: Schema.Types.ObjectId, ref: "User" },
-        action: { type: String, enum: ["assign", "remove"] },
+        action: { type: String, enum: ["assign", "remove", "reject", "cancel", "request"] },
         assignedAt: { type: Date, default: Date.now },
       },
     ],
