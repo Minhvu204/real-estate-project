@@ -1,8 +1,8 @@
 import express from "express";
-import profileRoutes from "./profile.route";
+import userRoutes from "./user.route";
 
 const router = express.Router();
 
-router.use("/profile", profileRoutes);
+router.use("/", userRoutes);
 
 export default router;

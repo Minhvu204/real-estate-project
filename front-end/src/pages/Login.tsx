@@ -31,7 +31,13 @@ const LoginPage: React.FC = () => {
             const { token, user } = await loginRequest({ email, password });
             signIn({ token, user });
             setLoading(false);
-            navigate("/home");
+            if (user.role === 'buyer') {
+                navigate("/home");
+            }
+            else if (user.role === 'admin') {
+                navigate("/admin/dashboard")
+            }
+
         } catch (err: any) {
             setLoading(false);
             setError(err?.response?.data?.message || err.message || "Login failed");
