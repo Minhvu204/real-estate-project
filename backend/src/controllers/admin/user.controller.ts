@@ -69,11 +69,6 @@ export const updateUserInfo = async (req: Request, res: Response) => {
     );
   }
 };
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 323883bbf57c3bcf649faf95975a91161ac87e9e
 
 // [U007] Cập nhật / khóa người dùng (Admin)
 export const updateUserStatus = async (req: Request, res: Response) => {
