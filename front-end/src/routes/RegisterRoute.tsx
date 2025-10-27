@@ -14,11 +14,6 @@ export const RegisterRoute = [
   },
   {
     path: "/register",
-    element: (
-      <>
-        <Navbar />
-        <RegisterPage />
-      </>
-    ),
+    element: <RegisterPage />,
   },
 ];

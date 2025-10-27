@@ -198,7 +198,7 @@ const Navbar: React.FC = () => {
                             },
                         }}
                     >
-                        Register
+                        Sign Up
                     </Button>
                 </Box>
             )}
@@ -363,7 +363,7 @@ const Navbar: React.FC = () => {
                                         },
                                     }}
                                 >
-                                    Register
+                                    Sign up
                                 </Button>
                             </Box>
                         ) : (
