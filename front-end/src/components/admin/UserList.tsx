@@ -35,7 +35,7 @@ const columns = (navigate: any) => [
         headerName: "Action",
         width: 210,
         renderCell: (param: any) => (
-            <div className='flex space-x-2 items-center  ' >
+            <div className=' w-full h-full flex justify-center items-center space-x-2 ' >
                 <button className="bg-blue-500 text-white px-2 py-1 rounded text-xs "
                     onClick={() => navigate(`${param.row.id}`)}>
                     View

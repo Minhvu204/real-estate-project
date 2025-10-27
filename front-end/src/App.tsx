@@ -1,13 +1,15 @@
-import AdminRoute from "./routes/AdminRoute";
-import SearchPage from "./pages/searchPage/SearchPage";
-
+import AdminRoute from "./routes/AdminRoute"
+import LoginRoute from "./routes/LoginRoute"
 function App() {
 
   return (
     <>
-      <AdminRoute>
-      </AdminRoute>
-    </>)
+      <LoginRoute >
+
+      </LoginRoute>
+      <AdminRoute></AdminRoute>
+    </>
+  )
 }
 
 export default App;
