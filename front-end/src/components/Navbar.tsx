@@ -182,7 +182,7 @@ const Navbar: React.FC = () => {
                     <Button
                         fullWidth
                         onClick={() => {
-                            navigate("/signup");
+                            navigate("/register");
                             handleDrawerToggle();
                         }}
                         sx={{
@@ -198,7 +198,7 @@ const Navbar: React.FC = () => {
                             },
                         }}
                     >
-                        Sign Up
+                        Register
                     </Button>
                 </Box>
             )}
@@ -347,7 +347,7 @@ const Navbar: React.FC = () => {
 
                                 <Button
                                     variant="contained"
-                                    onClick={() => navigate("/signup")}
+                                    onClick={() => navigate("/register")}
                                     sx={{
                                         textTransform: "none",
                                         px: 3,
@@ -363,7 +363,7 @@ const Navbar: React.FC = () => {
                                         },
                                     }}
                                 >
-                                    Sign Up
+                                    Register
                                 </Button>
                             </Box>
                         ) : (
