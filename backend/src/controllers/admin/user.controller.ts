@@ -69,8 +69,11 @@ export const updateUserInfo = async (req: Request, res: Response) => {
     );
   }
 };
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 323883bbf57c3bcf649faf95975a91161ac87e9e
 
 // [U007] Cập nhật / khóa người dùng (Admin)
 export const updateUserStatus = async (req: Request, res: Response) => {
@@ -79,9 +82,9 @@ export const updateUserStatus = async (req: Request, res: Response) => {
     const { isActive } = req.body;
 
     // Kiểm tra quyền (đảm bảo chỉ admin mới gọi được API này)
-    if (req.user?.role !== "admin") {
-      return errorResponse(res, "Bạn không có quyền thực hiện thao tác này.", 403);
-    }
+    // if (req.user?.role !== "admin") {
+    //   return errorResponse(res, "Bạn không có quyền thực hiện thao tác này.", 403);
+    // }
 
     // Gọi service để cập nhật trạng thái
     const updatedUser = await userService.updateUserStatus(id, isActive);
