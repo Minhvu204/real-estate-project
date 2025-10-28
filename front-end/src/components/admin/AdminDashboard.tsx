@@ -20,7 +20,7 @@ import Divider from '@mui/material/Divider';
 import { useLocation } from 'react-router-dom';
 import LogoutIcon from '@mui/icons-material/Logout';
 
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
@@ -30,10 +30,19 @@ import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import HailIcon from '@mui/icons-material/Hail';
 import RealEstateAgentIcon from '@mui/icons-material/RealEstateAgent';
+import AuthContext from '../../context/AuthContext';
+import { useNavigate } from "react-router-dom";
 const drawerWidth = 240;
 const paddingLeft = 150;
 
 const AdminDashboard = () => {
+    const { state, signOut } = useContext(AuthContext);
+    const navigate = useNavigate();
+    const handleLogout = () => {
+        signOut();
+        navigate("/login");
+        navigate(0);
+    };
     const location = useLocation();
     const [open, setOpen] = useState(false);
     const menuItem = [
@@ -41,8 +50,6 @@ const AdminDashboard = () => {
             text: 'Dashboard',
             icon: <DashboardIcon />,
             path: '/admin/dashboard',
-
-
         },
         {
             text: 'List User',
@@ -59,7 +66,7 @@ const AdminDashboard = () => {
         {
             text: 'Logout',
             icon: <LogoutIcon />,
-            path: '/'
+            path: '/home'
         }
     ]
     const listUserItem = [
@@ -164,7 +171,8 @@ const AdminDashboard = () => {
                     {bottemItem.map((item) => (
 
                         < ListItem key={item.text} disablePadding className='text-white' >
-                            <ListItemButton component={Link} to={item.path} className='rounded-lg'>
+
+                            <ListItemButton onClick={handleLogout} component={Link} to={item.path} className='rounded-lg'>
                                 <ListItemIcon>{item.icon}</ListItemIcon>
                                 <ListItemText primary={item.text}></ListItemText>
                             </ListItemButton>

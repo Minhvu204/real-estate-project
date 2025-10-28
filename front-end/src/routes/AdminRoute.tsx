@@ -6,19 +6,23 @@ import { Routes } from 'react-router-dom';
 import GradientTooltip from '../components/admin/Dashboard';
 import UserDetails from '../components/admin/UserDetails';
 import AdminProtectedRoute from './AdminProtectedRoute';
+import { AuthProvider } from '../context/AuthContext';
 const AdminRoute = () => {
     return (
-        <Routes>
-            <Route element={<AdminProtectedRoute></AdminProtectedRoute>}>
-                <Route path="/admin/*" element={<AdminDashboard />}>
-                    <Route index element={<Navigate to="/admin/dashboard" replace />} />
-                    <Route path="dashboard" element={<GradientTooltip />} />
-                    <Route path="users" element={<DataTable />} />
-                    <Route path="properties" element={<HomeList />} />
-                    <Route path="users/:id" element={<UserDetails />} />
+        <AuthProvider>
+            <Routes>
+                <Route element={<AdminProtectedRoute></AdminProtectedRoute>}>
+                    <Route path="/admin/*" element={<AdminDashboard />}>
+                        <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                        <Route path="dashboard" element={<GradientTooltip />} />
+                        <Route path="users" element={<DataTable />} />
+                        <Route path="properties" element={<HomeList />} />
+                        <Route path="users/:id" element={<UserDetails />} />
+                    </Route>
                 </Route>
-            </Route>
-        </Routes>
+            </Routes>
+        </AuthProvider>
+
     )
 }
 
