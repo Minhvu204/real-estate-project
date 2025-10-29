@@ -1,6 +1,7 @@
-import { useRoutes } from "react-router-dom"
-import LoginRoute from "./routes/LoginRoute";
+
 import AdminRoute from "./routes/AdminRoute";
+import { createBrowserRouter, RouterProvider, useRoutes } from "react-router-dom";
+import LoginRoute from "./routes/LoginRoute";
 import { SearchPropertiesRoute } from "./routes/SearchPropertiesRoute";
 import { PropertyDetailRoute } from "./routes/PropertyDetailRoute"
 import { UpdateProfileRoute } from "./routes/UpdateProfileRoute";
@@ -14,14 +15,16 @@ function App() {
 
   return (
     <>
-      <AdminRoute />
-      <LoginRoute />
+      <AdminRoute>
+      </AdminRoute>
+      <LoginRoute></LoginRoute >
+      {/* <AdminRoute></AdminRoute> */}
       {search}
       {updateProfileRoutes}
       {propertyDetail}
       {registerRoutes}
     </>
-  );
+  )
 }
 
 export default App;

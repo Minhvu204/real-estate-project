@@ -196,9 +196,7 @@ const AdminDashboard = () => {
           minHeight: "100vh",
         }}
       >
-        <Toolbar />{" "}
-        {/* tạo khoảng trống bằng chiều cao AppBar (nếu có sau này) */}
-        <Outlet></Outlet>
+        <Outlet />
       </Box>
     </Box>
   );

@@ -25,16 +25,18 @@ const PropertyDetail = () => {
     return (
         <Container sx={{ mt: 4, mb: 6 }}>
             {/* CAROUSEL */}
-            <Carousel>
-                {property.images?.map((img: string, index: number) => (
-                    <img
-                        key={index}
-                        src={img}
-                        style={{ width: "100%", height: 450, objectFit: "cover" }}
-                    />
-                ))}
-            </Carousel>
-
+            <div className="aspect-[4/3] w-full relative">
+                <Carousel>
+                    {property.images.map((imageUrl: any, index: number) => (
+                        <img
+                            key={index}
+                            src={imageUrl}
+                            alt={`Ảnh ${index + 1}`}
+                            className="w-full h-full object-cover"
+                        />
+                    ))}
+                </Carousel>
+            </div>
             {/* TITLE + PRICE */}
             <Typography variant="h4" mt={3} fontWeight="bold">
                 {property.title}
