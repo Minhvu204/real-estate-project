@@ -27,7 +27,7 @@ const PropertyDetail = () => {
             {/* CAROUSEL */}
             <div className="aspect-[4/3] w-full relative">
                 <Carousel>
-                    {property.images.map((imageUrl, index) => (
+                    {property.images.map((imageUrl: any, index: number) => (
                         <img
                             key={index}
                             src={imageUrl}
