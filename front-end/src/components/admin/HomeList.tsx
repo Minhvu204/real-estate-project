@@ -5,7 +5,7 @@ import Paper from '@mui/material/Paper';
 import { useState, useEffect } from 'react';
 import { getAllProperties } from '../../services/propertyService';
 import type { Property } from '../../types/Property';
-import { useSearchParams } from 'react-router-dom';
+
 
 const columns = [
     { field: "_id", headerName: "ID", width: 120, },
@@ -70,8 +70,7 @@ export default function DataTable() {
                 getRowId={(row) => row._id}
                 loading={loading}
                 initialState={{ pagination: { paginationModel } }}
-                pageSizeOptions={[5, 10]}
-                checkboxSelection
+                pageSizeOptions={[5, 10]} 
                 sx={{ border: 0 }}
             />
         </Paper>
