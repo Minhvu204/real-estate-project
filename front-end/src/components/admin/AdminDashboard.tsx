@@ -191,12 +191,11 @@ const AdminDashboard = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          paddingLeft: `${paddingLeft}px`,
           bgcolor: "#fff",
           minHeight: "100vh",
         }}
       >
-        <Toolbar />{" "}
+        {/* <Toolbar />{" "} */}
         {/* tạo khoảng trống bằng chiều cao AppBar (nếu có sau này) */}
         <Outlet></Outlet>
       </Box>
