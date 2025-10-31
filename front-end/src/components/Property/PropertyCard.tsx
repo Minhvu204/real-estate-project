@@ -1,21 +1,33 @@
 import React, { useState } from "react";
 import type { Property } from "../../types/Property";
 import Carousel from "./Carousel";
+import { useNavigate } from "react-router-dom";
+import ImageWithFallback from "../common/ImageWithFallback";
 type PropertyCardProps = {
     property: Property;
 }
 
 const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
+    const navigate = useNavigate();
+
+    const handleDetail = () => {
+        navigate(`/property/detail/${property._id}`);
+    };
+
     return (
         <div className="bg-white rounded-md shadow hover:shadow-lg transition-all duration-300 overflow-hidden">
-            <div className="w-full aspect-[4/3] bg-gray-100">
-                <Carousel>
-                    {property.imageUrls.map((imageUrl, index) => (
-                        <img
+            <div className="aspect-[4/3] w-full relative">
+                <div className="absolute top-2 left-2 z-10 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">
+                    {property.type_id?.type_name === 'For Sale' ? 'Sell' : 'Rent'}
+                </div>
+                <Carousel autoSlide={true} autoSlideInterval={5000}>
+                    {property.images.map((imageUrl, index) => (
+                        <ImageWithFallback
                             key={index}
                             src={imageUrl}
-                            alt={`Ảnh bất động sản ${index + 1}`}
-                            className="w-full h-full object-contain rounded-none"
+                            alt={`Ảnh ${index + 1}`}
+                            className="w-full h-full"
+                            height="100%"
                         />
                     ))}
                 </Carousel>
@@ -26,13 +38,19 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
                 </h3>
                 <p className="text-xs text-gray-500 line-clamp-1">{property.address}</p>
                 <p className="text-blue-600 font-bold text-sm">
-                    {property.price >= 1_000_000_000
-                        ? `${(property.price / 1_000_000_000).toFixed(1)} Tỷ`
-                        : `${(property.price / 1_000_000).toFixed(0)} Triệu`}
+                    {property.price >= 1_000_000
+                        ? `$${(property.price / 1_000_000).toFixed(1)}M`
+                        : property.price >= 1_000 ? `$${(property.price / 1_000).toFixed(1)}K` : `$${property.price}`}
                 </p>
                 <p className="text-xs text-gray-600">
                     {property.bedrooms} phòng ngủ · {property.bathrooms} phòng tắm
                 </p>
+                <button
+                    onClick={handleDetail}
+                    className="mt-2 w-full py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                >
+                    View Detail
+                </button>
             </div>
         </div>
     );

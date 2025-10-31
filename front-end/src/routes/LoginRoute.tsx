@@ -1,7 +1,5 @@
-import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
-
 import Navbar from "../components/Navbar";
 import { AuthProvider } from "../context/AuthContext";
 import LoginPage from "../pages/Login";
@@ -27,11 +25,10 @@ const LoginRoute = () => {
                         <HomePage />
                     } />
                 </Routes>
-
             </AuthProvider>
         </ThemeProvider>
 
     )
 }
 
-export default LoginRoute
+export default LoginRoute;

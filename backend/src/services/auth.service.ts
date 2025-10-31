@@ -1,10 +1,12 @@
 // src/services/auth.service.ts
 import User from "../models/user.model";
 import bcrypt from "bcryptjs";
-import { generateToken } from "../config/jwt.config";
+import { generateAccessToken, generateRefreshToken } from "../config/jwt.config";
 import { OAuth2Client } from "google-auth-library";
 
-//register
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// REGISTER
 export const registerUser = async (data: {
   fullName: string;
   email: string;
@@ -25,40 +27,37 @@ export const registerUser = async (data: {
 
   await newUser.save();
 
-  const token = generateToken({ id: newUser._id, role: newUser.role });
+  const payload = { id: newUser._id, role: newUser.role, email: newUser.email };
+  const accessToken = generateAccessToken(payload);
+  const refreshToken = generateRefreshToken(payload);
 
   return {
+    accessToken,
+    refreshToken,
     user: {
       id: newUser._id,
       fullName: newUser.fullName,
       email: newUser.email,
       role: newUser.role,
     },
-    token,
   };
 };
 
-//login
+// LOGIN
 export const loginUser = async (email: string, password: string) => {
   const user = await User.findOne({ email });
-  if (!user) {
-    throw new Error("Email không tồn tại");
-  }
+  if (!user) throw new Error("Email không tồn tại");
 
   const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    throw new Error("Mật khẩu không chính xác");
-  }
+  if (!isMatch) throw new Error("Mật khẩu không chính xác");
 
-  // Tạo JWT
-  const token = generateToken({
-    id: user._id,
-    role: user.role,
-    email: user.email,
-  });
+  const payload = { id: user._id, role: user.role, email: user.email };
+  const accessToken = generateAccessToken(payload);
+  const refreshToken = generateRefreshToken(payload);
 
   return {
-    token,
+    accessToken,
+    refreshToken,
     user: {
       id: user._id,
       fullName: user.fullName,
@@ -68,31 +67,22 @@ export const loginUser = async (email: string, password: string) => {
   };
 };
 
-
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
-// Login bằng Google
-export const loginWithGoogle = async (googleToken: string) => {
-  // 1. Xác thực token từ Google
-  const ticket = await client.verifyIdToken({
-    idToken: googleToken,
+// GOOGLE LOGIN (verify idToken and create user if not exists)
+export const loginWithGoogle = async (googleIdToken: string) => {
+  const ticket = await googleClient.verifyIdToken({
+    idToken: googleIdToken,
     audience: process.env.GOOGLE_CLIENT_ID,
   });
   const payload = ticket.getPayload();
+  if (!payload) throw new Error("Xác thực Google thất bại");
 
-  if (!payload) {
-    throw new Error("Xác thực Google thất bại");
-  }
-  const { email, name, picture, given_name, family_name } = payload;
-
-  const fullName =
-    name || [given_name, family_name].filter(Boolean).join(" ") || "Người dùng Google";
+  const { email, name, picture, given_name, family_name } = payload as any;
+  const fullName = name || [given_name, family_name].filter(Boolean).join(" ") || "Người dùng Google";
 
   let user = await User.findOne({ email });
-
   if (!user) {
     user = new User({
-      fullName, 
+      fullName,
       email,
       password: Math.random().toString(36).slice(-8), // random password
       avatar: picture || "",
@@ -100,16 +90,14 @@ export const loginWithGoogle = async (googleToken: string) => {
     });
     await user.save();
   }
-  // 2. Tạo JWT token
-  const token = generateToken({
-    id: user._id,
-    role: user.role,
-    email: user.email,
-  });
 
-  // 4. Trả về dữ liệu
+  const tokenPayload = { id: user._id, role: user.role, email: user.email };
+  const accessToken = generateAccessToken(tokenPayload);
+  const refreshToken = generateRefreshToken(tokenPayload);
+
   return {
-    token,
+    accessToken,
+    refreshToken,
     user: {
       id: user._id,
       fullName: user.fullName,
