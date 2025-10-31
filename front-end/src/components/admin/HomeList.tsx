@@ -8,10 +8,15 @@ import type { Property } from '../../types/Property';
 
 
 const columns = [
-    { field: "_id", headerName: "ID", width: 120, },
     { field: "title", headerName: "Title", width: 200 },
     { field: "price", headerName: "Price", width: 140 },
     { field: "address", headerName: "Address", width: 400 },
+    {
+        field: "status", headerName: "Status", width: 120
+    },
+    {
+        field: "action", headerName: "Action", width: 200
+    }
 ];
 
 
@@ -29,6 +34,7 @@ export default function DataTable() {
         const fetchData = async () => {
             try {
                 const data = await getAllProperties();
+                console.log(data)
                 setRows(data);
             } catch (error) {
                 console.log("Cannot fetch users", error);
@@ -50,7 +56,7 @@ export default function DataTable() {
     }, [searchText, rows]);
 
 
-    if (rows == null) return <p>Is loading...</p>
+    if (rows == null) return <p>Is loading </p>
     return (
         <Paper sx={{ height: 400, width: '100%' }}>
             <h1 className='text-center pr-30 pb-7'>List All Properties</h1>
