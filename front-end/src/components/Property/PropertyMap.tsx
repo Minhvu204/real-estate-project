@@ -32,7 +32,7 @@ const PropertyMap: React.FC<PropertyMapProps> = ({ properties }) => {
         >
             {properties.map((property) => (
                 <Marker
-                    key={property.id}
+                    key={property._id}
                     position={property.coordinates}
                     label={{
                         text:

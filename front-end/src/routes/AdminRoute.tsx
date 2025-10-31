@@ -11,7 +11,6 @@ const AdminRoute = () => {
         <Routes>
             <Route element={<AdminProtectedRoute></AdminProtectedRoute>}>
                 <Route path="/admin/*" element={<AdminDashboard />}>
-                    <Route index element={<Navigate to="/admin/dashboard" replace />} />
                     <Route path="dashboard" element={<GradientTooltip />} />
                     <Route path="users" element={<DataTable />} />
                     <Route path="properties" element={<HomeList />} />

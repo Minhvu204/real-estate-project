@@ -1,13 +1,11 @@
 import AdminRoute from "./routes/AdminRoute"
 import LoginRoute from "./routes/LoginRoute"
+import SellerPage from "./components/seller/SellerPage"
 function App() {
 
   return (
     <>
-      <LoginRoute >
-
-      </LoginRoute>
-      <AdminRoute></AdminRoute>
+      <SellerPage></SellerPage>
     </>
   )
 }

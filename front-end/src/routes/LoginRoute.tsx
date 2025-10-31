@@ -9,14 +9,17 @@ import HomePage from "../pages/Home";
 import theme from "../theme";
 
 
-
+interface LoginRouteProps {
+    isAdmin?: boolean;
+}
 
 const LoginRoute = () => {
+    const isAdmin = location.pathname.startsWith("/admin");
     return (
         <ThemeProvider theme={theme}>
             <AuthProvider >
+                {!isAdmin && <Navbar />}
 
-                <Navbar />
                 <Routes>
                     <Route path="/" element={<Navigate to="/home" />} />
                     <Route path="/login" element={<LoginPage />} />

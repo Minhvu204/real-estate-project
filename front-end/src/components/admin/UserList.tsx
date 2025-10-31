@@ -9,7 +9,7 @@ const defaultUser = "/defaultUser.png";
 
 
 const columns = (navigate: any) => [
-    { field: "id", headerName: "ID", width: 180 },
+
     {
         field: "avatar",
         headerName: "Avatar",
@@ -71,6 +71,7 @@ export default function DataTable() {
 
                 if (role) {
                     setRows(users.filter((u) => u.role === role));
+
                 } else {
                     setRows(users);
                 }
