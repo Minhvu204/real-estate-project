@@ -11,18 +11,19 @@ import Pagination from '@mui/material/Pagination';
 import PaginationItem from '@mui/material/PaginationItem';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { Map as MapIcon, List as ListIcon } from '@mui/icons-material';
+import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import type { SelectChangeEvent } from '@mui/material';
 const SearchPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const initialQuery = searchParams.get('q') || '';
     const [query, setQuery] = useState(initialQuery);
     const savedFilters = JSON.parse(localStorage.getItem('propertyFilters') || '{}');
-    const [minPrice, setMinPrice] = useState<number | null>(savedFilters.minPrice ?? null);
-    const [maxPrice, setMaxPrice] = useState<number | null>(savedFilters.maxPrice ?? null);
-    const [bedrooms, setBedrooms] = useState<number | null>(savedFilters.bedrooms ?? null);
-    const [bathrooms, setBathrooms] = useState<number | null>(savedFilters.bathrooms ?? null);
-    const [type, setType] = useState<string | null>(
-        savedFilters.type && typeof savedFilters.type === 'string' ? savedFilters.type : null
-    );
+    const [minPrice, setMinPrice] = useState<number | ''>(savedFilters.minPrice ?? '');
+    const [maxPrice, setMaxPrice] = useState<number | ''>(savedFilters.maxPrice ?? '');
+    const [bedrooms, setBedrooms] = useState<number | ''>(savedFilters.bedrooms ?? '');
+    const [bathrooms, setBathrooms] = useState<number | ''>(savedFilters.bathrooms ?? '');
+    const [type, setType] = useState<string>(searchParams.get('type') || '');
     const [properties, setProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -30,19 +31,28 @@ const SearchPage = () => {
         lat: 21.0285,
         lng: 105.8542,
     });
-    const [sortBy, setSortBy] = useState<string>(savedFilters.sortBy ?? null);
+    const [sortBy, setSortBy] = useState<string>(savedFilters.sortBy ?? '');
     const [page, setPage] = useState(1);
     const itemsPerPage = 6;
+    const [mapView, setMapView] = useState(false);
+
+    useEffect(() => {
+        setType(searchParams.get('type') || '');
+    }, [searchParams]);
+
     useEffect(() => {
         const filters = { minPrice, maxPrice, bedrooms, bathrooms, type, sortBy };
         localStorage.setItem('propertyFilters', JSON.stringify(filters));
     }, [minPrice, maxPrice, bedrooms, bathrooms, type, sortBy]);
+
     useEffect(() => {
         const fetchProperties = async () => {
             try {
                 setLoading(true);
                 const data = await getAllProperties();
                 setProperties(data);
+                console.log(data);
+
             } catch (error: any) {
                 setError(error.message || "Khong the tai duoc du lieu");
             } finally {
@@ -67,9 +77,9 @@ const SearchPage = () => {
             const address = removeVietnameseTones(p.address);
             const matchesQuery =
                 title.includes(normalizedQuery) || address.includes(normalizedQuery);
-            const matchesPrice = (!minPrice || p.price >= minPrice) && (!maxPrice || p.price <= maxPrice);
-            const matchesBed = bedrooms === null || p.bedrooms >= bedrooms;
-            const matchesBath = bathrooms === null || p.bathrooms >= bathrooms;
+            const matchesPrice = (minPrice === '' || p.price >= minPrice) && (maxPrice === '' || p.price <= maxPrice);
+            const matchesBed = bedrooms === '' || p.bedrooms >= bedrooms;
+            const matchesBath = bathrooms === '' || p.bathrooms >= bathrooms;
             const matchesStatus = !type || p.type_id?.type_name && p.type_id?.type_name.toLowerCase().trim() === type.toLowerCase().trim();
             return matchesPrice && matchesBed && matchesBath && matchesStatus && matchesQuery;
         })
@@ -83,11 +93,13 @@ const SearchPage = () => {
         if (sortBy === 'bathDesc') result = [...result].sort((a, b) => b.bathrooms - a.bathrooms);
         return result;
     }, [query, minPrice, maxPrice, bedrooms, bathrooms, type, properties, sortBy]);
+
     const paginatedProperties = useMemo(() => {
         const start = (page - 1) * itemsPerPage;
         const end = start + itemsPerPage;
         return filteredProperties.slice(start, end);
     }, [filteredProperties, page]);
+
     useEffect(() => {
         setPage(1);
     }, [filteredProperties]);
@@ -102,7 +114,6 @@ const SearchPage = () => {
                 `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(searchValue)}&key=${openCaseApiKey}&limit=1&countrycode=vn`
             )
             const data = await res.json();
-            console.log(data);
             if (data.results && data.results.length > 0) {
                 const { lat, lng } = data.results[0].geometry;
                 setMapCenter({ lat, lng });
@@ -113,17 +124,40 @@ const SearchPage = () => {
             console.log("Geocoding error:", error);
         }
     }
+
     useEffect(() => {
         if (initialQuery) {
             setQuery(initialQuery);
             handleSearch(initialQuery);
         }
     }, [initialQuery]);
+
     const clearSearch = () => {
         setQuery('');
         setSearchParams({});
         setMapCenter({ lat: 21.0285, lng: 105.8542 });
     };
+
+    const handleMinPriceChange = (event: SelectChangeEvent<number | '' | any>) => {
+        setMinPrice(event.target.value === '' ? '' : Number(event.target.value));
+    };
+
+    const handleMaxPriceChange = (event: SelectChangeEvent<number | '' | any>) => {
+        setMaxPrice(event.target.value === '' ? '' : Number(event.target.value));
+    };
+
+    const handleBedroomsChange = (event: SelectChangeEvent<number | '' | any>) => {
+        setBedrooms(event.target.value === '' ? '' : Number(event.target.value));
+    };
+
+    const handleBathroomsChange = (event: SelectChangeEvent<number | '' | any>) => {
+        setBathrooms(event.target.value === '' ? '' : Number(event.target.value));
+    };
+
+    const handleSortByChange = (event: SelectChangeEvent<string>) => {
+        setSortBy(event.target.value);
+    };
+
     return (
         <>
             <div className="fixed inset-x-0 top-[80px] md:top-[85px] bottom-0 overflow-hidden flex flex-col">
@@ -162,68 +196,61 @@ const SearchPage = () => {
                         </div>
                     </div>
                     <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 w-full md:w-auto justify-center ">
-                        <select aria-label="Select property type" className="border rounded-lg px-2 py-2 text-gray-700 focus:ring-2 focus:ring-gray-300"
-                            value={type ?? ''}
-                            onChange={(e) => setType(e.target.value || null)}
-                        >
-                            <option value="">All Types</option>
-                            <option value="For Sale">For Sale</option>
-                            <option value="For Rent">For Rent</option>
-                        </select>
-                        <select aria-label="Select property min price" className="border rounded-lg px-2 py-2 text-gray-700 focus:ring-2 focus:ring-gray-300"
-                            value={minPrice ?? ''}
-                            onChange={(e) => setMinPrice(Number(e.target.value) || null)}
-                        >
-                            <option value="">Min Price</option>
-                            <option value="10000">$10K </option>
-                            <option value="20000">$20K </option>
-                            <option value="50000">$50K </option>
-                            <option value="100000">$100K </option>
-                            <option value="200000">$200K </option>
-                            <option value="500000">$500K </option>
-                            <option value="1000000">$1M </option>
-                            <option value="2000000">$2M </option>
-                            <option value="5000000">$5M </option>
-                            <option value="10000000">$10M </option>
-                        </select>
-                        <select aria-label="Select property max price" className="border rounded-lg px-2 py-2 text-gray-700 focus:ring-2 focus:ring-gray-300"
-                            value={maxPrice ?? ""}
-                            onChange={(e) => setMaxPrice(Number(e.target.value) || null)}
-                        >
-                            <option value="">Max Price</option>
-                            <option value="10000">$10K </option>
-                            <option value="20000">$20K </option>
-                            <option value="50000">$50K </option>
-                            <option value="100000">$100K </option>
-                            <option value="200000">$200K </option>
-                            <option value="500000">$500K </option>
-                            <option value="1000000">$1M </option>
-                            <option value="2000000">$2M </option>
-                            <option value="5000000">$5M </option>
-                            <option value="10000000">$10M </option>
-                        </select>
-                        <select aria-label="Select property bedrooms" className="border rounded-lg px-2 py-2 text-gray-700 focus:ring-2 focus:ring-gray-300"
-                            value={bedrooms ?? ''}
-                            onChange={(e) => setBedrooms(Number(e.target.value) || null)}
-                        >
-                            <option value="">Bedrooms</option>
-                            <option value="1">1+</option>
-                            <option value="2">2+</option>
-                            <option value="3">3+</option>
-                        </select>
-                        <select aria-label="Select property bathrooms" className="border rounded-lg px-2 py-2 text-gray-700 focus:ring-2 focus:ring-gray-300"
-                            value={bathrooms ?? ''}
-                            onChange={(e) => setBathrooms(Number(e.target.value) || null)}
-                        >
-                            <option value="">Bathrooms</option>
-                            <option value="1">1+</option>
-                            <option value="2">2+</option>
-                            <option value="3">3+</option>
-                        </select>
+
+                        <FormControl size="small" sx={{ minWidth: 120 }}>
+                            <InputLabel>Min Price</InputLabel>
+                            <Select value={minPrice} label="Min Price" onChange={handleMinPriceChange}>
+                                <MenuItem value=""><em>Min Price</em></MenuItem>
+                                <MenuItem value={10000}>$10K</MenuItem>
+                                <MenuItem value={20000}>$20K</MenuItem>
+                                <MenuItem value={50000}>$50K</MenuItem>
+                                <MenuItem value={100000}>$100K</MenuItem>
+                                <MenuItem value={200000}>$200K</MenuItem>
+                                <MenuItem value={500000}>$500K</MenuItem>
+                                <MenuItem value={1000000}>$1M</MenuItem>
+                                <MenuItem value={2000000}>$2M</MenuItem>
+                                <MenuItem value={5000000}>$5M</MenuItem>
+                                <MenuItem value={10000000}>$10M</MenuItem>
+                            </Select>
+                        </FormControl>
+                        <FormControl size="small" sx={{ minWidth: 120 }}>
+                            <InputLabel>Max Price</InputLabel>
+                            <Select value={maxPrice} label="Max Price" onChange={handleMaxPriceChange}>
+                                <MenuItem value=""><em>Max Price</em></MenuItem>
+                                <MenuItem value={10000}>$10K</MenuItem>
+                                <MenuItem value={20000}>$20K</MenuItem>
+                                <MenuItem value={50000}>$50K</MenuItem>
+                                <MenuItem value={100000}>$100K</MenuItem>
+                                <MenuItem value={200000}>$200K</MenuItem>
+                                <MenuItem value={500000}>$500K</MenuItem>
+                                <MenuItem value={1000000}>$1M</MenuItem>
+                                <MenuItem value={2000000}>$2M</MenuItem>
+                                <MenuItem value={5000000}>$5M</MenuItem>
+                                <MenuItem value={10000000}>$10M</MenuItem>
+                            </Select>
+                        </FormControl>
+                        <FormControl size="small" sx={{ minWidth: 120 }}>
+                            <InputLabel>Bedrooms</InputLabel>
+                            <Select value={bedrooms} label="Bedrooms" onChange={handleBedroomsChange}>
+                                <MenuItem value=""><em>Bedrooms</em></MenuItem>
+                                <MenuItem value={1}>1+</MenuItem>
+                                <MenuItem value={2}>2+</MenuItem>
+                                <MenuItem value={3}>3+</MenuItem>
+                            </Select>
+                        </FormControl>
+                        <FormControl size="small" sx={{ minWidth: 120 }}>
+                            <InputLabel>Bathrooms</InputLabel>
+                            <Select value={bathrooms} label="Bathrooms" onChange={handleBathroomsChange}>
+                                <MenuItem value=""><em>Bathrooms</em></MenuItem>
+                                <MenuItem value={1}>1+</MenuItem>
+                                <MenuItem value={2}>2+</MenuItem>
+                                <MenuItem value={3}>3+</MenuItem>
+                            </Select>
+                        </FormControl>
                     </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 flex-1 min-h-0">
-                    <div className="min-h-0 h-full">
+                    <div className={`h-full min-h-0 ${mapView ? 'block' : 'hidden'} md:block`}>
                         {loading ? (
                             <div className='flex justify-center items-center h-full' >Loading maps...</div>
                         ) : error ? (
@@ -232,7 +259,7 @@ const SearchPage = () => {
                             <PropertyMap properties={filteredProperties} center={mapCenter} />
                         )}
                     </div>
-                    <div className="overflow-y-auto h-full p-3 flex flex-col">
+                    <div className={`h-full flex-col p-3 overflow-y-auto ${mapView ? 'hidden' : 'flex'} md:flex`}>
                         {loading ? (
                             <div className='flex justify-center items-center h-full' >Loading properties...</div>
                         ) : error ? (
@@ -242,29 +269,26 @@ const SearchPage = () => {
                                 <h1 className="text-xl font-semibold mb-2">Search Results</h1>
                                 <div className="flex justify-between items-center mb-3 text-gray-600">
                                     <p>{filteredProperties.length} results found</p>
-                                    <select
-                                        aria-label='select sort'
-                                        value={sortBy ?? ''}
-                                        onChange={(e) => setSortBy(e.target.value)}
-                                        className="border rounded-lg px-2 py-1 text-gray-700 focus:ring-2 focus:ring-gray-300"
-                                    >
-                                        <option value="">Sort by</option>
-                                        <option value="priceAsc">Price ↑</option>
-                                        <option value="priceDesc">Price ↓</option>
-                                        <option value="titleAsc">Title A–Z</option>
-                                        <option value="titleDesc">Title Z–A</option>
-                                        <option value="bedAsc">Bedrooms ↑</option>
-                                        <option value="bedDesc">Bedrooms ↓</option>
-                                        <option value="bathAsc">Bathrooms ↑</option>
-                                        <option value="bathDesc">Bathrooms ↓</option>
-                                    </select>
+                                    <FormControl size="small" sx={{ minWidth: 120 }}>
+                                        <InputLabel>Sort by</InputLabel>
+                                        <Select value={sortBy} label="Sort by" onChange={handleSortByChange}>
+                                            <MenuItem value=""><em>Sort by</em></MenuItem>
+                                            <MenuItem value="priceAsc">Price ↑</MenuItem>
+                                            <MenuItem value="priceDesc">Price ↓</MenuItem>
+                                            <MenuItem value="titleAsc">Title A–Z</MenuItem>
+                                            <MenuItem value="titleDesc">Title Z–A</MenuItem>
+                                            <MenuItem value="bedAsc">Bedrooms ↑</MenuItem>
+                                            <MenuItem value="bedDesc">Bedrooms ↓</MenuItem>
+                                            <MenuItem value="bathAsc">Bathrooms ↑</MenuItem>
+                                            <MenuItem value="bathDesc">Bathrooms ↓</MenuItem>
+                                        </Select>
+                                    </FormControl>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     {paginatedProperties.map((property: Property) => (
                                         <PropertyCard key={property._id} property={property} />
                                     ))}
                                 </div>
-
                             </>
 
                         )}
@@ -284,10 +308,18 @@ const SearchPage = () => {
                         </div>
                     </div>
                 </div>
+                <div className="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-20">
+                    <button
+                        onClick={() => setMapView(!mapView)}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-1"
+                    >
+                        {mapView ? <ListIcon fontSize='small' /> : <MapIcon fontSize='small' />}
+                        <span className='text-sm'>{mapView ? 'List' : 'Map'}</span>
+                    </button>
+                </div>
             </div>
         </>
     );
 };
-
 
 export default SearchPage;
