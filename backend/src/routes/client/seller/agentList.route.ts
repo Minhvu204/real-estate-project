@@ -1,12 +1,17 @@
 import express from "express";
 import { verifyToken } from "../../../middlewares/auth.middleware";
 import { roleCheck } from "../../../middlewares/roleCheck.middleware";
+import { getAgentList } from "../../../controllers/client/seller/agent.controller";
 
 const router = express.Router();
 
-router.get("", verifyToken, roleCheck("seller","agent"), (req, res) => {
-  res.json({ message: "Lấy danh sách properties" });
-});
+router.get(
+  "/",
+  verifyToken,
+  roleCheck("seller"),
+  getAgentList
+);
+
 
 
 export default router;
