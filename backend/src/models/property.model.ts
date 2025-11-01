@@ -14,6 +14,10 @@ export interface IProperty extends Document {
   address: string;
   bedrooms: number;
   bathrooms: number;
+  area: number;
+  unit: "m2" | "ft2";
+  yearBuilt: number;
+  floors: number;
   coordinates: {
     lat: number;
     lng: number;
@@ -45,6 +49,10 @@ const PropertySchema: Schema = new Schema(
     address: { type: String, required: true },
     bedrooms: { type: Number, default: 0 },
     bathrooms: { type: Number, default: 0 },
+    area: { type: Number, required: true }, // diện tích (m²)
+    unit: { type: String, enum: ["m2", "ft2"], default: "m2" }, // đơn vị diện tích
+    yearBuilt: { type: Number }, // năm xây dựng
+    floors: { type: Number, default: 1 }, // số tầng
     coordinates: {
       lat: { type: Number, required: false },
       lng: { type: Number, required: false },
