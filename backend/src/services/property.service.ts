@@ -1,5 +1,6 @@
 // src/services/property.service.ts
 import Property from "../models/property.model";
+import mongoose from "mongoose";
 
 export const propertyService = {
   async getAllProperties(filters: any) {
@@ -81,6 +82,13 @@ export const propertyService = {
       category_id: string;
       features: string[];
       images: string[];
+      address: string;
+      bedrooms: number;
+      bathrooms: number;
+      area: number;
+      unit: string;
+      yearBuilt: number;
+      floors: number;
     }>,
     userId: string
   ) {
@@ -108,19 +116,31 @@ export const propertyService = {
       "category_id",
       "features",
       "images",
+      "address",
+      "bedrooms",
+      "bathrooms",
+      "area",
+      "unit",
+      "yearBuilt",
+      "floors",
     ];
 
     updatableFields.forEach((field) => {
       if (data[field] !== undefined) {
-        // @ts-ignore
-        (property as any)[field] = data[field as keyof typeof data];
+        // Convert string IDs to ObjectId if needed
+        if ((field === "city_id" || field === "type_id" || field === "category_id") && data[field]) {
+          (property as any)[field] = new mongoose.Types.ObjectId(data[field] as string);
+        } else if (field === "features" && Array.isArray(data[field])) {
+          (property as any)[field] = (data[field] as string[]).map((id) => new mongoose.Types.ObjectId(id));
+        } else {
+          (property as any)[field] = data[field];
+        }
       }
     });
 
     await property.save();
     return property;
   },
-
   async deleteProperty(id: string, userId: string) {
     const property = await Property.findById(id);
     if (!property || property.deleted) {
