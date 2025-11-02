@@ -101,3 +101,28 @@ export const updateUserStatus = async (userId: string, isActive: boolean) => {
 
   return updatedUser;
 };
+
+export const updateUserInfo = async (userId: string, updateData: any) => {
+  const { fullName, email, role, phone, avatar } = updateData;
+  
+  const updateFields: any = {};
+  if (fullName) updateFields.fullName = fullName;
+  if (email) updateFields.email = email;
+  if (role) updateFields.role = role;
+  if (phone !== undefined) updateFields.phone = phone;
+  if (avatar !== undefined) updateFields.avatar = avatar;
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    updateFields,
+    { new: true, runValidators: true }
+  ).select("-password");
+
+  if (!updatedUser) {
+    const err: any = new Error("Không tìm thấy người dùng.");
+    err.status = 404;
+    throw err;
+  }
+
+  return updatedUser;
+};
