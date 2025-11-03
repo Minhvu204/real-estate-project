@@ -1,6 +1,11 @@
 // src/services/property.service.ts
 import Property from "../models/property.model";
+import City from "../models/city.model";
+import Category from "../models/category.model";
+import PropertyType from "../models/propertyType.model";
+import Feature from "../models/feature.model";
 import mongoose from "mongoose";
+import { assignmentService } from "./assignment.service";
 
 export const propertyService = {
   async getAllProperties(filters: any) {
@@ -9,15 +14,19 @@ export const propertyService = {
       limit = 10,
       city,
       type,
+      category,
       minPrice,
       maxPrice,
       keyword,
+      status,
     } = filters;
 
-    const query: any = {};
+    const query: any = { deleted: false };
 
     if (city) query.city_id = city;
     if (type) query.type_id = type;
+    if (category) query.category_id = category;
+    if (status) query.status = status;
     if (minPrice || maxPrice) {
       query.price = {
         ...(minPrice ? { $gte: Number(minPrice) } : {}),
@@ -35,13 +44,16 @@ export const propertyService = {
         .populate("city_id", "city_name")
         .populate("category_id", "category_name")
         .populate("type_id", "type_name")
-        .populate("owner_id", "fullName email")
-        .populate("agent_id", "fullName email")
+        .populate("owner_id", "fullName email phone avatar")
+        .populate("agent_id", "fullName email phone avatar")
         .populate("features", "feature_name")
         .populate('type_id', 'type_name')
+        .populate("assignmentHistory.agent_id", "fullName email")
+        .populate("assignmentHistory.assignedBy", "fullName email")
         .sort({ createdAt: -1 })
         .skip(skip)
-        .limit(limitNum),
+        .limit(limitNum)
+        .lean(),
 
       Property.countDocuments(query),
     ]);
@@ -83,15 +95,20 @@ export const propertyService = {
       address: property.address,
       bedrooms: property.bedrooms,
       bathrooms: property.bathrooms,
+      area: property.area,
+      unit: property.unit,
+      yearBuilt: property.yearBuilt,
+      floors: property.floors,
       coordinates: property.coordinates,
-      status: property.status, // available, sold, v.v.
-      images: property.images || [],
       city: property.city_id,
       category: property.category_id,
       type: property.type_id,
       features: property.features,
+      images: property.images || [],
       owner: property.owner_id,
       agent: property.agent_id,
+      status: property.status,
+      assignmentHistory: property.assignmentHistory || [],
       createdAt: property.createdAt,
       updatedAt: property.updatedAt,
     };
@@ -182,5 +199,53 @@ export const propertyService = {
       .lean();
 
     return list;
+  },
+
+    async createProperty(data: any, ownerId: string) {
+    const {
+      city_id,
+      category_id,
+      type_id,
+      features = [],
+      agent_id,
+      ...rest
+    } = data;
+
+    // Validate taxonomy IDs
+    const [city, category, type] = await Promise.all([
+      City.findById(city_id),
+      Category.findById(category_id),
+      PropertyType.findById(type_id),
+    ]);
+    if (!city || !category || !type) {
+      throw Object.assign(new Error("Dữ liệu taxonomy không hợp lệ"), { status: 400 });
+    }
+
+    // Validate features nếu có
+    if (features.length > 0) {
+      const count = await Feature.countDocuments({ _id: { $in: features } });
+      if (count !== features.length) {
+        throw Object.assign(new Error("Một hoặc nhiều feature không hợp lệ"), { status: 400 });
+      }
+    }
+
+    // Tạo property mới
+    const property = await Property.create({
+      ...rest,
+      city_id,
+      category_id,
+      type_id,
+      features,
+      owner_id: new mongoose.Types.ObjectId(ownerId),
+      status: "pending", 
+      deleted: false,
+    });
+
+    // Nếu có agent_id => tạo request gán agent
+    if (agent_id) {
+      await assignmentService.createRequest((property._id as mongoose.Types.ObjectId).toString(), agent_id, ownerId);
+    }
+
+    return property;
   },
 };

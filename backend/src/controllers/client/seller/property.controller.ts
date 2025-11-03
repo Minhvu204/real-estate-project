@@ -68,3 +68,29 @@ export const removeAgentFromProperty = async (req: Request, res: Response) => {
     return errorResponse(res, error.message || "Lỗi server", 500);
   }
 };
+
+//POST /api/client/seller/properties/create
+export const createProperty = async (req: Request, res: Response) => {
+  try {
+    const ownerId = (req as any).user?.id;
+    if (!ownerId) {
+      return res.status(401).json({ message: "Không xác định được người dùng" });
+    }
+
+    const body = req.body;
+
+    // middleware uploadMultipleToCloudinary đã gắn req.body.images = string[]
+    const imageUrls = body.images || [];
+
+    const newProperty = await propertyService.createProperty(
+      { ...body, images: imageUrls },
+      ownerId
+    );
+
+    return successResponse(res, "Tạo tin đăng bất động sản thành công", newProperty);
+
+  } catch (err: any) {
+    console.error("Lỗi khi tạo property:", err);
+    return errorResponse(res, err.message || "Lỗi server", 500);
+  }
+};
