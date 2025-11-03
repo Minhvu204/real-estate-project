@@ -1,4 +1,3 @@
-// src/models/property.model.ts
 import mongoose, { Document, Schema } from "mongoose";
 // Import các model để Mongoose đăng ký schema trước khi populate
 import "./city.model";
@@ -8,29 +7,17 @@ import "./feature.model";
 import "./user.model";
 
 export interface IProperty extends Document {
-  title: {
-    vi: string;
-    en: string;
-  };
-  description?: {
-    vi?: string;
-    en?: string;
-  };
+  title: { vi: string; en: string };
+  description?: { vi?: string; en?: string };
   price: number;
-  address: {
-    vi: string;
-    en: string;
-  };
+  address: { vi: string; en: string };
   bedrooms: number;
   bathrooms: number;
   area: number;
   unit: "m2" | "ft2";
   yearBuilt: number;
   floors: number;
-  coordinates: {
-    lat: number;
-    lng: number;
-  };
+  coordinates: { lat: number; lng: number };
   city_id: mongoose.Types.ObjectId;
   type_id: mongoose.Types.ObjectId;
   category_id: mongoose.Types.ObjectId;
@@ -45,6 +32,9 @@ export interface IProperty extends Document {
   features?: mongoose.Types.ObjectId[];
   images?: string[];
   status: "available" | "pending" | "approved" | "sold" | "rejected";
+  reviewedBy?: mongoose.Types.ObjectId;
+  reviewedAt?: Date;
+  publishedAt?: Date;
   deleted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -67,25 +57,35 @@ const PropertySchema: Schema = new Schema(
     },
     bedrooms: { type: Number, default: 0 },
     bathrooms: { type: Number, default: 0 },
-    area: { type: Number, required: true }, // diện tích (m²)
-    unit: { type: String, enum: ["m2", "ft2"], default: "m2" }, // đơn vị diện tích
-    yearBuilt: { type: Number }, // năm xây dựng
-    floors: { type: Number, default: 1 }, // số tầng
+    area: { type: Number, required: true },
+    unit: { type: String, enum: ["m2", "ft2"], default: "m2" },
+    yearBuilt: { type: Number },
+    floors: { type: Number, default: 1 },
     coordinates: {
-      lat: { type: Number, required: false },
-      lng: { type: Number, required: false },
+      lat: { type: Number },
+      lng: { type: Number },
     },
     city_id: { type: Schema.Types.ObjectId, ref: "City", required: true },
-    type_id: { type: Schema.Types.ObjectId, ref: "PropertyType", required: true },
-    category_id: { type: Schema.Types.ObjectId, ref: "Category", required: true },
+    type_id: {
+      type: Schema.Types.ObjectId,
+      ref: "PropertyType",
+      required: true,
+    },
+    category_id: {
+      type: Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
+    },
     owner_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
     agent_id: { type: Schema.Types.ObjectId, ref: "User" },
-    // Lịch sử gán/huỷ agent (audit trail)
     assignmentHistory: [
       {
         agent_id: { type: Schema.Types.ObjectId, ref: "User" },
         assignedBy: { type: Schema.Types.ObjectId, ref: "User" },
-        action: { type: String, enum: ["assign", "remove", "reject", "cancel", "request"] },
+        action: {
+          type: String,
+          enum: ["assign", "remove", "reject", "cancel", "request"],
+        },
         assignedAt: { type: Date, default: Date.now },
       },
     ],
@@ -96,6 +96,9 @@ const PropertySchema: Schema = new Schema(
       enum: ["available", "pending", "approved", "sold", "rejected"],
       default: "available",
     },
+    reviewedBy: { type: Schema.Types.ObjectId, ref: "User" },
+    reviewedAt: { type: Date },
+    publishedAt: { type: Date },
     deleted: { type: Boolean, default: false },
   },
   { timestamps: true }
