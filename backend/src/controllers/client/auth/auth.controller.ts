@@ -12,10 +12,10 @@ export const registerController = async (req: Request, res: Response) => {
     const { fullName, email, password, role } = req.body;
 
     if (!fullName || !email || !password)
-      return errorResponse(res, "Thiếu thông tin bắt buộc", 400);
+      return errorResponse(req, res, "Thiếu thông tin bắt buộc", 400);
 
-    if (!validateEmail(email)) return errorResponse(res, "Email không hợp lệ", 400);
-    if (!validatePassword(password)) return errorResponse(res, "Mật khẩu phải ít nhất 6 ký tự", 400);
+    if (!validateEmail(email)) return errorResponse(req, res, "Email không hợp lệ", 400);
+    if (!validatePassword(password)) return errorResponse(req, res, "Mật khẩu phải ít nhất 6 ký tự", 400);
 
     const result = await registerUser({ fullName, email, password, role });
 
@@ -23,12 +23,12 @@ export const registerController = async (req: Request, res: Response) => {
     setAuthCookie(res, result.refreshToken);
 
     // Return access token + user
-    return successResponse(res, "Đăng ký thành công", {
+    return successResponse(req, res, "Đăng ký thành công", {
       accessToken: result.accessToken,
       user: result.user,
     });
   } catch (error: any) {
-    return errorResponse(res, error.message);
+    return errorResponse(req, res, error.message);
   }
 };
 
@@ -42,12 +42,12 @@ export const loginController = async (req: Request, res: Response) => {
     setAuthCookie(res, result.refreshToken);
 
     // Return access token + user
-    return successResponse(res, "Đăng nhập thành công", {
+    return successResponse(req, res, "Đăng nhập thành công", {
       accessToken: result.accessToken,
       user: result.user,
     });
   } catch (error: any) {
-    return errorResponse(res, error.message);
+    return errorResponse(req, res, error.message);
   }
 };
 
@@ -60,9 +60,9 @@ export const refreshTokenController = async (req: Request, res: Response) => {
     const decoded = verifyRefreshToken(refreshToken) as any;
     const newAccessToken = generateAccessToken({ id: decoded.id, role: decoded.role, email: decoded.email });
 
-    return successResponse(res, "Lấy Access Token mới thành công", { accessToken: newAccessToken });
+    return successResponse(req, res, "Lấy Access Token mới thành công", { accessToken: newAccessToken });
   } catch (error: any) {
-    return errorResponse(res, "Refresh token không hợp lệ hoặc đã hết hạn", 401);
+    return errorResponse(req, res, "Refresh token không hợp lệ hoặc đã hết hạn", 401);
   }
 };
 
@@ -70,23 +70,23 @@ export const refreshTokenController = async (req: Request, res: Response) => {
 export const googleAuthController = async (req: Request, res: Response) => {
   try {
     const { idToken } = req.body;
-    if (!idToken) return errorResponse(res, "Missing Google token");
+    if (!idToken) return errorResponse(req, res, "Missing Google token");
 
     const result = await loginWithGoogle(idToken);
 
     setAuthCookie(res, result.refreshToken);
 
-    return successResponse(res, "Đăng nhập bằng Google thành công", {
+    return successResponse(req, res, "Đăng nhập bằng Google thành công", {
       accessToken: result.accessToken,
       user: result.user,
     });
   } catch (error: any) {
-    return errorResponse(res, error.message);
+    return errorResponse(req, res, error.message);
   }
 };
 
 // LOGOUT
 export const logoutController = async (req: Request, res: Response) => {
   clearAuthCookie(res);
-  return successResponse(res, "Đăng xuất thành công");
+  return successResponse(req, res, "Đăng xuất thành công");
 };
