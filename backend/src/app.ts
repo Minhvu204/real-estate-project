@@ -1,9 +1,11 @@
 import express from "express";
 import dotenv from "dotenv";
+import i18nMiddleware from "./config/i18n.config";
 dotenv.config();
 import cors from "cors";
 import cookieParser from "cookie-parser"; 
 import routes from "./routes/index.route";
+
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 
 dotenv.config();
@@ -20,6 +22,7 @@ app.use(cors({
 app.use(cookieParser());
 
 // Middleware parse body
+app.use(i18nMiddleware);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

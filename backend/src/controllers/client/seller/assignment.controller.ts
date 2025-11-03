@@ -22,9 +22,9 @@ export const cancelAssignmentRequest = async (req: Request, res: Response) => {
     const user = (req as any).user;
     const { id } = req.params;
     const doc = await assignmentService.cancelRequest(id, user.id || user._id);
-    return successResponse(res, "Hủy yêu cầu gán agent thành công", doc);
+    return successResponse(req, res, "Hủy yêu cầu gán agent thành công", doc);
   } catch (error: any) {
     console.error("cancelAssignmentRequest error:", error);
-    return errorResponse(res, error.message, error.status || 500);
+    return errorResponse(req, res, error.message, error.status || 500);
   }
 };

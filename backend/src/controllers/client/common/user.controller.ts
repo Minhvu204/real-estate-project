@@ -8,12 +8,12 @@ import { UpdateProfileDTO } from "../../../dtos/user.dto";
 export const getProfile = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
-    if (!userId) return errorResponse(res, "User ID not found", 401);
+    if (!userId) return errorResponse(req, res, "User ID not found", 401);
 
     const user = await userService.getProfile(userId);
-    return successResponse(res, "Profile retrieved successfully", user);
+    return successResponse(req, res, "Profile retrieved successfully", user);
   } catch (error: any) {
-    return errorResponse(res, error.message || "Server error", error.status || 500);
+    return errorResponse(req, res, error.message || "Server error", error.status || 500);
   }
 };
 
@@ -22,17 +22,17 @@ export const updateProfile = async (req: Request, res: Response) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty())
-      return errorResponse(res, "Validation failed: " + JSON.stringify(errors.array()), 400);
+      return errorResponse(req, res, "Validation failed: " + JSON.stringify(errors.array()), 400);
 
     const userId = req.user?.id;
-    if (!userId) return errorResponse(res, "User ID not found", 401);
+    if (!userId) return errorResponse(req, res, "User ID not found", 401);
 
     const { fullName, phone, avatar }: UpdateProfileDTO = req.body;
     const updatedUser = await userService.updateProfile(userId, { fullName, phone, avatar });
 
-    return successResponse(res, "Profile updated successfully", updatedUser);
+    return successResponse(req, res, "Profile updated successfully", updatedUser);
   } catch (error: any) {
-    return errorResponse(res, error.message || "Server error", error.status || 500);
+    return errorResponse(req, res, error.message || "Server error", error.status || 500);
   }
 };
 
@@ -42,13 +42,13 @@ export const changePassword = async (req: Request, res: Response) => {
     const { oldPassword, newPassword } = req.body;
     const userId = req.user?.id;
 
-    if (!userId) return errorResponse(res, "User ID not found", 401);
+    if (!userId) return errorResponse(req, res, "User ID not found", 401);
     if (!oldPassword || !newPassword)
-      return errorResponse(res, "Thiếu dữ liệu (oldPassword, newPassword)", 400);
+      return errorResponse(req, res, "Thiếu dữ liệu (oldPassword, newPassword)", 400);
 
     const result = await userService.changePassword(userId, oldPassword, newPassword);
-    return successResponse(res, result.message);
+    return successResponse(req, res, result.message);
   } catch (error: any) {
-    return errorResponse(res, error.message || "Server error", error.status || 500);
+    return errorResponse(req, res, error.message || "Server error", error.status || 500);
   }
 };

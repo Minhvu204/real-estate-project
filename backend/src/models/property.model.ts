@@ -8,12 +8,25 @@ import "./feature.model";
 import "./user.model";
 
 export interface IProperty extends Document {
-  title: string;
-  description: string;
+  title: {
+    vi: string;
+    en: string;
+  };
+  description?: {
+    vi?: string;
+    en?: string;
+  };
   price: number;
-  address: string;
+  address: {
+    vi: string;
+    en: string;
+  };
   bedrooms: number;
   bathrooms: number;
+  area: number;
+  unit: "m2" | "ft2";
+  yearBuilt: number;
+  floors: number;
   coordinates: {
     lat: number;
     lng: number;
@@ -39,12 +52,25 @@ export interface IProperty extends Document {
 
 const PropertySchema: Schema = new Schema(
   {
-    title: { type: String, required: true },
-    description: String,
+    title: {
+      vi: { type: String, required: true },
+      en: { type: String, required: true },
+    },
+    description: {
+      vi: { type: String },
+      en: { type: String },
+    },
     price: { type: Number, required: true },
-    address: { type: String, required: true },
+    address: {
+      vi: { type: String, required: true },
+      en: { type: String, required: true },
+    },
     bedrooms: { type: Number, default: 0 },
     bathrooms: { type: Number, default: 0 },
+    area: { type: Number, required: true }, // diện tích (m²)
+    unit: { type: String, enum: ["m2", "ft2"], default: "m2" }, // đơn vị diện tích
+    yearBuilt: { type: Number }, // năm xây dựng
+    floors: { type: Number, default: 1 }, // số tầng
     coordinates: {
       lat: { type: Number, required: false },
       lng: { type: Number, required: false },
