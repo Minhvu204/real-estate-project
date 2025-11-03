@@ -53,4 +53,38 @@ export const userService = {
 
     return { message: "Đổi mật khẩu thành công" };
   },
+
+  // Lấy danh sách agent (dùng cho màn hình chọn agent)
+  async getAgents(filters: any) {
+    const { page = 1, limit = 10, keyword } = filters || {};
+
+    const query: any = { role: "agent", isActive: true };
+    if (keyword) {
+      const re = new RegExp(keyword, "i");
+      query.$or = [{ fullName: re }, { email: re }, { phone: re }];
+    }
+
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    const [data, total] = await Promise.all([
+      User.find(query)
+        .select("-password")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      User.countDocuments(query),
+    ]);
+
+    return {
+      pagination: {
+        currentPage: pageNum,
+        totalPages: Math.ceil(total / limitNum),
+        totalItems: total,
+      },
+      data,
+    };
+  },
 };

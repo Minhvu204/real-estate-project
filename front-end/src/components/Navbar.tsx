@@ -23,13 +23,15 @@ import HomeIcon from "@mui/icons-material/Home";
 import LogoutIcon from "@mui/icons-material/Logout";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import AuthContext from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Navbar: React.FC = () => {
     const { state, signOut } = useContext(AuthContext);
     const navigate = useNavigate();
     const [mobileOpen, setMobileOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const location = useLocation();
+    const isAdminRoute = location.pathname.startsWith('/admin');
 
     const handleLogout = () => {
         signOut();
@@ -43,7 +45,7 @@ const Navbar: React.FC = () => {
 
     const menuItems = [
         { label: "New", path: "/new" },
-        { label: "Buy", path: "/search" },
+        { label: "Buy", path: "/buy" },
         { label: "Rent", path: "/rent" },
         { label: "Sell", path: "/sell" },
         { label: "Get Help", path: "/get-help" },
@@ -79,35 +81,37 @@ const Navbar: React.FC = () => {
 
             <Divider sx={{ borderColor: "rgba(255,255,255,0.1)", mb: 3 }} />
 
-            <List>
-                {menuItems.map((item) => (
-                    <ListItem key={item.label} disablePadding sx={{ mb: 1 }}>
-                        <ListItemButton
-                            onClick={() => {
-                                navigate(item.path);
-                                handleDrawerToggle();
-                            }}
-                            sx={{
-                                borderRadius: 2,
-                                color: "white",
-                                transition: "all 0.3s ease",
-                                "&:hover": {
-                                    backgroundColor: "rgba(102,126,234,0.2)",
-                                    transform: "translateX(8px)",
-                                },
-                            }}
-                        >
-                            <ListItemText
-                                primary={item.label}
-                                primaryTypographyProps={{
-                                    fontWeight: 600,
-                                    fontSize: "1rem",
+            {!isAdminRoute && (
+                <List>
+                    {menuItems.map((item) => (
+                        <ListItem key={item.label} disablePadding sx={{ mb: 1 }}>
+                            <ListItemButton
+                                onClick={() => {
+                                    navigate(item.path);
+                                    handleDrawerToggle();
                                 }}
-                            />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
-            </List>
+                                sx={{
+                                    borderRadius: 2,
+                                    color: "white",
+                                    transition: "all 0.3s ease",
+                                    "&:hover": {
+                                        backgroundColor: "rgba(102,126,234,0.2)",
+                                        transform: "translateX(8px)",
+                                    },
+                                }}
+                            >
+                                <ListItemText
+                                    primary={item.label}
+                                    primaryTypographyProps={{
+                                        fontWeight: 600,
+                                        fontSize: "1rem",
+                                    }}
+                                />
+                            </ListItemButton>
+                        </ListItem>
+                    ))}
+                </List>
+            )}
 
             <Divider sx={{ borderColor: "rgba(255,255,255,0.1)", my: 3 }} />
 
@@ -274,52 +278,54 @@ const Navbar: React.FC = () => {
                     </Box>
 
                     {/* Desktop Menu */}
-                    <Box
-                        sx={{
-                            display: { xs: "none", md: "flex" },
-                            gap: 1,
-                            alignItems: "center",
-                        }}
-                    >
-                        {menuItems.map((item) => (
-                            <Button
-                                key={item.label}
-                                onClick={() => navigate(item.path)}
-                                sx={{
-                                    color: "rgba(0,0,0,0.7)",
-                                    fontWeight: 600,
-                                    textTransform: "none",
-                                    px: 2.5,
-                                    py: 1,
-                                    borderRadius: 3,
-                                    fontSize: "0.95rem",
-                                    position: "relative",
-                                    transition: "all 0.3s ease",
-                                    "&::before": {
-                                        content: '""',
-                                        position: "absolute",
-                                        bottom: 8,
-                                        left: "50%",
-                                        transform: "translateX(-50%)",
-                                        width: "0%",
-                                        height: "3px",
-                                        borderRadius: "3px",
-                                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                        transition: "width 0.3s ease",
-                                    },
-                                    "&:hover": {
-                                        color: "#667eea",
-                                        backgroundColor: "rgba(102,126,234,0.08)",
+                    {!isAdminRoute && (
+                        <Box
+                            sx={{
+                                display: { xs: "none", md: "flex" },
+                                gap: 1,
+                                alignItems: "center",
+                            }}
+                        >
+                            {menuItems.map((item) => (
+                                <Button
+                                    key={item.label}
+                                    onClick={() => navigate(item.path)}
+                                    sx={{
+                                        color: "rgba(0,0,0,0.7)",
+                                        fontWeight: 600,
+                                        textTransform: "none",
+                                        px: 2.5,
+                                        py: 1,
+                                        borderRadius: 3,
+                                        fontSize: "0.95rem",
+                                        position: "relative",
+                                        transition: "all 0.3s ease",
                                         "&::before": {
-                                            width: "60%",
+                                            content: '""',
+                                            position: "absolute",
+                                            bottom: 8,
+                                            left: "50%",
+                                            transform: "translateX(-50%)",
+                                            width: "0%",
+                                            height: "3px",
+                                            borderRadius: "3px",
+                                            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                            transition: "width 0.3s ease",
                                         },
-                                    },
-                                }}
-                            >
-                                {item.label}
-                            </Button>
-                        ))}
-                    </Box>
+                                        "&:hover": {
+                                            color: "#667eea",
+                                            backgroundColor: "rgba(102,126,234,0.08)",
+                                            "&::before": {
+                                                width: "60%",
+                                            },
+                                        },
+                                    }}
+                                >
+                                    {item.label}
+                                </Button>
+                            ))}
+                        </Box>
+                    )}
 
                     {/* Right Side */}
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>

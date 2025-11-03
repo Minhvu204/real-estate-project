@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import type { Property } from "../../types/Property";
 import Carousel from "./Carousel";
 import { useNavigate } from "react-router-dom";
+import ImageWithFallback from "../common/ImageWithFallback";
 type PropertyCardProps = {
     property: Property;
 }
@@ -16,13 +17,17 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
     return (
         <div className="bg-white rounded-md shadow hover:shadow-lg transition-all duration-300 overflow-hidden">
             <div className="aspect-[4/3] w-full relative">
-                <Carousel>
+                <div className="absolute top-2 left-2 z-10 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">
+                    {property.type_id?.type_name === 'For Sale' ? 'Sell' : 'Rent'}
+                </div>
+                <Carousel autoSlide={true} autoSlideInterval={5000}>
                     {property.images.map((imageUrl, index) => (
-                        <img
+                        <ImageWithFallback
                             key={index}
                             src={imageUrl}
                             alt={`Ảnh ${index + 1}`}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full"
+                            height="100%"
                         />
                     ))}
                 </Carousel>

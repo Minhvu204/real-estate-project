@@ -10,7 +10,6 @@ const defaultUser = "/defaultUser.png";
 
 const columns = (navigate: any) => [
 
-  { field: "id", headerName: "ID", width: 180 },
   {
     field: "avatar",
     headerName: "Avatar",
@@ -23,10 +22,10 @@ const columns = (navigate: any) => [
           width: 40,
           height: 40,
           borderRadius: "50%",
-          objectFit: "cover",
+          objectFit: "cover"
         }}
       />
-    ),
+    )
   },
   { field: "fullName", headerName: "Full Name", width: 200 },
   { field: "email", headerName: "Email", width: 240 },
@@ -36,29 +35,22 @@ const columns = (navigate: any) => [
     headerName: "Action",
     width: 210,
     renderCell: (param: any) => (
-      <div className="flex justify-center items-center space-x-2">
-        <div>
-          <button
-            className="bg-blue-500 text-white px-3 rounded text-xs font-medium hover:bg-blue-600 transition-all h-7"
-            onClick={() => navigate(`${param.row.id}`)}
-          >
-            View
-          </button>
-        </div>
-
-        <div>
-          <button
-            className="bg-red-500 text-white px-3 rounded text-xs font-medium hover:bg-red-600 transition-all h-7"
-            onClick={() => navigate(`edit/${param.row.id}`)}
-          >
-            Update
-          </button>
-        </div>
-
-        <BlockUser userId={param.row.id} />
+      <div className=' w-full h-full flex justify-center items-center space-x-2 ' >
+        <button className="bg-blue-500 text-white px-2 py-1 rounded text-xs "
+          onClick={() => navigate(`${param.row.id}`)}>
+          View
+        </button >
+        <button className="bg-red-500 text-white px-2 py-1 rounded text-xs"
+          onClick={() => navigate(`edit/${param.row.id}`)}>
+          Update
+        </button>
+        <button className="bg-gray-500 text-white px-2 py-1 rounded text-xs"
+          onClick={() => navigate(`block/${param.row.id}`)}>
+          Block
+        </button>
       </div>
-    ),
-  },
+    )
+  }
 ];
 const paginationModel = { page: 0, pageSize: 5 };
 
@@ -79,9 +71,11 @@ export default function DataTable() {
 
         if (role) {
           setRows(users.filter((u) => u.role === role));
+
         } else {
           setRows(users);
         }
+
       } catch (error) {
         console.error("Cannot fetch users", error);
       } finally {
