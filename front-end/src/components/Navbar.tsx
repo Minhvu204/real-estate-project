@@ -33,6 +33,13 @@ const Navbar: React.FC = () => {
     const location = useLocation();
     const isAdminRoute = location.pathname.startsWith('/admin');
 
+
+    React.useEffect(() => {
+        console.log("Current user:", state.user);
+        console.log("User role:", state.user?.role);
+        console.log("Is seller/agent:", state.user?.role === "seller" || state.user?.role === "agent");
+    }, [state.user]);
+
     const handleLogout = () => {
         signOut();
         navigate("/login");
@@ -232,7 +239,6 @@ const Navbar: React.FC = () => {
                         minHeight: { xs: 64, md: 70 },
                     }}
                 >
-                    {/* Logo */}
                     <Box
                         sx={{
                             display: "flex",
@@ -277,7 +283,6 @@ const Navbar: React.FC = () => {
                         </Typography>
                     </Box>
 
-                    {/* Desktop Menu */}
                     {!isAdminRoute && (
                         <Box
                             sx={{
@@ -327,7 +332,7 @@ const Navbar: React.FC = () => {
                         </Box>
                     )}
 
-                    {/* Right Side */}
+
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                         {!state.token ? (
                             <Box sx={{ display: { xs: "none", md: "flex" }, gap: 1.5 }}>
@@ -433,7 +438,7 @@ const Navbar: React.FC = () => {
                             </Box>
                         )}
 
-                        {/* Mobile Menu Icon */}
+
                         <IconButton
                             onClick={handleDrawerToggle}
                             sx={{
@@ -456,7 +461,7 @@ const Navbar: React.FC = () => {
                 </Toolbar>
             </AppBar>
 
-            {/* Mobile Drawer */}
+
             <Drawer
                 anchor="right"
                 open={mobileOpen}
@@ -471,7 +476,7 @@ const Navbar: React.FC = () => {
                 {drawer}
             </Drawer>
 
-            {/* User Menu */}
+
             <Menu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
@@ -494,24 +499,56 @@ const Navbar: React.FC = () => {
                     sx={{
                         py: 1.5,
                         fontWeight: 600,
+                        display: "flex",
+                        gap: 1.5,
                         "&:hover": {
                             backgroundColor: "rgba(102,126,234,0.08)",
                         },
                     }}
                 >
+                    <PersonOutlineIcon fontSize="small" />
                     Profile
                 </MenuItem>
+
+
+                {(state.user?.role === "seller" || state.user?.role === "agent") && (
+                    <MenuItem
+                        onClick={() => {
+                            navigate("/my-properties");
+                            setAnchorEl(null);
+                        }}
+                        sx={{
+                            py: 1.5,
+                            fontWeight: 600,
+                            display: "flex",
+                            gap: 1.5,
+                            color: "#667eea",
+                            "&:hover": {
+                                backgroundColor: "rgba(102,126,234,0.08)",
+                            },
+                        }}
+                    >
+                        <HomeIcon fontSize="small" />
+                        Bất động sản của tôi
+                    </MenuItem>
+                )}
+
+                <Divider sx={{ my: 1 }} />
+
                 <MenuItem
                     onClick={handleLogout}
                     sx={{
                         py: 1.5,
                         fontWeight: 600,
                         color: "#ff6b6b",
+                        display: "flex",
+                        gap: 1.5,
                         "&:hover": {
                             backgroundColor: "rgba(255,107,107,0.08)",
                         },
                     }}
                 >
+                    <LogoutIcon fontSize="small" />
                     Logout
                 </MenuItem>
             </Menu>
