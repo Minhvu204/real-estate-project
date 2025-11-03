@@ -8,6 +8,7 @@ import { UpdateProfileRoute } from "./routes/UpdateProfileRoute";
 import { RegisterRoute } from "./routes/RegisterRoute";
 import SellerPage from "./components/seller/SellerPage";
 import { SellerRoute } from "./routes/SellerRoute";
+import './i18n/i18n';
 
 function App() {
   const search = useRoutes(SearchPropertiesRoute);
@@ -18,13 +19,14 @@ function App() {
   const sellerRoutes = useRoutes(SellerRoute);
   return (
     <>
-      {/* {adminRoutes}
+      {adminRoutes}
       <LoginRoute></LoginRoute >
       {search}
       {updateProfileRoutes}
       {propertyDetail}
-      {registerRoutes} */}
+      {registerRoutes}
       {sellerRoutes}
+     
     </>
   )
 }

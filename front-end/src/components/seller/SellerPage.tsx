@@ -58,7 +58,6 @@ export default function SellerPage() {
     ];
 
 
-
     const bottomItems = [{ text: "Logout", icon: <LogoutIcon />, path: "/login" }];
 
     const drawer = (

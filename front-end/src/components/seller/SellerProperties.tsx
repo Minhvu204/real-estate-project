@@ -12,7 +12,8 @@ import CardActions from '@mui/material/CardActions';
 import Grid from '@mui/material/Grid';
 import { Pagination, Stack } from '@mui/material';
 import { Link } from 'react-router-dom';
-
+import { useTranslation } from 'react-i18next';
+import ButtonLanguage from '../common/ButtonLanguage';
 
 const SellerProperties = () => {
     const [properties, setProperties] = useState<Property[]>([]);
@@ -20,12 +21,13 @@ const SellerProperties = () => {
     const user = getUser();
     const [page, setPage] = useState(1);
     const [itemsPerPage] = useState(6);
-
+    const { t } = useTranslation();
     useEffect(() => {
         const fetchProperties = async () => {
             try {
                 if (!user) return;
                 const response = await getAllProperties();
+                console.log("Data return is ", response);
                 setProperties(response || []);
             } catch (error) {
                 console.log("Cannot fetch properties for this role", error);
@@ -48,7 +50,9 @@ const SellerProperties = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     return (
+
         <>
+            <ButtonLanguage></ButtonLanguage>
             <Grid container spacing={3} alignItems="stretch">
                 {currentProperties.map((p) => (
                     <Grid key={p._id} size={{ xs: 12, sm: 6, md: 4 }}>
@@ -68,7 +72,7 @@ const SellerProperties = () => {
                                     component="img"
                                     height="140"
                                     image={p.images?.[0] || '/defaultHome.png'}
-                                    alt={p.title}
+                                    alt={p.title.en}
                                     sx={{
                                         height: 200,
                                         width: '100%',
@@ -78,7 +82,7 @@ const SellerProperties = () => {
                                 />
                                 <CardContent>
                                     <Typography gutterBottom variant="h6" component="div">
-                                        {p.title}
+                                        {p.address.vi}
                                     </Typography>
                                     <Typography variant="body2" color="text.secondary">
                                         Price: {p.price.toLocaleString()} VNĐ
@@ -91,11 +95,11 @@ const SellerProperties = () => {
                             <CardActions className='m-3'>
                                 <Button component={Link} to={`/properties/${p._id}`}
                                     size="small" variant='outlined' color="primary">
-                                    View detail
+                                    {t('inside property.view detail')}
                                 </Button>
                                 <Button
                                     size="small" variant='contained' color="primary">
-                                    Assign agent
+                                    {t('inside property.assign agent')}
                                 </Button>
                             </CardActions>
                         </Card>
