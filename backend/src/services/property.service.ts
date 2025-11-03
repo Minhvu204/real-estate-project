@@ -6,6 +6,7 @@ import PropertyType from "../models/propertyType.model";
 import Feature from "../models/feature.model";
 import mongoose from "mongoose";
 import { assignmentService } from "./assignment.service";
+import { createMultilangText } from "../utils/translateHelper";
 
 export const propertyService = {
   async getAllProperties(filters: any) {
@@ -208,6 +209,9 @@ export const propertyService = {
       type_id,
       features = [],
       agent_id,
+      title,
+      description,
+      address,
       ...rest
     } = data;
 
@@ -229,9 +233,19 @@ export const propertyService = {
       }
     }
 
+    // Convert title, description, address sang đa ngôn ngữ
+    const [titleMultilang, descriptionMultilang, addressMultilang] = await Promise.all([
+      createMultilangText(title || ""),
+      description ? createMultilangText(description) : Promise.resolve({ vi: "", en: "" }),
+      createMultilangText(address || ""),
+    ]);
+
     // Tạo property mới
     const property = await Property.create({
       ...rest,
+      title: titleMultilang,
+      description: descriptionMultilang.vi || descriptionMultilang.en ? descriptionMultilang : undefined,
+      address: addressMultilang,
       city_id,
       category_id,
       type_id,

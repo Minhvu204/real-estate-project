@@ -23,9 +23,9 @@ const seedTaxonomies = async () => {
 
         // --- CITIES ---
     const cities = [
-      { city_name: "Can Tho" },
-      { city_name: "Hai Phong" },
-      { city_name: "Nha Trang" },
+      { city_name: { vi: "Cần Thơ", en: "Can Tho" } },
+      { city_name: { vi: "Hải Phòng", en: "Hai Phong" } },
+      { city_name: { vi: "Nha Trang", en: "Nha Trang" } },
     ];
 
     

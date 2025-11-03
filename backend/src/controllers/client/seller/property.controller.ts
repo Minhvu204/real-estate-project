@@ -13,20 +13,21 @@ export const assignAgentToProperty = async (req: Request, res: Response) => {
     const propertyId = req.params.id;
     const { agent_id } = req.body;
 
-    if (!agent_id) return errorResponse(res, "Thiếu agent_id", 400);
+    if (!agent_id) return errorResponse(req, res, "Thiếu agent_id", 400);
 
     // Lấy property
     const property = await Property.findById(propertyId);
-    if (!property) return errorResponse(res, "Property không tồn tại", 404);
+    if (!property) return errorResponse(req, res, "Property không tồn tại", 404);
 
     // Kiểm tra quyền
     const isOwner = property.owner_id?.toString() === (user?.id || user?._id);
 
-    if (!isOwner) return errorResponse(res, "Không có quyền gán agent", 403);
+    if (!isOwner) return errorResponse(req, res, "Không có quyền gán agent", 403);
 
     // Nếu đã có agent thì yêu cầu huỷ gán trước (không cho overwrite trực tiếp)
     if (property.agent_id) {
       return errorResponse(
+        req,
         res,
         "Property đã có agent, vui lòng huỷ gán agent hiện tại trước khi gán agent mới",
         409
@@ -37,10 +38,10 @@ export const assignAgentToProperty = async (req: Request, res: Response) => {
       actorId: (user?.id || user?._id),
     });
 
-    return successResponse(res, "Gán agent thành công", updated);
+    return successResponse(req, res, "Gán agent thành công", updated);
   } catch (error: any) {
     console.error("assignAgentToProperty error:", error);
-    return errorResponse(res, error.message || "Lỗi server", 500);
+    return errorResponse(req, res, error.message || "Lỗi server", 500);
   }
 };
 
@@ -53,19 +54,19 @@ export const removeAgentFromProperty = async (req: Request, res: Response) => {
     const propertyId = req.params.id;
 
     const property = await Property.findById(propertyId);
-    if (!property) return errorResponse(res, "Property không tồn tại", 404);
+    if (!property) return errorResponse(req, res, "Property không tồn tại", 404);
 
     const isOwner = property.owner_id?.toString() === (user?.id || user?._id);
-    if (!isOwner) return errorResponse(res, "Không có quyền huỷ agent", 403);
+    if (!isOwner) return errorResponse(req, res, "Không có quyền huỷ agent", 403);
 
     const updated = await propertyService.removeAgent(propertyId, {
       actorId: (user?.id || user?._id),
     });
 
-    return successResponse(res, "Huỷ gán agent thành công", updated);
+    return successResponse(req, res, "Huỷ gán agent thành công", updated);
   } catch (error: any) {
     console.error("removeAgentFromProperty error:", error);
-    return errorResponse(res, error.message || "Lỗi server", 500);
+    return errorResponse(req, res, error.message || "Lỗi server", 500);
   }
 };
 
@@ -87,10 +88,10 @@ export const createProperty = async (req: Request, res: Response) => {
       ownerId
     );
 
-    return successResponse(res, "Tạo tin đăng bất động sản thành công", newProperty);
+    return successResponse(req, res, "property.create_success", newProperty);
 
   } catch (err: any) {
     console.error("Lỗi khi tạo property:", err);
-    return errorResponse(res, err.message || "Lỗi server", 500);
+    return errorResponse(req, res, "property.create_failed", 500);
   }
 };
