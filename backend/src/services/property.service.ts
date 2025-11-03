@@ -262,4 +262,81 @@ export const propertyService = {
 
     return property;
   },
+
+	async updateProperty(id: string, data: any, userId: string) {
+		const property = await Property.findById(id);
+		if (!property) {
+			const err: any = new Error("Property không tồn tại");
+			err.status = 404;
+			throw err;
+		}
+
+		if (property.deleted) {
+			const err: any = new Error("Property đã bị xoá");
+			err.status = 410;
+			throw err;
+		}
+
+		const isOwner = property.owner_id?.toString() === userId;
+		const isAgent = property.agent_id?.toString() === userId;
+		if (!isOwner && !isAgent) {
+			const err: any = new Error("Không có quyền cập nhật property này");
+			err.status = 403;
+			throw err;
+		}
+
+		const {
+			title,
+			description,
+			address,
+			images,
+			...rest
+		} = data || {};
+
+		// Áp dụng cập nhật các trường đơn giản
+		Object.assign(property, rest);
+
+		// Xử lý đa ngôn ngữ nếu truyền string
+		if (typeof title === "string") {
+			property.title = await createMultilangText(title);
+		}
+		if (typeof description === "string") {
+			const desc = await createMultilangText(description);
+			// nếu rỗng cả 2 ngôn ngữ thì bỏ qua
+			if (desc.vi || desc.en) property.description = desc;
+		}
+		if (typeof address === "string") {
+			property.address = await createMultilangText(address);
+		}
+
+		// Ảnh: nếu gửi images (mảng URL) thì ghi đè; nếu không gửi thì giữ nguyên
+		if (Array.isArray(images)) {
+			property.images = images;
+		}
+
+		await property.save();
+		return property;
+	},
+
+	async deleteProperty(id: string, userId: string) {
+		const property = await Property.findById(id);
+		if (!property) {
+			const err: any = new Error("Property không tồn tại");
+			err.status = 404;
+			throw err;
+		}
+
+		if (property.deleted) return; // idempotent
+
+		const isOwner = property.owner_id?.toString() === userId;
+		const isAgent = property.agent_id?.toString() === userId;
+		if (!isOwner && !isAgent) {
+			const err: any = new Error("Không có quyền xoá property này");
+			err.status = 403;
+			throw err;
+		}
+
+		property.deleted = true;
+		await property.save();
+	},
 };
