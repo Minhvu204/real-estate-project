@@ -24,6 +24,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import AuthContext from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
+import ButtonLanguage from "./common/ButtonLanguage";
 
 const Navbar: React.FC = () => {
     const { state, signOut } = useContext(AuthContext);
@@ -326,7 +327,7 @@ const Navbar: React.FC = () => {
                             ))}
                         </Box>
                     )}
-
+                    <ButtonLanguage />
                     {/* Right Side */}
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                         {!state.token ? (
