@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import * as categoryService from "../../services/admin/category.service";
 import { successResponse, errorResponse } from "../../utils/responseHandler";
 
+
 export const getAllCategories = async (_req: Request, res: Response) => {
   try {
     const categories = await categoryService.getAllCategories();
@@ -10,6 +11,7 @@ export const getAllCategories = async (_req: Request, res: Response) => {
     return errorResponse(res, error.message);
   }
 };
+
 
 export const createCategory = async (req: Request, res: Response) => {
   try {
@@ -20,6 +22,7 @@ export const createCategory = async (req: Request, res: Response) => {
   }
 };
 
+
 export const updateCategory = async (req: Request, res: Response) => {
   try {
     const updatedCategory = await categoryService.updateCategory(req.params.id, req.body);
@@ -29,10 +32,11 @@ export const updateCategory = async (req: Request, res: Response) => {
   }
 };
 
+
 export const deleteCategory = async (req: Request, res: Response) => {
   try {
     await categoryService.deleteCategory(req.params.id);
-    return successResponse(res, "Xóa danh mục thành công");
+    return successResponse(res, "Xóa danh mục thành công (đã đánh dấu deleted).");
   } catch (error: any) {
     return errorResponse(res, error.message);
   }

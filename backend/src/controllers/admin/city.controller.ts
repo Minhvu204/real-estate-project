@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import * as cityService from "../../services/admin/city.service";
 import { successResponse, errorResponse } from "../../utils/responseHandler";
 
+
 export const getAllCities = async (_req: Request, res: Response) => {
   try {
     const cities = await cityService.getAllCities();
@@ -10,6 +11,7 @@ export const getAllCities = async (_req: Request, res: Response) => {
     return errorResponse(res, error.message);
   }
 };
+
 
 export const createCity = async (req: Request, res: Response) => {
   try {
@@ -29,10 +31,11 @@ export const updateCity = async (req: Request, res: Response) => {
   }
 };
 
+
 export const deleteCity = async (req: Request, res: Response) => {
   try {
     await cityService.deleteCity(req.params.id);
-    return successResponse(res, "Xóa thành phố thành công");
+    return successResponse(res, "Xóa thành phố thành công (đã đánh dấu deleted).");
   } catch (error: any) {
     return errorResponse(res, error.message);
   }
