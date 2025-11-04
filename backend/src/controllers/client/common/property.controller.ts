@@ -2,45 +2,46 @@ import { Request, Response } from "express";
 import { propertyService } from "../../../services/property.service";
 import { successResponse, errorResponse } from "../../../utils/responseHandler";
 
+export const getMyProperties = async (req: Request, res: Response) => {
+	try {
+		const userId = (req as any).user?.id || (req as any).user?._id;
+		if (!userId) return errorResponse(req, res, "Unauthorized", 401);
+
+		const properties = await propertyService.getPropertiesByUser(String(userId), req.query);
+		return successResponse(req, res, "Lấy danh sách bất động sản thành công", properties);
+	} catch (error: any) {
+		console.error("getMyProperties error:", error);
+		return errorResponse(req, res, error.message || "Server error", error.status || 500);
+	}
+};
+
 export const updateProperty = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params as { id: string };
-    const user = (req as any).user as { id: string };
+	try {
+		const userId = (req as any).user?.id || (req as any).user?._id;
+		if (!userId) return errorResponse(req, res, "Unauthorized", 401);
 
-    const payload: any = { ...req.body };
+		const { id } = req.params;
+		const body = req.body || {};
 
-    // Xử lý images:
-    // - Nếu có upload files mới: middleware đã gán req.body.images = URLs mới
-    // - Nếu có images trong body: giữ nguyên (có thể là URLs hoặc mảng URLs)
-    // - Nếu không có images trong payload: không update images field
-    if (payload.images !== undefined) {
-      if (typeof payload.images === "string") {
-        payload.images = [payload.images];
-      } else if (!Array.isArray(payload.images)) {
-        // Nếu không phải string và không phải array, xóa field
-        delete payload.images;
-      }
-      // Nếu là array rỗng [], giữ nguyên để xóa hết images
-    }
-
-    const updated = await propertyService.updateProperty(id, payload, user.id);
-    return successResponse(res, "Cập nhật bất động sản thành công", updated);
-  } catch (error: any) {
-    const status = error.status || 500;
-    return errorResponse(res, error.message || "Không thể cập nhật bất động sản", status);
-  }
+		// Middleware uploadMultiple đã gắn req.body.images = string[] nếu có tải ảnh
+		const updated = await propertyService.updateProperty(id, body, String(userId));
+		return successResponse(req, res, "Cập nhật bất động sản thành công", updated);
+	} catch (error: any) {
+		console.error("updateProperty error:", error);
+		return errorResponse(req, res, error.message || "Server error", error.status || 500);
+	}
 };
 
 export const deleteProperty = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params as { id: string };
-    const user = (req as any).user as { id: string };
+	try {
+		const userId = (req as any).user?.id || (req as any).user?._id;
+		if (!userId) return errorResponse(req, res, "Unauthorized", 401);
 
-    await propertyService.deleteProperty(id, user.id);
-    return successResponse(res, "Xóa mềm bất động sản thành công", { id });
-  } catch (error: any) {
-    const status = error.status || 500;
-    return errorResponse(res, error.message || "Không thể xóa bất động sản", status);
-  }
+		const { id } = req.params;
+		await propertyService.deleteProperty(id, String(userId));
+		return successResponse(req, res, "Xoá bất động sản (soft-delete) thành công", { id });
+	} catch (error: any) {
+		console.error("deleteProperty error:", error);
+		return errorResponse(req, res, error.message || "Server error", error.status || 500);
+	}
 };
-

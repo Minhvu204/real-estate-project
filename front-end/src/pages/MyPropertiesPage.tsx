@@ -35,6 +35,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { getMyProperties, updateProperty, deleteProperty } from "../services/propertyService";
 import type { Property } from "../types/Property";
 import PropertyEditModal from "../components/PropertyManagement/PropertyEditModal";
+import { getText, containsText } from "../utils/multilang";
 
 const MyPropertiesPage: React.FC = () => {
     const [properties, setProperties] = useState<Property[]>([]);
@@ -59,16 +60,15 @@ const MyPropertiesPage: React.FC = () => {
         setLoading(true);
         try {
             const data = await getMyProperties();
-            console.log("✅ Loaded properties:", data);
-            setProperties(data);
+            const validData = Array.isArray(data) ? data.filter(p => p && p._id) : [];
+            setProperties(validData);
             
-            if (data.length === 0) {
-                toast.info("Bạn chưa có bất động sản nào hoặc backend chưa implement API");
+            if (validData.length === 0) {
+                toast.info("Bạn chưa có bất động sản nào");
             } else {
-                toast.success(`Đã tải ${data.length} bất động sản`);
+                toast.success(`Đã tải ${validData.length} bất động sản`);
             }
         } catch (error: any) {
-            console.error("❌ Error loading properties:", error);
             const status = error.response?.status;
             
             if (status === 401) {
@@ -90,17 +90,13 @@ const MyPropertiesPage: React.FC = () => {
 
     const filterProperties = () => {
         let filtered = properties;
-
-        // Filter by status
         if (statusFilter !== "all") {
             filtered = filtered.filter(p => p.status === statusFilter);
         }
-
-        // Filter by search term
         if (searchTerm) {
             filtered = filtered.filter(p =>
-                p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                p.address.toLowerCase().includes(searchTerm.toLowerCase())
+                containsText(p.title, searchTerm) ||
+                containsText(p.address, searchTerm)
             );
         }
 
@@ -114,12 +110,11 @@ const MyPropertiesPage: React.FC = () => {
 
     const handleUpdate = async (id: string, formData: FormData) => {
         try {
-            const updated = await updateProperty(id, formData);
+            await updateProperty(id, formData);
             toast.success("✅ Cập nhật bất động sản thành công!");
             setEditModalOpen(false);
-            setProperties(prev => prev.map(p => p._id === id ? updated : p));
+            await loadProperties();
         } catch (error: any) {
-            console.error("❌ Error updating property:", error);
             const message = error.response?.data?.message || "Không thể cập nhật bất động sản";
             toast.error(`❌ ${message}`);
             throw error;
@@ -142,7 +137,6 @@ const MyPropertiesPage: React.FC = () => {
             setSelectedProperty(null);
             setProperties(prev => prev.filter(p => p._id !== selectedProperty._id));
         } catch (error: any) {
-            console.error("❌ Error deleting property:", error);
             const message = error.response?.data?.message || "Không thể xóa bất động sản";
             if (error.response?.status === 403) {
                 toast.error("❌ Bạn không có quyền xóa bất động sản này");
@@ -276,7 +270,10 @@ const MyPropertiesPage: React.FC = () => {
                                         <TableRow key={property._id} hover>
                                             <TableCell>
                                                 <Typography variant="body2" fontWeight={600}>
-                                                    {property.title}
+                                                    {getText(property.title, "vi")}
+                                                </Typography>
+                                                <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
+                                                    EN: {getText(property.title, "en")}
                                                 </Typography>
                                             </TableCell>
                                             <TableCell>
@@ -286,12 +283,12 @@ const MyPropertiesPage: React.FC = () => {
                                             </TableCell>
                                             <TableCell>
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {property.address}
+                                                    {getText(property.address, "vi")}
                                                 </Typography>
                                             </TableCell>
                                             <TableCell>
                                                 <Chip
-                                                    label={property.type_id?.type_name || "N/A"}
+                                                    label={property.type_id?.type_name ? getText(property.type_id.type_name as any, "vi") : "N/A"}
                                                     size="small"
                                                     variant="outlined"
                                                 />
@@ -352,13 +349,13 @@ const MyPropertiesPage: React.FC = () => {
                                 Tiêu đề:
                             </Typography>
                             <Typography variant="body1" fontWeight={600} gutterBottom>
-                                {selectedProperty?.title}
+                                {selectedProperty ? getText(selectedProperty.title as any, "vi") : ""}
                             </Typography>
                             <Typography variant="subtitle2" color="text.secondary">
                                 Địa chỉ:
                             </Typography>
                             <Typography variant="body2">
-                                {selectedProperty?.address}
+                                {selectedProperty ? getText(selectedProperty.address as any, "vi") : ""}
                             </Typography>
                         </Box>
                         <Typography variant="body2" color="error" sx={{ mt: 2 }}>

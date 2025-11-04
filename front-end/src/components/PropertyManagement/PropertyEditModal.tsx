@@ -24,6 +24,7 @@ import type { City } from "../../types/Cities";
 import type { PropertyType } from "../../types/PropertyTypes";
 import type { Feature } from "../../types/Features";
 import { cityService, propertyTypeService, featureService } from "../../services/categoryService";
+import { getText } from "../../utils/multilang";
 
 interface PropertyEditModalProps {
     open: boolean;
@@ -69,19 +70,19 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
     useEffect(() => {
         if (property && open) {
             setFormData({
-                title: property.title || "",
-                description: property.description || "",
+                title: getText(property.title as any, "vi") || "",
+                description: getText(property.description as any, "vi") || "",
                 price: property.price || 0,
                 city_id: property.city_id?._id || "",
                 type_id: property.type_id?._id || "",
                 features: property.features?.map((f) => f._id) || [],
-                address: property.address || "",
+                address: getText(property.address as any, "vi") || "",
                 bedrooms: property.bedrooms || 0,
                 bathrooms: property.bathrooms || 0,
-                area: 0,
-                unit: "m²",
-                yearBuilt: new Date().getFullYear(),
-                floors: 1,
+                area: property.area || 0,
+                unit: property.unit || "m2",
+                yearBuilt: property.yearBuilt || new Date().getFullYear(),
+                floors: property.floors || 1,
             });
             setExistingImages(property.images || []);
             setImageFiles([]);
@@ -128,8 +129,6 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
         setLoading(true);
         try {
             const data = new FormData();
-            
-            // Append text fields
             data.append("title", formData.title);
             data.append("description", formData.description);
             data.append("price", formData.price.toString());
@@ -143,17 +142,14 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
             data.append("yearBuilt", formData.yearBuilt.toString());
             data.append("floors", formData.floors.toString());
 
-            // Append features
             formData.features.forEach((featureId) => {
                 data.append("features[]", featureId);
             });
 
-            // Append existing images (URLs to keep)
             existingImages.forEach((url) => {
                 data.append("existingImages[]", url);
             });
 
-            // Append new image files
             imageFiles.forEach((file) => {
                 data.append("images", file);
             });
@@ -161,7 +157,6 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
             await onSubmit(property._id, data);
             onClose();
         } catch (error) {
-            console.error("Error submitting form:", error);
         } finally {
             setLoading(false);
         }
@@ -231,7 +226,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                             >
                                 {cities.map((city) => (
                                     <MenuItem key={city._id} value={city._id}>
-                                        {city.city_name}
+                                        {getText(city.city_name as any, "vi")}
                                     </MenuItem>
                                 ))}
                             </Select>
@@ -246,7 +241,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                             >
                                 {types.map((type) => (
                                     <MenuItem key={type._id} value={type._id}>
-                                        {type.type_name}
+                                        {getText(type.type_name as any, "vi")}
                                     </MenuItem>
                                 ))}
                             </Select>
@@ -265,7 +260,11 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                                         {selected.map((value) => {
                                             const feature = features.find((f) => f._id === value);
                                             return (
-                                                <Chip key={value} label={feature?.feature_name || value} size="small" />
+                                                <Chip 
+                                                    key={value} 
+                                                    label={feature?.feature_name ? getText(feature.feature_name as any, "vi") : value} 
+                                                    size="small" 
+                                                />
                                             );
                                         })}
                                     </Box>
@@ -273,7 +272,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                             >
                                 {features.map((feature) => (
                                     <MenuItem key={feature._id} value={feature._id}>
-                                        {feature.feature_name}
+                                        {getText(feature.feature_name as any, "vi")}
                                     </MenuItem>
                                 ))}
                             </Select>

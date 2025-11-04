@@ -1,4 +1,5 @@
 // src/config/jwt.config.ts
+// src/config/jwt.config.ts
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET as string;

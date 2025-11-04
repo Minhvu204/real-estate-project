@@ -1,19 +1,7 @@
 import { createAxiosInstance } from "../utils/axiosInstance";
-
-export type City = {
-    _id: string;
-    city_name: string;
-};
-
-export type PropertyType = {
-    _id: string;
-    type_name: string;
-};
-
-export type Feature = {
-    _id: string;
-    feature_name: string;
-};
+import type { City } from "../types/Cities";
+import type { PropertyType } from "../types/PropertyTypes";
+import type { Feature } from "../types/Features";
 
 const extractUniqueCities = (properties: any[]): City[] => {
     const cityMap = new Map<string, City>();
@@ -77,7 +65,6 @@ export const cityService = {
             
             return extractUniqueCities(properties);
         } catch (error) {
-            console.error("Error loading cities:", error);
             return [];
         }
     },
@@ -100,7 +87,6 @@ export const propertyTypeService = {
             
             return extractUniqueTypes(properties);
         } catch (error) {
-            console.error("Error loading types:", error);
             return [];
         }
     },
@@ -123,7 +109,6 @@ export const featureService = {
             
             return extractUniqueFeatures(properties);
         } catch (error) {
-            console.error("Error loading features:", error);
             return [];
         }
     },
