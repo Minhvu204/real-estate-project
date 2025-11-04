@@ -66,4 +66,57 @@ export const adminPropertyService = {
       data: items,
     };
   },
+
+  async hide(propertyId: string, adminId: string) {
+    if (!mongoose.isValidObjectId(propertyId)) {
+      const err: any = new Error("Invalid property id");
+      err.status = 400;
+      throw err;
+    }
+
+    const property = await Property.findById(propertyId);
+    if (!property) {
+      const err: any = new Error("Property not found");
+      err.status = 404;
+      throw err;
+    }
+
+    if (property.deleted) {
+      return { id: property._id, deleted: true, status: property.status };
+    }
+
+    property.deleted = true;
+    if (property.status !== "rejected") {
+      property.status = "rejected" as any;
+    }
+    property.reviewedBy = new mongoose.Types.ObjectId(adminId);
+    property.reviewedAt = new Date();
+    await property.save();
+
+    return { id: property._id, deleted: property.deleted, status: property.status };
+  },
+
+  async restore(propertyId: string, _adminId: string) {
+    if (!mongoose.isValidObjectId(propertyId)) {
+      const err: any = new Error("Invalid property id");
+      err.status = 400;
+      throw err;
+    }
+
+    const property = await Property.findById(propertyId);
+    if (!property) {
+      const err: any = new Error("Property not found");
+      err.status = 404;
+      throw err;
+    }
+
+    if (!property.deleted) {
+      return { id: property._id, deleted: false, status: property.status };
+    }
+
+    property.deleted = false;
+    await property.save();
+
+    return { id: property._id, deleted: property.deleted, status: property.status };
+  },
 };
