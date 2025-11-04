@@ -14,6 +14,8 @@ import { Pagination, Stack } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ButtonLanguage from '../common/ButtonLanguage';
+import { getLanguage } from '../../utils/storage';
+
 
 const SellerProperties = () => {
     const [properties, setProperties] = useState<Property[]>([]);
@@ -22,6 +24,8 @@ const SellerProperties = () => {
     const [page, setPage] = useState(1);
     const [itemsPerPage] = useState(6);
     const { t } = useTranslation();
+    const currentLanguage = getLanguage();
+
     useEffect(() => {
         const fetchProperties = async () => {
             try {
@@ -81,8 +85,11 @@ const SellerProperties = () => {
                                     }}
                                 />
                                 <CardContent>
+                                    <Typography gutterBottom variant="h6" component="div" className='text-blue-500'>
+                                        {currentLanguage === 'en' ? p.title.en : p.title.vi}
+                                    </Typography>
                                     <Typography gutterBottom variant="h6" component="div">
-                                        {p.address.vi}
+                                        {currentLanguage === 'en' ? p.address.en : p.address.vi}
                                     </Typography>
                                     <Typography variant="body2" color="text.secondary">
                                         Price: {p.price.toLocaleString()} VNĐ
