@@ -5,10 +5,10 @@ import { successResponse, errorResponse } from "../../utils/responseHandler";
 export const getAllProperties = async (req: Request, res: Response) => {
   try {
     const result = await propertyService.getAllProperties(req.query);
-    return successResponse(res, "Danh sách bất động sản", result);
+    return successResponse(req, res, "Danh sách bất động sản", result);
   } catch (error) {
     console.error("getAllProperties error:", error);
-    return errorResponse(res, "Server error", 500);
+    return errorResponse(req, res, "Server error", 500);
   }
 };
 
@@ -16,10 +16,11 @@ export const getAllProperties = async (req: Request, res: Response) => {
 export const getAllCoordinates = async (req: Request, res: Response) => {
   try {
     const data = await propertyService.getAllCoordinates();
-    return successResponse(res, "Danh sách tọa độ property", data);
+    return successResponse(req, res, "Danh sách tọa độ property", data);
   } catch (error: any) {
     console.error("getAllCoordinates error:", error.message);
     return errorResponse(
+      req,
       res,
       error.message || "Không thể lấy danh sách tọa độ property.",
       error.status || 500
@@ -35,6 +36,7 @@ export const getPropertyById = async (req: Request, res: Response) => {
 
     // Nếu tìm thấy -> trả kết quả thành công
     return successResponse(
+      req,
       res,
       "Lấy chi tiết bất động sản thành công.",
       property
@@ -42,6 +44,7 @@ export const getPropertyById = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("Lỗi khi lấy chi tiết property:", error.message);
     return errorResponse(
+      req,
       res,
       error.message || "Không thể lấy thông tin bất động sản.",
       error.status || 500

@@ -1,5 +1,10 @@
 import express from "express";
-import { getAllUsers, getUserById, updateUserInfo, updateUserStatus } from "../../controllers/admin/user.controller";
+import {
+  getAllUsers,
+  getUserById,
+  updateUserInfo,
+  updateUserStatus,
+} from "../../controllers/admin/user.controller";
 import { verifyToken } from "../../middlewares/auth.middleware";
 import { roleCheck } from "../../middlewares/roleCheck.middleware";
 
