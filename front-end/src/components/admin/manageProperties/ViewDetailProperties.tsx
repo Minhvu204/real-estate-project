@@ -13,6 +13,7 @@ const ViewDetailProperties = () => {
     const fetchProperty = async () => {
       const data = await getPropertiesById(id!);
       console.log(data);
+
       setProperty(data);
     };
     fetchProperty();
@@ -30,7 +31,6 @@ const ViewDetailProperties = () => {
 
   return (
     <>
-      {/* Header với nút trở lại */}
       <div className="relative">
         <button
           onClick={() => navigate(-1)}
@@ -39,8 +39,6 @@ const ViewDetailProperties = () => {
           <span className="text-lg">←</span>
           <span className="font-medium hidden sm:inline">Trở lại</span>
         </button>
-
-        {/* Carousel */}
         <Carousel
           showArrows={true}
           autoPlay
@@ -62,7 +60,6 @@ const ViewDetailProperties = () => {
           ))}
         </Carousel>
 
-        {/* Overlay tiêu đề */}
         <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 via-black/20 to-transparent text-white px-4 sm:px-8 py-4 sm:py-6">
           <h2 className="text-xl sm:text-3xl font-bold drop-shadow-lg">
             {property.title}
@@ -73,9 +70,7 @@ const ViewDetailProperties = () => {
         </div>
       </div>
 
-      {/* Nội dung */}
       <div className="p-4 sm:p-8">
-        {/* Thông tin cơ bản */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center border-b border-gray-200 pb-6 mb-6">
           <div>
             <h3 className="text-xl sm:text-2xl font-semibold text-gray-800">
@@ -105,17 +100,16 @@ const ViewDetailProperties = () => {
               }`}
             >
               {property.status === "approved"
-                ? "Đã duyệt"
+                ? "approved"
                 : property.status === "pending"
-                ? "Đang chờ"
+                ? "pending"
                 : property.status === "available"
-                ? "Còn trống"
-                : "Từ chối"}
+                ? "available"
+                : "reject"}
             </span>
           </div>
         </div>
 
-        {/* Các thông tin phụ */}
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
           <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-lg border">
             <span className="text-blue-600 text-2xl">🛏</span>
@@ -142,7 +136,6 @@ const ViewDetailProperties = () => {
           </div>
         </div>
 
-        {/* Mô tả */}
         <div className="mb-8">
           <h4 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3">
             📝 Mô tả chi tiết
@@ -152,7 +145,6 @@ const ViewDetailProperties = () => {
           </p>
         </div>
 
-        {/* Tiện ích nổi bật */}
         {property.features?.length > 0 && (
           <div className="mb-8">
             <h4 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3">
@@ -171,7 +163,6 @@ const ViewDetailProperties = () => {
           </div>
         )}
 
-        {/* Chủ sở hữu */}
         <div className="p-4 sm:p-6 bg-gray-50 rounded-xl border border-gray-200 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
           <img
             src={property.owner.avatar}

@@ -1,4 +1,7 @@
+import { blockUser, getUsersById } from "../../../services/userService";
 import type { User } from "@/types/Users";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLock, faLockOpen } from "@fortawesome/free-solid-svg-icons";
 import {
   Avatar,
   Box,
@@ -13,6 +16,7 @@ import {
   TableRow,
 } from "@mui/material";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 type BlockUserProps = {
   userId: string;
 };
@@ -20,7 +24,7 @@ const BlockUser = ({ userId }: BlockUserProps) => {
   const [open, setOpen] = useState<boolean>(false);
   const [user, setUser] = useState<User>();
 
-  const handleOpen = () => {
+  const handleOpen = async () => {
     setOpen(true);
   };
   const handleClose = () => {
@@ -28,36 +32,49 @@ const BlockUser = ({ userId }: BlockUserProps) => {
   };
 
   useEffect(() => {
-    fetch(`http://localhost:3000/api/admin/users/${userId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setUser(data.data);
-      });
-  }, [user]);
+    const fetchUser = async () => {
+      try {
+        const data = await getUsersById(userId!);
+        setUser(data);
+      } catch (error) {
+        toast.error("Không thể lấy dữ liệu người dùng.");
+        console.error("Error fetching user data", error);
+      }
+    };
+    fetchUser();
+  }, [userId]);
 
   const handleBlockUser = async () => {
+    if (!userId) {
+      toast.error("Không tìm thấy ID người dùng!");
+      return;
+    }
     if (!user) return;
+
     try {
-      const res = await fetch(
-        `http://localhost:3000/api/admin/users/${user.id}/status`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...user, isActive: !user.isActive }),
-        }
-      );
-      if (res.ok) {
-        const updated = await res.json();
-        setUser(updated);
-        alert("Cập nhật thành công!");
-        setOpen(false);
+      const updated = await blockUser(userId, user);
+      setUser(updated);
+      if (updated.isActive) {
+        toast.success("Unblock thành công!");
       } else {
-        alert("Cập nhật thất bại!");
+        toast.success("Block thành công!");
       }
+      setOpen(false);
     } catch (error) {
-      console.error("Lỗi khi cập nhật:", error);
+      toast.error(user.isActive ? "Block thất bại!" : "Unblock thất bại!");
+      console.error(error);
     }
   };
+
+  if (!user) {
+    return (
+      <div className="flex justify-center items-center h-[400px]">
+        <span className="text-gray-500 animate-pulse text-lg">
+          Đang tải dữ liệu...
+        </span>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -65,7 +82,7 @@ const BlockUser = ({ userId }: BlockUserProps) => {
         <Button
           variant="contained"
           size="small"
-          color={user.isActive ? "error" : "success"}
+          color="error"
           onClick={handleOpen}
           sx={{
             px: 1.5,
@@ -76,7 +93,11 @@ const BlockUser = ({ userId }: BlockUserProps) => {
             height: "28px",
           }}
         >
-          {user.isActive ? "Block" : "Unblock"}
+          {user.isActive ? (
+            <FontAwesomeIcon icon={faLockOpen} />
+          ) : (
+            <FontAwesomeIcon icon={faLock} />
+          )}
         </Button>
       )}
 

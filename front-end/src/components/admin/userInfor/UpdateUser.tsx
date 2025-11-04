@@ -1,23 +1,27 @@
 import { useEffect, useState } from "react";
 import FormUpdateUser from "./FormUpdateUser";
 import type { User } from "@/types/Users";
-import { useParams } from "react-router-dom";
-
+import { useNavigate, useParams } from "react-router-dom";
+import { getUsersById, updateUser } from "../../../services/userService";
+import { toast } from "react-toastify";
 const UpdateUser = () => {
   const [user, setUser] = useState<User>();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const Role = ["admin", "agent", "seller", "buyer"];
   const { id } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`http://localhost:3000/api/admin/users/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data.data);
-        setUser(data.data);
-      });
-  }, []);
-  // console.log(id);
+    const fetchUser = async () => {
+      try {
+        const data = await getUsersById(id!);
+        setUser(data);
+      } catch (error) {
+        console.error("Error fetching user data", error);
+      }
+    };
+    fetchUser();
+  }, [id]);
 
   const validateUpdateUser = () => {
     const newError: Record<string, string> = {};
@@ -34,21 +38,22 @@ const UpdateUser = () => {
   };
 
   const handleUpdate = async () => {
+    if (!id) {
+      toast.error("Không tìm thấy ID người dùng!");
+      return;
+    }
     if (!user) return;
     if (!validateUpdateUser()) return;
+
     try {
-      const res = await fetch(`http://localhost:3000/api/admin/users/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(user),
-      });
-      if (res.ok) {
-        alert("Cập nhật thành công!");
-      } else {
-        alert("Cập nhật thất bại!");
-      }
+      await updateUser(id, user);
+      toast.success("Cập nhật thành công!");
+      setTimeout(() => {
+        navigate("/admin/users");
+      }, 1500);
     } catch (error) {
-      console.error("Lỗi khi cập nhật:", error);
+      toast.error("Cập nhật thất bại!");
+      console.error(error);
     }
   };
 

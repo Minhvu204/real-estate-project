@@ -6,6 +6,9 @@ import { useNavigate } from "react-router-dom";
 import { getAllUsers } from "../../services/userService";
 import type { User } from "../../types/Users";
 import BlockUser from "./userInfor/BlockUser";
+import { ToastContainer } from "react-toastify";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faWrench, faEye } from "@fortawesome/free-solid-svg-icons";
 const defaultUser = "/defaultUser.png";
 
 const columns = (navigate: any) => [
@@ -38,19 +41,19 @@ const columns = (navigate: any) => [
       <div className="flex justify-center items-center space-x-2">
         <div>
           <button
-            className="bg-blue-500 text-white px-3 rounded text-xs font-medium hover:bg-blue-600 transition-all h-7"
+            className="text-white px-3 rounded text-xs font-medium transition-all h-7 cursor-pointer bg-green-600 hover:bg-green-700"
             onClick={() => navigate(`${param.row.id}`)}
           >
-            View
+            <FontAwesomeIcon icon={faEye} />
           </button>
         </div>
 
         <div>
           <button
-            className="bg-red-500 text-white px-3 rounded text-xs font-medium hover:bg-red-600 transition-all h-7"
+            className="text-white px-3 rounded text-xs font-medium transition-all h-7 cursor-pointer bg-blue-600 hover:bg-blue-700"
             onClick={() => navigate(`edit/${param.row.id}`)}
           >
-            Update
+            <FontAwesomeIcon icon={faWrench} />
           </button>
         </div>
 
@@ -119,6 +122,18 @@ export default function DataTable() {
         initialState={{ pagination: { paginationModel } }}
         pageSizeOptions={[5, 10]}
         sx={{ border: 0 }}
+      />
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
       />
     </Paper>
   );

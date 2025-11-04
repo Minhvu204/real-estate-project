@@ -9,6 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import React from "react";
+import { ToastContainer } from "react-toastify";
 
 interface FormUpdateUserProps {
   user?: User;
@@ -158,6 +159,18 @@ const FormUpdateUser: React.FC<FormUpdateUserProps> = ({
           </Box>
         )}
       </Container>
+      <ToastContainer
+        position="top-right"
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </>
   );
 };
