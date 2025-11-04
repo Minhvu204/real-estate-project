@@ -3,14 +3,12 @@ import multer from "multer";
 import { verifyToken } from "../../../middlewares/auth.middleware";
 import { roleCheck } from "../../../middlewares/roleCheck.middleware";
 import { uploadMultipleToCloudinary } from "../../../middlewares/uploadMultipleToCloudinary.middleware";
-import { updateProperty, deleteProperty } from "../../../controllers/client/common/property.controller";
+import { getMyProperties, updateProperty, deleteProperty } from "../../../controllers/client/common/property.controller";
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-router.get("", verifyToken, roleCheck("seller","agent"), (req, res) => {
-  res.json({ message: "Lấy danh sách properties" });
-});
+router.get("", verifyToken, roleCheck("seller","agent"), getMyProperties);
 
 // PATCH /api/client/properties/:id (multipart nếu chỉnh ảnh)
 router.patch(

@@ -69,6 +69,67 @@ export const propertyService = {
     };
   },
 
+  async getPropertiesByOwnerOrAgent(user: { id?: string; _id?: string; role?: string }, queryParams: any) {
+    const userId = String((user as any)?.id || (user as any)?._id);
+    if (!userId) {
+      const err: any = new Error("Unauthorized");
+      err.status = 401;
+      throw err;
+    }
+
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      keyword,
+    } = queryParams || {};
+
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    const baseQuery: any = { deleted: false };
+    if (status) baseQuery.status = status;
+    if (keyword) baseQuery["title.vi"] = { $regex: keyword, $options: "i" };
+
+    if (user.role === "seller") {
+      baseQuery.owner_id = userId;
+    } else if (user.role === "agent") {
+      baseQuery.agent_id = userId;
+    } else {
+      const err: any = new Error("Forbidden");
+      err.status = 403;
+      throw err;
+    }
+
+    const [items, total] = await Promise.all([
+      Property.find(baseQuery)
+        .populate("city_id", "city_name")
+        .populate("category_id", "category_name")
+        .populate("type_id", "type_name")
+        .populate("owner_id", "fullName email phone avatar")
+        .populate("agent_id", "fullName email phone avatar")
+        .populate("features", "feature_name")
+        .populate('type_id', 'type_name')
+        .populate("assignmentHistory.agent_id", "fullName email")
+        .populate("assignmentHistory.assignedBy", "fullName email")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      Property.countDocuments(baseQuery),
+    ]);
+
+    return {
+      pagination: {
+        currentPage: pageNum,
+        totalPages: Math.ceil(total / limitNum),
+        totalItems: total,
+      },
+      data: items,
+    };
+  },
+
   getPropertyById: async (id: string) => {
     const property = await Property.findById(id)
       .populate("city_id", "city_name")
