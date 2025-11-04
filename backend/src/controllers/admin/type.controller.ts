@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import * as typeService from "../../services/admin/type.service";
 import { successResponse, errorResponse } from "../../utils/responseHandler";
 
+
 export const getAllTypes = async (_req: Request, res: Response) => {
   try {
     const types = await typeService.getAllTypes();
@@ -10,6 +11,8 @@ export const getAllTypes = async (_req: Request, res: Response) => {
     return errorResponse(res, error.message);
   }
 };
+
+
 export const createType = async (req: Request, res: Response) => {
   try {
     const newType = await typeService.createType(req.body);
@@ -18,6 +21,7 @@ export const createType = async (req: Request, res: Response) => {
     return errorResponse(res, error.message);
   }
 };
+
 
 export const updateType = async (req: Request, res: Response) => {
   try {
@@ -28,10 +32,11 @@ export const updateType = async (req: Request, res: Response) => {
   }
 };
 
+
 export const deleteType = async (req: Request, res: Response) => {
   try {
     await typeService.deleteType(req.params.id);
-    return successResponse(res, "Xóa loại bất động sản thành công");
+    return successResponse(res, "Xóa loại bất động sản thành công (đã đánh dấu deleted).");
   } catch (error: any) {
     return errorResponse(res, error.message);
   }
