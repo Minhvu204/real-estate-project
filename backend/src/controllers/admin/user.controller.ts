@@ -10,9 +10,9 @@ export const getAllUsers = async (req: any, res: Response) => {
       Number(page),
       Number(limit)
     );
-    return successResponse(res, "Lấy danh sách người dùng thành công", data);
+    return successResponse(req, res, "Lấy danh sách người dùng thành công", data);
   } catch (error) {
-    return errorResponse(res, "Lấy danh sách người dùng thất bại", 500);
+    return errorResponse(req, res, "Lấy danh sách người dùng thất bại", 500);
   }
 };
 
@@ -23,13 +23,14 @@ export const getUserById = async (req: Request, res: Response) => {
     const user = await userService.getUserById(id);
 
     if (!user) {
-      return errorResponse(res, "Không tìm thấy người dùng.", 404);
+      return errorResponse(req, res, "Không tìm thấy người dùng.", 404);
     }
 
-    return successResponse(res, "Lấy thông tin người dùng thành công", user);
+    return successResponse(req, res, "Lấy thông tin người dùng thành công", user);
   } catch (error: any) {
     console.error("getUserById error:", error.message);
     return errorResponse(
+      req,
       res,
       error.message || "Lấy thông tin người dùng thất bại.",
       error.status || 500
@@ -56,6 +57,7 @@ export const updateUserInfo = async (req: Request, res: Response) => {
     });
 
     return successResponse(
+      req,
       res,
       `Cập nhật thông tin người dùng thành công: ${updatedUser.fullName}`,
       updatedUser
@@ -63,6 +65,7 @@ export const updateUserInfo = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("updateUserInfo error:", error.message);
     return errorResponse(
+      req,
       res,
       error.message || "Không thể cập nhật thông tin người dùng.",
       error.status || 500
@@ -87,6 +90,7 @@ export const updateUserStatus = async (req: Request, res: Response) => {
     const updatedUser = await userService.updateUserStatus(id, isActive);
 
     return successResponse(
+      req,
       res,
       `Cập nhật trạng thái người dùng thành công: ${updatedUser.fullName}`,
       updatedUser
@@ -94,6 +98,7 @@ export const updateUserStatus = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error("updateUserStatus error:", error.message);
     return errorResponse(
+      req,
       res,
       error.message || "Không thể cập nhật trạng thái người dùng.",
       error.status || 500

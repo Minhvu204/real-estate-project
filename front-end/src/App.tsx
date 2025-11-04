@@ -18,7 +18,6 @@ function App() {
       <AdminRoute>
       </AdminRoute>
       <LoginRoute></LoginRoute >
-      {/* <AdminRoute></AdminRoute> */}
       {search}
       {updateProfileRoutes}
       {propertyDetail}

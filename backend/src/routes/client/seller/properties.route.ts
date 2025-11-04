@@ -1,30 +1,46 @@
 import express from "express";
+import multer from "multer";
 import { verifyToken } from "../../../middlewares/auth.middleware";
 import { roleCheck } from "../../../middlewares/roleCheck.middleware";
+import {
+  createProperty,
+  removeAgentFromProperty,
+} from "../../../controllers/client/seller/property.controller";
+import { createAssignmentRequest } from "../../../controllers/client/seller/assignment.controller";
+import { uploadMultipleToCloudinary } from "../../../middlewares/uploadMultipleToCloudinary.middleware";
+
+
 
 const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
-// Seller tạo property mới
-router.post("/properties", verifyToken, roleCheck("seller"), (req, res) => {
-  res.json({ message: "Property mới đã được tạo" });
-});
 
-// Seller chỉnh sửa property
-router.put("/properties/:id", verifyToken, roleCheck("seller"), (req, res) => {
-  const { id } = req.params;
-  res.json({ message: `Property ${id} đã được cập nhật` });
-});
+// Seller gui yêu cầu gán agent cho property
+router.post(
+  "/:id/assign-agent",
+  verifyToken,
+  roleCheck("seller"),
+  createAssignmentRequest
+);
 
-// Seller xóa property
-router.delete("/properties/:id", verifyToken, roleCheck("seller"), (req, res) => {
-  const { id } = req.params;
-  res.json({ message: `Property ${id} đã được xóa` });
-});
+// Seller huỷ gán agent khỏi property
+router.patch(
+  "/:id/remove-agent",
+  verifyToken,
+  roleCheck("seller"),
+  removeAgentFromProperty
+);
 
-// Seller gán agent
-router.put("/properties/:id/assign-agent", verifyToken, roleCheck("seller"), (req, res) => {
-  const { id } = req.params;
-  res.json({ message: `Đã gán agent cho property ${id}` });
-});
+// Seller tạo bất động sản mới
+router.post(
+  "/create",
+  verifyToken,
+  roleCheck("seller", "agent"),
+  upload.array("images", 10), 
+  uploadMultipleToCloudinary, 
+  createProperty
+);
+
+
 
 export default router;
