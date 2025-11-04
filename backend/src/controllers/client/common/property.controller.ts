@@ -2,6 +2,19 @@ import { Request, Response } from "express";
 import { propertyService } from "../../../services/property.service";
 import { successResponse, errorResponse } from "../../../utils/responseHandler";
 
+export const getMyProperties = async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    if (!user) return errorResponse(req, res, "Unauthorized", 401);
+
+    const result = await propertyService.getPropertiesByOwnerOrAgent(user, req.query);
+    return successResponse(req, res, "Lấy danh sách bất động sản thành công", result);
+  } catch (error: any) {
+    const status = error.status || 500;
+    return errorResponse(req, res, error.message || "Server error", status);
+  }
+};
+
 export const updateProperty = async (req: Request, res: Response) => {
 	try {
 		const userId = (req as any).user?.id || (req as any).user?._id;
