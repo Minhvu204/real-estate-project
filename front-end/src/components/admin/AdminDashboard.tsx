@@ -1,206 +1,273 @@
-import Box from "@mui/material/Box";
-import Drawer from "@mui/material/Drawer";
-import CssBaseline from "@mui/material/CssBaseline";
-
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import Typography from "@mui/material/Typography";
-
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import PersonIcon from "@mui/icons-material/Person";
-import HomeIcon from "@mui/icons-material/Home";
-import { Link, Outlet } from "react-router-dom";
-import Divider from "@mui/material/Divider";
-import { useLocation } from "react-router-dom";
-import LogoutIcon from "@mui/icons-material/Logout";
-
+import * as React from "react";
+import {
+    AppBar,
+    Box,
+    CssBaseline,
+    Divider,
+    Drawer,
+    IconButton,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    Toolbar,
+    Typography,
+    Collapse,
+} from "@mui/material";
+import {
+    Dashboard as DashboardIcon,
+    Person as PersonIcon,
+    Home as HomeIcon,
+    Logout as LogoutIcon,
+    Menu as MenuIcon,
+    ExpandLess,
+    ExpandMore,
+    SupervisorAccount as SupervisorAccountIcon,
+    ShoppingBag as ShoppingBagIcon,
+    Hail as HailIcon,
+    RealEstateAgent as RealEstateAgentIcon,
+} from "@mui/icons-material";
 import { useState } from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import { getUser } from "../../utils/storage";
 
-import ExpandLess from "@mui/icons-material/ExpandLess";
-import ExpandMore from "@mui/icons-material/ExpandMore";
-
-import Collapse from "@mui/material/Collapse";
-import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
-import ShoppingBagIcon from "@mui/icons-material/ShoppingBag";
-import HailIcon from "@mui/icons-material/Hail";
-import RealEstateAgentIcon from "@mui/icons-material/RealEstateAgent";
 const drawerWidth = 240;
-const paddingLeft = 150;
 
-const AdminDashboard = () => {
-  const location = useLocation();
-  const [open, setOpen] = useState(false);
-  const menuItem = [
-    {
-      text: "Dashboard",
-      icon: <DashboardIcon />,
-      path: "/admin/dashboard",
-    },
-    {
-      text: "List User",
-      icon: <PersonIcon />,
-      path: "/admin/users",
-    },
-    {
-      text: "List Properties",
-      icon: <HomeIcon />,
-      path: "/admin/properties",
-    },
-  ];
-  const bottemItem = [
-    {
-      text: "Logout",
-      icon: <LogoutIcon />,
-      path: "/",
-    },
-  ];
-  const listUserItem = [
-    {
-      text: "Admin",
-      icon: <SupervisorAccountIcon />,
-      path: "/admin/users?role=admin",
-    },
-    {
-      text: "Buyer",
-      icon: <ShoppingBagIcon />,
-      path: "/admin/users?role=buyer",
-    },
-    {
-      text: "Seller",
-      icon: <HailIcon />,
-      path: "/admin/users?role=seller",
-    },
-    {
-      text: "Agent",
-      icon: <RealEstateAgentIcon />,
-      path: "/admin/users?role=agent",
-    },
-  ];
+export default function AdminDashboard() {
+    const location = useLocation();
+    const user = getUser();
+    const isActive = (path: string) => location.pathname + location.search === path;
 
-  const handleClick = () => {
-    setOpen(!open);
-  };
-  return (
-    <Box sx={{ display: "flex" }}>
-      <CssBaseline />
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
+    const [userListOpen, setUserListOpen] = useState(false);
 
-      {/* Drawer bên trái */}
-      <Drawer
-        variant="permanent"
-        anchor="left"
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: drawerWidth,
-            boxSizing: "border-box",
-            bgcolor: "#475569",
-          },
-        }}
-      >
-        <Typography
-          variant="h5"
-          sx={{ fontFamily: "Akaya Telivigala, cursive" }}
-          className="text-center py-2 text-blue-500 font-bold"
-        >
-          Dwello
-        </Typography>
-        <Typography
-          variant="h6"
-          className="text-center text-xl text-gray-300 pb-3 italic"
-        >
-          Your Home Your Future
-        </Typography>
-        <Divider></Divider>
-        <List>
-          {menuItem.map((item) => (
-            <Box key={item.text}>
-              <ListItem disablePadding className="text-white">
-                <ListItemButton
-                  component={Link}
-                  to={item.path}
-                  onClick={item.text === "List User" ? handleClick : undefined}
-                  className={`rounded-lg ${
-                    location.search.includes(item.path.split("=")[1])
-                      ? "bg-blue-500!"
-                      : ""
-                  }`}
+    const handleDrawerClose = () => {
+        setIsClosing(true);
+        setMobileOpen(false);
+    };
+    const handleDrawerTransitionEnd = () => setIsClosing(false);
+    const handleDrawerToggle = () => !isClosing && setMobileOpen(!mobileOpen);
+    const handleUserListToggle = () => setUserListOpen(!userListOpen);
+
+    const menuItems = [
+        { text: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
+        { text: "List User", icon: <PersonIcon />, path: "/admin/users" },
+        { text: "List Properties", icon: <HomeIcon />, path: "/admin/properties" },
+    ];
+
+    const listUserItem = [
+        { text: "Admin", icon: <SupervisorAccountIcon />, path: "/admin/users?role=admin" },
+        { text: "Buyer", icon: <ShoppingBagIcon />, path: "/admin/users?role=buyer" },
+        { text: "Seller", icon: <HailIcon />, path: "/admin/users?role=seller" },
+        { text: "Agent", icon: <RealEstateAgentIcon />, path: "/admin/users?role=agent" },
+    ];
+
+    const bottomItems = [{ text: "Logout", icon: <LogoutIcon />, path: "/login" }];
+
+    const drawer = (
+        <div>
+            <Toolbar sx={{ bgcolor: "#f0f4ff" }}>
+                <Typography
+                    variant="h5"
+                    sx={{
+                        fontFamily: "Akaya Telivigala, cursive",
+                        color: "#2563eb",
+                        fontWeight: "bold",
+                        width: "100%",
+                        textAlign: "center",
+                    }}
                 >
-                  <ListItemIcon>{item.icon}</ListItemIcon>
-                  <ListItemText primary={item.text} />
-                  {item.text === "List User" ? (
-                    open ? (
-                      <ExpandLess />
-                    ) : (
-                      <ExpandMore />
-                    )
-                  ) : null}
-                </ListItemButton>
-              </ListItem>
+                    Dwello
+                </Typography>
+            </Toolbar>
+            <Typography
+                variant="subtitle1"
+                sx={{
+                    textAlign: "center",
+                    color: "#64748b",
+                    fontStyle: "italic",
+                    mb: 1,
+                }}
+            >
+                Your Home Your Future
+            </Typography>
 
-              {item.text === "List User" && (
-                <Collapse in={open} timeout="auto" unmountOnExit>
-                  <List component="div" disablePadding>
-                    {listUserItem.map((i) => (
-                      <ListItemButton
-                        key={i.text}
-                        component={Link}
-                        to={i.path}
-                        className={`rounded-lg ${
-                          location.pathname.startsWith(i.path)
-                            ? "bg-blue-500!"
-                            : ""
-                        }`}
-                        sx={{ pl: 4 }}
-                      >
-                        <ListItemIcon>{i.icon}</ListItemIcon>
-                        <ListItemText primary={i.text} />
-                      </ListItemButton>
-                    ))}
-                  </List>
-                </Collapse>
-              )}
+            <Divider />
+            <List>
+                {menuItems.map((item) => (
+                    <Box key={item.text}>
+                        <ListItem disablePadding>
+                            <ListItemButton
+                                component={Link}
+                                to={item.path}
+                                onClick={item.text === "List User" ? handleUserListToggle : undefined}
+                                sx={{
+                                    borderRadius: "12px",
+                                    mx: 1,
+                                    mt: 1,
+                                    color: "#1e293b",
+                                    bgcolor: isActive(item.path) ? "#dbeafe" : "inherit",
+                                    "&:hover": {
+                                        bgcolor: "#bfdbfe",
+                                        transform: "scale(1.02)",
+                                        transition: "all 0.2s ease",
+                                    },
+                                }}
+                            >
+                                <ListItemIcon sx={{ color: "#2563eb" }}>
+                                    {item.icon}
+                                </ListItemIcon>
+                                <ListItemText primary={item.text} />
+                                {item.text === "List User" &&
+                                    (userListOpen ? <ExpandLess /> : <ExpandMore />)}
+                            </ListItemButton>
+                        </ListItem>
+
+                        {item.text === "List User" && (
+                            <Collapse in={userListOpen} timeout="auto" unmountOnExit>
+                                <List component="div" disablePadding>
+                                    {listUserItem.map((sub) => (
+                                        <ListItemButton
+                                            key={sub.text}
+                                            component={Link}
+                                            to={sub.path}
+                                            sx={{
+                                                pl: 6,
+                                                borderRadius: "12px",
+                                                mx: 1,
+                                                mt: 0.5,
+                                                color: "#1e293b",
+                                                bgcolor: isActive(sub.path) ? "#e0f2fe" : "inherit",
+                                                "&:hover": {
+                                                    bgcolor: "#bae6fd",
+                                                    transform: "scale(1.02)",
+                                                    transition: "all 0.2s ease",
+                                                },
+                                            }}
+                                        >
+                                            <ListItemIcon sx={{ color: "#0284c7" }}>
+                                                {sub.icon}
+                                            </ListItemIcon>
+                                            <ListItemText primary={sub.text} />
+                                        </ListItemButton>
+                                    ))}
+                                </List>
+                            </Collapse>
+                        )}
+                    </Box>
+                ))}
+            </List>
+
+            <Divider />
+            <List sx={{ mt: 2 }}>
+                {bottomItems.map((item) => (
+                    <ListItem key={item.text} disablePadding>
+                        <ListItemButton
+                            component={Link}
+                            to={item.path}
+                            sx={{
+                                color: "#dc2626",
+                                borderRadius: "12px",
+                                mx: 1,
+                                "&:hover": { bgcolor: "#fee2e2" },
+                            }}
+                        >
+                            <ListItemIcon sx={{ color: "#dc2626" }}>
+                                {item.icon}
+                            </ListItemIcon>
+                            <ListItemText primary={item.text} />
+                        </ListItemButton>
+                    </ListItem>
+                ))}
+            </List>
+        </div>
+    );
+
+    return (
+        <Box sx={{ display: "flex" }}>
+            <CssBaseline />
+            <AppBar
+                position="fixed"
+                sx={{
+                    background: "linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%)",
+                    width: { sm: `calc(100% - ${drawerWidth}px)` },
+                    ml: { sm: `${drawerWidth}px` },
+                    boxShadow: 2,
+                }}
+            >
+                <Toolbar>
+                    <IconButton
+                        color="inherit"
+                        aria-label="open drawer"
+                        edge="start"
+                        onClick={handleDrawerToggle}
+                        sx={{ mr: 2, display: { sm: "none" } }}
+                    >
+                        <MenuIcon />
+                    </IconButton>
+                    <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+                        Hello, <strong>{user.fullName}</strong>
+                    </Typography>
+                </Toolbar>
+            </AppBar>
+
+            {/* Drawer */}
+            <Box
+                component="nav"
+                sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+            >
+                {/* Mobile Drawer */}
+                <Drawer
+                    variant="temporary"
+                    open={mobileOpen}
+                    onTransitionEnd={handleDrawerTransitionEnd}
+                    onClose={handleDrawerClose}
+                    sx={{
+                        display: { xs: "block", sm: "none" },
+                        "& .MuiDrawer-paper": {
+                            width: drawerWidth,
+                            bgcolor: "#f8fafc",
+                            boxShadow: 3,
+                        },
+                    }}
+                >
+                    {drawer}
+                </Drawer>
+
+                {/* Permanent Drawer */}
+                <Drawer
+                    variant="permanent"
+                    sx={{
+                        display: { xs: "none", sm: "block" },
+                        "& .MuiDrawer-paper": {
+                            width: drawerWidth,
+                            bgcolor: "#f8fafc",
+                            borderRight: "1px solid #e2e8f0",
+                            boxShadow: 2,
+                        },
+                    }}
+                    open
+                >
+                    {drawer}
+                </Drawer>
             </Box>
-          ))}
-        </List>
 
-        <Divider />
-        <List className="pt-4">
-          {bottemItem.map((item) => (
-            <ListItem key={item.text} disablePadding className="text-white">
-              <ListItemButton
-                component={Link}
-                to={item.path}
-                className="rounded-lg"
-              >
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.text}></ListItemText>
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
-      </Drawer>
-
-      {/* Nội dung chính bên phải */}
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          bgcolor: "#fff",
-          minHeight: "100vh",
-        }}
-      >
-        {/* <Toolbar />{" "} */}
-        {/* tạo khoảng trống bằng chiều cao AppBar (nếu có sau này) */}
-        <Outlet></Outlet>
-      </Box>
-    </Box>
-  );
-};
-
-export default AdminDashboard;
+            {/* Main Content */}
+            <Box
+                component="main"
+                sx={{
+                    flexGrow: 1,
+                    p: 3,
+                    width: { sm: `calc(100% - ${drawerWidth}px)` },
+                    bgcolor: "#f1f5f9",
+                    minHeight: "100vh",
+                }}
+            >
+                <Toolbar />
+                <Outlet />
+            </Box>
+        </Box>
+    );
+}

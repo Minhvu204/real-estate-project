@@ -7,17 +7,29 @@ import "./feature.model";
 import "./user.model";
 
 export interface IProperty extends Document {
-  title: { vi: string; en: string };
-  description?: { vi?: string; en?: string };
+  title: {
+    vi: string;
+    en: string;
+  };
+  description?: {
+    vi?: string;
+    en?: string;
+  };
   price: number;
-  address: { vi: string; en: string };
+  address: {
+    vi: string;
+    en: string;
+  };
   bedrooms: number;
   bathrooms: number;
   area: number;
   unit: "m2" | "ft2";
   yearBuilt: number;
   floors: number;
-  coordinates: { lat: number; lng: number };
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
   city_id: mongoose.Types.ObjectId;
   type_id: mongoose.Types.ObjectId;
   category_id: mongoose.Types.ObjectId;

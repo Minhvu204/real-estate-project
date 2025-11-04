@@ -30,3 +30,7 @@ export function clearAuth() {
     clearToken();
     clearUser();
 }
+
+export function getLanguage(): string {
+    return localStorage.getItem("i18nextLng") || "en";
+}

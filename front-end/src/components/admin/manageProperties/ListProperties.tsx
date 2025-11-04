@@ -22,8 +22,8 @@ const ListProperties = () => {
 
   const filteredProperties = properties.filter((item) => {
     const matchSearch =
-      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.address.toLowerCase().includes(searchTerm.toLowerCase());
+      item.title.vi.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.address.vi.toLowerCase().includes(searchTerm.toLowerCase());
     const matchStatus = filterStatus === "" || item.status === filterStatus;
     return matchSearch && matchStatus;
   });
@@ -112,9 +112,9 @@ const ListProperties = () => {
                   className="rounded-full w-10 h-10"
                 />
               </td>
-              <td className="px-4 py-3 border-b max-w-[250px]">{item.title}</td>
+              <td className="px-4 py-3 border-b max-w-[250px]">{item.title.vi}</td>
               <td className="px-4 py-3 border-b max-w-[250px]">
-                {item.address}
+                {item.address.vi}
               </td>
               <td className="px-4 py-3 border-b">
                 <span
