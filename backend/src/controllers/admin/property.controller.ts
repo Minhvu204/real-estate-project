@@ -39,3 +39,33 @@ export const adminListProperties = async (req: Request, res: Response) => {
     );
   }
 };
+
+export const hideProperty = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const adminId = req.user?.id;
+    const result = await adminPropertyService.hide(id, adminId);
+    return successResponse(res, "Ẩn bài đăng thành công", result);
+  } catch (err: any) {
+    return errorResponse(
+      res,
+      err.message || "Failed to hide property",
+      err.status || 500
+    );
+  }
+};
+
+export const restoreProperty = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const adminId = req.user?.id;
+    const result = await adminPropertyService.restore(id, adminId);
+    return successResponse(res, "Khôi phục bài đăng thành công", result);
+  } catch (err: any) {
+    return errorResponse(
+      res,
+      err.message || "Failed to restore property",
+      err.status || 500
+    );
+  }
+};
