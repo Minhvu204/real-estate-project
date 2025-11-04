@@ -52,7 +52,6 @@ const SearchPage = () => {
                 const data = await getAllProperties();
                 setProperties(data);
                 console.log(data);
-
             } catch (error: any) {
                 setError(error.message || "Khong the tai duoc du lieu");
             } finally {
