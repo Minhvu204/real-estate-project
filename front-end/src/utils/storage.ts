@@ -30,7 +30,8 @@ export function clearAuth() {
     clearToken();
     clearUser();
 }
+export type Lang = 'en' | "vi"
 
-export function getLanguage(): string {
-    return localStorage.getItem("i18nextLng") || "en";
+export function getLanguage(): Lang {
+    return localStorage.getItem("i18nextLng") as Lang || "en";
 }

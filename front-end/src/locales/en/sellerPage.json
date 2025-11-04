@@ -1,7 +1,6 @@
 {
-    "inside property": {
-        "view detail": "View detail",
-        "assign agent": "Assign agent"
+    "insideProperty": {
+        "viewDetail": "View detail",
+        "assignAgent": "Assign agent"
     }
 }
-

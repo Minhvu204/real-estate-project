@@ -37,6 +37,9 @@ const LoginPage: React.FC = () => {
             else if (user.role === 'admin') {
                 navigate("/admin/dashboard")
             }
+            else if (user.role === 'seller') {
+                navigate("/seller/dashboard")
+            }
 
         } catch (err: any) {
             setLoading(false);

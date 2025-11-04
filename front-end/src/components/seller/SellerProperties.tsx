@@ -15,7 +15,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ButtonLanguage from '../common/ButtonLanguage';
 import { getLanguage } from '../../utils/storage';
-
+import type { Lang } from '../../utils/storage';
 
 const SellerProperties = () => {
     const [properties, setProperties] = useState<Property[]>([]);
@@ -23,8 +23,9 @@ const SellerProperties = () => {
     const user = getUser();
     const [page, setPage] = useState(1);
     const [itemsPerPage] = useState(6);
-    const { t } = useTranslation();
-    const currentLanguage = getLanguage();
+    const { t } = useTranslation(['home', 'properties']);
+
+    const currentLanguage: Lang = getLanguage();
 
     useEffect(() => {
         const fetchProperties = async () => {
@@ -54,7 +55,6 @@ const SellerProperties = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
     return (
-
         <>
             <ButtonLanguage></ButtonLanguage>
             <Grid container spacing={3} alignItems="stretch">
@@ -86,27 +86,27 @@ const SellerProperties = () => {
                                 />
                                 <CardContent>
                                     <Typography gutterBottom variant="h6" component="div" className='text-blue-500'>
-                                        {currentLanguage === 'en' ? p.title.en : p.title.vi}
+                                        {p.title[currentLanguage]}
                                     </Typography>
                                     <Typography gutterBottom variant="h6" component="div">
-                                        {currentLanguage === 'en' ? p.address.en : p.address.vi}
+                                        {p.address[currentLanguage]}
                                     </Typography>
                                     <Typography variant="body2" color="text.secondary">
-                                        Price: {p.price.toLocaleString()} VNĐ
+                                        {t('price', { ns: 'properties' })}: {p.price.toLocaleString()} VNĐ
                                     </Typography>
                                     <Typography variant="body2" color="text.secondary">
-                                        Status: {p.status}
+                                        {t('status', { ns: 'properties' })}: {p.status}
                                     </Typography>
                                 </CardContent>
                             </CardActionArea>
                             <CardActions className='m-3'>
                                 <Button component={Link} to={`/properties/${p._id}`}
                                     size="small" variant='outlined' color="primary">
-                                    {t('inside property.view detail')}
+                                    {t('insideProperty.viewDetail')}
                                 </Button>
                                 <Button
                                     size="small" variant='contained' color="primary">
-                                    {t('inside property.assign agent')}
+                                    {t('insideProperty.assignAgent')}
                                 </Button>
                             </CardActions>
                         </Card>
