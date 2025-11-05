@@ -29,7 +29,7 @@ function App() {
       {sellerRoutes}
 
     </>
-  )
+  );
 }
 
 export default App;
