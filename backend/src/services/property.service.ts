@@ -170,6 +170,7 @@ export const propertyService = {
       owner: property.owner_id,
       agent: property.agent_id,
       status: property.status,
+      deleted: property.deleted,
       assignmentHistory: property.assignmentHistory || [],
       createdAt: property.createdAt,
       updatedAt: property.updatedAt,
