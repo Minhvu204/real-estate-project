@@ -24,7 +24,7 @@ export const updateUser = async (id: string, userData: User): Promise<User> => {
 export const blockUser = async (id: string, userData: User): Promise<User> => {
   try {
     const updatedUser = { ...userData, isActive: !userData.isActive };
-    const res = await httpAdmin.patch(`${RESOURCE}/${id}`, updatedUser);
+    const res = await httpAdmin.patch(`${RESOURCE}/${id}/status`, updatedUser);
     return res.data.data;
   } catch (error: any) {
     console.log("lỗi khi block user:", error);

@@ -7,29 +7,17 @@ import "./feature.model";
 import "./user.model";
 
 export interface IProperty extends Document {
-  title: {
-    vi: string;
-    en: string;
-  };
-  description?: {
-    vi?: string;
-    en?: string;
-  };
+  title: { vi: string; en: string };
+  description?: { vi?: string; en?: string };
   price: number;
-  address: {
-    vi: string;
-    en: string;
-  };
+  address: { vi: string; en: string };
   bedrooms: number;
   bathrooms: number;
   area: number;
   unit: "m2" | "ft2";
   yearBuilt: number;
   floors: number;
-  coordinates: {
-    lat: number;
-    lng: number;
-  };
+  coordinates: { lat: number; lng: number };
   city_id: mongoose.Types.ObjectId;
   type_id: mongoose.Types.ObjectId;
   category_id: mongoose.Types.ObjectId;
@@ -47,6 +35,7 @@ export interface IProperty extends Document {
   reviewedBy?: mongoose.Types.ObjectId;
   reviewedAt?: Date;
   publishedAt?: Date;
+  hiddenNote?: string;
   deleted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -111,6 +100,7 @@ const PropertySchema: Schema = new Schema(
     reviewedBy: { type: Schema.Types.ObjectId, ref: "User" },
     reviewedAt: { type: Date },
     publishedAt: { type: Date },
+    hiddenNote: { type: String },
     deleted: { type: Boolean, default: false },
   },
   { timestamps: true }

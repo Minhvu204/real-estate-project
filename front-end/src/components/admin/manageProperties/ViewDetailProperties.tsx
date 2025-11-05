@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
 import type { DetailProperty } from "../../../types/Property";
 import { useEffect, useState } from "react";
-import { getPropertiesById } from "../../../services/propertyService";
+import { getDetailPropertiesById } from "../../../services/propertyService";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
@@ -11,7 +11,7 @@ const ViewDetailProperties = () => {
   const navigate = useNavigate();
   useEffect(() => {
     const fetchProperty = async () => {
-      const data = await getPropertiesById(id!);
+      const data = await getDetailPropertiesById(id!);
       console.log(data);
 
       setProperty(data);
@@ -62,10 +62,10 @@ const ViewDetailProperties = () => {
 
         <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 via-black/20 to-transparent text-white px-4 sm:px-8 py-4 sm:py-6">
           <h2 className="text-xl sm:text-3xl font-bold drop-shadow-lg">
-            {property.title}
+            {property.title.vi}
           </h2>
           <p className="text-xs sm:text-sm text-gray-200 italic mt-1">
-            {property.address}
+            {property.address.vi}
           </p>
         </div>
       </div>
@@ -131,7 +131,9 @@ const ViewDetailProperties = () => {
             <span className="text-blue-600 text-2xl">📍</span>
             <div>
               <p className="text-sm text-gray-500">Thành phố</p>
-              <p className="text-lg font-semibold">{property.city.city_name}</p>
+              <p className="text-lg font-semibold">
+                {property.city.city_name.vi}
+              </p>
             </div>
           </div>
         </div>
@@ -141,7 +143,7 @@ const ViewDetailProperties = () => {
             📝 Mô tả chi tiết
           </h4>
           <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
-            {property.description}
+            {property.description.vi}
           </p>
         </div>
 
@@ -156,7 +158,7 @@ const ViewDetailProperties = () => {
                   key={f._id}
                   className="bg-indigo-50 text-indigo-700 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium border border-indigo-100"
                 >
-                  {f.feature_name}
+                  {f.feature_name.vi}
                 </span>
               ))}
             </div>

@@ -2,6 +2,8 @@ import express from "express";
 import {
   approveOrRejectProperty,
   adminListProperties,
+  hideProperty,
+  restoreProperty,
 } from "../../controllers/admin/property.controller";
 import { verifyToken } from "../../middlewares/auth.middleware";
 import { roleCheck } from "../../middlewares/roleCheck.middleware";
@@ -17,6 +19,21 @@ router.patch(
   verifyToken,
   roleCheck("admin"),
   approveOrRejectProperty
+);
+
+// [PATCH] U014 - ẩn bài (hide) và khôi phục (restore)
+router.patch(
+  "/:id/hide",
+  verifyToken,
+  roleCheck("admin"),
+  hideProperty
+);
+
+router.patch(
+  "/:id/restore",
+  verifyToken,
+  roleCheck("admin"),
+  restoreProperty
 );
 
 export default router;

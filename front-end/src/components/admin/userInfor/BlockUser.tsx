@@ -85,12 +85,11 @@ const BlockUser = ({ userId }: BlockUserProps) => {
           color="error"
           onClick={handleOpen}
           sx={{
-            px: 1.5,
             fontSize: "0.75rem",
             borderRadius: "4px",
             textTransform: "none",
             minWidth: "auto",
-            height: "28px",
+            height: "24px",
           }}
         >
           {user.isActive ? (
@@ -101,13 +100,7 @@ const BlockUser = ({ userId }: BlockUserProps) => {
         </Button>
       )}
 
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        fullWidth
-        maxWidth="sm"
-        PaperProps={{ sx: { borderRadius: 3, p: 2 } }}
-      >
+      <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
         {user && (
           <DialogContent>
             <Box
