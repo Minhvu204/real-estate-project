@@ -69,6 +69,67 @@ export const propertyService = {
     };
   },
 
+  async getPropertiesByOwnerOrAgent(user: { id?: string; _id?: string; role?: string }, queryParams: any) {
+    const userId = String((user as any)?.id || (user as any)?._id);
+    if (!userId) {
+      const err: any = new Error("Unauthorized");
+      err.status = 401;
+      throw err;
+    }
+
+    const {
+      page = 1,
+      limit = 10,
+      status,
+      keyword,
+    } = queryParams || {};
+
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    const baseQuery: any = { deleted: false };
+    if (status) baseQuery.status = status;
+    if (keyword) baseQuery["title.vi"] = { $regex: keyword, $options: "i" };
+
+    if (user.role === "seller") {
+      baseQuery.owner_id = userId;
+    } else if (user.role === "agent") {
+      baseQuery.agent_id = userId;
+    } else {
+      const err: any = new Error("Forbidden");
+      err.status = 403;
+      throw err;
+    }
+
+    const [items, total] = await Promise.all([
+      Property.find(baseQuery)
+        .populate("city_id", "city_name")
+        .populate("category_id", "category_name")
+        .populate("type_id", "type_name")
+        .populate("owner_id", "fullName email phone avatar")
+        .populate("agent_id", "fullName email phone avatar")
+        .populate("features", "feature_name")
+        .populate('type_id', 'type_name')
+        .populate("assignmentHistory.agent_id", "fullName email")
+        .populate("assignmentHistory.assignedBy", "fullName email")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      Property.countDocuments(baseQuery),
+    ]);
+
+    return {
+      pagination: {
+        currentPage: pageNum,
+        totalPages: Math.ceil(total / limitNum),
+        totalItems: total,
+      },
+      data: items,
+    };
+  },
+
   getPropertyById: async (id: string) => {
     const property = await Property.findById(id)
       .populate("city_id", "city_name")
@@ -262,4 +323,81 @@ export const propertyService = {
 
     return property;
   },
+
+	async updateProperty(id: string, data: any, userId: string) {
+		const property = await Property.findById(id);
+		if (!property) {
+			const err: any = new Error("Property không tồn tại");
+			err.status = 404;
+			throw err;
+		}
+
+		if (property.deleted) {
+			const err: any = new Error("Property đã bị xoá");
+			err.status = 410;
+			throw err;
+		}
+
+		const isOwner = property.owner_id?.toString() === userId;
+		const isAgent = property.agent_id?.toString() === userId;
+		if (!isOwner && !isAgent) {
+			const err: any = new Error("Không có quyền cập nhật property này");
+			err.status = 403;
+			throw err;
+		}
+
+		const {
+			title,
+			description,
+			address,
+			images,
+			...rest
+		} = data || {};
+
+		// Áp dụng cập nhật các trường đơn giản
+		Object.assign(property, rest);
+
+		// Xử lý đa ngôn ngữ nếu truyền string
+		if (typeof title === "string") {
+			property.title = await createMultilangText(title);
+		}
+		if (typeof description === "string") {
+			const desc = await createMultilangText(description);
+			// nếu rỗng cả 2 ngôn ngữ thì bỏ qua
+			if (desc.vi || desc.en) property.description = desc;
+		}
+		if (typeof address === "string") {
+			property.address = await createMultilangText(address);
+		}
+
+		// Ảnh: nếu gửi images (mảng URL) thì ghi đè; nếu không gửi thì giữ nguyên
+		if (Array.isArray(images)) {
+			property.images = images;
+		}
+
+		await property.save();
+		return property;
+	},
+
+	async deleteProperty(id: string, userId: string) {
+		const property = await Property.findById(id);
+		if (!property) {
+			const err: any = new Error("Property không tồn tại");
+			err.status = 404;
+			throw err;
+		}
+
+		if (property.deleted) return; // idempotent
+
+		const isOwner = property.owner_id?.toString() === userId;
+		const isAgent = property.agent_id?.toString() === userId;
+		if (!isOwner && !isAgent) {
+			const err: any = new Error("Không có quyền xoá property này");
+			err.status = 403;
+			throw err;
+		}
+
+		property.deleted = true;
+		await property.save();
+	},
 };
