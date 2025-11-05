@@ -244,7 +244,7 @@ const MyPropertiesPage: React.FC = () => {
                                 lineHeight: 1.2
                             }}
                         >
-                            {t("Quản lý Danh mục", "Category Management")}
+                            {t("Quản lý danh mục", "Category Management")}
                         </Typography>
                         <Stack 
                             direction="row" 

@@ -136,16 +136,12 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
             data.append("title", formData.title);
             data.append("description", formData.description);
             data.append("price", formData.price.toString());
-            
-            // Send city_id if exists, otherwise send city_name for backend to find/create
             if (formData.city_id) {
                 data.append("city_id", formData.city_id);
             }
             if (formData.city_name) {
                 data.append("city_name", formData.city_name);
             }
-            
-            // Send type_id if exists, otherwise send type_name for backend to find/create
             if (formData.type_id) {
                 data.append("type_id", formData.type_id);
             }
