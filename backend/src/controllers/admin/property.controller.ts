@@ -44,7 +44,8 @@ export const hideProperty = async (req: any, res: Response) => {
   try {
     const { id } = req.params;
     const adminId = req.user?.id;
-    const result = await adminPropertyService.hide(id, adminId);
+    const { note } = req.body as { note?: string };
+    const result = await adminPropertyService.hide(id, adminId, note);
     return successResponse(res, "Ẩn bài đăng thành công", result);
   } catch (err: any) {
     return errorResponse(

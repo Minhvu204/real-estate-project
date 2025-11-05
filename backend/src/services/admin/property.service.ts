@@ -67,7 +67,7 @@ export const adminPropertyService = {
     };
   },
 
-  async hide(propertyId: string, adminId: string) {
+  async hide(propertyId: string, adminId: string, note?: string) {
     if (!mongoose.isValidObjectId(propertyId)) {
       const err: any = new Error("Invalid property id");
       err.status = 400;
@@ -91,9 +91,12 @@ export const adminPropertyService = {
     }
     property.reviewedBy = new mongoose.Types.ObjectId(adminId);
     property.reviewedAt = new Date();
+    if (note) {
+      (property as any).hiddenNote = note;
+    }
     await property.save();
 
-    return { id: property._id, deleted: property.deleted, status: property.status };
+    return { id: property._id, deleted: property.deleted, status: property.status, hiddenNote: (property as any).hiddenNote};
   },
 
   async restore(propertyId: string, _adminId: string) {
@@ -115,6 +118,7 @@ export const adminPropertyService = {
     }
 
     property.deleted = false;
+    (property as any).hiddenNote = undefined;
     await property.save();
 
     return { id: property._id, deleted: property.deleted, status: property.status };

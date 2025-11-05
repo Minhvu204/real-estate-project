@@ -35,6 +35,7 @@ export interface IProperty extends Document {
   reviewedBy?: mongoose.Types.ObjectId;
   reviewedAt?: Date;
   publishedAt?: Date;
+  hiddenNote?: string;
   deleted: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -99,6 +100,7 @@ const PropertySchema: Schema = new Schema(
     reviewedBy: { type: Schema.Types.ObjectId, ref: "User" },
     reviewedAt: { type: Date },
     publishedAt: { type: Date },
+    hiddenNote: { type: String },
     deleted: { type: Boolean, default: false },
   },
   { timestamps: true }
