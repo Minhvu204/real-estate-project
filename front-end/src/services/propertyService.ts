@@ -8,9 +8,8 @@ export const getAllProperties = async (): Promise<Property[]> => {
     const res = await httpPublic.get(RESOURCE);
     return res.data.data.data;
 }
-export const getPropertiesByAgentOrSeller = async (u: User): Promise<Property[]> => {
-    const RESOURCE = `${u.role}/properties`;
-    const response = await httpClient.get(`${u.role}/${RESOURCE}`);
+export const getPropertiesByAgentOrSeller = async (): Promise<Property[]> => {
+    const response = await httpClient.get(RESOURCE);
     return response.data.data.data;
 }
 export const getPropertiesById = async (id: string): Promise<Property> => {

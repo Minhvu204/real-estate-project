@@ -9,6 +9,7 @@ import { getLanguage } from '../../utils/storage';
 import type { Lang } from '../../utils/storage';
 import { Button, Card, CardContent, CardMedia, Chip, Grid, Pagination, Typography } from '@mui/material';
 import { Box } from '@mui/material';
+import { getPropertiesByAgentOrSeller } from '../../services/propertyService';
 
 const SellerProperties = () => {
     const [properties, setProperties] = useState<Property[]>([]);
@@ -23,7 +24,7 @@ const SellerProperties = () => {
         const fetchProperties = async () => {
             try {
                 if (!user) return;
-                const response = await getAllProperties();
+                const response = await getPropertiesByAgentOrSeller();
                 setProperties(response || []);
             } catch (error) {
                 console.log("Cannot fetch properties for this role", error);
