@@ -50,6 +50,8 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
         price: 0,
         city_id: "",
         type_id: "",
+        city_name: "",
+        type_name: "",
         features: [] as string[],
         address: "",
         bedrooms: 0,
@@ -75,6 +77,8 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                 price: property.price || 0,
                 city_id: property.city_id?._id || "",
                 type_id: property.type_id?._id || "",
+                city_name: property.city_id?.city_name ? getText(property.city_id.city_name as any, "vi") : "",
+                type_name: property.type_id?.type_name ? getText(property.type_id.type_name as any, "vi") : "",
                 features: property.features?.map((f) => f._id) || [],
                 address: getText(property.address as any, "vi") || "",
                 bedrooms: property.bedrooms || 0,
@@ -132,8 +136,23 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
             data.append("title", formData.title);
             data.append("description", formData.description);
             data.append("price", formData.price.toString());
-            data.append("city_id", formData.city_id);
-            data.append("type_id", formData.type_id);
+            
+            // Send city_id if exists, otherwise send city_name for backend to find/create
+            if (formData.city_id) {
+                data.append("city_id", formData.city_id);
+            }
+            if (formData.city_name) {
+                data.append("city_name", formData.city_name);
+            }
+            
+            // Send type_id if exists, otherwise send type_name for backend to find/create
+            if (formData.type_id) {
+                data.append("type_id", formData.type_id);
+            }
+            if (formData.type_name) {
+                data.append("type_name", formData.type_name);
+            }
+            
             data.append("address", formData.address);
             data.append("bedrooms", formData.bedrooms.toString());
             data.append("bathrooms", formData.bathrooms.toString());
@@ -217,35 +236,25 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                     </Box>
 
                     <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-                        <FormControl sx={{ flex: 1, minWidth: 200 }}>
-                            <InputLabel>Thành phố</InputLabel>
-                            <Select
-                                value={formData.city_id}
-                                onChange={(e) => handleChange("city_id", e.target.value)}
-                                label="Thành phố"
-                            >
-                                {cities.map((city) => (
-                                    <MenuItem key={city._id} value={city._id}>
-                                        {getText(city.city_name as any, "vi")}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                        <TextField
+                            label="Thành phố"
+                            sx={{ flex: 1, minWidth: 200 }}
+                            fullWidth
+                            required
+                            value={formData.city_name}
+                            onChange={(e) => handleChange("city_name", e.target.value)}
+                            placeholder="VD: Thành phố Hồ Chí Minh"
+                        />
 
-                        <FormControl sx={{ flex: 1, minWidth: 200 }}>
-                            <InputLabel>Loại bất động sản</InputLabel>
-                            <Select
-                                value={formData.type_id}
-                                onChange={(e) => handleChange("type_id", e.target.value)}
-                                label="Loại bất động sản"
-                            >
-                                {types.map((type) => (
-                                    <MenuItem key={type._id} value={type._id}>
-                                        {getText(type.type_name as any, "vi")}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                        <TextField
+                            label="Loại bất động sản"
+                            sx={{ flex: 1, minWidth: 200 }}
+                            fullWidth
+                            required
+                            value={formData.type_name}
+                            onChange={(e) => handleChange("type_name", e.target.value)}
+                            placeholder="VD: Cho thuê, Bán"
+                        />
                     </Box>
 
                     <FormControl fullWidth>

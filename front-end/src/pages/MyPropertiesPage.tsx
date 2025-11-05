@@ -5,13 +5,6 @@ import {
     Paper,
     Typography,
     Button,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    IconButton,
     Chip,
     CircularProgress,
     Dialog,
@@ -23,7 +16,15 @@ import {
     Alert,
     Tabs,
     Tab,
+    Grid,
+    Card,
+    CardContent,
+    CardActions,
+    Stack,
+    Pagination,
+    IconButton,
 } from "@mui/material";
+import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import {
     Edit as EditIcon,
     Delete as DeleteIcon,
@@ -36,6 +37,9 @@ import { getMyProperties, updateProperty, deleteProperty } from "../services/pro
 import type { Property } from "../types/Property";
 import PropertyEditModal from "../components/PropertyManagement/PropertyEditModal";
 import { getText, containsText } from "../utils/multilang";
+import ButtonLanguage from "../components/common/ButtonLanguage";
+import { getLanguage } from "../utils/storage";
+import type { Lang } from "../utils/storage";
 
 const MyPropertiesPage: React.FC = () => {
     const [properties, setProperties] = useState<Property[]>([]);
@@ -47,6 +51,10 @@ const MyPropertiesPage: React.FC = () => {
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
+    const [currentLang, setCurrentLang] = useState<Lang>(getLanguage());
+    const [page, setPage] = useState(1);
+    const [imageIndexes, setImageIndexes] = useState<Record<string, number>>({});
+    const itemsPerPage = 6;
 
     useEffect(() => {
         loadProperties();
@@ -55,6 +63,13 @@ const MyPropertiesPage: React.FC = () => {
     useEffect(() => {
         filterProperties();
     }, [properties, searchTerm, statusFilter]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentLang(getLanguage());
+        }, 100);
+        return () => clearInterval(interval);
+    }, []);
 
     const loadProperties = async () => {
         setLoading(true);
@@ -90,17 +105,38 @@ const MyPropertiesPage: React.FC = () => {
 
     const filterProperties = () => {
         let filtered = properties;
+        
         if (statusFilter !== "all") {
             filtered = filtered.filter(p => p.status === statusFilter);
         }
+        
         if (searchTerm) {
             filtered = filtered.filter(p =>
                 containsText(p.title, searchTerm) ||
-                containsText(p.address, searchTerm)
+                containsText(p.address, searchTerm) ||
+                containsText(p.city_id?.city_name, searchTerm) ||
+                containsText(p.type_id?.type_name, searchTerm) ||
+                containsText(p.category_id?.category_name, searchTerm) ||
+                p.features?.some(f => containsText(f.feature_name, searchTerm))
             );
         }
 
         setFilteredProperties(filtered);
+        setPage(1);
+    };
+
+    const handleImagePrev = (propertyId: string, totalImages: number) => {
+        setImageIndexes(prev => ({
+            ...prev,
+            [propertyId]: ((prev[propertyId] || 0) - 1 + totalImages) % totalImages
+        }));
+    };
+
+    const handleImageNext = (propertyId: string, totalImages: number) => {
+        setImageIndexes(prev => ({
+            ...prev,
+            [propertyId]: ((prev[propertyId] || 0) + 1) % totalImages
+        }));
     };
 
     const handleEdit = (property: Property) => {
@@ -122,6 +158,10 @@ const MyPropertiesPage: React.FC = () => {
     };
 
     const handleDeleteClick = (property: Property) => {
+        if (property.status === "approved") {
+            toast.error("❌ Không thể xóa bất động sản đã được duyệt!");
+            return;
+        }
         setSelectedProperty(property);
         setDeleteDialogOpen(true);
     };
@@ -168,159 +208,395 @@ const MyPropertiesPage: React.FC = () => {
     };
 
     const getStatusLabel = (status: string) => {
-        switch (status) {
-            case "available":
-                return "Có sẵn";
-            case "pending":
-                return "Chờ duyệt";
-            case "approved":
-                return "Đã duyệt";
-            case "sold":
-                return "Đã bán";
-            case "rejected":
-                return "Bị từ chối";
-            default:
-                return status;
-        }
+        const labels: Record<string, { vi: string; en: string }> = {
+            available: { vi: "Có sẵn", en: "Available" },
+            pending: { vi: "Chờ duyệt", en: "Pending" },
+            approved: { vi: "Đã duyệt", en: "Approved" },
+            sold: { vi: "Đã bán", en: "Sold" },
+            rejected: { vi: "Bị từ chối", en: "Rejected" },
+        };
+        return labels[status]?.[currentLang] || status;
     };
 
-    return (
-        <Box sx={{ minHeight: "100vh", bgcolor: "background.default", py: 4 }}>
-            <Container maxWidth="lg">
-                <Paper elevation={3} sx={{ p: 3 }}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-                        <Box>
-                            <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
-                                Quản lý bất động sản của tôi
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                Tổng số: {properties.length} | Hiển thị: {filteredProperties.length}
-                            </Typography>
-                        </Box>
-                        <Button
-                            variant="outlined"
-                            startIcon={<RefreshIcon />}
-                            onClick={loadProperties}
-                            disabled={loading}
-                        >
-                            Làm mới
-                        </Button>
-                    </Box>
+    const t = (vi: string, en: string) => currentLang === "vi" ? vi : en;
 
-                    <Box sx={{ mb: 3 }}>
+    return (
+        <Box sx={{ minHeight: "100vh", bgcolor: "background.default", py: { xs: 1.5, sm: 3, md: 4 } }}>
+            <Container maxWidth="xl" sx={{ px: { xs: 1, sm: 2, md: 3 } }}>
+                <Paper elevation={3} sx={{ p: { xs: 1.5, sm: 2.5, md: 3 } }}>
+                    <Box 
+                        sx={{ 
+                            display: "flex", 
+                            flexDirection: { xs: "column", sm: "row" },
+                            justifyContent: "space-between", 
+                            alignItems: { xs: "flex-start", sm: "center" },
+                            gap: { xs: 1.5, sm: 2 },
+                            mb: { xs: 2, sm: 2.5, md: 3 } 
+                        }}
+                    >
+                        <Typography 
+                            variant="h4" 
+                            component="h1" 
+                            fontWeight="bold" 
+                            color="primary"
+                            sx={{ 
+                                fontSize: { xs: "1.25rem", sm: "1.75rem", md: "2.125rem" },
+                                lineHeight: 1.2
+                            }}
+                        >
+                            {t("Quản lý Danh mục", "Category Management")}
+                        </Typography>
+                        <Stack 
+                            direction="row" 
+                            spacing={{ xs: 0.5, sm: 1 }} 
+                            alignItems="center" 
+                            flexWrap="wrap"
+                            sx={{ width: { xs: "100%", sm: "auto" }, justifyContent: { xs: "flex-start", sm: "flex-end" } }}
+                        >
+                            <ButtonLanguage />
+                            <Button
+                                variant="outlined"
+                                startIcon={<RefreshIcon />}
+                                onClick={loadProperties}
+                                disabled={loading}
+                                size="small"
+                                sx={{ 
+                                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                                    px: { xs: 1.5, sm: 2 },
+                                    py: { xs: 0.5, sm: 0.75 }
+                                }}
+                            >
+                                {t("Làm mới", "Refresh")}
+                            </Button>
+                        </Stack>
+                    </Box>
+                    <Tabs
+                        value={statusFilter}
+                        onChange={(_, newValue) => setStatusFilter(newValue)}
+                        variant="scrollable"
+                        scrollButtons="auto"
+                        allowScrollButtonsMobile
+                        sx={{
+                            borderBottom: 1,
+                            borderColor: "divider",
+                            mb: { xs: 2, sm: 2.5, md: 3 },
+                            "& .MuiTab-root": { 
+                                textTransform: "none", 
+                                fontWeight: 600,
+                                fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.875rem" },
+                                minWidth: { xs: 50, sm: 70, md: 90 },
+                                px: { xs: 0.75, sm: 1.5, md: 2 },
+                                py: { xs: 1, sm: 1.25 },
+                            },
+                            "& .MuiTabs-scrollButtons": {
+                                width: { xs: 32, sm: 40 },
+                            }
+                        }}
+                    >
+                        <Tab label={t("TẤT CẢ", "ALL")} value="all" />
+                        <Tab label={t("CÓ SẴN", "AVAILABLE")} value="available" />
+                        <Tab label={t("CHỜ DUYỆT", "PENDING")} value="pending" />
+                        <Tab label={t("ĐÃ DUYỆT", "APPROVED")} value="approved" />
+                        <Tab label={t("ĐÃ BÁN", "SOLD")} value="sold" />
+                    </Tabs>
+                    <Box sx={{ mb: { xs: 2, sm: 2.5, md: 3 } }}>
                         <TextField
                             fullWidth
-                            placeholder="Tìm kiếm theo tiêu đề hoặc địa chỉ..."
+                            placeholder={t(
+                                "Tìm kiếm theo tiêu đề hoặc địa chỉ hoặc thành phố hoặc loại...",
+                                "Search by title, address, city or type..."
+                            )}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
+                            size="small"
                             InputProps={{
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <SearchIcon />
+                                        <SearchIcon sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }} />
                                     </InputAdornment>
                                 ),
+                                sx: { 
+                                    fontSize: { xs: "0.875rem", sm: "0.9375rem", md: "1rem" },
+                                    py: { xs: 0.5, sm: 0.75 }
+                                }
                             }}
-                            sx={{ mb: 2 }}
                         />
-
-                        <Tabs
-                            value={statusFilter}
-                            onChange={(_, newValue) => setStatusFilter(newValue)}
-                            sx={{
-                                borderBottom: 1,
-                                borderColor: "divider",
-                                "& .MuiTab-root": { textTransform: "none", fontWeight: 600 },
+                        <Typography 
+                            variant="body2" 
+                            color="text.secondary" 
+                            sx={{ 
+                                mt: { xs: 0.75, sm: 1 }, 
+                                textAlign: "right",
+                                fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.875rem" }
                             }}
                         >
-                            <Tab label="Tất cả" value="all" />
-                            <Tab label="Có sẵn" value="available" />
-                            <Tab label="Chờ duyệt" value="pending" />
-                            <Tab label="Đã duyệt" value="approved" />
-                            <Tab label="Đã bán" value="sold" />
-                        </Tabs>
+                            {t("Hiển thị", "Showing")}: {filteredProperties.length}/{properties.length}
+                        </Typography>
                     </Box>
 
                     {loading ? (
-                        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-                            <CircularProgress />
+                        <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+                            <CircularProgress size={60} />
                         </Box>
                     ) : properties.length === 0 ? (
                         <Alert severity="info" sx={{ my: 3 }}>
-                            Bạn chưa có bất động sản nào. Backend API GET chưa trả dữ liệu.
+                            {t("Bạn chưa có bất động sản nào", "You don't have any properties yet")}
                         </Alert>
                     ) : filteredProperties.length === 0 ? (
                         <Alert severity="warning" sx={{ my: 3 }}>
-                            Không tìm thấy bất động sản nào phù hợp với bộ lọc.
+                            {t("Không tìm thấy bất động sản nào phù hợp với bộ lọc", "No properties found matching the filter")}
                         </Alert>
                     ) : (
-                        <TableContainer>
-                            <Table>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell><strong>Tiêu đề</strong></TableCell>
-                                        <TableCell><strong>Giá</strong></TableCell>
-                                        <TableCell><strong>Địa chỉ</strong></TableCell>
-                                        <TableCell><strong>Loại</strong></TableCell>
-                                        <TableCell><strong>Trạng thái</strong></TableCell>
-                                        <TableCell align="center"><strong>Thao tác</strong></TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {filteredProperties.map((property) => (
-                                        <TableRow key={property._id} hover>
-                                            <TableCell>
-                                                <Typography variant="body2" fontWeight={600}>
-                                                    {getText(property.title, "vi")}
-                                                </Typography>
-                                                <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 0.5 }}>
-                                                    EN: {getText(property.title, "en")}
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Typography variant="body2" color="primary" fontWeight={600}>
-                                                    {property.price.toLocaleString("vi-VN")} VNĐ
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Typography variant="body2" color="text.secondary">
-                                                    {getText(property.address, "vi")}
-                                                </Typography>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Chip
-                                                    label={property.type_id?.type_name ? getText(property.type_id.type_name as any, "vi") : "N/A"}
-                                                    size="small"
-                                                    variant="outlined"
-                                                />
-                                            </TableCell>
-                                            <TableCell>
+                        <>
+                            <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
+                                {filteredProperties
+                                    .slice((page - 1) * itemsPerPage, page * itemsPerPage)
+                                    .map((property) => {
+                                        const currentImageIndex = imageIndexes[property._id] || 0;
+                                        const images = property.images?.length > 0 ? property.images : ["/defaultHome.png"];
+                                        
+                                        return (
+                                            <Grid key={property._id} size={{ xs: 12, sm: 6, md: 4 }}>
+                                                <Card
+                                                    sx={{
+                                                        height: "100%",
+                                                        display: "flex",
+                                                        flexDirection: "column",
+                                                        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                                                        "&:hover": {
+                                                            transform: { xs: "none", sm: "scale(1.02)" },
+                                                            boxShadow: { xs: 2, sm: 6 },
+                                                        },
+                                                        borderRadius: { xs: 2, sm: 3 },
+                                                    }}
+                                                >
+                                                    <Box 
+                                                        sx={{ 
+                                                            position: "relative", 
+                                                            height: { xs: 180, sm: 220, md: 250 },
+                                                            bgcolor: "#f5f5f5",
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            justifyContent: "center",
+                                                            borderRadius: { xs: "8px 8px 0 0", sm: "12px 12px 0 0" },
+                                                        }}
+                                                    >
+                                                        <Box
+                                                            component="img"
+                                                            src={images[currentImageIndex]}
+                                                            alt={getText(property.title, currentLang)}
+                                                            sx={{
+                                                                width: "100%",
+                                                                height: "100%",
+                                                                objectFit: "contain",
+                                                                borderBottom: "1px solid #eee",
+                                                            }}
+                                                        />
+                                                        
+                                                        {images.length > 1 && (
+                                                            <>
+                                                                <IconButton
+                                                                    onClick={() => handleImagePrev(property._id, images.length)}
+                                                                    size="small"
+                                                                    sx={{
+                                                                        position: "absolute",
+                                                                        left: { xs: 4, sm: 6, md: 8 },
+                                                                        top: "50%",
+                                                                        transform: "translateY(-50%)",
+                                                                        bgcolor: "rgba(255,255,255,0.9)",
+                                                                        "&:hover": { bgcolor: "rgba(255,255,255,1)" },
+                                                                        width: { xs: 28, sm: 36, md: 40 },
+                                                                        height: { xs: 28, sm: 36, md: 40 },
+                                                                        boxShadow: 2,
+                                                                    }}
+                                                                >
+                                                                    <ChevronLeft sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }} />
+                                                                </IconButton>
+                                                                <IconButton
+                                                                    onClick={() => handleImageNext(property._id, images.length)}
+                                                                    size="small"
+                                                                    sx={{
+                                                                        position: "absolute",
+                                                                        right: { xs: 4, sm: 6, md: 8 },
+                                                                        top: "50%",
+                                                                        transform: "translateY(-50%)",
+                                                                        bgcolor: "rgba(255,255,255,0.9)",
+                                                                        "&:hover": { bgcolor: "rgba(255,255,255,1)" },
+                                                                        width: { xs: 28, sm: 36, md: 40 },
+                                                                        height: { xs: 28, sm: 36, md: 40 },
+                                                                        boxShadow: 2,
+                                                                    }}
+                                                                >
+                                                                    <ChevronRight sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }} />
+                                                                </IconButton>
+                                                                <Box
+                                                                    sx={{
+                                                                        position: "absolute",
+                                                                        bottom: { xs: 6, sm: 8 },
+                                                                        left: "50%",
+                                                                        transform: "translateX(-50%)",
+                                                                        bgcolor: "rgba(0,0,0,0.7)",
+                                                                        color: "white",
+                                                                        px: { xs: 1, sm: 1.5 },
+                                                                        py: { xs: 0.25, sm: 0.5 },
+                                                                        borderRadius: { xs: 1.5, sm: 2 },
+                                                                        fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.875rem" },
+                                                                        fontWeight: 600,
+                                                                    }}
+                                                                >
+                                                                    {currentImageIndex + 1} / {images.length}
+                                                                </Box>
+                                                            </>
+                                                        )}
+                                                    </Box>
+                                        <CardContent sx={{ flexGrow: 1, p: { xs: 1.5, sm: 2 }, "&:last-child": { pb: { xs: 1.5, sm: 2 } } }}>
+                                            <Typography
+                                                gutterBottom
+                                                variant="h6"
+                                                component="div"
+                                                color="primary"
+                                                sx={{
+                                                    fontWeight: 700,
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
+                                                    display: "-webkit-box",
+                                                    WebkitLineClamp: 2,
+                                                    WebkitBoxOrient: "vertical",
+                                                    minHeight: { xs: "auto", sm: "3.2em", md: "3.6em" },
+                                                    fontSize: { xs: "0.9375rem", sm: "1.125rem", md: "1.25rem" },
+                                                    lineHeight: 1.3,
+                                                    mb: { xs: 0.75, sm: 1 },
+                                                }}
+                                            >
+                                                {getText(property.title, currentLang)}
+                                            </Typography>
+                                            <Typography
+                                                variant="body2"
+                                                color="text.secondary"
+                                                sx={{
+                                                    mb: { xs: 1, sm: 1.5 },
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
+                                                    display: "-webkit-box",
+                                                    WebkitLineClamp: 2,
+                                                    WebkitBoxOrient: "vertical",
+                                                    fontSize: { xs: "0.8125rem", sm: "0.875rem" },
+                                                    lineHeight: 1.4,
+                                                }}
+                                            >
+                                                {getText(property.address, currentLang)}
+                                            </Typography>
+                                            <Typography 
+                                                variant="h6" 
+                                                color="error" 
+                                                fontWeight={700} 
+                                                sx={{ 
+                                                    mb: { xs: 1, sm: 1.5 },
+                                                    fontSize: { xs: "1rem", sm: "1.125rem", md: "1.25rem" },
+                                                }}
+                                            >
+                                                {t("Giá", "Price")}: {property.price.toLocaleString("vi-VN")} {t("VNĐ", "VND")}
+                                            </Typography>
+                                            <Box sx={{ display: "flex", gap: { xs: 0.75, sm: 1 }, flexWrap: "wrap", mb: { xs: 0.5, sm: 1 } }}>
+                                                {property.type_id && (
+                                                    <Chip
+                                                        label={getText(property.type_id.type_name as any, currentLang)}
+                                                        color="info"
+                                                        size="small"
+                                                        variant="outlined"
+                                                        sx={{ 
+                                                            fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                                                            height: { xs: 24, sm: 28 },
+                                                            "& .MuiChip-label": { px: { xs: 1, sm: 1.5 } }
+                                                        }}
+                                                    />
+                                                )}
                                                 <Chip
                                                     label={getStatusLabel(property.status)}
                                                     color={getStatusColor(property.status)}
                                                     size="small"
+                                                    sx={{ 
+                                                        fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                                                        height: { xs: 24, sm: 28 },
+                                                        "& .MuiChip-label": { px: { xs: 1, sm: 1.5 } }
+                                                    }}
                                                 />
-                                            </TableCell>
-                                            <TableCell align="center">
-                                                <IconButton
-                                                    color="primary"
-                                                    onClick={() => handleEdit(property)}
-                                                    title="Chỉnh sửa"
-                                                >
-                                                    <EditIcon />
-                                                </IconButton>
-                                                <IconButton
-                                                    color="error"
-                                                    onClick={() => handleDeleteClick(property)}
-                                                    title="Xóa"
-                                                >
-                                                    <DeleteIcon />
-                                                </IconButton>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
+                                            </Box>
+                                        </CardContent>
+                                        <CardActions sx={{ 
+                                            p: { xs: 1.5, sm: 2 }, 
+                                            pt: 0, 
+                                            gap: { xs: 0.75, sm: 1 }, 
+                                            flexDirection: { xs: "column", sm: "row" } 
+                                        }}>
+                                            <Button
+                                                fullWidth
+                                                variant="contained"
+                                                color="primary"
+                                                startIcon={<EditIcon sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }} />}
+                                                onClick={() => handleEdit(property)}
+                                                sx={{ 
+                                                    fontSize: { xs: "0.8125rem", sm: "0.875rem" },
+                                                    py: { xs: 0.75, sm: 0.875 },
+                                                    textTransform: "none",
+                                                    fontWeight: 600,
+                                                }}
+                                            >
+                                                {t("Sửa", "Edit")}
+                                            </Button>
+                                            <Button
+                                                fullWidth
+                                                variant="outlined"
+                                                color="error"
+                                                startIcon={<DeleteIcon sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }} />}
+                                                onClick={() => handleDeleteClick(property)}
+                                                sx={{ 
+                                                    fontSize: { xs: "0.8125rem", sm: "0.875rem" },
+                                                    py: { xs: 0.75, sm: 0.875 },
+                                                    textTransform: "none",
+                                                    fontWeight: 600,
+                                                }}
+                                            >
+                                                {t("Xoá", "Delete")}
+                                            </Button>
+                                        </CardActions>
+                                    </Card>
+                                </Grid>
+                                        );
+                                    })}
+                            </Grid>
+                            
+                            <Stack spacing={2} alignItems="center" sx={{ mt: { xs: 3, sm: 4 } }}>
+                                <Pagination
+                                    count={Math.ceil(filteredProperties.length / itemsPerPage)}
+                                    page={page}
+                                    onChange={(_, value) => {
+                                        setPage(value);
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }}
+                                    color="primary"
+                                    size="medium"
+                                    showFirstButton
+                                    showLastButton
+                                    siblingCount={0}
+                                    boundaryCount={1}
+                                    sx={{
+                                        "& .MuiPaginationItem-root": {
+                                            fontSize: { xs: "0.7rem", sm: "0.8125rem", md: "0.875rem" },
+                                            minWidth: { xs: 28, sm: 32, md: 36 },
+                                            height: { xs: 28, sm: 32, md: 36 },
+                                        },
+                                        "& .MuiPaginationItem-icon": {
+                                            fontSize: { xs: "1rem", sm: "1.25rem" }
+                                        },
+                                        "& .MuiPaginationItem-sizeMedium": {
+                                            minWidth: { xs: 28, sm: 32, md: 36 },
+                                            height: { xs: 28, sm: 32, md: 36 },
+                                        }
+                                    }}
+                                />
+                            </Stack>
+                        </>
                     )}
                 </Paper>
 
@@ -338,28 +614,34 @@ const MyPropertiesPage: React.FC = () => {
                     fullWidth
                 >
                     <DialogTitle sx={{ bgcolor: "error.light", color: "error.contrastText" }}>
-                        ⚠️ Xác nhận xóa
+                        ⚠️ {t("Xác nhận xóa", "Confirm Delete")}
                     </DialogTitle>
                     <DialogContent sx={{ mt: 2 }}>
                         <Alert severity="warning" sx={{ mb: 2 }}>
-                            Bạn có chắc chắn muốn xóa bất động sản này?
+                            {t(
+                                "Bạn có chắc chắn muốn xóa bất động sản này?",
+                                "Are you sure you want to delete this property?"
+                            )}
                         </Alert>
                         <Box sx={{ p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
                             <Typography variant="subtitle2" color="text.secondary">
-                                Tiêu đề:
+                                {t("Tiêu đề:", "Title:")}
                             </Typography>
                             <Typography variant="body1" fontWeight={600} gutterBottom>
-                                {selectedProperty ? getText(selectedProperty.title as any, "vi") : ""}
+                                {selectedProperty ? getText(selectedProperty.title as any, currentLang) : ""}
                             </Typography>
                             <Typography variant="subtitle2" color="text.secondary">
-                                Địa chỉ:
+                                {t("Địa chỉ:", "Address:")}
                             </Typography>
                             <Typography variant="body2">
-                                {selectedProperty ? getText(selectedProperty.address as any, "vi") : ""}
+                                {selectedProperty ? getText(selectedProperty.address as any, currentLang) : ""}
                             </Typography>
                         </Box>
                         <Typography variant="body2" color="error" sx={{ mt: 2 }}>
-                            ⚠️ Lưu ý: Thao tác này sẽ soft-delete (set deleted: true) và không thể hoàn tác.
+                            ⚠️ {t(
+                                "Lưu ý: Thao tác này sẽ soft-delete (set deleted: true) và không thể hoàn tác.",
+                                "Note: This action will soft-delete (set deleted: true) and cannot be undone."
+                            )}
                         </Typography>
                     </DialogContent>
                     <DialogActions sx={{ p: 2 }}>
@@ -368,7 +650,7 @@ const MyPropertiesPage: React.FC = () => {
                             disabled={deletingId !== null}
                             variant="outlined"
                         >
-                            Hủy
+                            {t("Hủy", "Cancel")}
                         </Button>
                         <Button
                             onClick={handleDeleteConfirm}
@@ -377,7 +659,7 @@ const MyPropertiesPage: React.FC = () => {
                             disabled={deletingId !== null}
                             startIcon={deletingId ? <CircularProgress size={16} /> : <DeleteIcon />}
                         >
-                            {deletingId ? "Đang xóa..." : "Xác nhận xóa"}
+                            {deletingId ? t("Đang xóa...", "Deleting...") : t("Xác nhận xóa", "Confirm Delete")}
                         </Button>
                     </DialogActions>
                 </Dialog>

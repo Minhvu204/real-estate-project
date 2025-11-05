@@ -529,7 +529,7 @@ const Navbar: React.FC = () => {
                         }}
                     >
                         <HomeIcon fontSize="small" />
-                        Bất động sản của tôi
+                        Category Management
                     </MenuItem>
                 )}
 

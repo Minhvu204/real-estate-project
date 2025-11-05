@@ -23,7 +23,29 @@ export const updateProperty = async (req: Request, res: Response) => {
 		const { id } = req.params;
 		const body = req.body || {};
 
-		// Middleware uploadMultiple đã gắn req.body.images = string[] nếu có tải ảnh
+		// Merge ảnh cũ (existingImages[]) + ảnh mới (images từ middleware)
+		const existingImages = req.body.existingImages || [];
+		const newImages = req.body.images || [];
+		
+		// existingImages có thể là string hoặc array
+		let existingImagesArray: string[] = [];
+		if (typeof existingImages === 'string') {
+			existingImagesArray = [existingImages];
+		} else if (Array.isArray(existingImages)) {
+			existingImagesArray = existingImages;
+		}
+
+		// newImages có thể là string hoặc array
+		let newImagesArray: string[] = [];
+		if (typeof newImages === 'string') {
+			newImagesArray = [newImages];
+		} else if (Array.isArray(newImages)) {
+			newImagesArray = newImages;
+		}
+
+		// Merge: ảnh cũ trước, ảnh mới sau
+		body.images = [...existingImagesArray, ...newImagesArray];
+
 		const updated = await propertyService.updateProperty(id, body, String(userId));
 		return successResponse(req, res, "Cập nhật bất động sản thành công", updated);
 	} catch (error: any) {
