@@ -17,3 +17,16 @@ export const getPropertiesById = async (id: string): Promise<Property> => {
     const response = await httpClient.get(`${RESOURCE}/${id}`);
     return response.data.data;
 }
+
+// Feature interface
+export interface Feature {
+    id: string;
+    name: string;
+    icon: string;
+}
+
+// Get all available features
+export const getAllFeatures = async (): Promise<Feature[]> => {
+    const response = await httpPublic.get('/features');
+    return response.data.data;
+}
