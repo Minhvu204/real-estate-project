@@ -1,0 +1,14 @@
+{
+    "description": "Description",
+    "features": "Features",
+    "owner": "Owner",
+    "agent": "Agent",
+    "location": "Location",
+    "postedOn": "Posted on",
+    "bedrooms": "Bedrooms",
+    "bathrooms": "Bathrooms",
+    "updatedOn": "Updated On",
+    "area": "Area",
+    "yearBuilt": "Year Built",
+    "floors": "Floors"
+}

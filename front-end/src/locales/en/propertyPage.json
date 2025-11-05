@@ -1,0 +1,28 @@
+{
+    "propertyCard": {
+        "bedrooms": "bedrooms",
+        "bathrooms": "bathrooms",
+        "viewDetail": "View Detail"
+    },
+    "propertyMap": {
+        "errorMap": "Unable to load map",
+        "loading": "Loading map.."
+    },
+    "propertyPage": {
+        "errorData": "Unable to load data",
+        "errorSearchPosition": "Location not found, please re-enter.",
+        "errorGeocoding": "Unable to geocode location:",
+        "placeholderSearch": "Search by city, address...",
+        "minPrice": "Min price",
+        "maxPrice": "Max price",
+        "bedrooms": "Bedrooms",
+        "bathrooms": "bathrooms",
+        "loadMap": "Loading maps...",
+        "loadProperty": "Loading properties...",
+        "searchResults": "Search Result",
+        "resultsFound": "results found",
+        "sortBy": "Sort By",
+        "price": "Price",
+        "title": "Title"
+    }
+}
