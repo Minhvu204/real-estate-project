@@ -9,7 +9,8 @@ import { RegisterRoute } from "./routes/RegisterRoute";
 import SellerPage from "./components/seller/SellerPage";
 import { SellerRoute } from "./routes/SellerRoute";
 import './i18n/i18n';
-
+import AssignAgent from "./components/seller/ListAgent";
+import ListAgent from "./components/seller/ListAgent";
 function App() {
   const search = useRoutes(SearchPropertiesRoute);
   const propertyDetail = useRoutes(PropertyDetailRoute);
@@ -26,7 +27,7 @@ function App() {
       {propertyDetail}
       {registerRoutes}
       {sellerRoutes}
-     
+
     </>
   )
 }
