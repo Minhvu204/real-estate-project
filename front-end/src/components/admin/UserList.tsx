@@ -39,13 +39,13 @@ const columns = (navigate: any) => [
     renderCell: (param: any) => (
       <div className=" w-full h-full flex justify-center items-center space-x-2 ">
         <button
-          className="bg-blue-500 text-white px-2 py-1 rounded text-xs "
+          className="bg-blue-500 text-white px-2 py-1 rounded text-xs cursor-pointer"
           onClick={() => navigate(`${param.row.id}`)}
         >
           <FontAwesomeIcon icon={faEye} />
         </button>
         <button
-          className="bg-red-500 text-white px-2 py-1 rounded text-xs"
+          className="bg-red-500 text-white px-2 py-1 rounded text-xs cursor-pointer"
           onClick={() => navigate(`edit/${param.row.id}`)}
         >
           <FontAwesomeIcon icon={faWrench} />

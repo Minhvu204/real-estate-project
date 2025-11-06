@@ -3,6 +3,7 @@ import type { DetailProperty } from "../../../types/Property";
 import {
   getDetailPropertiesById,
   hideProperty,
+  restoreProperty,
 } from "../../../services/propertyService";
 import {
   Button,
@@ -22,8 +23,10 @@ import {
   faCommentDots,
   faHouse,
   faCoins,
+  faCircleInfo,
 } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 type HideProperty = {
   propertyId: string;
@@ -32,7 +35,8 @@ type HideProperty = {
 const HideProperties = ({ propertyId }: HideProperty) => {
   const [property, setProperty] = useState<DetailProperty | null>(null);
   const [open, setOpen] = useState<boolean>(false);
-  const [reason, setReason] = useState<String>("");
+  const [note, setNote] = useState<string>("");
+  const navigate = useNavigate();
 
   const handleOpen = async () => {
     setOpen(true);
@@ -44,11 +48,11 @@ const HideProperties = ({ propertyId }: HideProperty) => {
   useEffect(() => {
     const fetchProperty = async () => {
       try {
-        const response = await getDetailPropertiesById(propertyId!);
-        console.log("Data return is ", response);
-        setProperty(response);
+        const data = await getDetailPropertiesById(propertyId!);
+        console.log("getDetailPropertiesById: ", data);
+        setProperty(data);
       } catch (error) {
-        console.log("Cannot fetch properties for this role", error);
+        console.log("không thể fetch data cho role này: ", error);
       }
     };
     fetchProperty();
@@ -62,17 +66,52 @@ const HideProperties = ({ propertyId }: HideProperty) => {
     if (!property) return;
 
     try {
-      const hidePropertyAndRestore = await hideProperty(propertyId, property);
-      setProperty(hidePropertyAndRestore);
-      console.log(hidePropertyAndRestore);
-      if (hidePropertyAndRestore.deleted) {
-        toast.success("hide property thành công!");
+      const hideProperties = await hideProperty(propertyId, note);
+      console.log("hide property:", hideProperties);
+      setProperty((prev) => ({
+        ...prev!,
+        deleted: hideProperties.deleted,
+        status: hideProperties.status,
+        hiddenNote: hideProperties.hiddenNote,
+      }));
+      if (hideProperties.deleted) {
+        toast.success("Ẩn bất động sản thành công!");
       } else {
-        toast.success("restore thành công!");
+        toast.success("Ẩn bất động sản thất bại!");
       }
       setOpen(false);
+      navigate("/admin/properties", { state: { refresh: true } });
     } catch (error) {
-      toast.error(property.deleted ? "restore thất bại!" : "hide thất bại!");
+      toast.error(property.deleted ? "hide thành công!" : "hide thất bại!");
+      console.error(error);
+    }
+  };
+
+  const handleRestoreUser = async () => {
+    if (!propertyId) {
+      toast.error("Không tìm thấy ID người dùng!");
+      return;
+    }
+    if (!property) return;
+
+    try {
+      const restoreProperties = await restoreProperty(propertyId);
+      console.log("restore property:", restoreProperties);
+      setProperty((prev) => ({
+        ...prev!,
+        deleted: restoreProperties.deleted,
+        status: restoreProperties.status,
+        hiddenNote: "",
+      }));
+      if (restoreProperties.deleted) {
+        toast.success("Khôi phục bất động sản thất bại!");
+      } else {
+        toast.success("Khôi phục bất động sản thành công!");
+      }
+      setOpen(false);
+      navigate("/admin/properties", { state: { refresh: true } });
+    } catch (error) {
+      toast.error(property.deleted ? "restore thất bại!" : "");
       console.error(error);
     }
   };
@@ -81,29 +120,31 @@ const HideProperties = ({ propertyId }: HideProperty) => {
     <>
       {property && (
         <>
-          <Tooltip title="hide">
-            <Button
-              variant="contained"
-              color="error"
+          <Tooltip title={property.deleted ? "Khôi phục" : "Ẩn"}>
+            <button
               onClick={handleOpen}
-              sx={{
-                minWidth: "36px",
-                height: "36px",
-                padding: 0,
-                borderRadius: "6px",
-                fontSize: "0.85rem",
-              }}
+              className={`w-9 h-9 cursor-pointer flex items-center justify-center rounded-md text-white shadow-sm hover:shadow-md transition-all duration-200 
+      ${
+        property.deleted
+          ? "bg-red-500 hover:bg-red-600"
+          : "bg-green-500 hover:bg-green-600"
+      }`}
             >
-              {property.status ? (
-                <FontAwesomeIcon icon={faLockOpen} />
-              ) : (
-                <FontAwesomeIcon icon={faLock} />
-              )}
-            </Button>
+              <FontAwesomeIcon icon={property.deleted ? faLock : faLockOpen} />
+            </button>
           </Tooltip>
+          {property.deleted && (
+            <Tooltip title={property.hiddenNote || "Không có ghi chú"}>
+              <button className="w-9 h-9 flex items-center cursor-pointer justify-center bg-amber-500 text-white rounded-md hover:bg-amber-600 shadow-sm hover:shadow-md transition-all duration-200">
+                <FontAwesomeIcon icon={faCircleInfo} />
+              </button>
+            </Tooltip>
+          )}
           <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
             <DialogTitle sx={{ fontWeight: "bold", color: "#1e293b" }}>
-              Thông tin bất động sản
+              {property.deleted
+                ? "Mở ẩn thông tin bất động sản"
+                : "Ẩn thông tin bất động sản "}
             </DialogTitle>
 
             <DialogContent dividers>
@@ -177,25 +218,29 @@ const HideProperties = ({ propertyId }: HideProperty) => {
               </div>
 
               <div className="mt-5">
-                <Typography
-                  variant="subtitle1"
-                  sx={{ display: "flex", alignItems: "center", gap: 1 }}
-                >
-                  <FontAwesomeIcon
-                    icon={faCommentDots}
-                    style={{ color: "#2563eb" }}
-                  />
-                  Lý do ẩn bất động sản
-                </Typography>
-                <TextField
-                  multiline
-                  rows={3}
-                  fullWidth
-                  placeholder="Nhập lý do ẩn hoặc từ chối bất động sản này..."
-                  value={reason}
-                  onChange={(e) => setReason(e.target.value)}
-                  sx={{ mt: 1 }}
-                />
+                {property.deleted === false && (
+                  <>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                    >
+                      <FontAwesomeIcon
+                        icon={faCommentDots}
+                        style={{ color: "#2563eb" }}
+                      />
+                      Lý do ẩn bất động sản
+                    </Typography>
+                    <TextField
+                      multiline
+                      rows={3}
+                      fullWidth
+                      placeholder="Nhập lý do ẩn hoặc từ chối bất động sản này..."
+                      value={note}
+                      onChange={(e) => setNote(e.target.value)}
+                      sx={{ mt: 1 }}
+                    />
+                  </>
+                )}
               </div>
             </DialogContent>
 
@@ -203,16 +248,27 @@ const HideProperties = ({ propertyId }: HideProperty) => {
               <Button onClick={handleClose} color="inherit">
                 Hủy
               </Button>
-              <Button
-                variant="contained"
-                color="error"
-                onClick={() => {
-                  console.log("Reason:", reason);
-                  handleHideUser();
-                }}
-              >
-                Xác nhận
-              </Button>
+              {property.deleted ? (
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={() => {
+                    handleRestoreUser();
+                  }}
+                >
+                  Xác nhận
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  color="error"
+                  onClick={() => {
+                    handleHideUser();
+                  }}
+                >
+                  Xác nhận
+                </Button>
+              )}
             </DialogActions>
           </Dialog>
         </>

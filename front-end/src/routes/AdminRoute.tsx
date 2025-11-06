@@ -28,8 +28,8 @@ export const AdminRoute = [
             element: <ViewDetailProperties />,
           },
           {
-            path: "properties/hide/:id",
-            element: <HideProperties propertyId=""/>,
+            path: "properties/hide",
+            element: <HideProperties propertyId="" />,
           },
         ],
       },

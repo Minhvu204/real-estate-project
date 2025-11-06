@@ -28,11 +28,11 @@ const UpdateUser = () => {
     if (!user?.fullName?.trim()) {
       newError.fullName = "vui lòng nhập họ tên";
     }
-    // if (!user?.phone?.trim()) {
-    //   newError.phone = "vui lòng nhập số điện thoại";
-    // } else if (!/^[0-9]{9,11}$/.test(user.phone)) {
-    //   newError.phone = "Số điện thoại phải từ 9–11 số";
-    // }
+    if (!user?.phone?.trim()) {
+      newError.phone = "vui lòng nhập số điện thoại";
+    } else if (!/^[0-9]{9,11}$/.test(user.phone)) {
+      newError.phone = "Số điện thoại phải từ 9–11 số";
+    }
     setErrors(newError);
     return Object.keys(newError).length === 0;
   };

@@ -6,7 +6,7 @@ import { httpAdmin } from "../utils/httpAdmin";
 const RESOURCE = "/properties";
 
 export const getAllProperties = async (): Promise<Property[]> => {
-  const res = await httpPublic.get(RESOURCE);
+  const res = await httpAdmin.get(RESOURCE);
   return res.data.data.data;
 };
 export const getPropertiesByAgentOrSeller = async (
@@ -30,14 +30,25 @@ export const getDetailPropertiesById = async (
 
 export const hideProperty = async (
   id: string,
-  propertyData: DetailProperty
+  note?: string
 ): Promise<DetailProperty> => {
   try {
-    const HideProperty = { ...propertyData, deleted: !propertyData.deleted };
-    const res = await httpAdmin.patch(`${RESOURCE}/${id}/hide`, HideProperty);
-    return res.data.data;
+    const res = await httpAdmin.patch(`${RESOURCE}/${id}/hide`, { note });
+    return res?.data?.data;
   } catch (error: any) {
     console.log("lỗi khi hide property:", error);
     throw new Error(error.response?.data?.message || "hide property thất bại");
+  }
+};
+
+export const restoreProperty = async (id: string): Promise<DetailProperty> => {
+  try {
+    const res = await httpAdmin.patch(`${RESOURCE}/${id}/restore`);
+    return res?.data?.data;
+  } catch (error: any) {
+    console.log("lỗi khi restore property:", error);
+    throw new Error(
+      error.response?.data?.message || "restore property thất bại"
+    );
   }
 };

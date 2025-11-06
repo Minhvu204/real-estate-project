@@ -1,12 +1,13 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getAllProperties } from "../../../services/propertyService";
 import type { Property } from "../../../types/Property";
 import { useEffect, useState } from "react";
 import { Pagination, Tooltip } from "@mui/material";
-import { getLanguage, getUser } from "../../../utils/storage";
+import { getLanguage } from "../../../utils/storage";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLock, faEye, faCircleInfo } from "@fortawesome/free-solid-svg-icons";
+import { faEye } from "@fortawesome/free-solid-svg-icons";
 import HideProperties from "./HideProperties";
+import { ToastContainer } from "react-toastify";
 
 const ListProperties = () => {
   const currentLanguage = getLanguage();
@@ -16,8 +17,10 @@ const ListProperties = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
+  const location = useLocation();
   const itemPerPages: number = 5;
   console.log(currentLanguage);
+
   useEffect(() => {
     const fetchProperties = async () => {
       try {
@@ -31,7 +34,7 @@ const ListProperties = () => {
       }
     };
     fetchProperties();
-  }, []);
+  }, [location.state?.refresh]);
 
   const filteredProperties = properties.filter((item) => {
     const matchSearch =
@@ -178,34 +181,18 @@ const ListProperties = () => {
               </td>
               <td className="px-4 py-3 border-b space-x-2">
                 <div className="flex gap-2">
-                  <button
-                    className="w-9 h-9 flex items-center justify-center bg-green-500 text-white rounded hover:bg-green-600 transition cursor-pointer"
-                    onClick={() => navigate(`${item?._id}`)}
+                  <Tooltip
+                    title={currentLanguage === "vi" ? "Xem chi tiết" : "View"}
                   >
-                    <Tooltip title="View">
+                    <button
+                      onClick={() => navigate(`${item?._id}`)}
+                      className="cursor-pointer w-9 h-9 flex items-center justify-center rounded-md text-white bg-blue-500 hover:bg-blue-600 shadow-sm hover:shadow-md transition-all duration-200"
+                    >
                       <FontAwesomeIcon icon={faEye} />
-                    </Tooltip>
-                  </button>
-                  {item.deleted === false ? (
-                    <div className="w-9 h-9 flex items-center justify-center">
-                      <HideProperties propertyId={item?._id} />
-                    </div>
-                  ) : (
-                    <>
-                      <div className="w-9 h-9 flex items-center justify-center">
-                        <HideProperties propertyId={item?._id} />
-                      </div>
+                    </button>
+                  </Tooltip>
 
-                      <button
-                        className="w-9 h-9 flex items-center justify-center bg-red-500 text-white rounded hover:bg-red-600 transition cursor-pointer"
-                        onClick={() => navigate(`reason/${item?._id}`)}
-                      >
-                        <Tooltip title="Reason">
-                          <FontAwesomeIcon icon={faCircleInfo} />
-                        </Tooltip>
-                      </button>
-                    </>
-                  )}
+                  <HideProperties propertyId={item?._id} />
                 </div>
               </td>
             </tr>
@@ -224,6 +211,18 @@ const ListProperties = () => {
           />
         </div>
       )}
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </>
   );
 };

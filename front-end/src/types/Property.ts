@@ -65,6 +65,7 @@ export type Property = {
   }[];
   images: string[];
   status: string;
+  hiddenNote: string;
   deleted: boolean;
   assignmentHistory: any[];
   createdAt: string;
@@ -133,6 +134,7 @@ export type DetailProperty = {
   status: string;
   assignmentHistory: any[];
   deleted: boolean;
+  hiddenNote: string;
   createdAt: string;
   updatedAt: string;
 };
