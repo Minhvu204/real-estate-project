@@ -35,7 +35,7 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <AuthProvider>
-        {/* {!isAdmin && <Navbar />} */}
+        {!isAdmin && <Navbar />}
         {routing}
       </AuthProvider>
     </ThemeProvider>

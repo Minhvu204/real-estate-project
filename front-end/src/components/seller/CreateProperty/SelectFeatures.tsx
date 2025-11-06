@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { getAllFeatures, type Feature } from '@/services/propertyService';
+import { getAllFeatures } from '@/services/propertyService';
+import type { Feature } from '@/types/Feature';
+import { getLanguage, type Lang } from '@/utils/storage';
 
 interface SelectFeaturesProps {
     selectedFeatures: string[];
@@ -12,8 +14,7 @@ const SelectFeatures: React.FC<SelectFeaturesProps> = ({ selectedFeatures, onSub
     const [availableFeatures, setAvailableFeatures] = useState<Feature[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
-
-    // Fetch features từ API khi component mount
+    const currentLanguage: Lang = getLanguage();
     useEffect(() => {
         const fetchFeatures = async () => {
             try {
@@ -24,26 +25,10 @@ const SelectFeatures: React.FC<SelectFeaturesProps> = ({ selectedFeatures, onSub
             } catch (err) {
                 console.error('Error fetching features:', err);
                 setError('Không thể tải danh sách tiện ích. Vui lòng thử lại!');
-                // Fallback to default features nếu API fail
-                setAvailableFeatures([
-                    { id: 'pool', name: 'Hồ bơi', icon: '🏊' },
-                    { id: 'gym', name: 'Phòng gym', icon: '💪' },
-                    { id: 'parking', name: 'Bãi đỗ xe', icon: '🚗' },
-                    { id: 'garden', name: 'Vườn', icon: '🌳' },
-                    { id: 'elevator', name: 'Thang máy', icon: '🛗' },
-                    { id: 'security', name: 'An ninh 24/7', icon: '🔒' },
-                    { id: 'balcony', name: 'Ban công', icon: '🏠' },
-                    { id: 'wifi', name: 'Wifi', icon: '📶' },
-                    { id: 'ac', name: 'Điều hòa', icon: '❄️' },
-                    { id: 'kitchen', name: 'Bếp', icon: '🍳' },
-                    { id: 'playground', name: 'Khu vui chơi', icon: '🎪' },
-                    { id: 'laundry', name: 'Máy giặt', icon: '🧺' },
-                ]);
             } finally {
                 setLoading(false);
             }
         };
-
         fetchFeatures();
     }, []);
 
@@ -64,8 +49,6 @@ const SelectFeatures: React.FC<SelectFeaturesProps> = ({ selectedFeatures, onSub
             <h1 className='text-center text-3xl font-semibold text-blue-600 mb-4'>
                 Chọn tiện ích bất động sản
             </h1>
-
-            {/* Error Message */}
             {error && (
                 <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
                     <div className="flex">
@@ -74,7 +57,6 @@ const SelectFeatures: React.FC<SelectFeaturesProps> = ({ selectedFeatures, onSub
                         </div>
                         <div className="ml-3">
                             <p className="text-sm text-yellow-700">{error}</p>
-                            <p className="text-xs text-yellow-600 mt-1">Đang sử dụng dữ liệu mặc định</p>
                         </div>
                     </div>
                 </div>
@@ -83,8 +65,6 @@ const SelectFeatures: React.FC<SelectFeaturesProps> = ({ selectedFeatures, onSub
             <div>
                 <p className='text-lg font-semibold mb-2'>Chọn tiện ích bất động sản (nhấn để chọn)</p>
                 <p className='text-sm text-gray-600 mb-4'>Đã chọn: {features.length} tiện ích</p>
-
-                {/* Loading State */}
                 {loading ? (
                     <div className="flex justify-center items-center py-20">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -94,23 +74,21 @@ const SelectFeatures: React.FC<SelectFeaturesProps> = ({ selectedFeatures, onSub
                     <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mt-4'>
                         {availableFeatures.map((feature) => (
                             <button
-                                key={feature.id}
+                                key={feature._id}
                                 type='button'
-                                onClick={() => toggleFeature(feature.id)}
-                                className={`border-2 rounded-2xl cursor-pointer w-full h-24 flex flex-col items-center justify-center transition-all hover:scale-105 ${features.includes(feature.id)
+                                onClick={() => toggleFeature(feature._id)}
+                                className={`border-2 rounded-2xl cursor-pointer w-full h-24 flex flex-col items-center justify-center transition-all hover:scale-105 ${features.includes(feature._id)
                                     ? 'border-blue-500 bg-blue-50 text-blue-700'
                                     : 'border-gray-300 bg-white text-gray-700 hover:border-blue-300'
                                     }`}
                             >
-                                <span className='text-3xl mb-1'>{feature.icon}</span>
-                                <span className='text-xs font-medium text-center px-1'>{feature.name}</span>
+                                <span className='text-3xl mb-1'>icon</span>
+                                <span className='text-xs font-medium text-center px-1'>{feature.feature_name[currentLanguage]}</span>
                             </button>
                         ))}
                     </div>
                 )}
             </div>
-
-            {/* Navigation Buttons */}
             <div className="pt-4 flex justify-between">
                 <button
                     type="button"

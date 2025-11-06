@@ -17,7 +17,6 @@ const LoginRoute = () => {
         <ThemeProvider theme={theme}>
             <AuthProvider >
                 {!isAdmin && <Navbar />}
-
                 <Routes>
                     <Route path="/" element={<Navigate to="/home" />} />
                     <Route path="/login" element={<LoginPage />} />

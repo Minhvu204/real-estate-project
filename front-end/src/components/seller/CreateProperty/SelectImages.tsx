@@ -130,7 +130,6 @@ const SelectImages: React.FC<SelectImagesProps> = ({ images: initialImages, onSu
                 )}
             </div>
 
-            {/* Navigation Buttons */}
             <div className="pt-4 flex justify-between">
                 <button
                     type="button"

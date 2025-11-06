@@ -3,19 +3,28 @@ import SelectFeatures from '@/components/seller/CreateProperty/SelectFeatures';
 import FormProperty from '@/components/seller/CreateProperty/FormProperty';
 import React, { useState } from 'react'
 import SelectImages from '@/components/seller/CreateProperty/SelectImages';
+import { createProperty } from '@/services/propertyService';
+
+type common = number | string
 
 interface PropertyData {
     title: string;
-    price: string;
+    price: common;
     description: string;
     address: string;
-    bathrooms: string;
-    bedrooms: string;
-    propertyType: string;
-    area: string;
-    unit: string;
-    floors: string;
-    transactionType: string;
+    bathrooms: common;
+    bedrooms: common;
+    area: common;
+    unit: common;
+    floors: common;
+    yearBuilt?: common;
+    city_id: string;
+    category_id: string;
+    type_id: string;
+    coordinates?: {
+        lat: number;
+        lng: number;
+    };
 }
 
 interface ImageItem {
@@ -33,11 +42,14 @@ const CreatePropertyPage = () => {
         address: '',
         bathrooms: '',
         bedrooms: '',
-        propertyType: '',
         area: '',
-        unit: '',
+        unit: 'm2',
         floors: '',
-        transactionType: ''
+        yearBuilt: '',
+        city_id: '',
+        category_id: '',
+        type_id: '',
+        coordinates: undefined
     });
     const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
     const [images, setImages] = useState<ImageItem[]>([]);
@@ -68,21 +80,30 @@ const CreatePropertyPage = () => {
 
     const handleImagesSubmit = (imageList: ImageItem[]) => {
         setImages(imageList);
-        // Submit tất cả dữ liệu lên server
         handleFinalSubmit();
     };
 
-    const handleFinalSubmit = () => {
-        // Tổng hợp tất cả dữ liệu
-        const finalData = {
-            ...propertyData,
-            features: selectedFeatures,
-            images: images
-        };
-
-        console.log('Final Property Data:', finalData);
-        // TODO: Gọi API để tạo property
-        alert('Tạo bất động sản thành công!');
+    const handleFinalSubmit = async () => {
+        try {
+            if (!propertyData.city_id || !propertyData.category_id || !propertyData.type_id) {
+                alert('Vui lòng điền đầy đủ thông tin bắt buộc (Thành phố, Loại BĐS, Hình thức giao dịch)!');
+                return;
+            }
+            const imageFiles = images.map(img => img.file);
+            const dataToSend = {
+                ...propertyData,
+                features: selectedFeatures,
+            };
+            console.log('Sending property data:', dataToSend);
+            console.log('Images count:', imageFiles.length);
+            const response = await createProperty(dataToSend, imageFiles);
+            alert('Tạo bất động sản thành công!');
+            console.log('Created property:', response);
+        } catch (error: any) {
+            console.error('Error creating property:', error);
+            const errorMessage = error.response?.data?.message || error.message || 'Có lỗi xảy ra';
+            alert('Lỗi khi tạo bất động sản: ' + errorMessage);
+        }
     };
 
     const steps = [
@@ -94,7 +115,6 @@ const CreatePropertyPage = () => {
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4">
             <div className="max-w-5xl mx-auto">
-                {/* Stepper Progress */}
                 <div className="mb-8">
                     <div className="flex items-center justify-between">
                         {steps.map((step, index) => (
@@ -123,7 +143,6 @@ const CreatePropertyPage = () => {
                     </div>
                 </div>
 
-                {/* Step Content */}
                 <div className="mb-6">
                     {currentStep === 1 && (
                         <FormProperty
@@ -146,9 +165,6 @@ const CreatePropertyPage = () => {
                         />
                     )}
                 </div>
-
-                {/* Navigation Buttons - Hiển thị nếu cần */}
-                {/* Các button này có thể được đưa vào trong từng component con */}
             </div>
         </div>
     )
