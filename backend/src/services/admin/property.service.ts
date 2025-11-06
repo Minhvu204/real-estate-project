@@ -113,11 +113,20 @@ export const adminPropertyService = {
       throw err;
     }
 
+    if (property.status === "available" || property.status === "approved") {
+      const err: any = new Error("Property publicly available, cannot restore");
+      err.status = 400;
+      throw err;
+    }
+
     if (!property.deleted) {
       return { id: property._id, deleted: false, status: property.status };
     }
 
     property.deleted = false;
+    if (property.status === "rejected") {
+      property.status = "available" as any;
+    }
     (property as any).hiddenNote = undefined;
     await property.save();
 
