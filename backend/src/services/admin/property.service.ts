@@ -96,7 +96,7 @@ export const adminPropertyService = {
     }
     await property.save();
 
-    return { id: property._id, deleted: property.deleted, status: property.status, hiddenNote: (property as any).hiddenNote};
+    return { id: property._id, deleted: property.deleted, status: property.status, hiddenNote: (property as any).hiddenNote };
   },
 
   async restore(propertyId: string, _adminId: string) {
@@ -113,14 +113,81 @@ export const adminPropertyService = {
       throw err;
     }
 
+    if (property.status === "available" || property.status === "approved") {
+      const err: any = new Error("Property publicly available, cannot restore");
+      err.status = 400;
+      throw err;
+    }
+
     if (!property.deleted) {
       return { id: property._id, deleted: false, status: property.status };
     }
 
     property.deleted = false;
+    if (property.status === "rejected") {
+      property.status = "available" as any;
+    }
     (property as any).hiddenNote = undefined;
     await property.save();
 
     return { id: property._id, deleted: property.deleted, status: property.status };
   },
+
+  getPropertyById: async (id: string) => {
+    if (!mongoose.isValidObjectId(id)) {
+      const err: any = new Error("Invalid property id");
+      err.status = 400;
+      throw err;
+    }
+
+    const property = await Property.findById(id)
+      .populate("city_id", "city_name")
+      .populate("category_id", "category_name")
+      .populate("type_id", "type_name")
+      .populate("owner_id", "fullName email phone avatar")
+      .populate("agent_id", "fullName email phone avatar")
+      .populate("features", "feature_name")
+      .populate("assignmentHistory.agent_id", "fullName email phone avatar")
+      .populate("assignmentHistory.assignedBy", "fullName email")
+      .lean();
+
+    if (!property) {
+      const err: any = new Error("Property not found");
+      err.status = 404;
+      throw err;
+    }
+
+    return {
+      id: property._id,
+      title: property.title,
+      description: property.description,
+      price: property.price,
+      address: property.address,
+      bedrooms: property.bedrooms,
+      bathrooms: property.bathrooms,
+      area: property.area,
+      unit: property.unit,
+      yearBuilt: property.yearBuilt,
+      floors: property.floors,
+      coordinates: property.coordinates,
+      city: property.city_id,
+      category: property.category_id,
+      type: property.type_id,
+      features: property.features,
+      images: property.images || [],
+      owner: property.owner_id,
+      agent: property.agent_id,
+      status: property.status,
+      deleted: property.deleted,
+      hiddenNote: (property as any).hiddenNote,
+      assignmentHistory: property.assignmentHistory || [],
+      reviewedBy: property.reviewedBy,
+      reviewedAt: property.reviewedAt,
+      publishedAt: property.publishedAt,
+      createdAt: property.createdAt,
+      updatedAt: property.updatedAt,
+    };
+  },
+
 };
+
