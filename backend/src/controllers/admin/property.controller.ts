@@ -44,7 +44,8 @@ export const hideProperty = async (req: any, res: Response) => {
   try {
     const { id } = req.params;
     const adminId = req.user?.id;
-    const result = await adminPropertyService.hide(id, adminId);
+    const { note } = req.body as { note?: string };
+    const result = await adminPropertyService.hide(id, adminId, note);
     return successResponse(res, "Ẩn bài đăng thành công", result);
   } catch (err: any) {
     return errorResponse(
@@ -65,6 +66,21 @@ export const restoreProperty = async (req: any, res: Response) => {
     return errorResponse(
       res,
       err.message || "Failed to restore property",
+      err.status || 500
+    );
+  }
+};
+
+export const getPropertyById = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await adminPropertyService.getPropertyById(id);
+    return successResponse(req, res, "Lấy chi tiết property thành công", result);
+  } catch (err: any) {
+    return errorResponse(
+      req,
+      res,
+      err.message || "Failed to get property",
       err.status || 500
     );
   }
