@@ -21,7 +21,9 @@ import {
 import { Close as CloseIcon, CloudUpload as UploadIcon } from "@mui/icons-material";
 import type { Property } from "../../types/Property";
 import type { Feature } from "../../types/Features";
-import { featureService } from "../../services/categoryService";
+import type { City } from "../../types/Cities";
+import type { PropertyType } from "../../types/PropertyTypes";
+import { taxonomyService } from "../../services/taxonomyService";
 import { getText } from "../../utils/multilang";
 import { getLanguage, type Lang } from "../../utils/storage";
 
@@ -40,6 +42,8 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 }) => {
     const [loading, setLoading] = useState(false);
     const [features, setFeatures] = useState<Feature[]>([]);
+    const [cities, setCities] = useState<City[]>([]);
+    const [propertyTypes, setPropertyTypes] = useState<PropertyType[]>([]);
 
     const [formData, setFormData] = useState({
         title: "",
@@ -103,10 +107,11 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
     const loadCategories = async () => {
         try {
-            const featuresData = await featureService.getAll();
-            setFeatures(featuresData);
+            const data = await taxonomyService.getAll();
+            setFeatures(data.features);
+            setCities(data.cities);
+            setPropertyTypes(data.propertyTypes);
         } catch (error) {
-            // ignore
         }
     };
 
@@ -236,25 +241,47 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                     </Box>
 
                     <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-                        <TextField
-                            label={t("Thành phố", "City")}
-                            sx={{ flex: 1, minWidth: 200 }}
-                            fullWidth
-                            required
-                            value={formData.city_name}
-                            onChange={(e) => handleChange("city_name", e.target.value)}
-                            placeholder={t("VD: Thành phố Hồ Chí Minh", "Eg: Ho Chi Minh City")}
-                        />
+                        <FormControl sx={{ flex: 1, minWidth: 200 }} fullWidth>
+                            <InputLabel>{t("Thành phố", "City")}</InputLabel>
+                            <Select
+                                label={t("Thành phố", "City")}
+                                value={formData.city_id}
+                                onChange={(e) => {
+                                    const id = e.target.value as string;
+                                    const selected = cities.find((c) => c._id === id);
+                                    handleChange("city_id", id);
+                                    handleChange("city_name", selected ? getText(selected.city_name as any, currentLang) : "");
+                                }}
+                                required
+                            >
+                                {cities.map((city) => (
+                                    <MenuItem key={city._id} value={city._id}>
+                                        {getText(city.city_name as any, currentLang)}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
-                        <TextField
-                            label={t("Loại bất động sản", "Property type")}
-                            sx={{ flex: 1, minWidth: 200 }}
-                            fullWidth
-                            required
-                            value={formData.type_name}
-                            onChange={(e) => handleChange("type_name", e.target.value)}
-                            placeholder={t("VD: Cho thuê, Bán", "Eg: Rent, Sell")}
-                        />
+                        <FormControl sx={{ flex: 1, minWidth: 200 }} fullWidth>
+                            <InputLabel>{t("Loại bất động sản", "Property type")}</InputLabel>
+                            <Select
+                                label={t("Loại bất động sản", "Property type")}
+                                value={formData.type_id}
+                                onChange={(e) => {
+                                    const id = e.target.value as string;
+                                    const selected = propertyTypes.find((pt) => pt._id === id);
+                                    handleChange("type_id", id);
+                                    handleChange("type_name", selected ? getText(selected.type_name as any, currentLang) : "");
+                                }}
+                                required
+                            >
+                                {propertyTypes.map((pt) => (
+                                    <MenuItem key={pt._id} value={pt._id}>
+                                        {getText(pt.type_name as any, currentLang)}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     </Box>
 
                     <FormControl fullWidth>
