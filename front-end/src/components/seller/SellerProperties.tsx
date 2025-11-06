@@ -10,12 +10,13 @@ import type { Lang } from '../../utils/storage';
 import { Button, Card, CardContent, CardMedia, Chip, Grid, Pagination, Typography } from '@mui/material';
 import { Box } from '@mui/material';
 import { getPropertiesByAgentOrSeller } from '../../services/propertyService';
+import type { Meta } from '../../types/Pagination';
 
 const SellerProperties = () => {
     const [properties, setProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
     const user = getUser();
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState<Meta>();
     const [itemsPerPage] = useState(6);
     const { t } = useTranslation(['home', 'properties']);
     const currentLanguage: Lang = getLanguage();
@@ -25,7 +26,8 @@ const SellerProperties = () => {
             try {
                 if (!user) return;
                 const response = await getPropertiesByAgentOrSeller();
-                setProperties(response || []);
+                setProperties(response.data || []);
+                setPage(response.pagination);
             } catch (error) {
                 console.log("Cannot fetch properties for this role", error);
             } finally {
@@ -41,12 +43,17 @@ const SellerProperties = () => {
     if (properties.length === 0)
         return <div className="text-center text-gray-600 mt-10">Không có bất động sản nào.</div>;
 
-    const totalPages = Math.ceil(properties.length / itemsPerPage);
-    const startIndex = (page - 1) * itemsPerPage;
+    const totalPages = Math.ceil(page?.totalItems! / itemsPerPage);
+    const startIndex = (page?.currentPage! - 1) * itemsPerPage;
     const currentProperties = properties.slice(startIndex, startIndex + itemsPerPage);
 
     const handleChangePage = (_: React.ChangeEvent<unknown>, value: number) => {
-        setPage(value);
+        if (!page) return;
+        setPage(
+            {
+                ...page,
+                currentPage: value
+            });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -147,7 +154,7 @@ const SellerProperties = () => {
             <Box className="flex justify-center mt-10">
                 <Pagination
                     count={totalPages}
-                    page={page}
+                    page={page?.currentPage}
                     color="primary"
                     onChange={handleChangePage}
                     size="medium"

@@ -39,7 +39,7 @@ const PropertyDetail = () => {
     return (
         <Container maxWidth="xl" sx={{ mt: 2 }}>
             <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                     {/* CAROUSEL */}
                     {property.images && property.images.length > 0 && (
                         <Box
@@ -138,7 +138,7 @@ const PropertyDetail = () => {
                     }
                 </Grid>
 
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
 
                     {/* TITLE + PRICE */}
                     <Typography variant="h4" fontWeight="bold">
@@ -194,7 +194,7 @@ const PropertyDetail = () => {
 
                     {/* OWNER & AGENT */}
                     <Grid container spacing={3} mt={0.1}>
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <Paper sx={{ p: 2 }}>
                                 <Typography variant="h6" fontWeight="bold">Owner</Typography>
                                 <Stack direction="row" spacing={2} mt={1}>
@@ -208,7 +208,7 @@ const PropertyDetail = () => {
                             </Paper>
                         </Grid>
 
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{ xs: 12, md: 6 }}>
                             <Paper sx={{ p: 2 }}>
                                 <Typography variant="h6" fontWeight="bold">Agent</Typography>
                                 <Stack direction="row" spacing={2} mt={1}>
