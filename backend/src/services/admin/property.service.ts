@@ -125,6 +125,12 @@ export const adminPropertyService = {
   },
 
   getPropertyById: async (id: string) => {
+    if (!mongoose.isValidObjectId(id)) {
+      const err: any = new Error("Invalid property id");
+      err.status = 400;
+      throw err;
+    }
+
     const property = await Property.findById(id)
       .populate("city_id", "city_name")
       .populate("category_id", "category_name")
@@ -132,7 +138,6 @@ export const adminPropertyService = {
       .populate("owner_id", "fullName email phone avatar")
       .populate("agent_id", "fullName email phone avatar")
       .populate("features", "feature_name")
-      .populate('type_id', 'type_name')
       .populate("assignmentHistory.agent_id", "fullName email phone avatar")
       .populate("assignmentHistory.assignedBy", "fullName email")
       .lean();
@@ -165,7 +170,11 @@ export const adminPropertyService = {
       agent: property.agent_id,
       status: property.status,
       deleted: property.deleted,
+      hiddenNote: (property as any).hiddenNote,
       assignmentHistory: property.assignmentHistory || [],
+      reviewedBy: property.reviewedBy,
+      reviewedAt: property.reviewedAt,
+      publishedAt: property.publishedAt,
       createdAt: property.createdAt,
       updatedAt: property.updatedAt,
     };

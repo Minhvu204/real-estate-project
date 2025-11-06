@@ -70,3 +70,18 @@ export const restoreProperty = async (req: any, res: Response) => {
     );
   }
 };
+
+export const getPropertyById = async (req: any, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await adminPropertyService.getPropertyById(id);
+    return successResponse(req, res, "Lấy chi tiết property thành công", result);
+  } catch (err: any) {
+    return errorResponse(
+      req,
+      res,
+      err.message || "Failed to get property",
+      err.status || 500
+    );
+  }
+};
