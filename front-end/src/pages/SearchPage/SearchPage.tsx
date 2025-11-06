@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-
 import type { Property } from '../../types/Property';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { getAllProperties } from '../../services/propertyService';
 import { useSearchParams } from 'react-router-dom';
-import PropertyMap from '../../components/property/PropertyMap';
-import PropertyCard from '../../components/property/PropertyCard';
+import PropertyMap from '../../components/Property/PropertyMap';
+import PropertyCard from '../../components/Property/PropertyCard';
 import Pagination from '@mui/material/Pagination';
 import PaginationItem from '@mui/material/PaginationItem';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -14,6 +13,8 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { Map as MapIcon, List as ListIcon } from '@mui/icons-material';
 import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material';
+import { getLanguage, type Lang } from '../../utils/storage';
+import { useTranslation } from 'react-i18next';
 const SearchPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const initialQuery = searchParams.get('q') || '';
@@ -35,7 +36,8 @@ const SearchPage = () => {
     const [page, setPage] = useState(1);
     const itemsPerPage = 6;
     const [mapView, setMapView] = useState(false);
-
+    const { t } = useTranslation('propertyPage');
+    const currentLanguage: Lang = getLanguage();
     useEffect(() => {
         setType(searchParams.get('type') || '');
     }, [searchParams]);
@@ -52,9 +54,8 @@ const SearchPage = () => {
                 const data = await getAllProperties();
                 setProperties(data);
                 console.log(data);
-
             } catch (error: any) {
-                setError(error.message || "Khong the tai duoc du lieu");
+                setError(error.message || t("propertyPage.errorData"));
             } finally {
                 setLoading(false);
             }
@@ -64,6 +65,7 @@ const SearchPage = () => {
 
     const filteredProperties = useMemo(() => {
         const removeVietnameseTones = (str: string) => {
+            if (!str) return '';
             return str
                 .normalize("NFD")
                 .replace(/[\u0300-\u036f]/g, "")
@@ -73,26 +75,26 @@ const SearchPage = () => {
         };
         const normalizedQuery = removeVietnameseTones(query);
         let result = properties.filter((p) => {
-            const title = removeVietnameseTones(p.title);
-            const address = removeVietnameseTones(p.address);
+            const title = removeVietnameseTones(p.title?.[currentLanguage] || '');
+            const address = removeVietnameseTones(p.address?.[currentLanguage] || '');
             const matchesQuery =
                 title.includes(normalizedQuery) || address.includes(normalizedQuery);
             const matchesPrice = (minPrice === '' || p.price >= minPrice) && (maxPrice === '' || p.price <= maxPrice);
             const matchesBed = bedrooms === '' || p.bedrooms >= bedrooms;
             const matchesBath = bathrooms === '' || p.bathrooms >= bathrooms;
-            const matchesStatus = !type || p.type_id?.type_name && p.type_id?.type_name.toLowerCase().trim() === type.toLowerCase().trim();
+            const matchesStatus = !type || p.type_id?.type_name?.[currentLanguage] && p.type_id?.type_name[currentLanguage].toLowerCase().trim() === type.toLowerCase().trim();
             return matchesPrice && matchesBed && matchesBath && matchesStatus && matchesQuery;
         })
         if (sortBy === 'priceAsc') result = [...result].sort((a, b) => a.price - b.price);
         if (sortBy === 'priceDesc') result = [...result].sort((a, b) => b.price - a.price);
-        if (sortBy === 'titleAsc') result = [...result].sort((a, b) => a.title.localeCompare(b.title));
-        if (sortBy === 'titleDesc') result = [...result].sort((a, b) => b.title.localeCompare(a.title));
+        if (sortBy === 'titleAsc') result = [...result].sort((a, b) => (a.title?.[currentLanguage] || '').localeCompare(b.title?.[currentLanguage] || ''));
+        if (sortBy === 'titleDesc') result = [...result].sort((a, b) => (b.title?.[currentLanguage] || '').localeCompare(a.title?.[currentLanguage] || ''));
         if (sortBy === 'bedAsc') result = [...result].sort((a, b) => a.bedrooms - b.bedrooms);
         if (sortBy === 'bedDesc') result = [...result].sort((a, b) => b.bedrooms - a.bedrooms);
         if (sortBy === 'bathAsc') result = [...result].sort((a, b) => a.bathrooms - b.bathrooms);
         if (sortBy === 'bathDesc') result = [...result].sort((a, b) => b.bathrooms - a.bathrooms);
         return result;
-    }, [query, minPrice, maxPrice, bedrooms, bathrooms, type, properties, sortBy]);
+    }, [query, minPrice, maxPrice, bedrooms, bathrooms, type, properties, sortBy, currentLanguage]);
 
     const paginatedProperties = useMemo(() => {
         const start = (page - 1) * itemsPerPage;
@@ -118,10 +120,10 @@ const SearchPage = () => {
                 const { lat, lng } = data.results[0].geometry;
                 setMapCenter({ lat, lng });
             } else {
-                alert("Không tìm thấy vị trí, vui lòng nhập lại.");
+                alert(t("propertyPage.errorSearchPosition"));
             }
         } catch (error) {
-            console.log("Geocoding error:", error);
+            console.log(t("propertyPage.errorGeocoding"), error);
         }
     }
 
@@ -165,7 +167,7 @@ const SearchPage = () => {
                     <div className="flex items-center border rounded-lg px-3 py-2 bg-white transition focus-within:ring-2 focus-within:ring-gray-300 w-full md:w-[53%]">
                         <input
                             type="text"
-                            placeholder="Search by city, address..."
+                            placeholder={t("propertyPage.placeholderSearch")}
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             onKeyDown={(e) => {
@@ -198,9 +200,9 @@ const SearchPage = () => {
                     <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 w-full md:w-auto justify-center ">
 
                         <FormControl size="small" sx={{ minWidth: 120 }}>
-                            <InputLabel>Min Price</InputLabel>
-                            <Select value={minPrice} label="Min Price" onChange={handleMinPriceChange}>
-                                <MenuItem value=""><em>Min Price</em></MenuItem>
+                            <InputLabel>{t("propertyPage.minPrice")}</InputLabel>
+                            <Select value={minPrice} label={t("propertyPage.minPrice")} onChange={handleMinPriceChange}>
+                                <MenuItem value=""><em>{t("propertyPage.minPrice")}</em></MenuItem>
                                 <MenuItem value={10000}>$10K</MenuItem>
                                 <MenuItem value={20000}>$20K</MenuItem>
                                 <MenuItem value={50000}>$50K</MenuItem>
@@ -214,9 +216,9 @@ const SearchPage = () => {
                             </Select>
                         </FormControl>
                         <FormControl size="small" sx={{ minWidth: 120 }}>
-                            <InputLabel>Max Price</InputLabel>
-                            <Select value={maxPrice} label="Max Price" onChange={handleMaxPriceChange}>
-                                <MenuItem value=""><em>Max Price</em></MenuItem>
+                            <InputLabel>{t("propertyPage.maxPrice")}</InputLabel>
+                            <Select value={maxPrice} label={t("propertyPage.maxPrice")} onChange={handleMaxPriceChange}>
+                                <MenuItem value=""><em>{t("propertyPage.maxPrice")}</em></MenuItem>
                                 <MenuItem value={10000}>$10K</MenuItem>
                                 <MenuItem value={20000}>$20K</MenuItem>
                                 <MenuItem value={50000}>$50K</MenuItem>
@@ -230,18 +232,18 @@ const SearchPage = () => {
                             </Select>
                         </FormControl>
                         <FormControl size="small" sx={{ minWidth: 120 }}>
-                            <InputLabel>Bedrooms</InputLabel>
-                            <Select value={bedrooms} label="Bedrooms" onChange={handleBedroomsChange}>
-                                <MenuItem value=""><em>Bedrooms</em></MenuItem>
+                            <InputLabel>{t("propertyPage.bedrooms")}</InputLabel>
+                            <Select value={bedrooms} label={t("propertyPage.bedrooms")} onChange={handleBedroomsChange}>
+                                <MenuItem value=""><em>{t("propertyPage.bedrooms")}</em></MenuItem>
                                 <MenuItem value={1}>1+</MenuItem>
                                 <MenuItem value={2}>2+</MenuItem>
                                 <MenuItem value={3}>3+</MenuItem>
                             </Select>
                         </FormControl>
                         <FormControl size="small" sx={{ minWidth: 120 }}>
-                            <InputLabel>Bathrooms</InputLabel>
-                            <Select value={bathrooms} label="Bathrooms" onChange={handleBathroomsChange}>
-                                <MenuItem value=""><em>Bathrooms</em></MenuItem>
+                            <InputLabel>{t("propertyPage.bathrooms")}</InputLabel>
+                            <Select value={bathrooms} label={t("propertyPage.bathrooms")} onChange={handleBathroomsChange}>
+                                <MenuItem value=""><em>{t("propertyPage.bathrooms")}</em></MenuItem>
                                 <MenuItem value={1}>1+</MenuItem>
                                 <MenuItem value={2}>2+</MenuItem>
                                 <MenuItem value={3}>3+</MenuItem>
@@ -252,7 +254,7 @@ const SearchPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 flex-1 min-h-0">
                     <div className={`h-full min-h-0 ${mapView ? 'block' : 'hidden'} md:block`}>
                         {loading ? (
-                            <div className='flex justify-center items-center h-full' >Loading maps...</div>
+                            <div className='flex justify-center items-center h-full' >{t("propertyPage.loadMap")}</div>
                         ) : error ? (
                             <div className='flex justify-center items-center h-full text-red-500'>{error}</div>
                         ) : (
@@ -261,26 +263,26 @@ const SearchPage = () => {
                     </div>
                     <div className={`h-full flex-col p-3 overflow-y-auto ${mapView ? 'hidden' : 'flex'} md:flex`}>
                         {loading ? (
-                            <div className='flex justify-center items-center h-full' >Loading properties...</div>
+                            <div className='flex justify-center items-center h-full' >{t("propertyPage.loadProperty")}</div>
                         ) : error ? (
                             <div className='flex justify-center items-center h-full text-red-500'>{error}</div>
                         ) : (
                             <>
-                                <h1 className="text-xl font-semibold mb-2">Search Results</h1>
+                                <h1 className="text-xl font-semibold mb-2">{t("propertyPage.searchResults")}</h1>
                                 <div className="flex justify-between items-center mb-3 text-gray-600">
-                                    <p>{filteredProperties.length} results found</p>
-                                    <FormControl size="small" sx={{ minWidth: 120 }}>
-                                        <InputLabel>Sort by</InputLabel>
-                                        <Select value={sortBy} label="Sort by" onChange={handleSortByChange}>
-                                            <MenuItem value=""><em>Sort by</em></MenuItem>
-                                            <MenuItem value="priceAsc">Price ↑</MenuItem>
-                                            <MenuItem value="priceDesc">Price ↓</MenuItem>
-                                            <MenuItem value="titleAsc">Title A–Z</MenuItem>
-                                            <MenuItem value="titleDesc">Title Z–A</MenuItem>
-                                            <MenuItem value="bedAsc">Bedrooms ↑</MenuItem>
-                                            <MenuItem value="bedDesc">Bedrooms ↓</MenuItem>
-                                            <MenuItem value="bathAsc">Bathrooms ↑</MenuItem>
-                                            <MenuItem value="bathDesc">Bathrooms ↓</MenuItem>
+                                    <p>{filteredProperties.length} {t("propertyPage.resultsFound")}</p>
+                                    <FormControl size="small" sx={{ minWidth: 150 }}>
+                                        <InputLabel>{t("propertyPage.sortBy")}</InputLabel>
+                                        <Select value={sortBy} label={t("propertyPage.sortBy")} onChange={handleSortByChange}>
+                                            <MenuItem value=""><em>{t("propertyPage.sortBy")}</em></MenuItem>
+                                            <MenuItem value="priceAsc">{t("propertyPage.price")} ↑</MenuItem>
+                                            <MenuItem value="priceDesc">{t("propertyPage.price")} ↓</MenuItem>
+                                            <MenuItem value="titleAsc">{t("propertyPage.title")} A–Z</MenuItem>
+                                            <MenuItem value="titleDesc">{t("propertyPage.title")} Z–A</MenuItem>
+                                            <MenuItem value="bedAsc">{t("propertyPage.bedrooms")} ↑</MenuItem>
+                                            <MenuItem value="bedDesc">{t("propertyPage.bedrooms")} ↓</MenuItem>
+                                            <MenuItem value="bathAsc">{t("propertyPage.bathrooms")} ↑</MenuItem>
+                                            <MenuItem value="bathDesc">{t("propertyPage.bathrooms")} ↓</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </div>
@@ -290,7 +292,6 @@ const SearchPage = () => {
                                     ))}
                                 </div>
                             </>
-
                         )}
                         <div className="mt-auto">
                             <Pagination

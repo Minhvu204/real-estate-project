@@ -5,6 +5,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import MailIcon from '@mui/icons-material/Mail';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import { getLanguage, type Lang } from '../../utils/storage';
 
 interface ProfileSidebarProps {
   user: {
@@ -14,15 +15,27 @@ interface ProfileSidebarProps {
 }
 
 export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user }) => {
+  const [currentLang, setCurrentLang] = React.useState<Lang>(getLanguage());
+  const t = (vi: string, en: string) => (currentLang === 'vi' ? vi : en);
+
+  React.useEffect(() => {
+    const interval = setInterval(() => setCurrentLang(getLanguage()), 100);
+    return () => clearInterval(interval);
+  }, []);
   return (
     <Box
       sx={{
-        width: 240,
+        width: { xs: '100%', md: 240 },
         backgroundColor: 'rgb(234, 249, 249)',
-        minHeight: '100vh',
-        borderRight: '1px solid rgb(224, 224, 224)',
+        minHeight: { xs: 'auto', md: '100vh' },
+        borderRight: { xs: 'none', md: '1px solid rgb(224, 224, 224)' },
+        borderBottom: { xs: '1px solid rgb(224, 224, 224)', md: 'none' },
         py: 3,
-        px: 2
+        px: 2,
+        position: { xs: 'relative', md: 'sticky' },
+        top: { md: 0 },
+        zIndex: 1,
+        mb: { xs: 2, md: 0 }
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3, px: 1 }}>
@@ -43,7 +56,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user }) => {
         </Typography>
       </Box>
 
-      <List sx={{ p: 0 }}>
+      <List sx={{ p: 0, display: { xs: 'grid', md: 'block' }, gridTemplateColumns: { xs: '1fr 1fr', sm: '1fr 1fr', md: 'none' }, gap: { xs: 1, md: 0 } }}>
         <ListItem
           component={NavLink}
           to="/"
@@ -65,7 +78,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user }) => {
           <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>
             <HomeIcon />
           </ListItemIcon>
-          <ListItemText primary="Home" />
+          <ListItemText primary={t('Trang chủ', 'Home')} />
         </ListItem>
 
         <ListItem
@@ -89,7 +102,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user }) => {
           <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>
             <MailIcon />
           </ListItemIcon>
-          <ListItemText primary="New post" />
+          <ListItemText primary={t('Đăng tin mới', 'New post')} />
         </ListItem>
 
         <ListItem
@@ -113,7 +126,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user }) => {
           <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>
             <ManageAccountsIcon />
           </ListItemIcon>
-          <ListItemText primary="Manage listings" />
+          <ListItemText primary={t('Quản lý tin đăng', 'Manage listings')} />
         </ListItem>
 
         <ListItem
@@ -137,17 +150,17 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user }) => {
           <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>
             <NotificationsIcon />
           </ListItemIcon>
-          <ListItemText primary="Notification" />
+          <ListItemText primary={t('Thông báo', 'Notification')} />
         </ListItem>
       </List>
 
       <Box sx={{ mt: 4, px: 2 }}>
         <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
-          Account balance
+          {t('Số dư tài khoản', 'Account balance')}
         </Typography>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            Ad account
+            {t('Tài khoản quảng cáo', 'Ad account')}
           </Typography>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
             0
@@ -155,7 +168,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user }) => {
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            Promotional Account
+            {t('Tài khoản khuyến mãi', 'Promotional Account')}
           </Typography>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
             0

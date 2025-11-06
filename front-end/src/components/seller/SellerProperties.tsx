@@ -87,6 +87,7 @@ const SellerProperties = () => {
                                 <CardContent>
                                     <Typography gutterBottom variant="h6" component="div" className='text-blue-500'>
                                         {p.title[currentLanguage]}
+                                        {p.title[currentLanguage]}
                                     </Typography>
                                     <Typography gutterBottom variant="h6" component="div">
                                         {p.address[currentLanguage]}

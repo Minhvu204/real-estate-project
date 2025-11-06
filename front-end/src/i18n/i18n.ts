@@ -35,7 +35,5 @@ i18n
             interpolation: {
                 escapeValue: false
             }
-
-
         }
     )

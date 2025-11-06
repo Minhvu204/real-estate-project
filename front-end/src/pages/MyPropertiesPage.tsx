@@ -37,7 +37,6 @@ import { getMyProperties, updateProperty, deleteProperty } from "../services/pro
 import type { Property } from "../types/Property";
 import PropertyEditModal from "../components/PropertyManagement/PropertyEditModal";
 import { getText, containsText } from "../utils/multilang";
-import ButtonLanguage from "../components/common/ButtonLanguage";
 import { getLanguage } from "../utils/storage";
 import type { Lang } from "../utils/storage";
 
@@ -253,7 +252,6 @@ const MyPropertiesPage: React.FC = () => {
                             flexWrap="wrap"
                             sx={{ width: { xs: "100%", sm: "auto" }, justifyContent: { xs: "flex-start", sm: "flex-end" } }}
                         >
-                            <ButtonLanguage />
                             <Button
                                 variant="outlined"
                                 startIcon={<RefreshIcon />}
@@ -297,7 +295,7 @@ const MyPropertiesPage: React.FC = () => {
                         <Tab label={t("CÓ SẴN", "AVAILABLE")} value="available" />
                         <Tab label={t("CHỜ DUYỆT", "PENDING")} value="pending" />
                         <Tab label={t("ĐÃ DUYỆT", "APPROVED")} value="approved" />
-                        <Tab label={t("ĐÃ BÁN", "SOLD")} value="sold" />
+                        <Tab label={t("TỪ CHỐI", "REJECTED")} value="rejected" />
                     </Tabs>
                     <Box sx={{ mb: { xs: 2, sm: 2.5, md: 3 } }}>
                         <TextField

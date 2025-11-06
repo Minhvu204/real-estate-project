@@ -1,6 +1,6 @@
-import SearchPage from "../pages/searchPage/SearchPage";
-import BuyPage from "../pages/searchPage/BuyPage";
-import RentPage from "../pages/searchPage/RentPage";
+import SearchPage from "../pages/SearchPage/SearchPage";
+import BuyPage from "../pages/SearchPage/BuyPage";
+import RentPage from "../pages/SearchPage/RentPage";
 
 export const SearchPropertiesRoute = [
     {

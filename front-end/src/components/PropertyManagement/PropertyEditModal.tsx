@@ -20,11 +20,10 @@ import {
 } from "@mui/material";
 import { Close as CloseIcon, CloudUpload as UploadIcon } from "@mui/icons-material";
 import type { Property } from "../../types/Property";
-import type { City } from "../../types/Cities";
-import type { PropertyType } from "../../types/PropertyTypes";
 import type { Feature } from "../../types/Features";
-import { cityService, propertyTypeService, featureService } from "../../services/categoryService";
+import { featureService } from "../../services/categoryService";
 import { getText } from "../../utils/multilang";
+import { getLanguage, type Lang } from "../../utils/storage";
 
 interface PropertyEditModalProps {
     open: boolean;
@@ -40,8 +39,6 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
     onSubmit,
 }) => {
     const [loading, setLoading] = useState(false);
-    const [cities, setCities] = useState<City[]>([]);
-    const [types, setTypes] = useState<PropertyType[]>([]);
     const [features, setFeatures] = useState<Feature[]>([]);
 
     const [formData, setFormData] = useState({
@@ -65,6 +62,17 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
     const [imageFiles, setImageFiles] = useState<File[]>([]);
     const [existingImages, setExistingImages] = useState<string[]>([]);
 
+    const [currentLang, setCurrentLang] = useState<Lang>(getLanguage());
+
+    const t = (vi: string, en: string) => (currentLang === "vi" ? vi : en);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentLang(getLanguage());
+        }, 100);
+        return () => clearInterval(interval);
+    }, []);
+
     useEffect(() => {
         loadCategories();
     }, []);
@@ -72,15 +80,15 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
     useEffect(() => {
         if (property && open) {
             setFormData({
-                title: getText(property.title as any, "vi") || "",
-                description: getText(property.description as any, "vi") || "",
+                title: getText(property.title as any, currentLang) || "",
+                description: getText(property.description as any, currentLang) || "",
                 price: property.price || 0,
                 city_id: property.city_id?._id || "",
                 type_id: property.type_id?._id || "",
-                city_name: property.city_id?.city_name ? getText(property.city_id.city_name as any, "vi") : "",
-                type_name: property.type_id?.type_name ? getText(property.type_id.type_name as any, "vi") : "",
+                city_name: property.city_id?.city_name ? getText(property.city_id.city_name as any, currentLang) : "",
+                type_name: property.type_id?.type_name ? getText(property.type_id.type_name as any, currentLang) : "",
                 features: property.features?.map((f) => f._id) || [],
-                address: getText(property.address as any, "vi") || "",
+                address: getText(property.address as any, currentLang) || "",
                 bedrooms: property.bedrooms || 0,
                 bathrooms: property.bathrooms || 0,
                 area: property.area || 0,
@@ -95,16 +103,10 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
     const loadCategories = async () => {
         try {
-            const [citiesData, typesData, featuresData] = await Promise.all([
-                cityService.getAll(),
-                propertyTypeService.getAll(),
-                featureService.getAll(),
-            ]);
-            setCities(citiesData);
-            setTypes(typesData);
+            const featuresData = await featureService.getAll();
             setFeatures(featuresData);
         } catch (error) {
-            console.error("Error loading categories:", error);
+            // ignore
         }
     };
 
@@ -182,7 +184,9 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
             <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <Typography variant="h6">Chỉnh sửa bất động sản</Typography>
+            <Typography variant="h6" sx={{color: "primary.main",fontWeight: "bold",}}>
+                {t("Chỉnh sửa bất động sản", "Edit Property")}
+             </Typography>
                 <IconButton onClick={onClose}>
                     <CloseIcon />
                 </IconButton>
@@ -191,7 +195,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
             <DialogContent dividers>
                 <Stack spacing={3}>
                         <TextField
-                            label="Tiêu đề"
+                            label={t("Tiêu đề", "Title")}
                             fullWidth
                             required
                             value={formData.title}
@@ -199,7 +203,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                         />
 
                     <TextField
-                        label="Mô tả"
+                        label={t("Mô tả", "Description")}
                             fullWidth
                             multiline
                             rows={4}
@@ -209,7 +213,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
                     <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
                         <TextField
-                            label="Giá"
+                            label={t("Giá", "Price")}
                             sx={{ flex: 1, minWidth: 200 }}
                             fullWidth
                             required
@@ -217,12 +221,12 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                             value={formData.price}
                             onChange={(e) => handleChange("price", parseFloat(e.target.value))}
                             InputProps={{
-                                endAdornment: <InputAdornment position="end">VNĐ</InputAdornment>,
+                                endAdornment: <InputAdornment position="end">{t("VNĐ", "VND")}</InputAdornment>,
                             }}
                         />
 
                         <TextField
-                            label="Địa chỉ"
+                            label={t("Địa chỉ", "Address")}
                             sx={{ flex: 1, minWidth: 200 }}
                             fullWidth
                             required
@@ -233,33 +237,33 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
                     <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
                         <TextField
-                            label="Thành phố"
+                            label={t("Thành phố", "City")}
                             sx={{ flex: 1, minWidth: 200 }}
                             fullWidth
                             required
                             value={formData.city_name}
                             onChange={(e) => handleChange("city_name", e.target.value)}
-                            placeholder="VD: Thành phố Hồ Chí Minh"
+                            placeholder={t("VD: Thành phố Hồ Chí Minh", "Eg: Ho Chi Minh City")}
                         />
 
                         <TextField
-                            label="Loại bất động sản"
+                            label={t("Loại bất động sản", "Property type")}
                             sx={{ flex: 1, minWidth: 200 }}
                             fullWidth
                             required
                             value={formData.type_name}
                             onChange={(e) => handleChange("type_name", e.target.value)}
-                            placeholder="VD: Cho thuê, Bán"
+                            placeholder={t("VD: Cho thuê, Bán", "Eg: Rent, Sell")}
                         />
                     </Box>
 
                     <FormControl fullWidth>
-                        <InputLabel>Tiện ích</InputLabel>
+                        <InputLabel>{t("Tiện ích", "Features")}</InputLabel>
                             <Select
                                 multiple
                                 value={formData.features}
                                 onChange={(e) => handleChange("features", e.target.value)}
-                                input={<OutlinedInput label="Tiện ích" />}
+                                input={<OutlinedInput label={t("Tiện ích", "Features")} />}
                                 renderValue={(selected) => (
                                     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                                         {selected.map((value) => {
@@ -267,7 +271,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                                             return (
                                                 <Chip 
                                                     key={value} 
-                                                    label={feature?.feature_name ? getText(feature.feature_name as any, "vi") : value} 
+                                                    label={feature?.feature_name ? getText(feature.feature_name as any, currentLang) : value} 
                                                     size="small" 
                                                 />
                                             );
@@ -277,7 +281,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                             >
                                 {features.map((feature) => (
                                     <MenuItem key={feature._id} value={feature._id}>
-                                        {getText(feature.feature_name as any, "vi")}
+                                        {getText(feature.feature_name as any, currentLang)}
                                     </MenuItem>
                                 ))}
                             </Select>
@@ -285,7 +289,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
                     <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
                         <TextField
-                            label="Phòng ngủ"
+                            label={t("Phòng ngủ", "Bedrooms")}
                             sx={{ flex: 1, minWidth: 100 }}
                             fullWidth
                             type="number"
@@ -294,7 +298,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                         />
 
                         <TextField
-                            label="Phòng tắm"
+                            label={t("Phòng tắm", "Bathrooms")}
                             sx={{ flex: 1, minWidth: 100 }}
                             fullWidth
                             type="number"
@@ -303,7 +307,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                         />
 
                         <TextField
-                            label="Diện tích"
+                            label={t("Diện tích", "Area")}
                             sx={{ flex: 1, minWidth: 100 }}
                             fullWidth
                             type="number"
@@ -315,7 +319,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                         />
 
                         <TextField
-                            label="Số tầng"
+                            label={t("Số tầng", "Floors")}
                             sx={{ flex: 1, minWidth: 100 }}
                             fullWidth
                             type="number"
@@ -325,7 +329,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                     </Box>
 
                     <TextField
-                        label="Năm xây dựng"
+                        label={t("Năm xây dựng", "Year built")}
                             fullWidth
                             type="number"
                             value={formData.yearBuilt}
@@ -334,7 +338,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
                     <Box>
                         <Typography variant="subtitle2" gutterBottom>
-                            Hình ảnh hiện tại
+                            {t("Hình ảnh hiện tại", "Current images")}
                         </Typography>
                         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
                             {existingImages.map((url, index) => (
@@ -371,7 +375,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                             component="label"
                             startIcon={<UploadIcon />}
                         >
-                            Thêm hình ảnh mới
+                            {t("Thêm hình ảnh mới", "Add new images")}
                             <input
                                 type="file"
                                 hidden
@@ -384,7 +388,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                         {imageFiles.length > 0 && (
                             <>
                                 <Typography variant="subtitle2" sx={{ mt: 2 }} gutterBottom>
-                                    Hình ảnh mới ({imageFiles.length})
+                                    {t("Hình ảnh mới", "New images")} ({imageFiles.length})
                                 </Typography>
                                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
                                     {imageFiles.map((file, index) => (
@@ -427,14 +431,14 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
             <DialogActions>
                 <Button onClick={onClose} disabled={loading}>
-                    Hủy
+                    {t("Hủy", "Cancel")}
                 </Button>
                 <Button
                     onClick={handleSubmit}
                     variant="contained"
                     disabled={loading || !formData.title || !formData.price}
                 >
-                    {loading ? "Đang lưu..." : "Lưu"}
+                    {loading ? t("Đang lưu...", "Saving...") : t("Lưu", "Save")}
                 </Button>
             </DialogActions>
         </Dialog>

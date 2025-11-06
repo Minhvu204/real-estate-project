@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { ChangePasswordDto } from '../../types/User';
 import { Box, TextField, Button, Typography } from '@mui/material';
+import { getLanguage, type Lang } from '../../utils/storage';
 
 interface PasswordFormProps {
   onSubmit: (data: ChangePasswordDto) => Promise<void>;
@@ -11,6 +12,13 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
   onSubmit,
   isLoading
 }) => {
+  const [currentLang, setCurrentLang] = useState<Lang>(getLanguage());
+  const t = (vi: string, en: string) => (currentLang === 'vi' ? vi : en);
+
+  React.useEffect(() => {
+    const interval = setInterval(() => setCurrentLang(getLanguage()), 100);
+    return () => clearInterval(interval);
+  }, []);
   const [formData, setFormData] = useState<ChangePasswordDto>({
     oldPassword: '',
     newPassword: '',
@@ -27,7 +35,7 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
     
     if (name === 'confirmPassword') {
       if (value !== formData.newPassword) {
-        setErrors(prev => ({ ...prev, confirmPassword: 'Confirmation password does not match' }));
+        setErrors(prev => ({ ...prev, confirmPassword: t('Mật khẩu xác nhận không khớp', 'Confirmation password does not match') }));
       } else {
         setErrors(prev => ({ ...prev, confirmPassword: '' }));
       }
@@ -43,8 +51,8 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
       <Box sx={{ display: 'grid', gap: 2.5, maxWidth: 1000 }}>
-        <Box sx={{ display: 'grid', gridTemplateColumns: '200px 1fr', alignItems: 'center', gap: 2 }}>
-          <Typography>Current password</Typography>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '200px 1fr' }, alignItems: { md: 'center' }, gap: 2 }}>
+          <Typography>{t('Mật khẩu hiện tại', 'Current password')}</Typography>
           <TextField
             fullWidth
             type="password"
@@ -52,13 +60,13 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
             value={formData.oldPassword}
             onChange={handleChange}
             required
-            placeholder="Enter password"
+            placeholder={t('Nhập mật khẩu', 'Enter password')}
             size="small"
           />
         </Box>
 
-        <Box sx={{ display: 'grid', gridTemplateColumns: '200px 1fr', alignItems: 'center', gap: 2 }}>
-          <Typography>New password</Typography>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '200px 1fr' }, alignItems: { md: 'center' }, gap: 2 }}>
+          <Typography>{t('Mật khẩu mới', 'New password')}</Typography>
           <TextField
             fullWidth
             type="password"
@@ -68,13 +76,13 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
             error={!!errors.newPassword}
             helperText={errors.newPassword}
             required
-            placeholder="Enter new password"
+            placeholder={t('Nhập mật khẩu mới', 'Enter new password')}
             size="small"
           />
         </Box>
 
-        <Box sx={{ display: 'grid', gridTemplateColumns: '200px 1fr', alignItems: 'center', gap: 2 }}>
-          <Typography>Confirm password</Typography>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '200px 1fr' }, alignItems: { md: 'center' }, gap: 2 }}>
+          <Typography>{t('Xác nhận mật khẩu', 'Confirm password')}</Typography>
           <TextField
             fullWidth
             type="password"
@@ -84,26 +92,26 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
             error={!!errors.confirmPassword}
             helperText={errors.confirmPassword}
             required
-            placeholder="Confirm new password"
+            placeholder={t('Xác nhận mật khẩu mới', 'Confirm new password')}
             size="small"
           />
         </Box>
 
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: { xs: 'stretch', md: 'flex-end' }, mt: 2 }}>
           <Button
             type="submit"
             variant="contained"
             disabled={isLoading}
             sx={{ 
               textTransform: 'none',
-              px: 4,
+              px: { xs: 2.5, md: 4 },
               bgcolor: '#1f61cc',
               '&:hover': {
                 bgcolor: '#4B5563'
               }
             }}
           >
-            💾 {isLoading ? 'Saving...' : 'Save changes'}
+            💾 {isLoading ? t('Đang lưu...', 'Saving...') : t('Lưu thay đổi', 'Save changes')}
           </Button>
         </Box>
       </Box>

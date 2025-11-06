@@ -1,37 +1,46 @@
 
+import { useRoutes, useLocation, Navigate } from "react-router-dom";
+import { ThemeProvider } from "@mui/material/styles";
+import { AuthProvider } from "./context/AuthContext";
+import Navbar from "./components/Navbar";
+import LoginPage from "./pages/Login";
+import HomePage from "./pages/Home";
 import { AdminRoute } from "./routes/AdminRoute";
-import { createBrowserRouter, RouterProvider, useRoutes } from "react-router-dom";
-import LoginRoute from "./routes/LoginRoute";
 import { SearchPropertiesRoute } from "./routes/SearchPropertiesRoute";
 import { PropertyDetailRoute } from "./routes/PropertyDetailRoute"
 import { UpdateProfileRoute } from "./routes/UpdateProfileRoute";
 import { RegisterRoute } from "./routes/RegisterRoute";
 import { MyPropertiesRoute } from "./routes/MyPropertiesRoute";
-import SellerPage from "./components/seller/SellerPage";
 import { SellerRoute } from "./routes/SellerRoute";
+import theme from "./theme";
 import './i18n/i18n';
 
 function App() {
-  const search = useRoutes(SearchPropertiesRoute);
-  const propertyDetail = useRoutes(PropertyDetailRoute);
-  const updateProfileRoutes = useRoutes(UpdateProfileRoute);
-  const registerRoutes = useRoutes(RegisterRoute);
-  const myPropertiesRoutes = useRoutes(MyPropertiesRoute);
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith("/admin");
 
-  const adminRoutes = useRoutes(AdminRoute);
-  const sellerRoutes = useRoutes(SellerRoute);
+  const allRoutes = [
+    { path: "/", element: <Navigate to="/home" /> },
+    { path: "/login", element: <LoginPage /> },
+    { path: "/home", element: <HomePage /> },
+    ...SearchPropertiesRoute,
+    ...PropertyDetailRoute,
+    ...UpdateProfileRoute,
+    ...RegisterRoute,
+    ...AdminRoute,
+    ...SellerRoute,
+    ...MyPropertiesRoute
+  ];
+
+  const routing = useRoutes(allRoutes);
+
   return (
-    <>
-      {adminRoutes}
-      <LoginRoute></LoginRoute >
-      {search}
-      {updateProfileRoutes}
-      {propertyDetail}
-      {registerRoutes}
-      {myPropertiesRoutes}
-      {sellerRoutes}
-     
-    </>
+    <ThemeProvider theme={theme}>
+      <AuthProvider>
+        {!isAdmin && <Navbar />}
+        {routing}
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 
