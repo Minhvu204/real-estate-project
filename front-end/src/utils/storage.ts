@@ -33,5 +33,7 @@ export function clearAuth() {
 export type Lang = 'en' | "vi"
 
 export function getLanguage(): Lang {
-    return localStorage.getItem("i18nextLng") as Lang || "en";
+    const lang = localStorage.getItem("i18nextLng") || "en";
+    if (lang.startsWith("vi")) return "vi";
+    return "en";
 }
