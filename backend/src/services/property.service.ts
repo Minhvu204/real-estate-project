@@ -28,7 +28,7 @@ export const propertyService = {
     if (type) query.type_id = type;
     if (category) query.category_id = category;
     if (status) query.status = status;
-    if (minPrice || maxPrice) {
+    if (minPrice != null || maxPrice != null) {
       query.price = {
         ...(minPrice ? { $gte: Number(minPrice) } : {}),
         ...(maxPrice ? { $lte: Number(maxPrice) } : {}),
