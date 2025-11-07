@@ -1,0 +1,20 @@
+{
+  "loading": "loading...",
+  "button": "back",
+  "detailTitle": "detail information",
+  "bedroom": "bedroom",
+  "bathroom": "bathroom",
+  "city": "city",
+  "updateDate": "update date",
+  "detailDescription": "detail description",
+  "featuredAmenities": "Featured Amenities",
+  "hideInfor": "Hide property information",
+  "restoreInfor": "Open property information",
+  "owner": "Owner",
+  "reasonText": "Reason for hiding the property",
+  "reason": "Enter the reason for hiding or rejecting this property...",
+  "restore": "Restore",
+  "hide": "Hide",
+  "cancel": "Cancel",
+  "confirm": "Confirm"
+}

@@ -3,14 +3,14 @@ import { getAllProperties } from "../../../services/propertyService";
 import type { Property } from "../../../types/Property";
 import { useEffect, useState } from "react";
 import { Pagination, Tooltip } from "@mui/material";
-import { getLanguage } from "../../../utils/storage";
+import { getLanguage, type Lang } from "../../../utils/storage";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import HideProperties from "./HideProperties";
 import { ToastContainer } from "react-toastify";
-
+import ButtonLanguage from "../../common/ButtonLanguage";
+import { useTranslation } from "react-i18next";
 const ListProperties = () => {
-  const currentLanguage = getLanguage();
   const navigate = useNavigate();
   const [properties, setProperties] = useState<Property[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -19,8 +19,9 @@ const ListProperties = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [searchParams] = useSearchParams();
   const location = useLocation();
+  const { t } = useTranslation("listProperties");
   const itemPerPages: number = 5;
-
+  const currentLanguage: Lang = getLanguage();
   const status = searchParams.get("status");
   useEffect(() => {
     const fetchProperties = async () => {
@@ -74,7 +75,7 @@ const ListProperties = () => {
     return (
       <div className="flex justify-center items-center h-[400px]">
         <span className="text-gray-500 animate-pulse text-lg">
-          {currentLanguage === "en" ? "loading..." : "Đang tải dữ liệu..."}
+          {t("loading")}
         </span>
       </div>
     );
@@ -82,19 +83,14 @@ const ListProperties = () => {
 
   return (
     <>
+      <ButtonLanguage />
       <h1 className="text-2xl font-bold mb-4 text-blue-700 text-center">
-        {currentLanguage === "en"
-          ? "Manage properties"
-          : "Quản lí bất động sản"}
+        {t("text-listProperties")}
       </h1>
       <div className="flex justify-between items-center mb-4 ">
         <input
           type="text"
-          placeholder={
-            currentLanguage === "en"
-              ? "Search by name or address"
-              : "tìm kiếm tên hoặc địa chỉ"
-          }
+          placeholder={t("search")}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="border px-3 py-2 rounded-md w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-400 ml-3"
@@ -128,19 +124,19 @@ const ListProperties = () => {
         <thead className="bg-gray-50">
           <tr>
             <th className="px-4 py-2 text-left text-gray-600 font-semibold border-b">
-              {currentLanguage === "en" ? "avatar" : "ảnh đại diện"}
+              {t("avatar")}
             </th>
             <th className="px-4 py-2 text-left text-gray-600 font-semibold border-b">
-              {currentLanguage === "en" ? "name" : "tên bđs"}
+              {t("name")}
             </th>
             <th className="px-4 py-2 text-left text-gray-600 font-semibold border-b">
-              {currentLanguage === "en" ? "address" : "địa chỉ"}
+              {t("address")}
             </th>
             <th className="px-4 py-2 text-left text-gray-600 font-semibold border-b">
-              {currentLanguage === "en" ? "status" : "trạng thái"}
+              {t("status")}
             </th>
             <th className="px-4 py-2 text-left text-gray-600 font-semibold border-b">
-              {currentLanguage === "en" ? "action" : "chức năng"}
+              {t("action")}
             </th>
           </tr>
         </thead>
@@ -151,15 +147,15 @@ const ListProperties = () => {
               <td className="px-4 py-3 border-b">
                 <img
                   src={item.images[0]}
-                  alt="Avatar"
+                  alt={t("avatar")}
                   className="rounded-full w-10 h-10"
                 />
               </td>
               <td className="px-4 py-3 border-b max-w-[250px]">
-                {currentLanguage === "en" ? item.title.en : item.title.vi}
+                {item.title[currentLanguage]}
               </td>
               <td className="px-4 py-3 border-b max-w-[250px]">
-                {currentLanguage === "en" ? item.address.en : item.address.vi}
+                {item.address[currentLanguage]}
               </td>
               <td className="px-4 py-3 border-b">
                 <span
@@ -170,7 +166,7 @@ const ListProperties = () => {
                       ? "bg-yellow-100 text-yellow-700"
                       : item.status === "available"
                       ? "bg-blue-100 text-blue-700"
-                      : item.status === "reject"
+                      : item.status === "rejected"
                       ? "bg-red-100 text-red-700"
                       : "bg-gray-200 text-gray-700"
                   }`}
@@ -188,9 +184,7 @@ const ListProperties = () => {
               </td>
               <td className="px-4 py-3 border-b space-x-2">
                 <div className="flex gap-2">
-                  <Tooltip
-                    title={currentLanguage === "vi" ? "Xem chi tiết" : "View"}
-                  >
+                  <Tooltip title={t("view")}>
                     <button
                       onClick={() => navigate(`${item?._id}`)}
                       className="cursor-pointer w-9 h-9 flex items-center justify-center rounded-md text-white bg-blue-500 hover:bg-blue-600 shadow-sm hover:shadow-md transition-all duration-200"

@@ -1,0 +1,27 @@
+{
+  "loading": "Đang tải dữ liệu...",
+  "text-listProperties": "Quản lí bất động sản",
+  "search": "Tìm kiếm tên hoặc địa chỉ",
+  "avatar": "Ảnh đại diện",
+  "name": "Tên bất động sản",
+  "address": "Địa chỉ",
+  "action": "Chức năng",
+  "price": "Giá tiền",
+  "bedrooms": "Phòng ngủ",
+  "bathrooms": "Phòng tắm",
+  "area": "Diện tích",
+  "unit": "Đơn vị",
+  "floors": "Tầng",
+  "coordinates": {
+    "lat": "Vĩ độ",
+    "lng": "Kinh độ"
+  },
+  "owner_id": {
+    "fullName": "Họ và tên",
+    "email": "Email"
+  },
+  "status": "Trạng thái",
+  "createdAt": "Ngày tạo",
+  "updatedAt": "Ngày cập nhập",
+  "view": "Xem chi tiết"
+}

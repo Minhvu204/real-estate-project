@@ -27,6 +27,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { getLanguage, type Lang } from "../../../utils/storage";
+import { useTranslation } from "react-i18next";
 
 type HideProperty = {
   propertyId: string;
@@ -37,7 +39,8 @@ const HideProperties = ({ propertyId }: HideProperty) => {
   const [open, setOpen] = useState<boolean>(false);
   const [note, setNote] = useState<string>("");
   const navigate = useNavigate();
-
+  const currentLanguage: Lang = getLanguage();
+  const { t } = useTranslation("detailProperty");
   const handleOpen = async () => {
     setOpen(true);
   };
@@ -120,7 +123,7 @@ const HideProperties = ({ propertyId }: HideProperty) => {
     <>
       {property && (
         <>
-          <Tooltip title={property.deleted ? "Khôi phục" : "Ẩn"}>
+          <Tooltip title={property.deleted ? t("restore") : t("hide")}>
             <button
               onClick={handleOpen}
               className={`w-9 h-9 cursor-pointer flex items-center justify-center rounded-md text-white shadow-sm hover:shadow-md transition-all duration-200 
@@ -142,24 +145,22 @@ const HideProperties = ({ propertyId }: HideProperty) => {
           )}
           <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
             <DialogTitle sx={{ fontWeight: "bold", color: "#1e293b" }}>
-              {property.deleted
-                ? "Mở ẩn thông tin bất động sản"
-                : "Ẩn thông tin bất động sản "}
+              {property.deleted ? t("restoreInfor") : t("hideInfor")}
             </DialogTitle>
 
             <DialogContent dividers>
               <div className="flex flex-col sm:flex-row gap-4">
                 <img
                   src={property.images?.[0] || "image"}
-                  alt={property.title.vi}
+                  alt={property.title[currentLanguage]}
                   className="w-full sm:w-1/2 h-[180px] object-cover rounded-lg"
                 />
                 <div className="flex-1 space-y-2">
                   <Typography variant="h6" color="primary">
-                    {property.title.vi}
+                    {property.title[currentLanguage]}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {property.address.vi}
+                    {property.address[currentLanguage]}
                   </Typography>
                   <Typography variant="body1" sx={{ fontWeight: 600 }}>
                     <FontAwesomeIcon icon={faCoins} />{" "}
@@ -173,7 +174,7 @@ const HideProperties = ({ propertyId }: HideProperty) => {
                         ? "Pending"
                         : property.status === "available"
                         ? "Available"
-                        : "Reject"
+                        : "Rejected"
                     }
                     color={
                       property.status === "approved"
@@ -187,15 +188,15 @@ const HideProperties = ({ propertyId }: HideProperty) => {
                     size="small"
                   />
                   <Typography variant="body2" color="text.secondary">
-                    <FontAwesomeIcon icon={faHouse} /> Thành phố:{" "}
-                    {property.city.city_name.vi}
+                    <FontAwesomeIcon icon={faHouse} /> {t("city")}:
+                    {property.city.city_name[currentLanguage]}
                   </Typography>
                 </div>
               </div>
 
               <div className="mt-4 p-3 bg-gray-50 rounded-md border">
                 <Typography variant="subtitle2" color="text.secondary">
-                  Chủ sở hữu
+                  {t("owner")}
                 </Typography>
                 <div className="flex items-center gap-3 mt-2">
                   <img
@@ -228,13 +229,13 @@ const HideProperties = ({ propertyId }: HideProperty) => {
                         icon={faCommentDots}
                         style={{ color: "#2563eb" }}
                       />
-                      Lý do ẩn bất động sản
+                      {t("reasonText")}
                     </Typography>
                     <TextField
                       multiline
                       rows={3}
                       fullWidth
-                      placeholder="Nhập lý do ẩn hoặc từ chối bất động sản này..."
+                      placeholder={t("reason")}
                       value={note}
                       onChange={(e) => setNote(e.target.value)}
                       sx={{ mt: 1 }}
@@ -246,7 +247,7 @@ const HideProperties = ({ propertyId }: HideProperty) => {
 
             <DialogActions>
               <Button onClick={handleClose} color="inherit">
-                Hủy
+                {t("cancel")}
               </Button>
               {property.deleted ? (
                 <Button
@@ -256,7 +257,7 @@ const HideProperties = ({ propertyId }: HideProperty) => {
                     handleRestoreUser();
                   }}
                 >
-                  Xác nhận
+                  {t("confirm")}
                 </Button>
               ) : (
                 <Button
@@ -266,7 +267,7 @@ const HideProperties = ({ propertyId }: HideProperty) => {
                     handleHideUser();
                   }}
                 >
-                  Xác nhận
+                  {t("confirm")}
                 </Button>
               )}
             </DialogActions>
