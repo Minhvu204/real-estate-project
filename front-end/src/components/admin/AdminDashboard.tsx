@@ -42,6 +42,7 @@ export default function AdminDashboard() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [userListOpen, setUserListOpen] = useState(false);
+  const [userPropertyOpen, setUserPropertyOpen] = useState(false);
 
   const handleDrawerClose = () => {
     setIsClosing(true);
@@ -50,6 +51,7 @@ export default function AdminDashboard() {
   const handleDrawerTransitionEnd = () => setIsClosing(false);
   const handleDrawerToggle = () => !isClosing && setMobileOpen(!mobileOpen);
   const handleUserListToggle = () => setUserListOpen(!userListOpen);
+  const handlePropertyListToggle = () => setUserPropertyOpen(!userPropertyOpen);
 
   const menuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
@@ -73,6 +75,29 @@ export default function AdminDashboard() {
       text: "Agent",
       icon: <RealEstateAgentIcon />,
       path: "/admin/users?role=agent",
+    },
+  ];
+
+  const listPropertyItem = [
+    {
+      text: "Available",
+      icon: <SupervisorAccountIcon />,
+      path: "/admin/properties?status=available",
+    },
+    {
+      text: "Approved",
+      icon: <ShoppingBagIcon />,
+      path: "/admin/properties?status=approved",
+    },
+    {
+      text: "Pending",
+      icon: <HailIcon />,
+      path: "/admin/properties?status=pending",
+    },
+    {
+      text: "Rejected",
+      icon: <RealEstateAgentIcon />,
+      path: "/admin/properties?status=rejected",
     },
   ];
 
@@ -117,7 +142,11 @@ export default function AdminDashboard() {
                 component={Link}
                 to={item.path}
                 onClick={
-                  item.text === "List User" ? handleUserListToggle : undefined
+                  item.text === "List User"
+                    ? handleUserListToggle
+                    : item.text === "List Properties"
+                    ? handlePropertyListToggle
+                    : undefined
                 }
                 sx={{
                   borderRadius: "12px",
@@ -138,6 +167,8 @@ export default function AdminDashboard() {
                 <ListItemText primary={item.text} />
                 {item.text === "List User" &&
                   (userListOpen ? <ExpandLess /> : <ExpandMore />)}
+                {item.text === "List Properties" &&
+                  (userListOpen ? <ExpandLess /> : <ExpandMore />)}
               </ListItemButton>
             </ListItem>
 
@@ -145,6 +176,37 @@ export default function AdminDashboard() {
               <Collapse in={userListOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                   {listUserItem.map((sub) => (
+                    <ListItemButton
+                      key={sub.text}
+                      component={Link}
+                      to={sub.path}
+                      sx={{
+                        pl: 6,
+                        borderRadius: "12px",
+                        mx: 1,
+                        mt: 0.5,
+                        color: "#1e293b",
+                        bgcolor: isActive(sub.path) ? "#e0f2fe" : "inherit",
+                        "&:hover": {
+                          bgcolor: "#bae6fd",
+                          transform: "scale(1.02)",
+                          transition: "all 0.2s ease",
+                        },
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: "#0284c7" }}>
+                        {sub.icon}
+                      </ListItemIcon>
+                      <ListItemText primary={sub.text} />
+                    </ListItemButton>
+                  ))}
+                </List>
+              </Collapse>
+            )}
+            {item.text === "List Properties" && (
+              <Collapse in={userPropertyOpen} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {listPropertyItem.map((sub) => (
                     <ListItemButton
                       key={sub.text}
                       component={Link}

@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { getAllProperties } from "../../../services/propertyService";
 import type { Property } from "../../../types/Property";
 import { useEffect, useState } from "react";
@@ -17,16 +17,23 @@ const ListProperties = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterStatus, setFilterStatus] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
+  const [searchParams] = useSearchParams();
   const location = useLocation();
   const itemPerPages: number = 5;
-  console.log(currentLanguage);
 
+  const status = searchParams.get("status");
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const response = await getAllProperties();
-        console.log("Data return is ", response);
-        setProperties(response || []);
+        const data = await getAllProperties();
+        console.log("Data return is ", data);
+        if (status) {
+          setProperties(
+            data.filter((properties) => properties.status === status)
+          );
+        } else {
+          setProperties(data || []);
+        }
       } catch (error) {
         console.log("Cannot fetch properties for this role", error);
       } finally {
@@ -34,7 +41,7 @@ const ListProperties = () => {
       }
     };
     fetchProperties();
-  }, [location.state?.refresh]);
+  }, [location.state?.refresh, status]);
 
   const filteredProperties = properties.filter((item) => {
     const matchSearch =
@@ -67,7 +74,7 @@ const ListProperties = () => {
     return (
       <div className="flex justify-center items-center h-[400px]">
         <span className="text-gray-500 animate-pulse text-lg">
-          {currentLanguage === "vi" ? "Đang tải dữ liệu..." : "loading..."}
+          {currentLanguage === "en" ? "loading..." : "Đang tải dữ liệu..."}
         </span>
       </div>
     );
@@ -93,29 +100,29 @@ const ListProperties = () => {
           className="border px-3 py-2 rounded-md w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-400 ml-3"
         />
 
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 mr-3"
-        >
-          <option value="">
-            {currentLanguage === "en" ? "All status" : "Tất cả"}
-          </option>
-          <option value="approved">
-            {" "}
-            {currentLanguage === "en" ? "approved" : "đã phê duyệt"}
-          </option>
-          <option value="pending">
-            {" "}
-            {currentLanguage === "en" ? "pending" : "đợi phê duyệt"}
-          </option>
-          <option value="available">
-            {currentLanguage === "en" ? "available" : "có sẵn"}
-          </option>
-          <option value="rejected">
-            {currentLanguage === "en" ? "rejected" : "đã hủy"}
-          </option>
-        </select>
+        {status === null && (
+          <select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            className="border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 mr-3"
+          >
+            <option value="">
+              {currentLanguage === "en" ? "All status" : "Tất cả"}
+            </option>
+            <option value="approved">
+              {currentLanguage === "en" ? "approved" : "đã phê duyệt"}
+            </option>
+            <option value="pending">
+              {currentLanguage === "en" ? "pending" : "đợi phê duyệt"}
+            </option>
+            <option value="available">
+              {currentLanguage === "en" ? "available" : "có sẵn"}
+            </option>
+            <option value="rejected">
+              {currentLanguage === "en" ? "rejected" : "đã hủy"}
+            </option>
+          </select>
+        )}
       </div>
       <table className="min-w-full border border-gray-200">
         <thead className="bg-gray-50">

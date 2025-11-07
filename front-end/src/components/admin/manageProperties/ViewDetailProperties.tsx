@@ -3,12 +3,17 @@ import type { DetailProperty } from "../../../types/Property";
 import { useEffect, useState } from "react";
 import { getDetailPropertiesById } from "../../../services/propertyService";
 import { Carousel } from "react-responsive-carousel";
+import { getLanguage } from "../../../utils/storage";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBed, faShower, faTreeCity } from "@fortawesome/free-solid-svg-icons";
 
 const ViewDetailProperties = () => {
   const [property, setProperty] = useState<DetailProperty | null>(null);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const currentLanguage = getLanguage();
+
   useEffect(() => {
     const fetchProperty = async () => {
       const data = await getDetailPropertiesById(id!);
@@ -23,7 +28,7 @@ const ViewDetailProperties = () => {
     return (
       <div className="flex justify-center items-center h-[400px]">
         <span className="text-gray-500 animate-pulse text-lg">
-          Đang tải dữ liệu...
+          {currentLanguage === "en" ? "loading..." : "đang tải dữ liệu"}
         </span>
       </div>
     );
@@ -37,7 +42,9 @@ const ViewDetailProperties = () => {
           className="absolute top-4 left-4 z-10 flex items-center gap-2 bg-white/80 backdrop-blur-md px-3 sm:px-4 py-2 rounded-full text-indigo-600 hover:bg-white hover:shadow-lg transition-all duration-300"
         >
           <span className="text-lg">←</span>
-          <span className="font-medium hidden sm:inline">Trở lại</span>
+          <span className="font-medium hidden sm:inline">
+            {currentLanguage === "en" ? "Back" : "Trở lại"}
+          </span>
         </button>
         <Carousel
           showArrows={true}
@@ -53,7 +60,7 @@ const ViewDetailProperties = () => {
             <div key={index}>
               <img
                 src={item}
-                alt={`Ảnh ${index + 1}`}
+                alt={`image ${index + 1}`}
                 className="w-full h-[250px] sm:h-[400px] md:h-[500px] object-cover transition-transform duration-500 hover:scale-105"
               />
             </div>
@@ -62,10 +69,12 @@ const ViewDetailProperties = () => {
 
         <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 via-black/20 to-transparent text-white px-4 sm:px-8 py-4 sm:py-6">
           <h2 className="text-xl sm:text-3xl font-bold drop-shadow-lg">
-            {property.title.vi}
+            {currentLanguage === "en" ? property.title.en : property.title.vi}
           </h2>
           <p className="text-xs sm:text-sm text-gray-200 italic mt-1">
-            {property.address.vi}
+            {currentLanguage === "en"
+              ? property.address.en
+              : property.address.vi}
           </p>
         </div>
       </div>
@@ -74,10 +83,12 @@ const ViewDetailProperties = () => {
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center border-b border-gray-200 pb-6 mb-6">
           <div>
             <h3 className="text-xl sm:text-2xl font-semibold text-gray-800">
-              Thông tin chi tiết
+              {currentLanguage === "en"
+                ? "detail information"
+                : "Thông tin chi tiết"}
             </h3>
             <p className="text-gray-500 mt-1 text-sm sm:text-base">
-              Cập nhật ngày:{" "}
+              {currentLanguage === "en" ? "day update: " : "Cập nhật ngày: "}
               <span className="font-medium">
                 {new Date(property.updatedAt).toLocaleDateString("vi-VN")}
               </span>
@@ -105,34 +116,48 @@ const ViewDetailProperties = () => {
                 ? "pending"
                 : property.status === "available"
                 ? "available"
-                : "reject"}
+                : "rejected"}
             </span>
           </div>
         </div>
 
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
           <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-lg border">
-            <span className="text-blue-600 text-2xl">🛏</span>
+            <span className="text-green-600 text-3xl">
+              <FontAwesomeIcon icon={faBed} />
+            </span>
             <div>
-              <p className="text-sm text-gray-500">Phòng ngủ</p>
+              <p className="text-sm text-gray-500">
+                {currentLanguage === "en" ? "bedroom" : "Phòng ngủ"}
+              </p>
               <p className="text-lg font-semibold">{property.bedrooms}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-lg border">
-            <span className="text-blue-600 text-2xl">🛁</span>
+            <span className="text-blue-600 text-3xl">
+              <FontAwesomeIcon icon={faShower} />
+            </span>
             <div>
-              <p className="text-sm text-gray-500">Phòng tắm</p>
+              <p className="text-sm text-gray-500">
+                {currentLanguage === "en" ? "bathroom" : "Phòng tắm"}
+              </p>
               <p className="text-lg font-semibold">{property.bathrooms}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 bg-gray-50 p-4 rounded-lg border">
-            <span className="text-blue-600 text-2xl">📍</span>
+            <span className="text-red-600 text-3xl">
+              <FontAwesomeIcon icon={faTreeCity} />
+            </span>
             <div>
-              <p className="text-sm text-gray-500">Thành phố</p>
+              <p className="text-sm text-gray-500">
+                {currentLanguage === "en" ? "city" : "Thành phố"}
+              </p>
               <p className="text-lg font-semibold">
-                {property.city.city_name.vi}
+                {currentLanguage === "en"
+                  ? property.city.city_name.en
+                  : property.city.city_name.vi}
               </p>
             </div>
           </div>
@@ -140,17 +165,23 @@ const ViewDetailProperties = () => {
 
         <div className="mb-8">
           <h4 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3">
-            📝 Mô tả chi tiết
+            📝
+            {currentLanguage === "en" ? "detail description" : "Mô tả chi tiết"}
           </h4>
           <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
-            {property.description.vi}
+            {currentLanguage === "en"
+              ? property.description.en
+              : property.description.vi}
           </p>
         </div>
 
         {property.features?.length > 0 && (
           <div className="mb-8">
             <h4 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3">
-              🌟 Tiện ích nổi bật
+              🌟
+              {currentLanguage === "en"
+                ? "Featured Amenities"
+                : "Tiện ích nổi bật"}
             </h4>
             <div className="flex flex-wrap gap-2 sm:gap-3">
               {property.features.map((f) => (
@@ -158,7 +189,9 @@ const ViewDetailProperties = () => {
                   key={f._id}
                   className="bg-indigo-50 text-indigo-700 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium border border-indigo-100"
                 >
-                  {f.feature_name.vi}
+                  {currentLanguage === "en"
+                    ? f.feature_name.en
+                    : f.feature_name.vi}
                 </span>
               ))}
             </div>
