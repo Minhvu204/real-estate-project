@@ -71,17 +71,26 @@ export const restoreProperty = async (req: any, res: Response) => {
   }
 };
 
-export const getPropertyById = async (req: any, res: Response) => {
+// Lấy chi tiết property theo ID
+export const getPropertyById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const result = await adminPropertyService.getPropertyById(id);
-    return successResponse(req, res, "Lấy chi tiết property thành công", result);
-  } catch (err: any) {
+    const property = await adminPropertyService.getPropertyById(id);
+
+    // Nếu tìm thấy -> trả kết quả thành công
+    return successResponse(
+      req,
+      res,
+      "Lấy chi tiết bất động sản thành công.",
+      property
+    );
+  } catch (error: any) {
+    console.error("Lỗi khi lấy chi tiết property:", error.message);
     return errorResponse(
       req,
       res,
-      err.message || "Failed to get property",
-      err.status || 500
+      error.message || "Không thể lấy thông tin bất động sản.",
+      error.status || 500
     );
   }
 };
