@@ -19,8 +19,7 @@ const SearchPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const { t } = useTranslation('propertyPage');
     const currentLanguage: Lang = getLanguage();
-    
-    // Đọc giá trị từ URL params
+
     const query = searchParams.get('q') || '';
     const minPrice = searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : '';
     const maxPrice = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : '';
@@ -28,30 +27,27 @@ const SearchPage = () => {
     const bathrooms = searchParams.get('bathrooms') ? Number(searchParams.get('bathrooms')) : '';
     const type = searchParams.get('type') || '';
     const sortBy = searchParams.get('sortBy') || '';
-    
-    // Local state cho search input (để user gõ thoải mái trước khi submit)
+
     const [searchInput, setSearchInput] = useState(query);
-    
+
     const [properties, setProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number }>({
-        lat: 21.0285,
-        lng: 105.8542,
+        lat: 16.0748,
+        lng: 108.2240,
     });
     const [page, setPage] = useState(1);
     const itemsPerPage = 6;
     const [mapView, setMapView] = useState(false);
-    
-    // Sync searchInput with URL query when URL changes
+
     useEffect(() => {
         setSearchInput(query);
     }, [query]);
-    
-    // Helper function để update URL params
+
     const updateSearchParams = (updates: Record<string, string | number | undefined>) => {
         const newParams = new URLSearchParams(searchParams);
-        
+
         Object.entries(updates).forEach(([key, value]) => {
             if (value === '' || value === null || value === undefined) {
                 newParams.delete(key);
@@ -59,7 +55,7 @@ const SearchPage = () => {
                 newParams.set(key, String(value));
             }
         });
-        
+
         setSearchParams(newParams);
     };
 
@@ -125,7 +121,7 @@ const SearchPage = () => {
     const handleSearch = async (searchValue: string) => {
         if (!searchValue.trim()) return;
         updateSearchParams({ q: searchValue.trim() });
-        
+
         try {
             const openCaseApiKey = import.meta.env.VITE_OPENCASE_API_KEY;
             const res = await fetch(

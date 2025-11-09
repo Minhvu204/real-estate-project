@@ -35,6 +35,22 @@ const Navbar: React.FC = () => {
     const role = state.user?.role || 'guest';
     const isAdminRoute = location.pathname.startsWith('/admin');
 
+    const roleMenus = {
+        buyer: [
+            { label: "My Properties", path: "/dwello/myProperties" },
+            { label: "My Agent", path: "/dwello/myAgent" },
+        ],
+        seller: [
+            { label: "My Properties", path: "/seller/properties" },
+            { label: "Manage Listings", path: "/seller/listings" },
+        ],
+        agent: [
+            { label: "My Properties", path: "/agent/properties" },
+            { label: "Manage Listings", path: "/agent/listings" },
+        ],
+
+    };
+
     const handleLogout = () => {
         signOut();
         navigate("/login");
@@ -498,68 +514,20 @@ const Navbar: React.FC = () => {
                     Profile
                 </MenuItem>
 
-                {/* ✅ Buyer / Seller / Agent có My Properties */}
-                {["buyer", "seller", "agent"].includes(role) && (
+                {roleMenus[role as keyof typeof roleMenus]?.map((item) => (
                     <MenuItem
+                        key={item.path}
                         onClick={() => {
-                            navigate("/myProperties");
+                            navigate(item.path);
                             setAnchorEl(null);
                         }}
                         sx={{ py: 1.5, fontWeight: 600 }}
                     >
-                        My Properties
+                        {item.label}
                     </MenuItem>
-                )}
+                ))}
 
-                {/* ✅ Buyer ONLY → My Agent */}
-                {role === "buyer" && (
-                    <MenuItem
-                        onClick={() => {
-                            navigate("/myAgent");
-                            setAnchorEl(null);
-                        }}
-                        sx={{ py: 1.5, fontWeight: 600 }}
-                    >
-                        My Agent
-                    </MenuItem>
-                )}
 
-                {/* ✅ Seller & Agent → Manage Listings */}
-                {["seller", "agent"].includes(role) && (
-                    <MenuItem
-                        onClick={() => {
-                            navigate("/listings");
-                            setAnchorEl(null);
-                        }}
-                        sx={{ py: 1.5, fontWeight: 600 }}
-                    >
-                        Manage Listings
-                    </MenuItem>
-                )}
-
-                {/* ✅ Admin menu */}
-                {role === "admin" && (
-                    <>
-                        <MenuItem
-                            onClick={() => {
-                                navigate("/admin");
-                                setAnchorEl(null);
-                            }}
-                            sx={{ py: 1.5, fontWeight: 600 }}
-                        >
-                            Admin Dashboard
-                        </MenuItem>
-                        <MenuItem
-                            onClick={() => {
-                                navigate("/admin/users");
-                                setAnchorEl(null);
-                            }}
-                            sx={{ py: 1.5, fontWeight: 600 }}
-                        >
-                            User Management
-                        </MenuItem>
-                    </>
-                )}
                 <MenuItem
                     onClick={handleLogout}
                     sx={{

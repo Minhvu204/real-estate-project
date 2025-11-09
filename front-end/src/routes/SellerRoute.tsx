@@ -6,15 +6,18 @@ import ListAgent from "../components/seller/ListAgent";
 import CreatePropertyPage from "../pages/SellerPage/CreateProperty/CreatePropertyPage";
 
 export const SellerRoute = [
+
     {
-        path: "/seller",
-        element: <SellerPage />,
-        children: [
-            { path: "properties", element: <SellerProperties /> },
-            { path: "properties/:id/agents", element: <ListAgent></ListAgent> },
-            { index: true, element: <SellerProperties /> },
-            { path: "properties/:id", element: <PropertyDetails /> },
-            { path: "create", element: <CreatePropertyPage /> }
-        ],
+        path: "/seller/properties", element: <SellerProperties />
     },
+    {
+        path: "/seller/properties/:id/agents", element: <ListAgent />
+    },
+    {
+        path: "/seller/properties/:id", element: <PropertyDetails />
+    },
+    {
+        path: "/seller/create", element: <CreatePropertyPage />
+    }
+
 ];

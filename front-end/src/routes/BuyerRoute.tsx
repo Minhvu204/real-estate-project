@@ -5,6 +5,7 @@ import { ProfileLayout } from "../pages/Profile/ProfileLayout";
 import { PersonalInfo } from "../pages/Profile/PersonalInfo";
 import { ChangePassword } from "../pages/Profile/ChangePassword";
 import PropertyDetails from "../components/seller/PropertiesDetail";
+import ChatPage from "@/pages/Chat/ChatPage";
 
 export const BuyerRoute = [
     {
@@ -40,6 +41,13 @@ export const BuyerRoute = [
                 element: <ChangePassword />,
             },
         ],
+    },
+    {
+        path: "/chat",
+        element: <ChatPage />,
+        children: [
+            
+        ]
     },
 
 ];
