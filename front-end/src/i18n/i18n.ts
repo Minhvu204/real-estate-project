@@ -6,17 +6,22 @@ import PROPERTY_PAGE_EN from "../locales/en/propertyPage.json";
 import PROPERTY_PAGE_VI from "../locales/VI/propertyPage.json";
 import PROPERTY_DETAIl_EN from "../locales/en/propertyDetail.json";
 import PROPERTY_DETAIl_VI from "../locales/vi/propertyDetail.json";
+import TAXONOMIES_EN from "../locales/en/taxonomies.json";
+import TAXONOMIES_VI from "../locales/vi/taxonomies.json";
 import LanguageDetector from 'i18next-browser-languagedetector';
+
 export const resources = {
     en: {
         home: HOME_EN,    //import từ các file ở locales/en mà muốn sử dụng, 
         propertyPage: PROPERTY_PAGE_EN,
-        propertyDetail: PROPERTY_DETAIl_EN
+        propertyDetail: PROPERTY_DETAIl_EN,
+        taxonomies: TAXONOMIES_EN
     },
     vi: {
         home: HOME_VI,   //import từ các file ở locales/vi mà muốn sử dụng, 
         propertyPage: PROPERTY_PAGE_VI,
-        propertyDetail: PROPERTY_DETAIl_VI
+        propertyDetail: PROPERTY_DETAIl_VI,
+        taxonomies: TAXONOMIES_VI
     }
 };
 export const defaultNS = 'home'

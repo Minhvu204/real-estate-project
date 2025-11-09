@@ -9,7 +9,7 @@ import common from "./common/index.route";
 const router = express.Router();
 router.use("/auth", authRoutes);
 router.use("/buyer", buyerRoutes);
-// router.use("/seller", sellerRoutes);
+router.use("/seller", sellerRoutes);
 router.use("/agent", agentRoutes);
 router.use("/", common);
 
