@@ -40,6 +40,7 @@ const LoginPage: React.FC = () => {
             else if (user.role === 'seller') {
                 navigate("/seller/dashboard")
             }
+
         } catch (err: any) {
             setLoading(false);
             setError(err?.response?.data?.message || err.message || "Login failed");

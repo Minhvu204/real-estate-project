@@ -1,4 +1,6 @@
 import React, { useRef, useState, type DragEvent, type ChangeEvent } from "react";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 
 type ImageItem = {
     id: string;
@@ -16,6 +18,7 @@ const SelectImages: React.FC<SelectImagesProps> = ({ images: initialImages, onSu
     const [images, setImages] = useState<ImageItem[]>(initialImages);
     const [dragOver, setDragOver] = useState(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const { t } = useTranslation("createPropertyPage");
 
     const handleFiles = (files: FileList | null) => {
         if (!files) return;
@@ -50,9 +53,7 @@ const SelectImages: React.FC<SelectImagesProps> = ({ images: initialImages, onSu
         setDragOver(true);
     };
 
-    const handleDragLeave = () => {
-        setDragOver(false);
-    };
+    const handleDragLeave = () => setDragOver(false);
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         handleFiles(e.target.files);
@@ -60,7 +61,7 @@ const SelectImages: React.FC<SelectImagesProps> = ({ images: initialImages, onSu
 
     const handleSubmit = () => {
         if (images.length === 0) {
-            alert('Vui lòng chọn ít nhất 1 ảnh!');
+            toast.error(t("selectImages.alertEmpty"));
             return;
         }
         onSubmit(images);
@@ -69,12 +70,12 @@ const SelectImages: React.FC<SelectImagesProps> = ({ images: initialImages, onSu
     return (
         <div className="bg-white shadow-md rounded-2xl p-6 space-y-5 flex flex-col justify-center">
             <h1 className="text-center text-3xl font-semibold text-blue-600 mb-4">
-                Chọn ảnh bất động sản
+                {t("selectImages.title")}
             </h1>
 
             <div>
                 <p className="text-lg font-semibold mb-3">
-                    Chọn ảnh (tối đa 10 ảnh) - Đã chọn: {images.length}/10
+                    {t("selectImages.subtitle", { count: images.length })}
                 </p>
 
                 <div
@@ -89,11 +90,10 @@ const SelectImages: React.FC<SelectImagesProps> = ({ images: initialImages, onSu
                 >
                     <i className="fas fa-cloud-upload-alt text-4xl text-blue-500 mb-3"></i>
                     <p className="text-gray-600">
-                        Kéo thả hình ảnh vào đây hoặc{" "}
+                        {t("selectImages.dragText")}{" "}
                         <span className="text-blue-600 font-semibold underline">
-                            chọn file
+                            {t("selectImages.chooseFile")}
                         </span>
-
                     </p>
                     <input
                         title="file"
@@ -105,6 +105,7 @@ const SelectImages: React.FC<SelectImagesProps> = ({ images: initialImages, onSu
                         onChange={handleInputChange}
                     />
                 </div>
+
                 {images.length > 0 && (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4">
                         {images.map((img) => (
@@ -136,14 +137,14 @@ const SelectImages: React.FC<SelectImagesProps> = ({ images: initialImages, onSu
                     onClick={onBack}
                     className="bg-gray-400 hover:bg-gray-500 text-white font-semibold px-6 py-2 rounded-lg transition-all duration-300"
                 >
-                    Quay lại
+                    {t("createProperty.buttons.back")}
                 </button>
                 <button
                     type="button"
                     onClick={handleSubmit}
                     className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition-all duration-300"
                 >
-                    Hoàn thành
+                    {t("selectImages.finish")}
                 </button>
             </div>
         </div>

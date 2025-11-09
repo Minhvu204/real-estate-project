@@ -1,11 +1,12 @@
-
 import SelectFeatures from '@/components/seller/CreateProperty/SelectFeatures';
 import FormProperty from '@/components/seller/CreateProperty/FormProperty';
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import SelectImages from '@/components/seller/CreateProperty/SelectImages';
 import { createProperty } from '@/services/propertyService';
-
-type common = number | string
+import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
+import { useNavigate } from "react-router-dom";
+type common = number | string;
 
 interface PropertyData {
     title: string;
@@ -32,28 +33,28 @@ interface ImageItem {
     url: string;
     file: File;
 }
-
+const initialFormData: PropertyData = {
+    title: '',
+    price: '',
+    description: '',
+    address: '',
+    bathrooms: '',
+    bedrooms: '',
+    area: '',
+    unit: 'm2',
+    floors: '',
+    yearBuilt: '',
+    city_id: '',
+    category_id: '',
+    type_id: '',
+    coordinates: undefined,
+};
 const CreatePropertyPage = () => {
     const [currentStep, setCurrentStep] = useState(1);
-    const [propertyData, setPropertyData] = useState<PropertyData>({
-        title: '',
-        price: '',
-        description: '',
-        address: '',
-        bathrooms: '',
-        bedrooms: '',
-        area: '',
-        unit: 'm2',
-        floors: '',
-        yearBuilt: '',
-        city_id: '',
-        category_id: '',
-        type_id: '',
-        coordinates: undefined
-    });
+    const [propertyData, setPropertyData] = useState<PropertyData>(initialFormData);
     const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
     const [images, setImages] = useState<ImageItem[]>([]);
-
+    const { t } = useTranslation('createPropertyPage');
     const totalSteps = 3;
 
     const handleNextStep = () => {
@@ -82,34 +83,78 @@ const CreatePropertyPage = () => {
         setImages(imageList);
         handleFinalSubmit();
     };
-
+    const navigate = useNavigate();
     const handleFinalSubmit = async () => {
         try {
             if (!propertyData.city_id || !propertyData.category_id || !propertyData.type_id) {
-                alert('Vui lòng điền đầy đủ thông tin bắt buộc (Thành phố, Loại BĐS, Hình thức giao dịch)!');
+                toast.error(t('createProperty.alerts.missingRequired'));
                 return;
             }
-            const imageFiles = images.map(img => img.file);
+
+            const imageFiles = images.map((img) => img.file);
             const dataToSend = {
                 ...propertyData,
                 features: selectedFeatures,
             };
+
             console.log('Sending property data:', dataToSend);
             console.log('Images count:', imageFiles.length);
+
             const response = await createProperty(dataToSend, imageFiles);
-            alert('Tạo bất động sản thành công!');
+            setPropertyData(initialFormData);
+            setSelectedFeatures([]);
+            setImages([]);
+            setCurrentStep(1);
+            const toastId = toast.info(
+                <div className="space-y-2">
+                    <p className="font-medium">{t('createProperty.alerts.createSuccess')}</p>
+                    <div className="flex gap-3 mt-2">
+                        <button
+                            onClick={() => {
+                                toast.dismiss(toastId);
+                                toast.success(t('createProperty.alerts.startNew'));
+                                setPropertyData(initialFormData);
+                                setCurrentStep(1);
+                            }}
+                            className="px-3 py-1 rounded-md bg-blue-600 text-white text-sm hover:bg-blue-700 transition"
+                        >
+                            {t('createProperty.buttons.createNew')}
+                        </button>
+                        <button
+                            onClick={() => {
+                                toast.dismiss(toastId);
+                                navigate('/seller/properties');
+                            }}
+                            className="px-3 py-1 rounded-md bg-gray-300 text-gray-800 text-sm hover:bg-gray-400 transition"
+                        >
+                            {t('createProperty.buttons.viewList')}
+                        </button>
+                    </div>
+                </div>,
+                {
+                    autoClose: 4000,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                }
+            );
+            setTimeout(() => {
+                if (toast.isActive(toastId)) {
+                    toast.dismiss(toastId);
+                    navigate('/seller/properties');
+                }
+            }, 4000);
             console.log('Created property:', response);
         } catch (error: any) {
             console.error('Error creating property:', error);
             const errorMessage = error.response?.data?.message || error.message || 'Có lỗi xảy ra';
-            alert('Lỗi khi tạo bất động sản: ' + errorMessage);
+            toast.error(t('createProperty.alerts.createError', { message: errorMessage }));
         }
     };
 
     const steps = [
-        { number: 1, title: 'Thông tin BĐS' },
-        { number: 2, title: 'Tiện ích' },
-        { number: 3, title: 'Hình ảnh' }
+        { number: 1, title: t('createProperty.steps.1') },
+        { number: 2, title: t('createProperty.steps.2') },
+        { number: 3, title: t('createProperty.steps.3') },
     ];
 
     return (
@@ -126,9 +171,14 @@ const CreatePropertyPage = () => {
                                             : 'bg-gray-300 text-gray-600'
                                             }`}
                                     >
-                                        {currentStep > step.number ? '✓' : step.number}
+                                        {currentStep > step.number
+                                            ? t('createProperty.stepsHeader.completed')
+                                            : step.number}
                                     </div>
-                                    <p className={`mt-2 text-sm font-medium ${currentStep >= step.number ? 'text-blue-600' : 'text-gray-500'}`}>
+                                    <p
+                                        className={`mt-2 text-sm font-medium ${currentStep >= step.number ? 'text-blue-600' : 'text-gray-500'
+                                            }`}
+                                    >
                                         {step.title}
                                     </p>
                                 </div>
@@ -145,10 +195,7 @@ const CreatePropertyPage = () => {
 
                 <div className="mb-6">
                     {currentStep === 1 && (
-                        <FormProperty
-                            initialData={propertyData}
-                            onSubmit={handleFormSubmit}
-                        />
+                        <FormProperty initialData={propertyData} onSubmit={handleFormSubmit} />
                     )}
                     {currentStep === 2 && (
                         <SelectFeatures
@@ -167,8 +214,7 @@ const CreatePropertyPage = () => {
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default CreatePropertyPage;
-

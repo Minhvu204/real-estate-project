@@ -4,11 +4,7 @@ import { API_BASE_CLIENT_URL } from "../config/apiConfig";
 export const httpClient = axios.create({
     baseURL: API_BASE_CLIENT_URL,
     timeout: 10000,
-    headers: {
-        "Content-Type": "application/json",
-    },
 });
-
 
 httpClient.interceptors.request.use(
     (config) => {

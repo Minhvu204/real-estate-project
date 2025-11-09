@@ -10,9 +10,8 @@ export const getAllProperties = async (): Promise<Property[]> => {
     const res = await httpPublic.get(`${RESOURCE}?populate=type_id,category_id,city_id`);
     return res.data.data.data;
 }
-export const getPropertiesByAgentOrSeller = async (u: User): Promise<Property[]> => {
-    const RESOURCE = `${u.role}/properties`;
-    const response = await httpClient.get(`${u.role}/${RESOURCE}`);
+export const getPropertiesByAgentOrSeller = async (): Promise<Property[]> => {
+    const response = await httpClient.get(RESOURCE);
     return response.data.data.data;
 }
 export const getPropertiesById = async (id: string): Promise<Property> => {
@@ -29,7 +28,6 @@ export const getAllTaxonomies = async (): Promise<Taxonomy> => {
     const response = await httpClient.get(`${SELLER_RESOURCE}/taxonomies`);
     return response.data.data;
 }
-
 
 export const createProperty = async (
     propertyData: any,
@@ -65,12 +63,7 @@ export const createProperty = async (
             formData.append('images', file);
         }
     });
-
-    const response = await httpClient.post(`${SELLER_RESOURCE}/properties/create`, formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    });
+    const response = await httpClient.post(`${SELLER_RESOURCE}/properties/create`, formData,);
 
     return response.data.data;
 };

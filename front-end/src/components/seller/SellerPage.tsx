@@ -122,6 +122,30 @@ export default function SellerPage() {
     return (
         <Box sx={{ display: "flex" }}>
             <CssBaseline />
+            <AppBar
+                position="fixed"
+                sx={{
+                    background: "linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%)",
+                    width: { xs: "100%", sm: `calc(100% - ${drawerWidth}px)` },
+                    ml: { xs: 0, sm: `${drawerWidth}px` },
+                    boxShadow: 2,
+                }}
+            >
+                <IconButton
+                    color="inherit"
+                    aria-label="open drawer"
+                    edge="start"
+                    onClick={handleDrawerToggle}
+                    sx={{ mr: 2, display: { sm: "none" } }}
+                >
+                    <MenuIcon />
+                </IconButton>
+                {/* <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+                        Hello, <strong>{user.fullName}</strong>
+                    </Typography> */}
+
+            </AppBar>
+
 
             {/* Drawer */}
             <Box
@@ -146,7 +170,7 @@ export default function SellerPage() {
                     {drawer}
                 </Drawer>
 
-                {/* Permanent Drawer */}
+
                 <Drawer
                     variant="permanent"
                     sx={{
