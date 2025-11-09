@@ -9,17 +9,17 @@ import UpdateUser from "../components/admin/userInfor/UpdateUser";
 import BlockUser from "../components/admin/userInfor/BlockUser";
 
 const AdminProtectedRoute = () => {
-    const user = getUser();
+  const user = getUser();
 
-    if (!user) {
-        return <Navigate to="/login" replace />;
-    }
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
-    if (user.role !== "admin") {
-        return <Navigate to="/home" replace />;
-    }
+  if (user.role !== "admin") {
+    return <Navigate to="/" replace />;
+  }
 
-    return <Outlet />;
+  return <Outlet />;
 };
 
 export const AdminRoute = [

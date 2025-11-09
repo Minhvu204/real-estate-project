@@ -32,6 +32,7 @@ const Navbar: React.FC = () => {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const location = useLocation();
+    const role = state.user?.role || 'guest';
     const isAdminRoute = location.pathname.startsWith('/admin');
 
 
@@ -511,11 +512,17 @@ const Navbar: React.FC = () => {
                     Profile
                 </MenuItem>
 
-
-                {state.user?.role === "seller" && (
+                {/* ✅ My Properties (nếu là buyer, seller, agent) */}
+                {["buyer", "seller", "agent"].includes(role) && (
                     <MenuItem
                         onClick={() => {
-                            navigate("/seller/my-properties");
+                            if (role === "buyer") {
+                                navigate("/my-properties");
+                            } else if (role === "seller") {
+                                navigate("/seller/my-properties");
+                            } else if (role === "agent") {
+                                navigate("/agent/my-properties");
+                            }
                             setAnchorEl(null);
                         }}
                         sx={{
@@ -523,20 +530,21 @@ const Navbar: React.FC = () => {
                             fontWeight: 600,
                             display: "flex",
                             gap: 1.5,
-                            color: "#667eea",
                             "&:hover": {
                                 backgroundColor: "rgba(102,126,234,0.08)",
                             },
                         }}
                     >
                         <HomeIcon fontSize="small" />
-                        Property Management
+                        My Properties
                     </MenuItem>
                 )}
-                {state.user?.role === "agent" && (
+
+                {/* ✅ My Agent (nếu là buyer) */}
+                {role === "buyer" && (
                     <MenuItem
                         onClick={() => {
-                            navigate("/agent/my-properties");
+                            navigate("/my-agent");
                             setAnchorEl(null);
                         }}
                         sx={{
@@ -544,15 +552,60 @@ const Navbar: React.FC = () => {
                             fontWeight: 600,
                             display: "flex",
                             gap: 1.5,
-                            color: "#667eea",
+                            "&:hover": {
+                                backgroundColor: "rgba(102,126,234,0.08)",
+                            },
+                        }}
+                    >
+                        <PersonOutlineIcon fontSize="small" />
+                        My Agent
+                    </MenuItem>
+                )}
+
+                {/* ✅ Manage Listings (nếu là seller hoặc agent) */}
+                {["seller", "agent"].includes(role) && (
+                    <MenuItem
+                        onClick={() => {
+                            navigate("/listings");
+                            setAnchorEl(null);
+                        }}
+                        sx={{
+                            py: 1.5,
+                            fontWeight: 600,
+                            display: "flex",
+                            gap: 1.5,
                             "&:hover": {
                                 backgroundColor: "rgba(102,126,234,0.08)",
                             },
                         }}
                     >
                         <HomeIcon fontSize="small" />
-                        Property Management
+                        Manage Listings
                     </MenuItem>
+                )}
+
+                {/* ✅ Admin menu */}
+                {role === "admin" && (
+                    <>
+                        <MenuItem
+                            onClick={() => {
+                                navigate("/admin/dashboard");
+                                setAnchorEl(null);
+                            }}
+                            sx={{ py: 1.5, fontWeight: 600 }}
+                        >
+                            Admin Dashboard
+                        </MenuItem>
+                        <MenuItem
+                            onClick={() => {
+                                navigate("/admin/users");
+                                setAnchorEl(null);
+                            }}
+                            sx={{ py: 1.5, fontWeight: 600 }}
+                        >
+                            User Management
+                        </MenuItem>
+                    </>
                 )}
 
                 <Divider sx={{ my: 1 }} />

@@ -3,7 +3,8 @@ import { httpPublic } from "../utils/httpPublic";
 import { createAxiosInstance } from "../utils/axiosInstance";
 
 import { httpClient } from "../utils/httpClient";
-import type { User } from "../types/Users";
+import type { PropertyListData } from "../types/Respondata";
+
 const RESOURCE = "/properties";
 
 export const getAllProperties = async (): Promise<Property[]> => {

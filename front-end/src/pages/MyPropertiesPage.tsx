@@ -87,6 +87,14 @@ const MyPropertiesPage: React.FC = () => {
     }, []);
 
     const loadProperties = async () => {
+        const user = getUser();
+        const role = user?.role;
+        if (role === "buyer") {
+            setProperties([]);
+            setLoading(false);
+            return;
+        }
+        
         setLoading(true);
         try {
             const data = await getMyProperties();
@@ -101,7 +109,10 @@ const MyPropertiesPage: React.FC = () => {
                     window.location.href = "/login";
                 }, 2000);
             } else if (status === 403) {
-                toast.error(t("noPermission"));
+                // Không hiển thị toast error cho buyer
+                if (role !== "buyer") {
+                    toast.error(t("noPermission"));
+                }
             } else {
                 toast.error(error.response?.data?.message || t("loadFailed"));
             }

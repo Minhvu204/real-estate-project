@@ -1,4 +1,3 @@
-
 import { useRoutes, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import { AuthProvider } from "./context/AuthContext";
