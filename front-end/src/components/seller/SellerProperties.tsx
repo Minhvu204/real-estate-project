@@ -1,31 +1,39 @@
 import type { Property } from '../../types/Property';
 import React, { useEffect, useState } from 'react';
-import { getAllProperties } from '../../services/propertyService';
 import { getUser } from '../../utils/storage';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import ButtonLanguage from '../common/ButtonLanguage';
 import { getLanguage } from '../../utils/storage';
 import type { Lang } from '../../utils/storage';
-import { Button, Card, CardContent, CardMedia, Chip, Grid, Pagination, Typography } from '@mui/material';
+import { Button, Card, CardContent, CardMedia, Chip, Grid, Pagination, Typography, TextField, MenuItem } from '@mui/material';
 import { Box } from '@mui/material';
 import { getPropertiesByAgentOrSeller } from '../../services/propertyService';
+import type { Meta } from '../../types/Pagination';
 
 const SellerProperties = () => {
     const [properties, setProperties] = useState<Property[]>([]);
+    const [filtered, setFiltered] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
     const user = getUser();
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState<Meta>();
     const [itemsPerPage] = useState(6);
+
     const { t } = useTranslation(['home', 'properties']);
     const currentLanguage: Lang = getLanguage();
+
+    // Search + filter
+    const [search, setSearch] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
 
     useEffect(() => {
         const fetchProperties = async () => {
             try {
                 if (!user) return;
                 const response = await getPropertiesByAgentOrSeller();
-                setProperties(response || []);
+                setProperties(response.data || []);
+                setFiltered(response.data || []);
+                setPage(response.pagination);
             } catch (error) {
                 console.log("Cannot fetch properties for this role", error);
             } finally {
@@ -35,31 +43,80 @@ const SellerProperties = () => {
         fetchProperties();
     }, []);
 
+    // 🔍 Apply search + filter
+    useEffect(() => {
+        let result = [...properties];
+
+        if (search.trim() !== '') {
+            result = result.filter(p =>
+                p.title[currentLanguage].toLowerCase().includes(search.toLowerCase())
+            );
+        }
+
+        if (statusFilter !== 'all') {
+            result = result.filter(p => p.status === statusFilter);
+        }
+
+        setFiltered(result);
+
+        // Reset lại trang khi filter
+        setPage(prev => prev ? { ...prev, currentPage: 1 } : prev);
+
+    }, [search, statusFilter, properties]);
+
     if (loading)
         return <p className="text-center text-gray-500 mt-10">Đang tải dữ liệu...</p>;
 
-    if (properties.length === 0)
-        return <div className="text-center text-gray-600 mt-10">Không có bất động sản nào.</div>;
 
-    const totalPages = Math.ceil(properties.length / itemsPerPage);
-    const startIndex = (page - 1) * itemsPerPage;
-    const currentProperties = properties.slice(startIndex, startIndex + itemsPerPage);
+    const totalPages = Math.ceil(filtered.length / itemsPerPage);
+    const startIndex = ((page?.currentPage || 1) - 1) * itemsPerPage;
+    const currentProperties = filtered.slice(startIndex, startIndex + itemsPerPage);
 
     const handleChangePage = (_: React.ChangeEvent<unknown>, value: number) => {
-        setPage(value);
+        if (!page) return;
+        setPage({ ...page, currentPage: value });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     return (
-
         <Box className="p-6 bg-gray-50 min-h-screen">
-            <Box className="flex flex-wrap justify-between items-center mb-6">
+            {/* Header + search/filter */}
+            <Box className="flex flex-wrap justify-between items-center mb-6 gap-4">
                 <Typography variant="h5" fontWeight="bold" color="text.primary">
                     Danh sách Bất Động Sản
                 </Typography>
-                <ButtonLanguage />
+
+                <Box className="flex gap-3">
+                    {/* Ô search */}
+                    <TextField
+                        label="Tìm kiếm..."
+                        variant="outlined"
+                        size="small"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+
+                    {/* Filter status */}
+                    <TextField
+                        label="Trạng thái"
+                        select
+                        size="small"
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        style={{ minWidth: 150 }}
+                    >
+                        <MenuItem value="All">All</MenuItem>
+                        <MenuItem value="rejected">Rejected</MenuItem>
+                        <MenuItem value="pending">Pending</MenuItem>
+                        <MenuItem value="available">Available</MenuItem>
+                        <MenuItem value="approved ">Approved</MenuItem>
+                    </TextField>
+
+                    <ButtonLanguage />
+                </Box>
             </Box>
 
+            {/* LIST */}
             <Grid container spacing={3}>
                 {currentProperties.map((p) => (
                     <Grid size={{ xs: 12, md: 4, sm: 6 }} key={p._id}>
@@ -72,7 +129,6 @@ const SellerProperties = () => {
                                 height: '100%',
                                 transition: 'transform 0.2s ease',
                                 '&:hover': { transform: 'scale(1.03)' }
-
                             }}
                         >
                             <CardMedia
@@ -111,7 +167,7 @@ const SellerProperties = () => {
                                         {p.address[currentLanguage]}
                                     </Typography>
                                     <Typography variant="body2" color="text.primary" fontWeight="medium">
-                                        {t('price', { ns: 'properties' })}: {p.price.toLocaleString()} VNĐ
+                                        {t('properties:price')}: {p.price.toLocaleString()} VNĐ
                                     </Typography>
                                 </Box>
 
@@ -147,7 +203,7 @@ const SellerProperties = () => {
             <Box className="flex justify-center mt-10">
                 <Pagination
                     count={totalPages}
-                    page={page}
+                    page={page?.currentPage}
                     color="primary"
                     onChange={handleChangePage}
                     size="medium"

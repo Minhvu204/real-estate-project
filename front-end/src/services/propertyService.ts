@@ -1,7 +1,8 @@
 import type { Property } from "../types/Property";
 import { httpPublic } from "../utils/httpPublic";
 import { httpClient } from "../utils/httpClient";
-import type { User } from "../types/Users";
+import type { PropertyListData } from "../types/Respondata";
+
 import type { Feature } from "@/types/Feature";
 import type { Taxonomy } from "@/types/Taxonomy";
 const RESOURCE = "/properties";
@@ -10,14 +11,14 @@ export const getAllProperties = async (): Promise<Property[]> => {
     const res = await httpPublic.get(`${RESOURCE}?populate=type_id,category_id,city_id`);
     return res.data.data.data;
 }
-export const getPropertiesByAgentOrSeller = async (): Promise<Property[]> => {
+export const getPropertiesByAgentOrSeller = async (): Promise<PropertyListData> => {
     const response = await httpClient.get(RESOURCE);
-    return response.data.data.data;
+    return response.data.data;
 }
 export const getPropertiesById = async (id: string): Promise<Property> => {
     const response = await httpClient.get(`${RESOURCE}/${id}`);
-    return response.data.data;
-}
+    return response.data.data.data;
+}   
 
 export const getAllFeatures = async (): Promise<Feature[]> => {
     const response = await httpClient.get(`${SELLER_RESOURCE}/taxonomies`);

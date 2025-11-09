@@ -1,10 +1,9 @@
 import SellerProperties from "../components/seller/SellerProperties";
 import SellerPage from "../components/seller/SellerPage";
-import PropertiesDetails from "../components/seller/PropertiesDetails";
-import SellerDashboard from "../components/seller/SellerDashboard";
+import PropertyDetails from "../components/seller/PropertiesDetail";
+
 import ListAgent from "../components/seller/ListAgent";
 import CreatePropertyPage from "../pages/SellerPage/CreateProperty/CreatePropertyPage";
-
 
 export const SellerRoute = [
     {
@@ -12,10 +11,9 @@ export const SellerRoute = [
         element: <SellerPage />,
         children: [
             { path: "properties", element: <SellerProperties /> },
-            { path: "dashboard", element: <SellerDashboard /> },
             { path: "properties/:id/agents", element: <ListAgent></ListAgent> },
             { index: true, element: <SellerProperties /> },
-            { path: "properties/:id", element: <PropertiesDetails /> },
+            { path: "properties/:id", element: <PropertyDetails /> },
             { path: "create", element: <CreatePropertyPage /> }
         ],
     },
