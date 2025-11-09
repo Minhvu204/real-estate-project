@@ -13,6 +13,10 @@ import PROFILE_EN from "../locales/en/profile.json";
 import PROFILE_VI from "../locales/vi/profile.json";
 import MY_PROPERTIES_EN from "../locales/en/myProperties.json";
 import MY_PROPERTIES_VI from "../locales/vi/myProperties.json";
+import CREATEPROPERTYPAGE_EN from "../locales/en/createPropertyPage.json";
+import CREATEPROPERTYPAGE_VI from "../locales/vi/createPropertyPage.json";
+import ADDRESSAUTOCOMPLETE_EN from "../locales/en/addressAutocomplete.json";
+import ADDRESSAUTOCOMPLETE_VI from "../locales/vi/addressAutocomplete.json";
 
 export const resources = {
     en: {
@@ -22,6 +26,8 @@ export const resources = {
         propertyDetail: PROPERTY_DETAIL_EN,
         profile: PROFILE_EN,
         myProperties: MY_PROPERTIES_EN,
+        createPropertyPage: CREATEPROPERTYPAGE_EN,
+        addressAutocomplete: ADDRESSAUTOCOMPLETE_EN
     },
     vi: {
         home: HOME_VI,
@@ -30,6 +36,8 @@ export const resources = {
         propertyDetail: PROPERTY_DETAIL_VI,
         profile: PROFILE_VI,
         myProperties: MY_PROPERTIES_VI,
+        createPropertyPage: CREATEPROPERTYPAGE_VI,
+        addressAutocomplete: ADDRESSAUTOCOMPLETE_VI
     }
 };
 export const defaultNS = 'home';
@@ -40,7 +48,7 @@ i18n
         {
             debug: true,
             resources,
-            ns: ["home", "properties", "propertyPage", "propertyDetail", "profile", "myProperties"],     //add các namespace khi viết thêm ở trên vào mảng này
+            ns: ["home", "properties", "propertyPage", "propertyDetail", "profile", "myProperties", 'createPropertyPage', 'addressAutocomplete'],     //add các namespace khi viết thêm ở trên vào mảng này
             defaultNS,
             fallbackLng: 'en',
             detection: {

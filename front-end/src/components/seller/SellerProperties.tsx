@@ -31,9 +31,9 @@ const SellerProperties = () => {
             try {
                 if (!user) return;
                 const response = await getPropertiesByAgentOrSeller();
-                setProperties(response.data || []);
-                setFiltered(response.data || []);
-                setPage(response.pagination);
+                setProperties(response || []);
+                setFiltered(response || []);
+                setPage({ currentPage: 1, totalPages: 1, totalItems: response?.length || 0 });
             } catch (error) {
                 console.log("Cannot fetch properties for this role", error);
             } finally {

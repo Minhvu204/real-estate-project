@@ -9,7 +9,9 @@ import { BuyerRoute } from "./routes/BuyerRoute";
 import { AgentRoute } from "./routes/AgentRoute";
 import theme from "./theme";
 import './i18n/i18n';
-
+import AssignAgent from "./components/seller/ListAgent";
+import ListAgent from "./components/seller/ListAgent";
+import { ToastContainer } from "react-toastify";
 function App() {
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
@@ -29,6 +31,7 @@ function App() {
       <AuthProvider>
         {!isAdmin && <Navbar />}
         {routing}
+        <ToastContainer />
       </AuthProvider>
     </ThemeProvider>
   )

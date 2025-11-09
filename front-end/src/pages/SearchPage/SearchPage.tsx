@@ -17,14 +17,21 @@ import { getLanguage, type Lang } from '../../utils/storage';
 import { useTranslation } from 'react-i18next';
 const SearchPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const initialQuery = searchParams.get('q') || '';
-    const [query, setQuery] = useState(initialQuery);
-    const savedFilters = JSON.parse(localStorage.getItem('propertyFilters') || '{}');
-    const [minPrice, setMinPrice] = useState<number | ''>(savedFilters.minPrice ?? '');
-    const [maxPrice, setMaxPrice] = useState<number | ''>(savedFilters.maxPrice ?? '');
-    const [bedrooms, setBedrooms] = useState<number | ''>(savedFilters.bedrooms ?? '');
-    const [bathrooms, setBathrooms] = useState<number | ''>(savedFilters.bathrooms ?? '');
-    const [type, setType] = useState<string>(searchParams.get('type') || '');
+    const { t } = useTranslation('propertyPage');
+    const currentLanguage: Lang = getLanguage();
+    
+    // Đọc giá trị từ URL params
+    const query = searchParams.get('q') || '';
+    const minPrice = searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : '';
+    const maxPrice = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : '';
+    const bedrooms = searchParams.get('bedrooms') ? Number(searchParams.get('bedrooms')) : '';
+    const bathrooms = searchParams.get('bathrooms') ? Number(searchParams.get('bathrooms')) : '';
+    const type = searchParams.get('type') || '';
+    const sortBy = searchParams.get('sortBy') || '';
+    
+    // Local state cho search input (để user gõ thoải mái trước khi submit)
+    const [searchInput, setSearchInput] = useState(query);
+    
     const [properties, setProperties] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -32,20 +39,29 @@ const SearchPage = () => {
         lat: 21.0285,
         lng: 105.8542,
     });
-    const [sortBy, setSortBy] = useState<string>(savedFilters.sortBy ?? '');
     const [page, setPage] = useState(1);
     const itemsPerPage = 6;
     const [mapView, setMapView] = useState(false);
-    const { t } = useTranslation('propertyPage');
-    const currentLanguage: Lang = getLanguage();
+    
+    // Sync searchInput with URL query when URL changes
     useEffect(() => {
-        setType(searchParams.get('type') || '');
-    }, [searchParams]);
-
-    useEffect(() => {
-        const filters = { minPrice, maxPrice, bedrooms, bathrooms, type, sortBy };
-        localStorage.setItem('propertyFilters', JSON.stringify(filters));
-    }, [minPrice, maxPrice, bedrooms, bathrooms, type, sortBy]);
+        setSearchInput(query);
+    }, [query]);
+    
+    // Helper function để update URL params
+    const updateSearchParams = (updates: Record<string, string | number | undefined>) => {
+        const newParams = new URLSearchParams(searchParams);
+        
+        Object.entries(updates).forEach(([key, value]) => {
+            if (value === '' || value === null || value === undefined) {
+                newParams.delete(key);
+            } else {
+                newParams.set(key, String(value));
+            }
+        });
+        
+        setSearchParams(newParams);
+    };
 
     useEffect(() => {
         const fetchProperties = async () => {
@@ -106,10 +122,10 @@ const SearchPage = () => {
         setPage(1);
     }, [filteredProperties]);
 
-    const handleSearch = async (q?: string) => {
-        const searchValue = q ?? query;
+    const handleSearch = async (searchValue: string) => {
         if (!searchValue.trim()) return;
-        setSearchParams({ q: searchValue.trim() });
+        updateSearchParams({ q: searchValue.trim() });
+        
         try {
             const openCaseApiKey = import.meta.env.VITE_OPENCASE_API_KEY;
             const res = await fetch(
@@ -128,36 +144,39 @@ const SearchPage = () => {
     }
 
     useEffect(() => {
-        if (initialQuery) {
-            setQuery(initialQuery);
-            handleSearch(initialQuery);
+        if (query) {
+            handleSearch(query);
         }
-    }, [initialQuery]);
+    }, []);
 
     const clearSearch = () => {
-        setQuery('');
+        setSearchInput('');
         setSearchParams({});
         setMapCenter({ lat: 21.0285, lng: 105.8542 });
     };
 
     const handleMinPriceChange = (event: SelectChangeEvent<number | '' | any>) => {
-        setMinPrice(event.target.value === '' ? '' : Number(event.target.value));
+        const value = event.target.value === '' ? undefined : Number(event.target.value);
+        updateSearchParams({ minPrice: value });
     };
 
     const handleMaxPriceChange = (event: SelectChangeEvent<number | '' | any>) => {
-        setMaxPrice(event.target.value === '' ? '' : Number(event.target.value));
+        const value = event.target.value === '' ? undefined : Number(event.target.value);
+        updateSearchParams({ maxPrice: value });
     };
 
     const handleBedroomsChange = (event: SelectChangeEvent<number | '' | any>) => {
-        setBedrooms(event.target.value === '' ? '' : Number(event.target.value));
+        const value = event.target.value === '' ? undefined : Number(event.target.value);
+        updateSearchParams({ bedrooms: value });
     };
 
     const handleBathroomsChange = (event: SelectChangeEvent<number | '' | any>) => {
-        setBathrooms(event.target.value === '' ? '' : Number(event.target.value));
+        const value = event.target.value === '' ? undefined : Number(event.target.value);
+        updateSearchParams({ bathrooms: value });
     };
 
     const handleSortByChange = (event: SelectChangeEvent<string>) => {
-        setSortBy(event.target.value);
+        updateSearchParams({ sortBy: event.target.value || undefined });
     };
 
     return (
@@ -168,18 +187,18 @@ const SearchPage = () => {
                         <input
                             type="text"
                             placeholder={t("propertyPage.placeholderSearch")}
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
+                            value={searchInput}
+                            onChange={(e) => setSearchInput(e.target.value)}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
                                     e.preventDefault();
-                                    handleSearch();
+                                    handleSearch(searchInput);
                                 }
                             }}
                             className="w-full outline-none bg-transparent text-gray-700"
                         />
                         <div className="flex items-center gap-1 ml-2 text-gray-500">
-                            {query && (
+                            {searchInput && (
                                 <button
                                     onClick={clearSearch}
                                     aria-label="cancel-icon"
@@ -191,7 +210,7 @@ const SearchPage = () => {
                             <button
                                 aria-label="search-icon"
                                 className="hover:text-blue-600 transition"
-                                onClick={() => handleSearch()}
+                                onClick={() => handleSearch(searchInput)}
                             >
                                 <SearchOutlinedIcon fontSize="small" />
                             </button>

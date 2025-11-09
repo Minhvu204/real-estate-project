@@ -45,6 +45,8 @@ const PropertyDetail = () => {
 
 
 
+
+
     return (
         <Container sx={{ mt: 1, mb: 1 }}>
             {/* CAROUSEL */}r
