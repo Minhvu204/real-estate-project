@@ -62,8 +62,6 @@ export default function SellerPage() {
 
     const drawer = (
         <div>
-
-
             <List>
                 {menuItems.map((item) => (
                     <Box key={item?.text}>

@@ -1,4 +1,5 @@
-import AdminProtectedRoute from "./AdminProtectedRoute";
+import { Navigate, Outlet } from "react-router-dom";
+import { getUser } from "../utils/storage";
 import AdminDashboard from "../components/admin/AdminDashboard";
 import HomeList from "../components/admin/HomeList";
 import DataTable from "../components/admin/UserList";
@@ -6,6 +7,20 @@ import GradientTooltip from "../components/admin/Dashboard";
 import UserDetails from "../components/admin/UserDetails";
 import UpdateUser from "../components/admin/userInfor/UpdateUser";
 import BlockUser from "../components/admin/userInfor/BlockUser";
+
+const AdminProtectedRoute = () => {
+  const user = getUser();
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (user.role !== "admin") {
+    return <Navigate to="/" replace />;
+  }
+
+  return <Outlet />;
+};
 
 export const AdminRoute = [
   {

@@ -6,7 +6,7 @@ import type { PropertyListData } from "../types/Respondata";
 const RESOURCE = "/properties";
 
 export const getAllProperties = async (): Promise<Property[]> => {
-    const res = await httpPublic.get(RESOURCE);
+    const res = await httpPublic.get(`${RESOURCE}?populate=type_id,category_id,city_id`);
     return res.data.data.data;
 }
 export const getPropertiesByAgentOrSeller = async (): Promise<PropertyListData> => {

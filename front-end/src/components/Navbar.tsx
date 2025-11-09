@@ -24,6 +24,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import AuthContext from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
+import ButtonLanguage from "./common/ButtonLanguage";
 
 const Navbar: React.FC = () => {
     const { state, signOut } = useContext(AuthContext);
@@ -31,6 +32,7 @@ const Navbar: React.FC = () => {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const location = useLocation();
+    const role = state.user?.role || 'guest';
     const isAdminRoute = location.pathname.startsWith('/admin');
 
     const handleLogout = () => {
@@ -326,7 +328,7 @@ const Navbar: React.FC = () => {
                             ))}
                         </Box>
                     )}
-
+                    <ButtonLanguage />
                     {/* Right Side */}
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                         {!state.token ? (
@@ -491,16 +493,73 @@ const Navbar: React.FC = () => {
                         navigate("/profile");
                         setAnchorEl(null);
                     }}
-                    sx={{
-                        py: 1.5,
-                        fontWeight: 600,
-                        "&:hover": {
-                            backgroundColor: "rgba(102,126,234,0.08)",
-                        },
-                    }}
+                    sx={{ py: 1.5, fontWeight: 600 }}
                 >
                     Profile
                 </MenuItem>
+
+                {/* ✅ Buyer / Seller / Agent có My Properties */}
+                {["buyer", "seller", "agent"].includes(role) && (
+                    <MenuItem
+                        onClick={() => {
+                            navigate("/myProperties");
+                            setAnchorEl(null);
+                        }}
+                        sx={{ py: 1.5, fontWeight: 600 }}
+                    >
+                        My Properties
+                    </MenuItem>
+                )}
+
+                {/* ✅ Buyer ONLY → My Agent */}
+                {role === "buyer" && (
+                    <MenuItem
+                        onClick={() => {
+                            navigate("/myAgent");
+                            setAnchorEl(null);
+                        }}
+                        sx={{ py: 1.5, fontWeight: 600 }}
+                    >
+                        My Agent
+                    </MenuItem>
+                )}
+
+                {/* ✅ Seller & Agent → Manage Listings */}
+                {["seller", "agent"].includes(role) && (
+                    <MenuItem
+                        onClick={() => {
+                            navigate("/listings");
+                            setAnchorEl(null);
+                        }}
+                        sx={{ py: 1.5, fontWeight: 600 }}
+                    >
+                        Manage Listings
+                    </MenuItem>
+                )}
+
+                {/* ✅ Admin menu */}
+                {role === "admin" && (
+                    <>
+                        <MenuItem
+                            onClick={() => {
+                                navigate("/admin");
+                                setAnchorEl(null);
+                            }}
+                            sx={{ py: 1.5, fontWeight: 600 }}
+                        >
+                            Admin Dashboard
+                        </MenuItem>
+                        <MenuItem
+                            onClick={() => {
+                                navigate("/admin/users");
+                                setAnchorEl(null);
+                            }}
+                            sx={{ py: 1.5, fontWeight: 600 }}
+                        >
+                            User Management
+                        </MenuItem>
+                    </>
+                )}
                 <MenuItem
                     onClick={handleLogout}
                     sx={{
