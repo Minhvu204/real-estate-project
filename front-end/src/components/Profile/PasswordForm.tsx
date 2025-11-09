@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { ChangePasswordDto } from '../../types/User';
 import { Box, TextField, Button, Typography } from '@mui/material';
 import { getLanguage, type Lang } from '../../utils/storage';
+import { useTranslation } from 'react-i18next';
 
 interface PasswordFormProps {
   onSubmit: (data: ChangePasswordDto) => Promise<void>;
@@ -13,7 +14,7 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
   isLoading
 }) => {
   const [currentLang, setCurrentLang] = useState<Lang>(getLanguage());
-  const t = (vi: string, en: string) => (currentLang === 'vi' ? vi : en);
+  const { t } = useTranslation('profile');
 
   React.useEffect(() => {
     const interval = setInterval(() => setCurrentLang(getLanguage()), 100);
@@ -35,7 +36,7 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
     
     if (name === 'confirmPassword') {
       if (value !== formData.newPassword) {
-        setErrors(prev => ({ ...prev, confirmPassword: t('Mật khẩu xác nhận không khớp', 'Confirmation password does not match') }));
+        setErrors(prev => ({ ...prev, confirmPassword: t('passwordMismatch') }));
       } else {
         setErrors(prev => ({ ...prev, confirmPassword: '' }));
       }
@@ -52,7 +53,7 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
       <Box sx={{ display: 'grid', gap: 2.5, maxWidth: 1000 }}>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '200px 1fr' }, alignItems: { md: 'center' }, gap: 2 }}>
-          <Typography>{t('Mật khẩu hiện tại', 'Current password')}</Typography>
+          <Typography>{t('currentPassword')}</Typography>
           <TextField
             fullWidth
             type="password"
@@ -60,13 +61,13 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
             value={formData.oldPassword}
             onChange={handleChange}
             required
-            placeholder={t('Nhập mật khẩu', 'Enter password')}
+            placeholder={t('enterPassword')}
             size="small"
           />
         </Box>
 
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '200px 1fr' }, alignItems: { md: 'center' }, gap: 2 }}>
-          <Typography>{t('Mật khẩu mới', 'New password')}</Typography>
+          <Typography>{t('newPassword')}</Typography>
           <TextField
             fullWidth
             type="password"
@@ -76,13 +77,13 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
             error={!!errors.newPassword}
             helperText={errors.newPassword}
             required
-            placeholder={t('Nhập mật khẩu mới', 'Enter new password')}
+            placeholder={t('enterNewPassword')}
             size="small"
           />
         </Box>
 
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '200px 1fr' }, alignItems: { md: 'center' }, gap: 2 }}>
-          <Typography>{t('Xác nhận mật khẩu', 'Confirm password')}</Typography>
+          <Typography>{t('confirmPassword')}</Typography>
           <TextField
             fullWidth
             type="password"
@@ -92,7 +93,7 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
             error={!!errors.confirmPassword}
             helperText={errors.confirmPassword}
             required
-            placeholder={t('Xác nhận mật khẩu mới', 'Confirm new password')}
+            placeholder={t('confirmNewPassword')}
             size="small"
           />
         </Box>
@@ -111,7 +112,7 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
               }
             }}
           >
-            💾 {isLoading ? t('Đang lưu...', 'Saving...') : t('Lưu thay đổi', 'Save changes')}
+            💾 {isLoading ? t('saving') : t('saveChanges')}
           </Button>
         </Box>
       </Box>

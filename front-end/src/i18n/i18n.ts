@@ -9,6 +9,10 @@ import PROPERTY_PAGE_EN from "../locales/en/propertyPage.json";
 import PROPERTY_PAGE_VI from "../locales/vi/propertyPage.json";
 import PROPERTY_DETAIL_EN from "../locales/en/propertyDetail.json";
 import PROPERTY_DETAIL_VI from "../locales/vi/propertyDetail.json";
+import PROFILE_EN from "../locales/en/profile.json";
+import PROFILE_VI from "../locales/vi/profile.json";
+import MY_PROPERTIES_EN from "../locales/en/myProperties.json";
+import MY_PROPERTIES_VI from "../locales/vi/myProperties.json";
 
 export const resources = {
     en: {
@@ -16,12 +20,16 @@ export const resources = {
         properties: PROPERTIES_EN,  //import từ các file ở locales/en mà muốn sử dụng, 
         propertyPage: PROPERTY_PAGE_EN,
         propertyDetail: PROPERTY_DETAIL_EN,
+        profile: PROFILE_EN,
+        myProperties: MY_PROPERTIES_EN,
     },
     vi: {
         home: HOME_VI,
         properties: PROPERTIES_VI,  //import từ các file ở locales/vi mà muốn sử dụng, 
         propertyPage: PROPERTY_PAGE_VI,
         propertyDetail: PROPERTY_DETAIL_VI,
+        profile: PROFILE_VI,
+        myProperties: MY_PROPERTIES_VI,
     }
 };
 export const defaultNS = 'home';
@@ -32,7 +40,7 @@ i18n
         {
             debug: true,
             resources,
-            ns: ["home", "properties", "propertyPage", "propertyDetail"],     //add các namespace khi viết thêm ở trên vào mảng này
+            ns: ["home", "properties", "propertyPage", "propertyDetail", "profile", "myProperties"],     //add các namespace khi viết thêm ở trên vào mảng này
             defaultNS,
             fallbackLng: 'en',
             detection: {

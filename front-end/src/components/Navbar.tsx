@@ -512,10 +512,10 @@ const Navbar: React.FC = () => {
                 </MenuItem>
 
 
-                {(state.user?.role === "seller" || state.user?.role === "agent") && (
+                {state.user?.role === "seller" && (
                     <MenuItem
                         onClick={() => {
-                            navigate("/my-properties");
+                            navigate("/seller/my-properties");
                             setAnchorEl(null);
                         }}
                         sx={{
@@ -530,7 +530,28 @@ const Navbar: React.FC = () => {
                         }}
                     >
                         <HomeIcon fontSize="small" />
-                        Category Management
+                        Property Management
+                    </MenuItem>
+                )}
+                {state.user?.role === "agent" && (
+                    <MenuItem
+                        onClick={() => {
+                            navigate("/agent/my-properties");
+                            setAnchorEl(null);
+                        }}
+                        sx={{
+                            py: 1.5,
+                            fontWeight: 600,
+                            display: "flex",
+                            gap: 1.5,
+                            color: "#667eea",
+                            "&:hover": {
+                                backgroundColor: "rgba(102,126,234,0.08)",
+                            },
+                        }}
+                    >
+                        <HomeIcon fontSize="small" />
+                        Property Management
                     </MenuItem>
                 )}
 

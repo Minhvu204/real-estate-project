@@ -5,6 +5,7 @@ import { Box, TextField, Button, Avatar, IconButton, Typography } from '@mui/mat
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import PersonIcon from '@mui/icons-material/Person';
 import { getLanguage, type Lang } from '../../utils/storage';
+import { useTranslation } from 'react-i18next';
 interface PersonalInfoFormProps {
   user: User;
   onSubmit: (data: UpdateProfileDto) => Promise<void>;
@@ -17,7 +18,7 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
   isLoading
 }) => {
   const [currentLang, setCurrentLang] = useState<Lang>(getLanguage());
-  const t = (vi: string, en: string) => (currentLang === 'vi' ? vi : en);
+  const { t } = useTranslation('profile');
 
   useEffect(() => {
     const interval = setInterval(() => setCurrentLang(getLanguage()), 100);
@@ -46,7 +47,7 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
     setFormData(prev => ({ ...prev, [name]: value }));
     
     if (name === 'phone' && value && !validatePhone(value)) {
-      setErrors(prev => ({ ...prev, phone: t('Số điện thoại không hợp lệ', 'Invalid phone number') }));
+      setErrors(prev => ({ ...prev, phone: t('invalidPhoneNumber') }));
     } else {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -79,7 +80,7 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-          {t('Thông tin cá nhân', 'Personal information')}
+          {t('personalInformation')}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: { xs: 'center', md: 'flex-start' }, flexDirection: { xs: 'column', sm: 'row' }, gap: 3 }}>
           <input
@@ -121,11 +122,11 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
                 </IconButton>
               </label>
               <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
-                {t('Tải ảnh', 'Upload photo')}
+                {t('uploadPhoto')}
               </Typography>
             </Box>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-              {t('Ảnh đại diện giúp mọi người nhận ra bạn dễ hơn', 'Profile pictures help people recognize you more easily')}
+              {t('profilePictureHelp')}
             </Typography>
           </Box>
         </Box>
@@ -133,13 +134,13 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
 
       <Box sx={{ display: 'grid', gap: 2.5, maxWidth: 1000 }}>
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '200px 1fr' }, alignItems: { md: 'center' }, gap: 2 }}>
-          <Typography>{t('Họ và tên *', 'Full name *')}</Typography>
+          <Typography>{t('fullName')}</Typography>
           <TextField
             fullWidth
             name="fullName"
             value={formData.fullName}
             onChange={handleChange}
-            placeholder={t('Nhập họ và tên', 'Enter your full name')}
+            placeholder={t('enterFullName')}
             required
             size="small"
           />
@@ -152,13 +153,13 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
             name="email"
             value={formData.email}
             disabled
-            placeholder={t('Nhập email', 'Enter email')}
+            placeholder={t('enterEmail')}
             size="small"
           />
         </Box>
 
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '200px 1fr' }, alignItems: { md: 'center' }, gap: 2 }}>
-          <Typography>{t('Số điện thoại', 'Phone number')}</Typography>
+          <Typography>{t('phoneNumber')}</Typography>
           <TextField
             fullWidth
             name="phone"
@@ -166,13 +167,13 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
             onChange={handleChange}
             error={!!errors.phone}
             helperText={errors.phone}
-            placeholder={t('Nhập số điện thoại', 'Enter phone number')}
+            placeholder={t('enterPhoneNumber')}
             size="small"
           />
         </Box>
 
         <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '200px 1fr' }, alignItems: { md: 'center' }, gap: 2 }}>
-          <Typography>{t('Vai trò', 'Role')}</Typography>
+          <Typography>{t('role')}</Typography>
           <TextField
             fullWidth
             name="role"
@@ -196,7 +197,7 @@ export const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
               }
             }}
           >
-            💾 {isLoading ? t('Đang lưu...', 'Saving...') : t('Lưu thay đổi', 'Save changes')}
+            💾 {isLoading ? t('saving') : t('saveChanges')}
           </Button>
         </Box>
       </Box>

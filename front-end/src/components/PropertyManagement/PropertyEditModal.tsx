@@ -26,6 +26,7 @@ import type { PropertyType } from "../../types/PropertyTypes";
 import { taxonomyService } from "../../services/taxonomyService";
 import { getText } from "../../utils/multilang";
 import { getLanguage, type Lang } from "../../utils/storage";
+import { useTranslation } from "react-i18next";
 
 interface PropertyEditModalProps {
     open: boolean;
@@ -67,8 +68,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
     const [existingImages, setExistingImages] = useState<string[]>([]);
 
     const [currentLang, setCurrentLang] = useState<Lang>(getLanguage());
-
-    const t = (vi: string, en: string) => (currentLang === "vi" ? vi : en);
+    const { t } = useTranslation("myProperties");
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -190,7 +190,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
             <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <Typography variant="h6" sx={{color: "primary.main",fontWeight: "bold",}}>
-                {t("Chỉnh sửa bất động sản", "Edit Property")}
+                {t("editProperty")}
              </Typography>
                 <IconButton onClick={onClose}>
                     <CloseIcon />
@@ -200,7 +200,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
             <DialogContent dividers>
                 <Stack spacing={3}>
                         <TextField
-                            label={t("Tiêu đề", "Title")}
+                            label={t("titleLabel")}
                             fullWidth
                             required
                             value={formData.title}
@@ -208,7 +208,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                         />
 
                     <TextField
-                        label={t("Mô tả", "Description")}
+                        label={t("description")}
                             fullWidth
                             multiline
                             rows={4}
@@ -218,7 +218,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
                     <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
                         <TextField
-                            label={t("Giá", "Price")}
+                            label={t("price")}
                             sx={{ flex: 1, minWidth: 200 }}
                             fullWidth
                             required
@@ -226,12 +226,12 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                             value={formData.price}
                             onChange={(e) => handleChange("price", parseFloat(e.target.value))}
                             InputProps={{
-                                endAdornment: <InputAdornment position="end">{t("VNĐ", "VND")}</InputAdornment>,
+                                endAdornment: <InputAdornment position="end">{t("vnd")}</InputAdornment>,
                             }}
                         />
 
                         <TextField
-                            label={t("Địa chỉ", "Address")}
+                            label={t("addressLabel")}
                             sx={{ flex: 1, minWidth: 200 }}
                             fullWidth
                             required
@@ -242,9 +242,9 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
                     <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
                         <FormControl sx={{ flex: 1, minWidth: 200 }} fullWidth>
-                            <InputLabel>{t("Thành phố", "City")}</InputLabel>
+                            <InputLabel>{t("city")}</InputLabel>
                             <Select
-                                label={t("Thành phố", "City")}
+                                label={t("city")}
                                 value={formData.city_id}
                                 onChange={(e) => {
                                     const id = e.target.value as string;
@@ -263,9 +263,9 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                         </FormControl>
 
                         <FormControl sx={{ flex: 1, minWidth: 200 }} fullWidth>
-                            <InputLabel>{t("Loại bất động sản", "Property type")}</InputLabel>
+                            <InputLabel>{t("propertyType")}</InputLabel>
                             <Select
-                                label={t("Loại bất động sản", "Property type")}
+                                label={t("propertyType")}
                                 value={formData.type_id}
                                 onChange={(e) => {
                                     const id = e.target.value as string;
@@ -285,12 +285,12 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                     </Box>
 
                     <FormControl fullWidth>
-                        <InputLabel>{t("Tiện ích", "Features")}</InputLabel>
+                        <InputLabel>{t("features")}</InputLabel>
                             <Select
                                 multiple
                                 value={formData.features}
                                 onChange={(e) => handleChange("features", e.target.value)}
-                                input={<OutlinedInput label={t("Tiện ích", "Features")} />}
+                                input={<OutlinedInput label={t("features")} />}
                                 renderValue={(selected) => (
                                     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                                         {selected.map((value) => {
@@ -316,7 +316,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
                     <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
                         <TextField
-                            label={t("Phòng ngủ", "Bedrooms")}
+                            label={t("bedrooms")}
                             sx={{ flex: 1, minWidth: 100 }}
                             fullWidth
                             type="number"
@@ -325,7 +325,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                         />
 
                         <TextField
-                            label={t("Phòng tắm", "Bathrooms")}
+                            label={t("bathrooms")}
                             sx={{ flex: 1, minWidth: 100 }}
                             fullWidth
                             type="number"
@@ -334,7 +334,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                         />
 
                         <TextField
-                            label={t("Diện tích", "Area")}
+                            label={t("area")}
                             sx={{ flex: 1, minWidth: 100 }}
                             fullWidth
                             type="number"
@@ -346,7 +346,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                         />
 
                         <TextField
-                            label={t("Số tầng", "Floors")}
+                            label={t("floors")}
                             sx={{ flex: 1, minWidth: 100 }}
                             fullWidth
                             type="number"
@@ -356,7 +356,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                     </Box>
 
                     <TextField
-                        label={t("Năm xây dựng", "Year built")}
+                        label={t("yearBuilt")}
                             fullWidth
                             type="number"
                             value={formData.yearBuilt}
@@ -365,7 +365,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
                     <Box>
                         <Typography variant="subtitle2" gutterBottom>
-                            {t("Hình ảnh hiện tại", "Current images")}
+                            {t("currentImages")}
                         </Typography>
                         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
                             {existingImages.map((url, index) => (
@@ -402,7 +402,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                             component="label"
                             startIcon={<UploadIcon />}
                         >
-                            {t("Thêm hình ảnh mới", "Add new images")}
+                            {t("addNewImages")}
                             <input
                                 type="file"
                                 hidden
@@ -415,7 +415,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                         {imageFiles.length > 0 && (
                             <>
                                 <Typography variant="subtitle2" sx={{ mt: 2 }} gutterBottom>
-                                    {t("Hình ảnh mới", "New images")} ({imageFiles.length})
+                                    {t("newImages")} ({imageFiles.length})
                                 </Typography>
                                 <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
                                     {imageFiles.map((file, index) => (
@@ -458,14 +458,14 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
             <DialogActions>
                 <Button onClick={onClose} disabled={loading}>
-                    {t("Hủy", "Cancel")}
+                    {t("cancel")}
                 </Button>
                 <Button
                     onClick={handleSubmit}
                     variant="contained"
                     disabled={loading || !formData.title || !formData.price}
                 >
-                    {loading ? t("Đang lưu...", "Saving...") : t("Lưu", "Save")}
+                    {loading ? t("saving") : t("save")}
                 </Button>
             </DialogActions>
         </Dialog>

@@ -28,7 +28,6 @@ import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import {
     Edit as EditIcon,
     Delete as DeleteIcon,
-    Refresh as RefreshIcon,
     Search as SearchIcon,
 } from "@mui/icons-material";
 import { toast, ToastContainer } from "react-toastify";
@@ -37,8 +36,10 @@ import { getMyProperties, updateProperty, deleteProperty } from "../services/pro
 import type { Property } from "../types/Property";
 import PropertyEditModal from "../components/PropertyManagement/PropertyEditModal";
 import { getText, containsText } from "../utils/multilang";
-import { getLanguage } from "../utils/storage";
+import { getLanguage, getUser } from "../utils/storage";
 import type { Lang } from "../utils/storage";
+import { useTranslation } from "react-i18next";
+import { useNavigate, useParams } from "react-router-dom";
 
 const MyPropertiesPage: React.FC = () => {
     const [properties, setProperties] = useState<Property[]>([]);
@@ -53,11 +54,26 @@ const MyPropertiesPage: React.FC = () => {
     const [currentLang, setCurrentLang] = useState<Lang>(getLanguage());
     const [page, setPage] = useState(1);
     const [imageIndexes, setImageIndexes] = useState<Record<string, number>>({});
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
     const itemsPerPage = 6;
+    const { t } = useTranslation("myProperties");
+    const navigate = useNavigate();
+    const { id } = useParams<{ id: string }>();
 
     useEffect(() => {
         loadProperties();
     }, []);
+
+    useEffect(() => {
+        if (id && properties.length > 0 && !isUpdating && !editModalOpen && !isClosing) {
+            const property = properties.find(p => p._id === id);
+            if (property) {
+                setSelectedProperty(property);
+                setEditModalOpen(true);
+            }
+        }
+    }, [id, properties, isUpdating, editModalOpen, isClosing]);
 
     useEffect(() => {
         filterProperties();
@@ -76,26 +92,18 @@ const MyPropertiesPage: React.FC = () => {
             const data = await getMyProperties();
             const validData = Array.isArray(data) ? data.filter(p => p && p._id) : [];
             setProperties(validData);
-            
-            if (validData.length === 0) {
-                toast.info("Bạn chưa có bất động sản nào");
-            } else {
-                toast.success(`Đã tải ${validData.length} bất động sản`);
-            }
         } catch (error: any) {
             const status = error.response?.status;
             
             if (status === 401) {
-                toast.error("❌ Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
+                toast.error(t("sessionExpired"));
                 setTimeout(() => {
                     window.location.href = "/login";
                 }, 2000);
             } else if (status === 403) {
-                toast.error("❌ Bạn không có quyền truy cập chức năng này");
-            } else if (status === 404 || status === 501) {
-                toast.warning("⚠️ Backend chưa implement GET /api/client/properties");
+                toast.error(t("noPermission"));
             } else {
-                toast.error(error.response?.data?.message || "Không thể tải danh sách bất động sản");
+                toast.error(error.response?.data?.message || t("loadFailed"));
             }
         } finally {
             setLoading(false);
@@ -139,18 +147,55 @@ const MyPropertiesPage: React.FC = () => {
     };
 
     const handleEdit = (property: Property) => {
-        setSelectedProperty(property);
-        setEditModalOpen(true);
+        const user = getUser();
+        const role = user?.role;
+        if (role === "seller") {
+            navigate(`/seller/my-properties/${property._id}`);
+        } else if (role === "agent") {
+            navigate(`/agent/my-properties/${property._id}`);
+        } else {
+            setSelectedProperty(property);
+            setEditModalOpen(true);
+        }
+    };
+
+    const handleCloseModal = () => {
+        setIsClosing(true);
+        setEditModalOpen(false);
+        setSelectedProperty(null);
+        const user = getUser();
+        const role = user?.role;
+        if (role === "seller") {
+            navigate("/seller/my-properties", { replace: true });
+        } else if (role === "agent") {
+            navigate("/agent/my-properties", { replace: true });
+        }
+        setTimeout(() => {
+            setIsClosing(false);
+        }, 100);
     };
 
     const handleUpdate = async (id: string, formData: FormData) => {
+        setIsUpdating(true);
         try {
             await updateProperty(id, formData);
-            toast.success("✅ Cập nhật bất động sản thành công!");
+            toast.success(t("updateSuccess"));
             setEditModalOpen(false);
-            await loadProperties();
+            setSelectedProperty(null);
+            const user = getUser();
+            const role = user?.role;
+            if (role === "seller") {
+                navigate("/seller/my-properties");
+            } else if (role === "agent") {
+                navigate("/agent/my-properties");
+            }
+            setTimeout(async () => {
+                await loadProperties();
+                setIsUpdating(false);
+            }, 100);
         } catch (error: any) {
-            const message = error.response?.data?.message || "Không thể cập nhật bất động sản";
+            setIsUpdating(false);
+            const message = error.response?.data?.message || t("updateFailed");
             toast.error(`❌ ${message}`);
             throw error;
         }
@@ -158,7 +203,7 @@ const MyPropertiesPage: React.FC = () => {
 
     const handleDeleteClick = (property: Property) => {
         if (property.status === "approved") {
-            toast.error("❌ Không thể xóa bất động sản đã được duyệt!");
+            toast.error(t("cannotDeleteApproved"));
             return;
         }
         setSelectedProperty(property);
@@ -171,14 +216,14 @@ const MyPropertiesPage: React.FC = () => {
         setDeletingId(selectedProperty._id);
         try {
             await deleteProperty(selectedProperty._id);
-            toast.success("✅ Đã xóa bất động sản thành công!");
+            toast.success(t("deleteSuccess"));
             setDeleteDialogOpen(false);
             setSelectedProperty(null);
             setProperties(prev => prev.filter(p => p._id !== selectedProperty._id));
         } catch (error: any) {
-            const message = error.response?.data?.message || "Không thể xóa bất động sản";
+            const message = error.response?.data?.message || t("deleteFailed");
             if (error.response?.status === 403) {
-                toast.error("❌ Bạn không có quyền xóa bất động sản này");
+                toast.error(t("noPermissionDelete"));
             } else if (message.includes("đang được sử dụng")) {
                 toast.error(`❌ ${message}`);
             } else {
@@ -206,18 +251,14 @@ const MyPropertiesPage: React.FC = () => {
         }
     };
 
-    const getStatusLabel = (status: string) => {
-        const labels: Record<string, { vi: string; en: string }> = {
-            available: { vi: "Có sẵn", en: "Available" },
-            pending: { vi: "Chờ duyệt", en: "Pending" },
-            approved: { vi: "Đã duyệt", en: "Approved" },
-            sold: { vi: "Đã bán", en: "Sold" },
-            rejected: { vi: "Bị từ chối", en: "Rejected" },
-        };
-        return labels[status]?.[currentLang] || status;
+    const getStatusLabel = (status: string): string => {
+        try {
+            const label = t(`status.${status}` as any);
+            return label && label !== `status.${status}` ? label : status;
+        } catch {
+            return status;
+        }
     };
-
-    const t = (vi: string, en: string) => currentLang === "vi" ? vi : en;
 
     return (
         <Box sx={{ minHeight: "100vh", bgcolor: "background.default", py: { xs: 1.5, sm: 3, md: 4 } }}>
@@ -243,30 +284,8 @@ const MyPropertiesPage: React.FC = () => {
                                 lineHeight: 1.2
                             }}
                         >
-                            {t("Quản lý danh mục", "Category Management")}
+                            {t("propertyManagement")}
                         </Typography>
-                        <Stack 
-                            direction="row" 
-                            spacing={{ xs: 0.5, sm: 1 }} 
-                            alignItems="center" 
-                            flexWrap="wrap"
-                            sx={{ width: { xs: "100%", sm: "auto" }, justifyContent: { xs: "flex-start", sm: "flex-end" } }}
-                        >
-                            <Button
-                                variant="outlined"
-                                startIcon={<RefreshIcon />}
-                                onClick={loadProperties}
-                                disabled={loading}
-                                size="small"
-                                sx={{ 
-                                    fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                                    px: { xs: 1.5, sm: 2 },
-                                    py: { xs: 0.5, sm: 0.75 }
-                                }}
-                            >
-                                {t("Làm mới", "Refresh")}
-                            </Button>
-                        </Stack>
                     </Box>
                     <Tabs
                         value={statusFilter}
@@ -291,19 +310,16 @@ const MyPropertiesPage: React.FC = () => {
                             }
                         }}
                     >
-                        <Tab label={t("TẤT CẢ", "ALL")} value="all" />
-                        <Tab label={t("CÓ SẴN", "AVAILABLE")} value="available" />
-                        <Tab label={t("CHỜ DUYỆT", "PENDING")} value="pending" />
-                        <Tab label={t("ĐÃ DUYỆT", "APPROVED")} value="approved" />
-                        <Tab label={t("TỪ CHỐI", "REJECTED")} value="rejected" />
+                        <Tab label={t("all")} value="all" />
+                        <Tab label={t("available")} value="available" />
+                        <Tab label={t("pending")} value="pending" />
+                        <Tab label={t("approved")} value="approved" />
+                        <Tab label={t("rejected")} value="rejected" />
                     </Tabs>
                     <Box sx={{ mb: { xs: 2, sm: 2.5, md: 3 } }}>
                         <TextField
                             fullWidth
-                            placeholder={t(
-                                "Tìm kiếm theo tiêu đề hoặc địa chỉ hoặc thành phố hoặc loại...",
-                                "Search by title, address, city or type..."
-                            )}
+                            placeholder={t("searchPlaceholder")}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             size="small"
@@ -328,7 +344,7 @@ const MyPropertiesPage: React.FC = () => {
                                 fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.875rem" }
                             }}
                         >
-                            {t("Hiển thị", "Showing")}: {filteredProperties.length}/{properties.length}
+                            {t("showing")}: {filteredProperties.length}/{properties.length}
                         </Typography>
                     </Box>
 
@@ -338,11 +354,11 @@ const MyPropertiesPage: React.FC = () => {
                         </Box>
                     ) : properties.length === 0 ? (
                         <Alert severity="info" sx={{ my: 3 }}>
-                            {t("Bạn chưa có bất động sản nào", "You don't have any properties yet")}
+                            {t("noProperties")}
                         </Alert>
                     ) : filteredProperties.length === 0 ? (
                         <Alert severity="warning" sx={{ my: 3 }}>
-                            {t("Không tìm thấy bất động sản nào phù hợp với bộ lọc", "No properties found matching the filter")}
+                            {t("noPropertiesFound")}
                         </Alert>
                     ) : (
                         <>
@@ -493,7 +509,7 @@ const MyPropertiesPage: React.FC = () => {
                                                     fontSize: { xs: "1rem", sm: "1.125rem", md: "1.25rem" },
                                                 }}
                                             >
-                                                {t("Giá", "Price")}: {property.price.toLocaleString("vi-VN")} {t("VNĐ", "VND")}
+                                                {t("price")}: {property.price.toLocaleString("vi-VN")} {t("vnd")}
                                             </Typography>
                                             <Box sx={{ display: "flex", gap: { xs: 0.75, sm: 1 }, flexWrap: "wrap", mb: { xs: 0.5, sm: 1 } }}>
                                                 {property.type_id && (
@@ -540,7 +556,7 @@ const MyPropertiesPage: React.FC = () => {
                                                     fontWeight: 600,
                                                 }}
                                             >
-                                                {t("Sửa", "Edit")}
+                                                {t("edit")}
                                             </Button>
                                             <Button
                                                 fullWidth
@@ -555,7 +571,7 @@ const MyPropertiesPage: React.FC = () => {
                                                     fontWeight: 600,
                                                 }}
                                             >
-                                                {t("Xoá", "Delete")}
+                                                {t("delete")}
                                             </Button>
                                         </CardActions>
                                     </Card>
@@ -601,7 +617,7 @@ const MyPropertiesPage: React.FC = () => {
                 <PropertyEditModal
                     open={editModalOpen}
                     property={selectedProperty}
-                    onClose={() => setEditModalOpen(false)}
+                    onClose={handleCloseModal}
                     onSubmit={handleUpdate}
                 />
 
@@ -612,35 +628,26 @@ const MyPropertiesPage: React.FC = () => {
                     fullWidth
                 >
                     <DialogTitle sx={{ bgcolor: "error.light", color: "error.contrastText" }}>
-                        ⚠️ {t("Xác nhận xóa", "Confirm Delete")}
+                        ⚠️ {t("confirmDelete")}
                     </DialogTitle>
                     <DialogContent sx={{ mt: 2 }}>
                         <Alert severity="warning" sx={{ mb: 2 }}>
-                            {t(
-                                "Bạn có chắc chắn muốn xóa bất động sản này?",
-                                "Are you sure you want to delete this property?"
-                            )}
+                            {t("deleteConfirmation")}
                         </Alert>
                         <Box sx={{ p: 2, bgcolor: "grey.50", borderRadius: 1 }}>
                             <Typography variant="subtitle2" color="text.secondary">
-                                {t("Tiêu đề:", "Title:")}
+                                {t("title")}
                             </Typography>
                             <Typography variant="body1" fontWeight={600} gutterBottom>
                                 {selectedProperty ? getText(selectedProperty.title as any, currentLang) : ""}
                             </Typography>
                             <Typography variant="subtitle2" color="text.secondary">
-                                {t("Địa chỉ:", "Address:")}
+                                {t("address")}
                             </Typography>
                             <Typography variant="body2">
                                 {selectedProperty ? getText(selectedProperty.address as any, currentLang) : ""}
                             </Typography>
                         </Box>
-                        <Typography variant="body2" color="error" sx={{ mt: 2 }}>
-                            ⚠️ {t(
-                                "Lưu ý: Thao tác này sẽ soft-delete (set deleted: true) và không thể hoàn tác.",
-                                "Note: This action will soft-delete (set deleted: true) and cannot be undone."
-                            )}
-                        </Typography>
                     </DialogContent>
                     <DialogActions sx={{ p: 2 }}>
                         <Button
@@ -648,7 +655,7 @@ const MyPropertiesPage: React.FC = () => {
                             disabled={deletingId !== null}
                             variant="outlined"
                         >
-                            {t("Hủy", "Cancel")}
+                            {t("cancel")}
                         </Button>
                         <Button
                             onClick={handleDeleteConfirm}
@@ -657,12 +664,26 @@ const MyPropertiesPage: React.FC = () => {
                             disabled={deletingId !== null}
                             startIcon={deletingId ? <CircularProgress size={16} /> : <DeleteIcon />}
                         >
-                            {deletingId ? t("Đang xóa...", "Deleting...") : t("Xác nhận xóa", "Confirm Delete")}
+                            {deletingId ? t("deleting") : t("confirmDelete")}
                         </Button>
                     </DialogActions>
                 </Dialog>
 
-                <ToastContainer position="top-right" autoClose={3000} />
+                <ToastContainer 
+                    position="top-right" 
+                    autoClose={3000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme="light"
+                    style={{
+                        fontSize: "14px",
+                    }}
+                />
             </Container>
         </Box>
     );

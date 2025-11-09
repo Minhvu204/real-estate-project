@@ -6,6 +6,7 @@ import MailIcon from '@mui/icons-material/Mail';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { getLanguage, type Lang } from '../../utils/storage';
+import { useTranslation } from 'react-i18next';
 
 interface ProfileSidebarProps {
   user: {
@@ -16,7 +17,7 @@ interface ProfileSidebarProps {
 
 export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user }) => {
   const [currentLang, setCurrentLang] = React.useState<Lang>(getLanguage());
-  const t = (vi: string, en: string) => (currentLang === 'vi' ? vi : en);
+  const { t } = useTranslation('profile');
 
   React.useEffect(() => {
     const interval = setInterval(() => setCurrentLang(getLanguage()), 100);
@@ -78,7 +79,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user }) => {
           <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>
             <HomeIcon />
           </ListItemIcon>
-          <ListItemText primary={t('Trang chủ', 'Home')} />
+          <ListItemText primary={t('home')} />
         </ListItem>
 
         <ListItem
@@ -102,7 +103,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user }) => {
           <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>
             <MailIcon />
           </ListItemIcon>
-          <ListItemText primary={t('Đăng tin mới', 'New post')} />
+          <ListItemText primary={t('newPost')} />
         </ListItem>
 
         <ListItem
@@ -126,7 +127,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user }) => {
           <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>
             <ManageAccountsIcon />
           </ListItemIcon>
-          <ListItemText primary={t('Quản lý tin đăng', 'Manage listings')} />
+          <ListItemText primary={t('manageListings')} />
         </ListItem>
 
         <ListItem
@@ -150,17 +151,17 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user }) => {
           <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>
             <NotificationsIcon />
           </ListItemIcon>
-          <ListItemText primary={t('Thông báo', 'Notification')} />
+          <ListItemText primary={t('notification')} />
         </ListItem>
       </List>
 
       <Box sx={{ mt: 4, px: 2 }}>
         <Typography variant="body2" sx={{ fontWeight: 600, mb: 1 }}>
-          {t('Số dư tài khoản', 'Account balance')}
+          {t('accountBalance')}
         </Typography>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            {t('Tài khoản quảng cáo', 'Ad account')}
+            {t('adAccount')}
           </Typography>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
             0
@@ -168,7 +169,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user }) => {
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            {t('Tài khoản khuyến mãi', 'Promotional Account')}
+            {t('promotionalAccount')}
           </Typography>
           <Typography variant="body2" sx={{ fontWeight: 600 }}>
             0
