@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Box, Chip, Container, Divider, Grid, Paper, Stack, Typography, Avatar, useMediaQuery, } from "@mui/material";
+import { Box, Chip, Container, Divider, Grid, Paper, Stack, Typography, Avatar, useMediaQuery, Button, } from "@mui/material";
 import PlaceIcon from "@mui/icons-material/Place";
 import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
@@ -8,7 +8,7 @@ import type { PropertyDetail } from "../types/PropertyDetail";
 import { useTranslation } from "react-i18next";
 import { getLanguage } from "../utils/storage";
 
-const PropertyDetail = () => {
+const PropertyDetailUser = () => {
     const { id } = useParams();
     const [property, setProperty] = useState<PropertyDetail | null>(null);
 
@@ -144,7 +144,15 @@ const PropertyDetail = () => {
             )
             }
 
+
+
             <Grid>
+
+                <Box display="flex" justifyContent="flex-end" mt={2} mb={2}>
+                    <Button variant="contained" color="primary">
+                        Request a tour
+                    </Button>
+                </Box>
                 {/* TITLE + PRICE */}
                 <Typography variant="h4" fontWeight="bold" mt={1}>
                     {property.title[lang]}
@@ -257,7 +265,6 @@ const PropertyDetail = () => {
                     )
                 }
 
-                {/* CREATED AT */}
                 <Divider sx={{ mt: 2 }} />
                 <Typography color="text.secondary" mt={1}>
                     {t("postedOn")}: {new Date(property.createdAt).toLocaleDateString()}
@@ -270,4 +277,4 @@ const PropertyDetail = () => {
     );
 };
 
-export default PropertyDetail;
+export default PropertyDetailUser;

@@ -4,7 +4,7 @@ import RentPage from "../pages/SearchPage/RentPage";
 import { ProfileLayout } from "../pages/Profile/ProfileLayout";
 import { PersonalInfo } from "../pages/Profile/PersonalInfo";
 import { ChangePassword } from "../pages/Profile/ChangePassword";
-import PropertyDetails from "../components/seller/PropertiesDetail";
+import PropertyDetailUser from "../pages/PropertyDetail";
 
 export const BuyerRoute = [
     {
@@ -21,7 +21,7 @@ export const BuyerRoute = [
     },
     {
         path: "/property/detail/:id",
-        element: <PropertyDetails />
+        element: <PropertyDetailUser />
     },
     {
         path: "/profile",

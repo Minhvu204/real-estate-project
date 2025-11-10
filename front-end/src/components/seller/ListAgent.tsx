@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { getAllAgents } from '../../services/seller.service';
 import type { Agent } from '@/types/Agent';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Pagination, PaginationItem } from '@mui/material';
 import { Card, CardContent, CardMedia, Chip, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
@@ -9,6 +9,8 @@ import { useTranslation } from 'react-i18next';
 import { assignAgent } from '../../services/seller.service';
 import { useParams } from 'react-router-dom';
 import { Bounce, ToastContainer, toast } from 'react-toastify';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 const ListAgent = () => {
     const [agents, setAgents] = useState<Agent[]>([]);
@@ -18,12 +20,16 @@ const ListAgent = () => {
 
     const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
     const [openConfirm, setOpenConfirm] = useState(false);
+    const [page, setPage] = useState(1);
+    const [itemsPerPage] = useState(6);
+
 
     useEffect(() => {
         const fetchAgents = async () => {
             try {
                 const response = await getAllAgents();
                 setAgents(response || []);
+
             } catch (error) {
                 console.log('Cannot fetch agents', error);
             } finally {
@@ -41,6 +47,10 @@ const ListAgent = () => {
         setOpenConfirm(true);
 
     }
+    const handleChangePage = (_: React.ChangeEvent<unknown>, value: number) => {
+        setPage(value);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
     const handleConfirmAssign = async () => {
         if (!propertyId || !selectedAgent) return;
         try {
@@ -67,11 +77,14 @@ const ListAgent = () => {
                 alert(` Lỗi: ${error.message}`);
             }
 
-        } finally { 
+        } finally {
             setOpenConfirm(false);
             setSelectedAgent(null);
         }
     };
+    const totalPages = Math.ceil(agents.length / itemsPerPage);
+    const startIndex = ((page - 1) * itemsPerPage);
+    const currentAgents = agents.slice(startIndex, startIndex + itemsPerPage);
 
     if (loading)
         return <p className="text-center text-gray-500 mt-10">Đang tải dữ liệu...</p>;
@@ -94,7 +107,7 @@ const ListAgent = () => {
             </Typography>
 
             <Grid container spacing={3}>
-                {agents.map((agent) => (
+                {currentAgents.map((agent) => (
                     <Grid size={{ xs: 12, md: 6, sm: 6 }} key={agent._id}>
                         <Card
                             sx={{
@@ -182,7 +195,22 @@ const ListAgent = () => {
                         </Card>
                     </Grid>
                 ))}
+
             </Grid>
+            {currentAgents.length > 0 && (
+                <Box className="flex justify-center items-center mt-10">
+                    <Pagination
+                        count={totalPages}
+                        onChange={handleChangePage}
+                        renderItem={(item) => (
+                            <PaginationItem
+                                slots={{ previous: ArrowBackIcon, next: ArrowForwardIcon }}
+                                {...item}
+                            />
+                        )}
+                    />
+                </Box>
+            )}
             <Dialog open={openConfirm} onClose={() => setOpenConfirm(false)}>
                 <DialogTitle>Xác nhận chỉ định</DialogTitle>
                 <DialogContent>

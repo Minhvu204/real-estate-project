@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Box, Container, Typography, IconButton, Grid, Link, Stack } from "@mui/material";
+import { Box, Container, Typography, IconButton, Grid, Stack, CardMedia, CardContent, Card, CardActionArea, Chip, Button } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
-
+import { getAllPropertiesPublic } from "../services/propertyService";
+import type { Property } from "@/types/Property";
+import { getLanguage } from "../utils/storage";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 const HomePage: React.FC = () => {
     const images = [
         "https://cdnmedia.baotintuc.vn/Upload/GBzr0rzEkBb6ua36h4mJ9w/files/2022/09/P3.jpg",
@@ -13,6 +17,10 @@ const HomePage: React.FC = () => {
     ];
 
     const [current, setCurrent] = useState(0);
+    const [properties, setProperties] = useState<Property[]>();
+    const [loading, setLoading] = useState(true);
+    const currentLanguage = getLanguage();
+    const { t } = useTranslation(['home', 'properties']);
 
     // Auto slide
     useEffect(() => {
@@ -20,6 +28,23 @@ const HomePage: React.FC = () => {
             setCurrent((prev) => (prev + 1) % images.length);
         }, 4000);
         return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const data = await getAllPropertiesPublic();
+                console.log(data)
+                setProperties(data);
+            } catch (error) {
+                console.log("Cannot fetch users", error);
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
     }, []);
 
     const prevSlide = () => {
@@ -120,6 +145,71 @@ const HomePage: React.FC = () => {
                     ))}
                 </Box>
             </Box>
+            {/*List property*/}
+            <Box paddingY={10}>
+                <Grid container spacing={3}>
+                    {properties?.map((p) => (
+                        <Grid size={{ xs: 12, md: 4, sm: 6 }} key={p._id}>
+                            <Card
+                                component={Link}
+                                to={`/property/detail/${p._id}`}
+                                sx={{
+                                    borderRadius: 3,
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    height: '100%',
+                                    transition: 'transform 0.2s ease',
+                                    '&:hover': { transform: 'scale(1.03)' }
+                                }}
+                            >
+                                <CardMedia
+                                    component="img"
+                                    height="1"
+                                    image={p.images?.[0] || '/defaultHome.png'}
+                                    alt={p.title.en}
+                                    sx={{
+                                        height: { xs: 160, sm: 180, md: 200 },
+                                        objectFit: 'cover',
+                                    }}
+                                />
+                                <CardContent className="flex flex-col justify-between ">
+                                    <Box>
+                                        <Box className="flex justify-between items-start mb-2">
+                                            <Typography
+                                                variant="h6"
+                                                fontWeight="bold"
+                                                color="primary.main"
+                                                className="line-clamp-2"
+                                            >
+                                                {p.title[currentLanguage]}
+                                            </Typography>
+                                            <Chip
+                                                label={p.status || 'Đang xử lý'}
+                                                color={p.status === 'available' ? 'success' : 'warning'}
+                                                size="small"
+                                            />
+                                        </Box>
+
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                            className="line-clamp-2 mb-1"
+                                        >
+                                            {p.address[currentLanguage]}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.primary" fontWeight="medium">
+                                            {t('properties:price')}: {p.price.toLocaleString()} VNĐ
+                                        </Typography>
+                                    </Box>
+
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    ))}
+                </Grid>
+
+            </Box>
+
 
             {/*Footer */}
             <Box sx={{ background: "#414141", color: "white", mt: 2, pt: 4, pb: 2 }}>

@@ -6,10 +6,12 @@ import { useTranslation } from 'react-i18next';
 
 import { getLanguage } from '../../utils/storage';
 import type { Lang } from '../../utils/storage';
-import { Button, Card, CardContent, CardMedia, Chip, Grid, Pagination, Typography, TextField, MenuItem } from '@mui/material';
+import { Button, Card, CardContent, CardMedia, Chip, Grid, Pagination, Typography, TextField, MenuItem, Stack, PaginationItem } from '@mui/material';
 import { Box } from '@mui/material';
 import { getPropertiesByAgentOrSeller } from '../../services/propertyService';
 import type { Meta } from '../../types/Pagination';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 const SellerProperties = () => {
     const [properties, setProperties] = useState<Property[]>([]);
@@ -33,9 +35,11 @@ const SellerProperties = () => {
                 setProperties(response.data || []);
                 setFiltered(response.data || []);
                 setPage(response.pagination);
+
+                console.log(response.data);
             } catch (error) {
                 console.log("Cannot fetch properties for this role", error);
-            } finally {
+            } finally { 
                 setLoading(false);
             }
         };
@@ -137,7 +141,7 @@ const SellerProperties = () => {
                                         objectFit: 'cover',
                                     }}
                                 />
-                                <CardContent className="flex flex-col justify-between flex-grow">
+                                <CardContent className="flex flex-col justify-between">
                                     <Box>
                                         <Box className="flex justify-between items-start mb-2">
                                             <Typography
@@ -201,14 +205,17 @@ const SellerProperties = () => {
                 <Box className="flex justify-center mt-10">
                     <Pagination
                         count={totalPages}
-                        page={page?.currentPage}
-                        color="primary"
                         onChange={handleChangePage}
-                        size="medium"
-                        shape="rounded"
+                        renderItem={(item) => (
+                            <PaginationItem
+                                slots={{ previous: ArrowBackIcon, next: ArrowForwardIcon }}
+                                {...item}
+                            />
+                        )}
                     />
                 </Box>
             )}
+
         </Box>
     );
 };
