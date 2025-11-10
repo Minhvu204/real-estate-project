@@ -18,7 +18,7 @@ export const getPropertiesByAgentOrSeller = async (): Promise<PropertyListData> 
 export const getPropertiesById = async (id: string): Promise<Property> => {
     const response = await httpClient.get(`${RESOURCE}/${id}`);
     return response.data.data.data;
-}   
+}
 
 export const getAllFeatures = async (): Promise<Feature[]> => {
     const response = await httpClient.get(`${SELLER_RESOURCE}/taxonomies`);
@@ -59,6 +59,8 @@ export const createProperty = async (
             formData.append('features[]', featureId);
         });
     }
+    console.log('image form service', images);
+
     images.forEach((file, index) => {
         if (index < 10) {
             formData.append('images', file);

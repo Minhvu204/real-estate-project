@@ -1,4 +1,4 @@
-import React, { useRef, useState, type DragEvent, type ChangeEvent } from "react";
+import React, { useRef, useState, type DragEvent, type ChangeEvent, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
@@ -15,11 +15,10 @@ interface SelectImagesProps {
 }
 
 const SelectImages: React.FC<SelectImagesProps> = ({ images: initialImages, onSubmit, onBack }) => {
-    const [images, setImages] = useState<ImageItem[]>(initialImages);
+    const [images, setImages] = useState<ImageItem[]>(() => initialImages);
     const [dragOver, setDragOver] = useState(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const { t } = useTranslation("createPropertyPage");
-
     const handleFiles = (files: FileList | null) => {
         if (!files) return;
 
@@ -64,6 +63,7 @@ const SelectImages: React.FC<SelectImagesProps> = ({ images: initialImages, onSu
             toast.error(t("selectImages.alertEmpty"));
             return;
         }
+        console.log(images);
         onSubmit(images);
     };
 

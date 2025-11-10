@@ -80,18 +80,19 @@ const CreatePropertyPage = () => {
     };
 
     const handleImagesSubmit = (imageList: ImageItem[]) => {
+        console.log('image from set images', imageList);
         setImages(imageList);
-        handleFinalSubmit();
+        handleFinalSubmit(imageList);
     };
     const navigate = useNavigate();
-    const handleFinalSubmit = async () => {
+    const handleFinalSubmit = async (submittedImages: ImageItem[] = images) => {
         try {
             if (!propertyData.city_id || !propertyData.category_id || !propertyData.type_id) {
                 toast.error(t('createProperty.alerts.missingRequired'));
                 return;
             }
-
-            const imageFiles = images.map((img) => img.file);
+            
+            const imageFiles = submittedImages.map((img) => img.file);
             const dataToSend = {
                 ...propertyData,
                 features: selectedFeatures,
