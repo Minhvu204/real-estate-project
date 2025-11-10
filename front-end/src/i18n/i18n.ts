@@ -1,14 +1,16 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import HOME_EN from "../locales/en/sellerPage.json";
-import HOME_VI from "../locales/vi/sellerPage.json";
+import HOME_VI from "../locales/VI/sellerPage.json";
+import PROPERTY_PAGE_EN from "../locales/en/propertyPage.json";
+import PROPERTY_PAGE_VI from "../locales/VI/propertyPage.json";
+import PROPERTY_DETAIl_EN from "../locales/en/propertyDetail.json";
+import PROPERTY_DETAIl_VI from "../locales/vi/propertyDetail.json";
+import TAXONOMIES_EN from "../locales/en/taxonomies.json";
+import TAXONOMIES_VI from "../locales/vi/taxonomies.json";
 import LanguageDetector from 'i18next-browser-languagedetector';
 import PROPERTIES_EN from "../locales/en/properties.json";
 import PROPERTIES_VI from "../locales/vi/properties.json";
-import PROPERTY_PAGE_EN from "../locales/en/propertyPage.json";
-import PROPERTY_PAGE_VI from "../locales/vi/propertyPage.json";
-import PROPERTY_DETAIL_EN from "../locales/en/propertyDetail.json";
-import PROPERTY_DETAIL_VI from "../locales/vi/propertyDetail.json";
 import PROFILE_EN from "../locales/en/profile.json";
 import PROFILE_VI from "../locales/vi/profile.json";
 import MY_PROPERTIES_EN from "../locales/en/myProperties.json";
@@ -23,7 +25,8 @@ export const resources = {
         home: HOME_EN,
         properties: PROPERTIES_EN,  //import từ các file ở locales/en mà muốn sử dụng, 
         propertyPage: PROPERTY_PAGE_EN,
-        propertyDetail: PROPERTY_DETAIL_EN,
+        propertyDetail: PROPERTY_DETAIl_EN,
+        taxonomies: TAXONOMIES_EN,
         profile: PROFILE_EN,
         myProperties: MY_PROPERTIES_EN,
         createPropertyPage: CREATEPROPERTYPAGE_EN,
@@ -33,7 +36,8 @@ export const resources = {
         home: HOME_VI,
         properties: PROPERTIES_VI,  //import từ các file ở locales/vi mà muốn sử dụng, 
         propertyPage: PROPERTY_PAGE_VI,
-        propertyDetail: PROPERTY_DETAIL_VI,
+        propertyDetail: PROPERTY_DETAIl_VI,
+        taxonomies: TAXONOMIES_VI,
         profile: PROFILE_VI,
         myProperties: MY_PROPERTIES_VI,
         createPropertyPage: CREATEPROPERTYPAGE_VI,

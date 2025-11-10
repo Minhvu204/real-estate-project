@@ -27,10 +27,12 @@ import {
     ShoppingBag as ShoppingBagIcon,
     Hail as HailIcon,
     RealEstateAgent as RealEstateAgentIcon,
+    CategoryOutlined as CategoryOutlinedIcon,
 } from "@mui/icons-material";
 import { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { getUser } from "../../utils/storage";
+import ButtonLanguage from "../common/ButtonLanguage";
 
 const drawerWidth = 240;
 
@@ -55,6 +57,7 @@ export default function AdminDashboard() {
         { text: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
         { text: "List User", icon: <PersonIcon />, path: "/admin/users" },
         { text: "List Properties", icon: <HomeIcon />, path: "/admin/properties" },
+        { text: "Taxonomies", icon: <CategoryOutlinedIcon />, path: "/admin/taxonomies" },
     ];
 
     const listUserItem = [
@@ -210,6 +213,7 @@ export default function AdminDashboard() {
                     <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
                         Hello, <strong>{user.fullName}</strong>
                     </Typography>
+                    <ButtonLanguage />
                 </Toolbar>
             </AppBar>
 

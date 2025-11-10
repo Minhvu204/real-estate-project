@@ -7,6 +7,7 @@ import GradientTooltip from "../components/admin/Dashboard";
 import UserDetails from "../components/admin/UserDetails";
 import UpdateUser from "../components/admin/userInfor/UpdateUser";
 import BlockUser from "../components/admin/userInfor/BlockUser";
+import AdminTaxonomiesPage from "../pages/AdminTaxonomiesPage";
 
 const AdminProtectedRoute = () => {
   const user = getUser();
@@ -36,6 +37,7 @@ export const AdminRoute = [
           { path: "users/:id", element: <UserDetails /> },
           { path: "users/edit/:id", element: <UpdateUser /> },
           { path: "users/block", element: <BlockUser userId="" /> },
+          { path: "/admin/taxonomies", element: <AdminTaxonomiesPage /> },
           { index: true, element: <HomeList /> },
         ],
       },

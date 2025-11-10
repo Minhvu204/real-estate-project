@@ -109,7 +109,6 @@ const MyPropertiesPage: React.FC = () => {
                     window.location.href = "/login";
                 }, 2000);
             } else if (status === 403) {
-                // Không hiển thị toast error cho buyer
                 if (role !== "buyer") {
                     toast.error(t("noPermission"));
                 }
