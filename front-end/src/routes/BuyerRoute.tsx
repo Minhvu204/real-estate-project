@@ -5,7 +5,8 @@ import PropertyDetail from "../pages/PropertyDetail";
 import { ProfileLayout } from "../pages/Profile/ProfileLayout";
 import { PersonalInfo } from "../pages/Profile/PersonalInfo";
 import { ChangePassword } from "../pages/Profile/ChangePassword";
-import MyPropertiesPage from "../pages/MyPropertiesPage";
+import PropertyDetails from "../components/seller/PropertiesDetail";
+import ChatPage from "@/pages/Chat/ChatPage";
 
 export const BuyerRoute = [
     {
@@ -42,6 +43,14 @@ export const BuyerRoute = [
             },
         ],
     },
+    {
+        path: "/chat",
+        element: <ChatPage />,
+        children: [
+            
+        ]
+    },
+
     {
         path: "/my-properties",
         element: <MyPropertiesPage />,

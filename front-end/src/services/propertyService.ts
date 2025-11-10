@@ -2,7 +2,8 @@ import type { Property, DetailProperty } from "../types/Property";
 import { httpPublic } from "../utils/httpPublic";
 import { createAxiosInstance } from "../utils/axiosInstance";
 import { httpClient } from "../utils/httpClient";
-import type { User } from "../types/Users";
+import type { PropertyListData } from "../types/Respondata";
+
 import type { Feature } from "@/types/Feature";
 import type { Taxonomy } from "@/types/Taxonomy";
 import { httpAdmin } from "../utils/httpAdmin";
@@ -12,13 +13,13 @@ export const getAllProperties = async (): Promise<Property[]> => {
     const res = await httpPublic.get(`${RESOURCE}?populate=type_id,category_id,city_id`);
     return res.data.data.data;
 }
-export const getPropertiesByAgentOrSeller = async (): Promise<Property[]> => {
+export const getPropertiesByAgentOrSeller = async (): Promise<PropertyListData> => {
     const response = await httpClient.get(RESOURCE);
-    return response.data.data.data;
+    return response.data.data;
 }
 export const getPropertiesById = async (id: string): Promise<Property> => {
     const response = await httpClient.get(`${RESOURCE}/${id}`);
-    return response.data.data;
+    return response.data.data.data;
 }
 
 export const getMyProperties = async (): Promise<Property[]> => {
@@ -98,6 +99,8 @@ export const createProperty = async (
             formData.append('features[]', featureId);
         });
     }
+    console.log('image form service', images);
+
     images.forEach((file, index) => {
         if (index < 10) {
             formData.append('images', file);

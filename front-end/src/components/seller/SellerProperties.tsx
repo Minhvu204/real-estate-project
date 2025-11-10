@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { getUser } from '../../utils/storage';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import ButtonLanguage from '../common/ButtonLanguage';
+
 import { getLanguage } from '../../utils/storage';
 import type { Lang } from '../../utils/storage';
 import { Button, Card, CardContent, CardMedia, Chip, Grid, Pagination, Typography, TextField, MenuItem } from '@mui/material';
@@ -22,7 +22,6 @@ const SellerProperties = () => {
     const { t } = useTranslation(['home', 'properties']);
     const currentLanguage: Lang = getLanguage();
 
-    // Search + filter
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
 
@@ -58,15 +57,12 @@ const SellerProperties = () => {
         }
 
         setFiltered(result);
-
-        // Reset lại trang khi filter
         setPage(prev => prev ? { ...prev, currentPage: 1 } : prev);
 
     }, [search, statusFilter, properties]);
 
     if (loading)
         return <p className="text-center text-gray-500 mt-10">Đang tải dữ liệu...</p>;
-
 
     const totalPages = Math.ceil(filtered.length / itemsPerPage);
     const startIndex = ((page?.currentPage || 1) - 1) * itemsPerPage;
@@ -80,14 +76,12 @@ const SellerProperties = () => {
 
     return (
         <Box className="p-6 bg-gray-50 min-h-screen">
-            {/* Header + search/filter */}
             <Box className="flex flex-wrap justify-between items-center mb-6 gap-4">
                 <Typography variant="h5" fontWeight="bold" color="text.primary">
                     Danh sách Bất Động Sản
                 </Typography>
 
                 <Box className="flex gap-3">
-                    {/* Ô search */}
                     <TextField
                         label="Tìm kiếm..."
                         variant="outlined"
@@ -96,7 +90,6 @@ const SellerProperties = () => {
                         onChange={(e) => setSearch(e.target.value)}
                     />
 
-                    {/* Filter status */}
                     <TextField
                         label="Trạng thái"
                         select
@@ -105,14 +98,12 @@ const SellerProperties = () => {
                         onChange={(e) => setStatusFilter(e.target.value)}
                         style={{ minWidth: 150 }}
                     >
-                        <MenuItem value="All">All</MenuItem>
+                        <MenuItem value="all">All</MenuItem>
                         <MenuItem value="rejected">Rejected</MenuItem>
                         <MenuItem value="pending">Pending</MenuItem>
                         <MenuItem value="available">Available</MenuItem>
-                        <MenuItem value="approved ">Approved</MenuItem>
+                        <MenuItem value="approved">Approved</MenuItem>
                     </TextField>
-
-                    <ButtonLanguage />
                 </Box>
             </Box>
 
@@ -170,45 +161,48 @@ const SellerProperties = () => {
                                     </Typography>
                                 </Box>
 
-                                <Box className="flex gap-2 mt-4">
-                                    <Button
-                                        fullWidth
-                                        variant="outlined"
-                                        color="primary"
-                                        component={Link}
-                                        to={`${p._id}`}
-                                        sx={{ borderRadius: 2, textTransform: 'none' }}
-                                    >
-                                        {t('insideProperty.viewDetail')}
-                                    </Button>
-                                    <Button
-                                        fullWidth
-                                        variant="contained"
-                                        color="primary"
-                                        component={Link}
-                                        to={`${p._id}/agents`}
-                                        sx={{ borderRadius: 2, textTransform: 'none' }}
-                                    >
-                                        {t('insideProperty.assignAgent')}
-                                    </Button>
-                                </Box>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                ))}
-            </Grid>
+                                    <Box className="flex gap-2 mt-4">
+                                        <Button
+                                            fullWidth
+                                            variant="outlined"
+                                            color="primary"
+                                            component={Link}
+                                            to={`${p._id}`}
+                                            sx={{ borderRadius: 2, textTransform: 'none' }}
+                                        >
+                                            {t('insideProperty.viewDetail')}
+                                        </Button>
+                                        <Button
+                                            fullWidth
+                                            variant="contained"
+                                            color="primary"
+                                            component={Link}
+                                            to={`${p._id}/agents`}
+                                            sx={{ borderRadius: 2, textTransform: 'none' }}
+                                        >
+                                            {t('insideProperty.assignAgent')}
+                                        </Button>
+                                    </Box>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    ))}
+                </Grid>
+            )}
 
             {/* Pagination */}
-            <Box className="flex justify-center mt-10">
-                <Pagination
-                    count={totalPages}
-                    page={page?.currentPage}
-                    color="primary"
-                    onChange={handleChangePage}
-                    size="medium"
-                    shape="rounded"
-                />
-            </Box>
+            {filtered.length > 0 && (
+                <Box className="flex justify-center mt-10">
+                    <Pagination
+                        count={totalPages}
+                        page={page?.currentPage}
+                        color="primary"
+                        onChange={handleChangePage}
+                        size="medium"
+                        shape="rounded"
+                    />
+                </Box>
+            )}
         </Box>
     );
 };

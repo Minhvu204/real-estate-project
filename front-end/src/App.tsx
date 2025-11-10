@@ -7,6 +7,7 @@ import { AdminRoute } from "./routes/AdminRoute";
 import { SellerRoute } from "./routes/SellerRoute";
 import { BuyerRoute } from "./routes/BuyerRoute";
 import { AgentRoute } from "./routes/AgentRoute";
+
 import theme from "./theme";
 import './i18n/i18n';
 // import { ToastContainer } from "react-toastify";
@@ -22,6 +23,7 @@ function App() {
     ...AdminRoute,
     ...SellerRoute,
     ...AgentRoute,
+
   ];
 
   const routing = useRoutes(allRoutes);

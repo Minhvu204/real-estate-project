@@ -515,6 +515,7 @@ const Navbar: React.FC = () => {
                 {/* ✅ My Properties (nếu là buyer, seller, agent) */}
                 {["buyer", "seller", "agent"].includes(role) && (
                     <MenuItem
+                        key={item.path}
                         onClick={() => {
                             if (role === "buyer") {
                                 navigate("/my-properties");

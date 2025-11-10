@@ -6,6 +6,6 @@ import { Navigate } from "react-router-dom";
 export const LoginRoute = [
     { path: "/", element: <Navigate to="/home" /> },
     { path: "/login", element: <LoginPage /> },
-    { path: "/home", element: <HomePage /> },
-    { path: "/register", element: <RegisterPage /> },
+
+    { path: "/register", element: <RegisterPage /> }
 ];

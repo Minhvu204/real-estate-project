@@ -31,14 +31,11 @@ const LoginPage: React.FC = () => {
             const { token, user } = await loginRequest({ email, password });
             signIn({ token, user });
             setLoading(false);
-            if (user.role === 'buyer') {
+            if (user.role?.toLocaleLowerCase() === 'buyer' || user.role?.toLocaleLowerCase() === 'agent' || user.role?.toLocaleLowerCase() === 'seller') {
                 navigate("/home");
             }
             else if (user.role === 'admin') {
                 navigate("/admin/dashboard")
-            }
-            else if (user.role === 'seller') {
-                navigate("/seller/dashboard")
             }
 
         } catch (err: any) {
