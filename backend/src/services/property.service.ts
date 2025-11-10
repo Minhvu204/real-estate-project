@@ -150,30 +150,7 @@ export const propertyService = {
     }
 
     return {
-      id: property._id,
-      title: property.title,
-      description: property.description,
-      price: property.price,
-      address: property.address,
-      bedrooms: property.bedrooms,
-      bathrooms: property.bathrooms,
-      area: property.area,
-      unit: property.unit,
-      yearBuilt: property.yearBuilt,
-      floors: property.floors,
-      coordinates: property.coordinates,
-      city: property.city_id,
-      category: property.category_id,
-      type: property.type_id,
-      features: property.features,
-      images: property.images || [],
-      owner: property.owner_id,
-      agent: property.agent_id,
-      status: property.status,
-      deleted: property.deleted,
-      assignmentHistory: property.assignmentHistory || [],
-      createdAt: property.createdAt,
-      updatedAt: property.updatedAt,
+      data: property, 
     };
   },
 
