@@ -6,10 +6,13 @@ import { useTranslation } from 'react-i18next';
 
 import { getLanguage } from '../../utils/storage';
 import type { Lang } from '../../utils/storage';
-import { Button, Card, CardContent, CardMedia, Chip, Grid, Pagination, Typography, TextField, MenuItem } from '@mui/material';
+import { Button, Card, CardContent, CardMedia, Chip, Grid, Pagination, Typography, TextField, MenuItem, PaginationItem } from '@mui/material';
 import { Box } from '@mui/material';
 import { getPropertiesByAgentOrSeller } from '../../services/propertyService';
 import type { Meta } from '../../types/Pagination';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import AddIcon from '@mui/icons-material/Add';
 
 const SellerProperties = () => {
     const [properties, setProperties] = useState<Property[]>([]);
@@ -33,6 +36,8 @@ const SellerProperties = () => {
                 setProperties(response.data || []);
                 setFiltered(response.data || []);
                 setPage(response.pagination);
+
+                console.log(response.data);
             } catch (error) {
                 console.log("Cannot fetch properties for this role", error);
             } finally {
@@ -80,7 +85,7 @@ const SellerProperties = () => {
                     Danh sách Bất Động Sản
                 </Typography>
 
-                <Box className="flex gap-3">
+                <Box className="flex gap-3 flex-wrap">
                     <TextField
                         label="Tìm kiếm..."
                         variant="outlined"
@@ -103,6 +108,22 @@ const SellerProperties = () => {
                         <MenuItem value="available">Available</MenuItem>
                         <MenuItem value="approved">Approved</MenuItem>
                     </TextField>
+
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<AddIcon />}
+                        component={Link}
+                        to="/seller/create"
+                        sx={{
+                            borderRadius: 2,
+                            textTransform: 'none',
+                            fontWeight: 'bold',
+                            px: 3,
+                        }}
+                    >
+                        Tạo mới
+                    </Button>
                 </Box>
             </Box>
 
@@ -137,7 +158,7 @@ const SellerProperties = () => {
                                         objectFit: 'cover',
                                     }}
                                 />
-                                <CardContent className="flex flex-col justify-between flex-grow">
+                                <CardContent className="flex flex-col justify-between">
                                     <Box>
                                         <Box className="flex justify-between items-start mb-2">
                                             <Typography
@@ -178,17 +199,68 @@ const SellerProperties = () => {
                                         >
                                             {t('insideProperty.viewDetail')}
                                         </Button>
-                                        <Button
-                                            fullWidth
-                                            variant="contained"
-                                            color="primary"
-                                            component={Link}
-                                            to={`${p._id}/agents`}
-                                            sx={{ borderRadius: 2, textTransform: 'none' }}
-                                        >
-                                            {t('insideProperty.assignAgent')}
-                                        </Button>
+                                        {p.agent_id ? (
+                                            <Button
+                                                fullWidth
+                                                variant="contained"
+                                                color="primary"
+                                                disabled
+                                                sx={{
+                                                    borderRadius: 2,
+                                                    textTransform: 'none',
+                                                    '&.Mui-disabled': {
+                                                        backgroundColor: 'rgba(0, 0, 0, 0.12)',
+                                                        color: 'rgba(0, 0, 0, 0.26)'
+                                                    }
+                                                }}
+                                                title={`Đã có agent: ${p.agent_id.fullName}`}
+                                            >
+                                                Đã có agent
+                                            </Button>
+                                        ) : p.status !== 'approved' ? (
+                                            <Button
+                                                fullWidth
+                                                variant="contained"
+                                                color="primary"
+                                                disabled
+                                                sx={{
+                                                    borderRadius: 2,
+                                                    textTransform: 'none',
+                                                    '&.Mui-disabled': {
+                                                        backgroundColor: 'rgba(0, 0, 0, 0.12)',
+                                                        color: 'rgba(0, 0, 0, 0.26)'
+                                                    }
+                                                }}
+                                                title="Chỉ có thể assign agent khi property đã được approved"
+                                            >
+                                                {t('insideProperty.assignAgent')}
+                                            </Button>
+                                        ) : (
+                                            <Button
+                                                fullWidth
+                                                variant="contained"
+                                                color="primary"
+                                                component={Link}
+                                                to={`${p._id}/agents`}
+                                                sx={{ borderRadius: 2, textTransform: 'none' }}
+                                            >
+                                                {t('insideProperty.assignAgent')}
+                                            </Button>
+                                        )}
                                     </Box>
+                                    {p.agent_id && (
+                                        <Box className="mt-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
+                                            <Typography variant="caption" color="text.secondary" className="block mb-1">
+                                                Agent hiện tại:
+                                            </Typography>
+                                            <Typography variant="body2" fontWeight="medium" color="primary.main">
+                                                {p.agent_id.fullName}
+                                            </Typography>
+                                            <Typography variant="caption" color="text.secondary">
+                                                {p.agent_id.email}
+                                            </Typography>
+                                        </Box>
+                                    )}
                                 </CardContent>
                             </Card>
                         </Grid>
@@ -201,14 +273,17 @@ const SellerProperties = () => {
                 <Box className="flex justify-center mt-10">
                     <Pagination
                         count={totalPages}
-                        page={page?.currentPage}
-                        color="primary"
                         onChange={handleChangePage}
-                        size="medium"
-                        shape="rounded"
+                        renderItem={(item) => (
+                            <PaginationItem
+                                slots={{ previous: ArrowBackIcon, next: ArrowForwardIcon }}
+                                {...item}
+                            />
+                        )}
                     />
                 </Box>
             )}
+
         </Box>
     );
 };

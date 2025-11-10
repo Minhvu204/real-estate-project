@@ -57,7 +57,6 @@ export default function DataTable() {
         setFilterRow(filtered);
     }, [searchText, rows]);
 
-
     if (rows == null) return <p>Is loading </p>
     return (
         <Paper sx={{ height: 400, width: '100%' }}>

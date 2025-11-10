@@ -35,7 +35,7 @@ export const updateCity = async (req: Request, res: Response) => {
 export const deleteCity = async (req: Request, res: Response) => {
   try {
     await cityService.deleteCity(req.params.id);
-    return successResponse(res, "Xóa thành phố thành công (đã đánh dấu deleted).");
+    return successResponse(res, "Xóa thành phố thành công.");
   } catch (error: any) {
     return errorResponse(res, error.message);
   }

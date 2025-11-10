@@ -81,9 +81,9 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
     return (
         <form
             onSubmit={handleSubmit}
-            className="bg-white shadow-md rounded-2xl p-6 space-y-5 flex flex-col justify-center"
+            className="bg-white shadow-md rounded-2xl p-4 md:p-6 space-y-4 flex flex-col justify-center"
         >
-            <h2 className="text-3xl font-semibold text-blue-600 text-center mb-4">
+            <h2 className="text-xl md:text-2xl font-semibold text-blue-600 text-center mb-2">
                 {t("formProperty.formTitle")}
             </h2>
 
@@ -102,7 +102,7 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                 <div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-gray-700 font-medium mb-1">
+                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
                                 {t("formProperty.title")} <span className="text-red-500">*</span>
                             </label>
                             <input
@@ -111,12 +111,12 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                                 value={formData.title}
                                 onChange={handleChange}
                                 placeholder={t("formProperty.placeholder.title")}
-                                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                                 required
                             />
                         </div>
                         <div>
-                            <label className="block text-gray-700 font-medium mb-1">
+                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
                                 {t("formProperty.price")} <span className="text-red-500">*</span>
                             </label>
                             <input
@@ -125,13 +125,13 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                                 value={formData.price}
                                 onChange={handleChange}
                                 placeholder={t("formProperty.placeholder.price")}
-                                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                                 required
                             />
                         </div>
                     </div>
                     <div>
-                        <label className="block text-gray-700 font-medium mb-1">
+                        <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
                             {t("formProperty.description")} <span className="text-red-500">*</span>
                         </label>
                         <textarea
@@ -140,12 +140,12 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                             onChange={handleChange}
                             rows={3}
                             placeholder={t("formProperty.placeholder.description")}
-                            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+                            className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                             required
                         ></textarea>
                     </div>
                     <div>
-                        <label className="block text-gray-700 font-medium mb-1">
+                        <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
                             {t("formProperty.address")} <span className="text-red-500">*</span>
                         </label>
                         <AddressAutocomplete
@@ -161,7 +161,7 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-2">
                         <div>
-                            <label className="block text-gray-700 font-medium mb-1">
+                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
                                 {t("formProperty.bathrooms")}
                             </label>
                             <input
@@ -170,12 +170,12 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                                 value={formData.bathrooms}
                                 onChange={handleChange}
                                 placeholder={t("formProperty.placeholder.bathrooms")}
-                                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-gray-700 font-medium mb-1">
+                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
                                 {t("formProperty.bedrooms")}
                             </label>
                             <input
@@ -184,12 +184,12 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                                 value={formData.bedrooms}
                                 onChange={handleChange}
                                 placeholder={t("formProperty.placeholder.bedrooms")}
-                                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-gray-700 font-medium mb-1">
+                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
                                 {t("formProperty.city")} <span className="text-red-500">*</span>
                             </label>
                             <select
@@ -198,7 +198,7 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                                 value={formData.city_id}
                                 onChange={handleChange}
                                 required
-                                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                             >
                                 <option value="">{t("formProperty.select.city")}</option>
                                 {taxonomies?.cities?.map((city) => (
@@ -210,7 +210,7 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                         </div>
 
                         <div>
-                            <label className="block text-gray-700 font-medium mb-1">
+                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
                                 {t("formProperty.category")} <span className="text-red-500">*</span>
                             </label>
                             <select
@@ -219,7 +219,7 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                                 value={formData.category_id}
                                 onChange={handleChange}
                                 required
-                                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                             >
                                 <option value="">{t("formProperty.select.category")}</option>
                                 {taxonomies?.categories?.map((c) => (
@@ -232,7 +232,7 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mt-2">
                         <div>
-                            <label className="block text-gray-700 font-medium mb-1">
+                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
                                 {t("formProperty.area")}
                             </label>
                             <input
@@ -241,12 +241,12 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                                 value={formData.area}
                                 onChange={handleChange}
                                 placeholder={t("formProperty.placeholder.area")}
-                                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-gray-700 font-medium mb-1">
+                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
                                 {t("formProperty.unit")}
                             </label>
                             <select
@@ -254,7 +254,7 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                                 name="unit"
                                 value={formData.unit}
                                 onChange={handleChange}
-                                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                             >
                                 <option value="m2">{t("formProperty.units.m2")}</option>
                                 <option value="ft2">{t("formProperty.units.ft2")}</option>
@@ -262,7 +262,7 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                         </div>
 
                         <div>
-                            <label className="block text-gray-700 font-medium mb-1">
+                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
                                 {t("formProperty.floors")}
                             </label>
                             <input
@@ -272,12 +272,12 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                                 onChange={handleChange}
                                 placeholder={t("formProperty.placeholder.floors")}
                                 min="1"
-                                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-gray-700 font-medium mb-1">
+                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
                                 {t("formProperty.type")} <span className="text-red-500">*</span>
                             </label>
                             <select
@@ -286,7 +286,7 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                                 value={formData.type_id}
                                 onChange={handleChange}
                                 required
-                                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-400 outline-none"
+                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                             >
                                 <option value="">{t("formProperty.select.type")}</option>
                                 {taxonomies?.propertyTypes?.map((p) => (
@@ -299,10 +299,10 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                     </div>
                 </div>
             )}
-            <div className="pt-4 flex justify-end">
+            <div className="pt-3 md:pt-4 flex justify-end">
                 <button
                     type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition-all duration-300"
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 md:px-6 py-1.5 md:py-2 text-sm md:text-base rounded-lg transition-all duration-300"
                 >
                     {t("formProperty.continue")}
                 </button>
