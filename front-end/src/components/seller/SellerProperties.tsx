@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 import { getLanguage } from '../../utils/storage';
 import type { Lang } from '../../utils/storage';
-import { Button, Card, CardContent, CardMedia, Chip, Grid, Pagination, Typography, TextField, MenuItem, Stack, PaginationItem } from '@mui/material';
+import { Button, Card, CardContent, CardMedia, Chip, Grid, Pagination, Typography, TextField, MenuItem, PaginationItem } from '@mui/material';
 import { Box } from '@mui/material';
 import { getPropertiesByAgentOrSeller } from '../../services/propertyService';
 import type { Meta } from '../../types/Pagination';
@@ -39,7 +39,7 @@ const SellerProperties = () => {
                 console.log(response.data);
             } catch (error) {
                 console.log("Cannot fetch properties for this role", error);
-            } finally { 
+            } finally {
                 setLoading(false);
             }
         };
@@ -182,17 +182,68 @@ const SellerProperties = () => {
                                         >
                                             {t('insideProperty.viewDetail')}
                                         </Button>
-                                        <Button
-                                            fullWidth
-                                            variant="contained"
-                                            color="primary"
-                                            component={Link}
-                                            to={`${p._id}/agents`}
-                                            sx={{ borderRadius: 2, textTransform: 'none' }}
-                                        >
-                                            {t('insideProperty.assignAgent')}
-                                        </Button>
+                                        {p.agent_id ? (
+                                            <Button
+                                                fullWidth
+                                                variant="contained"
+                                                color="primary"
+                                                disabled
+                                                sx={{
+                                                    borderRadius: 2,
+                                                    textTransform: 'none',
+                                                    '&.Mui-disabled': {
+                                                        backgroundColor: 'rgba(0, 0, 0, 0.12)',
+                                                        color: 'rgba(0, 0, 0, 0.26)'
+                                                    }
+                                                }}
+                                                title={`Đã có agent: ${p.agent_id.fullName}`}
+                                            >
+                                                Đã có agent
+                                            </Button>
+                                        ) : p.status !== 'approved' ? (
+                                            <Button
+                                                fullWidth
+                                                variant="contained"
+                                                color="primary"
+                                                disabled
+                                                sx={{
+                                                    borderRadius: 2,
+                                                    textTransform: 'none',
+                                                    '&.Mui-disabled': {
+                                                        backgroundColor: 'rgba(0, 0, 0, 0.12)',
+                                                        color: 'rgba(0, 0, 0, 0.26)'
+                                                    }
+                                                }}
+                                                title="Chỉ có thể assign agent khi property đã được approved"
+                                            >
+                                                {t('insideProperty.assignAgent')}
+                                            </Button>
+                                        ) : (
+                                            <Button
+                                                fullWidth
+                                                variant="contained"
+                                                color="primary"
+                                                component={Link}
+                                                to={`${p._id}/agents`}
+                                                sx={{ borderRadius: 2, textTransform: 'none' }}
+                                            >
+                                                {t('insideProperty.assignAgent')}
+                                            </Button>
+                                        )}
                                     </Box>
+                                    {p.agent_id && (
+                                        <Box className="mt-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
+                                            <Typography variant="caption" color="text.secondary" className="block mb-1">
+                                                Agent hiện tại:
+                                            </Typography>
+                                            <Typography variant="body2" fontWeight="medium" color="primary.main">
+                                                {p.agent_id.fullName}
+                                            </Typography>
+                                            <Typography variant="caption" color="text.secondary">
+                                                {p.agent_id.email}
+                                            </Typography>
+                                        </Box>
+                                    )}
                                 </CardContent>
                             </Card>
                         </Grid>
