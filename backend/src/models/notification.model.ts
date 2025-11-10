@@ -5,8 +5,8 @@ export type NotificationType = "appointment" | "offer" | "chat" | "property" | "
 
 export interface INotification extends Document {
   user_id: mongoose.Types.ObjectId;
-  title: string;
-  message: string;
+  title: { vi: string; en: string };
+  message: { vi: string; en: string };
   type?: NotificationType;
   related_id?: mongoose.Types.ObjectId; // ID của entity liên quan (appointment_id, offer_id, property_id, etc.)
   action_url?: string; // URL để navigate khi click notification
@@ -18,8 +18,14 @@ export interface INotification extends Document {
 const NotificationSchema = new Schema<INotification>(
   {
     user_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    title: { type: String, required: true },
-    message: { type: String, required: true },
+    title: {
+      vi: { type: String, required: true },
+      en: { type: String, required: true },
+    },
+    message: {
+      vi: { type: String, required: true },
+      en: { type: String, required: true },
+    },
     type: {
       type: String,
       enum: ["appointment", "offer", "chat", "property", "system"],

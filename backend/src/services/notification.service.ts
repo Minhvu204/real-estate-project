@@ -1,6 +1,7 @@
 // src/services/notification.service.ts
 import Notification, { NotificationType } from "../models/notification.model";
 import mongoose from "mongoose";
+import { createMultilangText } from "../utils/translateHelper";
 
 export interface CreateNotificationParams {
   userId: string;
@@ -15,10 +16,15 @@ export const notificationService = {
   async createNotification(params: CreateNotificationParams) {
     const { userId, title, message, type = "system", relatedId, actionUrl } = params;
 
+    const [titleMultilang, messageMultilang] = await Promise.all([
+      createMultilangText(title),
+      createMultilangText(message),
+    ]);
+
     const notification = await Notification.create({
       user_id: new mongoose.Types.ObjectId(userId),
-      title,
-      message,
+      title: titleMultilang,
+      message: messageMultilang,
       type,
       related_id: relatedId ? new mongoose.Types.ObjectId(relatedId) : undefined,
       action_url: actionUrl,
@@ -35,7 +41,8 @@ export const notificationService = {
       limit?: number;
       is_read?: boolean;
       type?: NotificationType;
-    } = {}
+    } = {},
+    lang: "vi" | "en" = "vi"
   ) {
     const { page = 1, limit = 10, is_read, type } = filters;
     const skip = (page - 1) * limit;
@@ -53,6 +60,12 @@ export const notificationService = {
       Notification.countDocuments(query),
     ]);
 
+    const data = notifications.map(n => ({
+      ...n,
+      title: n.title?.[lang] ?? n.title?.vi ?? "",
+      message: n.message?.[lang] ?? n.message?.vi ?? "",
+    }));
+
     return {
       pagination: {
         page,
@@ -60,7 +73,7 @@ export const notificationService = {
         total,
         totalPages: Math.ceil(total / limit),
       },
-      data: notifications,
+      data: data,
     };
   },
 

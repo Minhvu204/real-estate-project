@@ -18,8 +18,9 @@ export const getNotifications = async (req: any, res: Response) => {
     if (limit) filters.limit = Number(limit);
     if (is_read !== undefined) filters.is_read = is_read === "true";
     if (type) filters.type = type as NotificationType;
+    const lang = req.language || "vi";
 
-    const result = await notificationService.getNotifications(userId, filters);
+    const result = await notificationService.getNotifications(userId, filters, lang);
     return successResponse(req, res, "Lấy danh sách notifications thành công", result);
   } catch (error: any) {
     return errorResponse(req, res, error.message || "Server error", error.status || 500);

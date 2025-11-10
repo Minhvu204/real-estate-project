@@ -22,12 +22,10 @@ export const uploadMultipleToCloudinary = async (
   try {
     const rawFiles = (req as any).files;
 
-    // Không có file -> next
     if (!rawFiles) {
       return next();
     }
 
-    // Chuẩn hoá thành mảng files (kiểu an toàn)
     let filesArray: Express.Multer.File[] = [];
 
     if (Array.isArray(rawFiles)) {
