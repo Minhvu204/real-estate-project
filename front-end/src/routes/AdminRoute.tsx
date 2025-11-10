@@ -1,13 +1,16 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { getUser } from "../utils/storage";
 import AdminDashboard from "../components/admin/AdminDashboard";
-import HomeList from "../components/admin/HomeList";
 import DataTable from "../components/admin/UserList";
 import GradientTooltip from "../components/admin/Dashboard";
 import UserDetails from "../components/admin/UserDetails";
 import UpdateUser from "../components/admin/userInfor/UpdateUser";
 import BlockUser from "../components/admin/userInfor/BlockUser";
 import AdminTaxonomiesPage from "../pages/AdminTaxonomiesPage";
+import ListProperties from "../components/admin/manageProperties/ListProperties";
+import ViewDetailProperties from "../components/admin/manageProperties/ViewDetailProperties";
+import HideProperties from "../components/admin/manageProperties/HideProperties";
+import HomeList from "../components/admin/HomeList";
 
 const AdminProtectedRoute = () => {
   const user = getUser();
@@ -33,12 +36,20 @@ export const AdminRoute = [
         children: [
           { path: "dashboard", element: <GradientTooltip /> },
           { path: "users", element: <DataTable /> },
-          { path: "properties", element: <HomeList /> },
           { path: "users/:id", element: <UserDetails /> },
           { path: "users/edit/:id", element: <UpdateUser /> },
           { path: "users/block", element: <BlockUser userId="" /> },
           { path: "/admin/taxonomies", element: <AdminTaxonomiesPage /> },
           { index: true, element: <HomeList /> },
+          { path: "properties", element: <ListProperties /> },
+          {
+            path: "properties/:id",
+            element: <ViewDetailProperties />,
+          },
+          {
+            path: "properties/hide",
+            element: <HideProperties propertyId="" />,
+          },
         ],
       },
     ],

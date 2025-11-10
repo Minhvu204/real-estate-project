@@ -1,10 +1,11 @@
-import type { Property } from "../types/Property";
+import type { Property, DetailProperty } from "../types/Property";
 import { httpPublic } from "../utils/httpPublic";
 import { createAxiosInstance } from "../utils/axiosInstance";
 import { httpClient } from "../utils/httpClient";
 import type { User } from "../types/Users";
 import type { Feature } from "@/types/Feature";
 import type { Taxonomy } from "@/types/Taxonomy";
+import { httpAdmin } from "../utils/httpAdmin";
 const RESOURCE = "/properties";
 const SELLER_RESOURCE = "/seller";
 export const getAllProperties = async (): Promise<Property[]> => {
@@ -105,5 +106,46 @@ export const createProperty = async (
     const response = await httpClient.post(`${SELLER_RESOURCE}/properties/create`, formData,);
 
     return response.data.data;
+};
+
+export const getDetailPropertiesById = async (
+  id: string
+): Promise<DetailProperty> => {
+  try {
+    const response = await httpPublic.get(`${RESOURCE}/${id}`);
+    console.log("API Response:", response.data);
+    const propertyData = response?.data?.data?.data || response?.data?.data;
+    console.log("Property data extracted:", propertyData);
+    return propertyData;
+  } catch (error: any) {
+    console.error("Error in getDetailPropertiesById:", error);
+    console.error("Error response:", error.response?.data);
+    throw error;
+  }
+};
+
+export const hideProperty = async (
+  id: string,
+  note?: string
+): Promise<DetailProperty> => {
+  try {
+    const res = await httpAdmin.patch(`${RESOURCE}/${id}/hide`, { note });
+    return res?.data?.data;
+  } catch (error: any) {
+    console.log("lỗi khi hide property:", error);
+    throw new Error(error.response?.data?.message || "hide property thất bại");
+  }
+};
+
+export const restoreProperty = async (id: string): Promise<DetailProperty> => {
+  try {
+    const res = await httpAdmin.patch(`${RESOURCE}/${id}/restore`);
+    return res?.data?.data;
+  } catch (error: any) {
+    console.log("lỗi khi restore property:", error);
+    throw new Error(
+      error.response?.data?.message || "restore property thất bại"
+    );
+  }
 };
 

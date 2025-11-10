@@ -586,26 +586,62 @@ const Navbar: React.FC = () => {
 
                 {/* ✅ Admin menu */}
                 {role === "admin" && (
-                    <>
-                        <MenuItem
-                            onClick={() => {
-                                navigate("/admin/dashboard");
-                                setAnchorEl(null);
-                            }}
-                            sx={{ py: 1.5, fontWeight: 600 }}
-                        >
-                            Admin Dashboard
-                        </MenuItem>
-                        <MenuItem
-                            onClick={() => {
-                                navigate("/admin/users");
-                                setAnchorEl(null);
-                            }}
-                            sx={{ py: 1.5, fontWeight: 600 }}
-                        >
-                            User Management
-                        </MenuItem>
-                    </>
+                    <MenuItem
+                        onClick={() => {
+                            navigate("/admin/dashboard");
+                            setAnchorEl(null);
+                        }}
+                        sx={{ 
+                            py: 1.5, 
+                            fontWeight: 600,
+                            display: "flex",
+                            gap: 1.5,
+                            "&:hover": {
+                                backgroundColor: "rgba(102,126,234,0.08)",
+                            },
+                        }}
+                    >
+                        Admin Dashboard
+                    </MenuItem>
+                )}
+                {role === "admin" && (
+                    <MenuItem
+                        onClick={() => {
+                            navigate("/admin/users");
+                            setAnchorEl(null);
+                        }}
+                        sx={{ 
+                            py: 1.5, 
+                            fontWeight: 600,
+                            display: "flex",
+                            gap: 1.5,
+                            "&:hover": {
+                                backgroundColor: "rgba(102,126,234,0.08)",
+                            },
+                        }}
+                    >
+                        User Management
+                    </MenuItem>
+                )}
+                {role === "admin" && (
+                    <MenuItem
+                        onClick={() => {
+                            navigate("/admin/properties");
+                            setAnchorEl(null);
+                        }}
+                        sx={{ 
+                            py: 1.5, 
+                            fontWeight: 600,
+                            display: "flex",
+                            gap: 1.5,
+                            "&:hover": {
+                                backgroundColor: "rgba(102,126,234,0.08)",
+                            },
+                        }}
+                    >
+                        <HomeIcon fontSize="small" />
+                        Property Management
+                    </MenuItem>
                 )}
 
                 <Divider sx={{ my: 1 }} />

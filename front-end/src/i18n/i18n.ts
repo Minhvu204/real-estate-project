@@ -19,7 +19,10 @@ import CREATEPROPERTYPAGE_EN from "../locales/en/createPropertyPage.json";
 import CREATEPROPERTYPAGE_VI from "../locales/vi/createPropertyPage.json";
 import ADDRESSAUTOCOMPLETE_EN from "../locales/en/addressAutocomplete.json";
 import ADDRESSAUTOCOMPLETE_VI from "../locales/vi/addressAutocomplete.json";
-
+import LIST_PROPERTIES_ADMIN_EN from "../locales/en/listProperties.json";
+import LIST_PROPERTIES_ADMIN_VI from "../locales/vi/listProperties.json";
+import DETAIL_PROPERTIES_ADMIN_EN from "../locales/en/detailProperty.json";
+import DETAIL_PROPERTIES_ADMIN_VI from "../locales/vi/detailProperty.json";
 export const resources = {
     en: {
         home: HOME_EN,
@@ -30,7 +33,9 @@ export const resources = {
         profile: PROFILE_EN,
         myProperties: MY_PROPERTIES_EN,
         createPropertyPage: CREATEPROPERTYPAGE_EN,
-        addressAutocomplete: ADDRESSAUTOCOMPLETE_EN
+        addressAutocomplete: ADDRESSAUTOCOMPLETE_EN,
+        listProperties: LIST_PROPERTIES_ADMIN_EN,
+        detailProperty: DETAIL_PROPERTIES_ADMIN_EN
     },
     vi: {
         home: HOME_VI,
@@ -41,7 +46,9 @@ export const resources = {
         profile: PROFILE_VI,
         myProperties: MY_PROPERTIES_VI,
         createPropertyPage: CREATEPROPERTYPAGE_VI,
-        addressAutocomplete: ADDRESSAUTOCOMPLETE_VI
+        addressAutocomplete: ADDRESSAUTOCOMPLETE_VI,
+        listProperties: LIST_PROPERTIES_ADMIN_VI,
+        etailProperty: DETAIL_PROPERTIES_ADMIN_VI
     }
 };
 export const defaultNS = 'home';
