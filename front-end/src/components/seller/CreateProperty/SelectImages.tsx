@@ -12,9 +12,10 @@ interface SelectImagesProps {
     images: ImageItem[];
     onSubmit: (images: ImageItem[]) => void;
     onBack: () => void;
+    isSubmitting?: boolean;
 }
 
-const SelectImages: React.FC<SelectImagesProps> = ({ images: initialImages, onSubmit, onBack }) => {
+const SelectImages: React.FC<SelectImagesProps> = ({ images: initialImages, onSubmit, onBack, isSubmitting = false }) => {
     const [images, setImages] = useState<ImageItem[]>(() => initialImages);
     const [dragOver, setDragOver] = useState(false);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -63,7 +64,6 @@ const SelectImages: React.FC<SelectImagesProps> = ({ images: initialImages, onSu
             toast.error(t("selectImages.alertEmpty"));
             return;
         }
-        console.log(images);
         onSubmit(images);
     };
 
@@ -79,14 +79,16 @@ const SelectImages: React.FC<SelectImagesProps> = ({ images: initialImages, onSu
                 </p>
 
                 <div
-                    className={`border-2 border-dashed rounded-xl p-10 text-center transition-all cursor-pointer ${dragOver
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-300 bg-gray-50"
+                    className={`border-2 border-dashed rounded-xl p-10 text-center transition-all ${isSubmitting
+                        ? "cursor-not-allowed opacity-50 border-gray-300 bg-gray-100"
+                        : dragOver
+                            ? "cursor-pointer border-blue-500 bg-blue-50"
+                            : "cursor-pointer border-gray-300 bg-gray-50"
                         }`}
-                    onDrop={handleDrop}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onClick={() => fileInputRef.current?.click()}
+                    onDrop={isSubmitting ? undefined : handleDrop}
+                    onDragOver={isSubmitting ? undefined : handleDragOver}
+                    onDragLeave={isSubmitting ? undefined : handleDragLeave}
+                    onClick={isSubmitting ? undefined : () => fileInputRef.current?.click()}
                 >
                     <i className="fas fa-cloud-upload-alt text-4xl text-blue-500 mb-3"></i>
                     <p className="text-gray-600">
@@ -111,20 +113,22 @@ const SelectImages: React.FC<SelectImagesProps> = ({ images: initialImages, onSu
                         {images.map((img) => (
                             <div
                                 key={img.id}
-                                className="relative rounded-lg overflow-hidden group"
+                                className={`relative rounded-lg overflow-hidden group ${isSubmitting ? 'opacity-75' : ''}`}
                             >
                                 <img
                                     src={img.url}
                                     alt="preview"
                                     className="w-full h-32 object-cover"
                                 />
-                                <button
-                                    type="button"
-                                    onClick={() => handleRemove(img.id)}
-                                    className="absolute top-2 right-2 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
-                                >
-                                    ×
-                                </button>
+                                {!isSubmitting && (
+                                    <button
+                                        type="button"
+                                        onClick={() => handleRemove(img.id)}
+                                        className="absolute top-2 right-2 bg-black/60 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                                    >
+                                        ×
+                                    </button>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -135,16 +139,27 @@ const SelectImages: React.FC<SelectImagesProps> = ({ images: initialImages, onSu
                 <button
                     type="button"
                     onClick={onBack}
-                    className="bg-gray-400 hover:bg-gray-500 text-white font-semibold px-6 py-2 rounded-lg transition-all duration-300"
+                    disabled={isSubmitting}
+                    className="bg-gray-400 hover:bg-gray-500 text-white font-semibold px-6 py-2 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {t("createProperty.buttons.back")}
                 </button>
                 <button
                     type="button"
                     onClick={handleSubmit}
-                    className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition-all duration-300"
+                    disabled={isSubmitting}
+                    className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg transition-all duration-300 disabled:opacity-75 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                    {t("selectImages.finish")}
+                    {isSubmitting ? (
+                        <>
+                            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </>
+                    ) : (
+                        t("selectImages.finish")
+                    )}
                 </button>
             </div>
         </div>

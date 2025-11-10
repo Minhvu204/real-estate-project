@@ -54,6 +54,7 @@ const CreatePropertyPage = () => {
     const [propertyData, setPropertyData] = useState<PropertyData>(initialFormData);
     const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
     const [images, setImages] = useState<ImageItem[]>([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { t } = useTranslation('createPropertyPage');
     const totalSteps = 3;
 
@@ -79,19 +80,21 @@ const CreatePropertyPage = () => {
         handleNextStep();
     };
 
-    const handleImagesSubmit = (imageList: ImageItem[]) => {
+    const handleImagesSubmit = async (imageList: ImageItem[]) => {
         console.log('image from set images', imageList);
         setImages(imageList);
-        handleFinalSubmit(imageList);
+        await handleFinalSubmit(imageList);
     };
     const navigate = useNavigate();
     const handleFinalSubmit = async (submittedImages: ImageItem[] = images) => {
+        setIsSubmitting(true);
         try {
             if (!propertyData.city_id || !propertyData.category_id || !propertyData.type_id) {
                 toast.error(t('createProperty.alerts.missingRequired'));
+                setIsSubmitting(false);
                 return;
             }
-            
+
             const imageFiles = submittedImages.map((img) => img.file);
             const dataToSend = {
                 ...propertyData,
@@ -106,6 +109,7 @@ const CreatePropertyPage = () => {
             setSelectedFeatures([]);
             setImages([]);
             setCurrentStep(1);
+            setIsSubmitting(false);
             const toastId = toast.info(
                 <div className="space-y-2">
                     <p className="font-medium">{t('createProperty.alerts.createSuccess')}</p>
@@ -149,6 +153,7 @@ const CreatePropertyPage = () => {
             console.error('Error creating property:', error);
             const errorMessage = error.response?.data?.message || error.message || 'Có lỗi xảy ra';
             toast.error(t('createProperty.alerts.createError', { message: errorMessage }));
+            setIsSubmitting(false);
         }
     };
 
@@ -210,6 +215,7 @@ const CreatePropertyPage = () => {
                             images={images}
                             onSubmit={handleImagesSubmit}
                             onBack={handlePreviousStep}
+                            isSubmitting={isSubmitting}
                         />
                     )}
                 </div>
