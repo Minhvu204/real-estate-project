@@ -1,24 +1,23 @@
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { getAllProperties } from "../../../services/propertyService";
+import {
+  getAllPropertiesByPending,
+  updateStatus,
+} from "../../../services/propertyService";
 import type { Property } from "../../../types/Property";
 import { useEffect, useState } from "react";
 import { Pagination, Tooltip } from "@mui/material";
 import { getLanguage, type Lang } from "../../../utils/storage";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
-import HideProperties from "./HideProperties";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import ButtonLanguage from "../../common/ButtonLanguage";
 import { useTranslation } from "react-i18next";
-const ListProperties = () => {
+const ManageProperties = () => {
   const navigate = useNavigate();
   const [properties, setProperties] = useState<Property[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [filterStatus, setFilterStatus] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [searchParams] = useSearchParams();
-  const location = useLocation();
   const { t } = useTranslation("listProperties");
   const itemPerPages: number = 5;
   const currentLanguage: Lang = getLanguage();
@@ -26,7 +25,7 @@ const ListProperties = () => {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const data = await getAllProperties();
+        const data = await getAllPropertiesByPending();
         console.log("Data return is ", data);
         if (status) {
           setProperties(
@@ -42,40 +41,42 @@ const ListProperties = () => {
       }
     };
     fetchProperties();
-  }, [status]);
+  }, []);
 
-  const filteredProperties = properties.filter((item) => {
-    const matchSearch =
-      item.title[currentLanguage]
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      item.address[currentLanguage]
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-    const matchStatus = filterStatus === "" || item.status === filterStatus;
-    return matchSearch && matchStatus;
-  });
+  const handleUpdateStatus = async (id: string, status: string) => {
+    try {
+      await updateStatus(id, status);
+      toast.success(
+        currentLanguage === "en"
+          ? `Property ${status} successfully`
+          : `Cập nhật trạng thái "${status}" thành công!`
+      );
 
-  const totalPages = Math.ceil(filteredProperties.length / itemPerPages);
+      const refreshed = await getAllPropertiesByPending();
+      if (status) {
+        setProperties(refreshed.filter((p) => p.status === status));
+      } else {
+        setProperties(refreshed);
+      }
+    } catch (error) {
+      toast.error(
+        currentLanguage === "en"
+          ? "Failed to update property status"
+          : "Cập nhật trạng thái thất bại!"
+      );
+      console.error(error);
+    }
+  };
+
+  const totalPages = Math.ceil(properties.length / itemPerPages);
   const startIndex = (currentPage - 1) * itemPerPages;
-  const currentItems = filteredProperties.slice(
-    startIndex,
-    startIndex + itemPerPages
-  );
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, filterStatus]);
+  const currentItems = properties.slice(startIndex, startIndex + itemPerPages);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
   };
-
-  console.log("All properties:", properties.length);
-  console.log("Filtered properties:", filteredProperties.length);
-  console.log("Total pages:", totalPages);
 
   if (loading) {
     return (
@@ -91,31 +92,8 @@ const ListProperties = () => {
     <>
       <ButtonLanguage />
       <h1 className="text-2xl font-bold mb-4 text-blue-700 text-center">
-        {t("text-listProperties")}
+        {t("text-ManageProperties")}
       </h1>
-      <div className="flex justify-between items-center mb-4 ">
-        <input
-          type="text"
-          placeholder={t("search")}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="border px-3 py-2 rounded-md w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-400 ml-3"
-        />
-
-        {status === null && (
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 mr-3"
-          >
-            <option value="">{t("All status")}</option>
-            <option value="approved">{t("Approved")}</option>
-            <option value="pending">{t("Pending")}</option>
-            <option value="available">{t("Available")}</option>
-            <option value="rejected">{t("Rejected")}</option>
-          </select>
-        )}
-      </div>
       <table className="min-w-full border border-gray-200">
         <thead className="bg-gray-50">
           <tr>
@@ -154,28 +132,8 @@ const ListProperties = () => {
                 {item.address[currentLanguage]}
               </td>
               <td className="px-4 py-3 border-b">
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    item.status === "approved"
-                      ? "bg-green-100 text-green-700"
-                      : item.status === "pending"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : item.status === "available"
-                      ? "bg-blue-100 text-blue-700"
-                      : item.status === "rejected"
-                      ? "bg-red-100 text-red-700"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
-                >
-                  {currentLanguage === "en"
-                    ? item.status
-                    : item.status === "approved"
-                    ? "Đã duyệt"
-                    : item.status === "pending"
-                    ? "Chờ duyệt"
-                    : item.status === "available"
-                    ? "có sẵn"
-                    : "Bị từ chối"}
+                <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700">
+                  {currentLanguage === "en" ? "pending" : "Chờ duyệt"}
                 </span>
               </td>
               <td className="px-4 py-3 border-b space-x-2">
@@ -189,7 +147,18 @@ const ListProperties = () => {
                     </button>
                   </Tooltip>
 
-                  <HideProperties propertyId={item?._id} />
+                  <button
+                    onClick={() => handleUpdateStatus(item._id, "approved")}
+                    className="cursor-pointer w-17 h-9 flex items-center justify-center rounded-md text-white bg-green-500 hover:bg-green-700 shadow-sm hover:shadow-md transition-all duration-200"
+                  >
+                    {t("approve")}
+                  </button>
+                  <button
+                    onClick={() => handleUpdateStatus(item._id, "rejected")}
+                    className="cursor-pointer w-17 h-9 flex items-center justify-center rounded-md text-white bg-red-500 hover:bg-red-700 shadow-sm hover:shadow-md transition-all duration-200"
+                  >
+                    {t("reject")}
+                  </button>
                 </div>
               </td>
             </tr>
@@ -224,4 +193,4 @@ const ListProperties = () => {
   );
 };
 
-export default ListProperties;
+export default ManageProperties;

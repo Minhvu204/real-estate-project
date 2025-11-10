@@ -5,6 +5,8 @@ import { getDetailPropertiesById } from "../../../services/propertyService";
 import { Carousel } from "react-responsive-carousel";
 import { getLanguage, type Lang } from "../../../utils/storage";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
+import EventNoteTwoToneIcon from "@mui/icons-material/EventNoteTwoTone";
+import DescriptionTwoToneIcon from "@mui/icons-material/DescriptionTwoTone";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBed, faShower, faTreeCity } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "react-i18next";
@@ -152,7 +154,7 @@ const ViewDetailProperties = () => {
 
         <div className="mb-8">
           <h4 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3">
-            📝
+            <DescriptionTwoToneIcon color="primary" />
             {t("detailDescription")}
           </h4>
           <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
@@ -163,7 +165,7 @@ const ViewDetailProperties = () => {
         {property.features?.length > 0 && (
           <div className="mb-8">
             <h4 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3">
-              🌟
+              <EventNoteTwoToneIcon color="secondary" />
               {t("featuredAmenities")}
             </h4>
             <div className="flex flex-wrap gap-2 sm:gap-3">

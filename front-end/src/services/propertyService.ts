@@ -9,6 +9,12 @@ export const getAllProperties = async (): Promise<Property[]> => {
   const res = await httpAdmin.get(RESOURCE);
   return res.data.data.data;
 };
+
+export const getAllPropertiesByPending = async (): Promise<Property[]> => {
+  const res = await httpAdmin.get(`${RESOURCE}?status=pending`);
+  return res.data.data.data;
+};
+
 export const getPropertiesByAgentOrSeller = async (
   u: User
 ): Promise<Property[]> => {
@@ -49,6 +55,21 @@ export const restoreProperty = async (id: string): Promise<DetailProperty> => {
     console.log("lỗi khi restore property:", error);
     throw new Error(
       error.response?.data?.message || "restore property thất bại"
+    );
+  }
+};
+
+export const updateStatus = async (
+  id: string,
+  status: string
+): Promise<Property> => {
+  try {
+    const res = await httpAdmin.patch(`${RESOURCE}/${id}/status`, { status });
+    return res?.data?.data;
+  } catch (error: any) {
+    console.log("lỗi khi update status property:", error);
+    throw new Error(
+      error.response?.data?.message || "update status property thất bại"
     );
   }
 };

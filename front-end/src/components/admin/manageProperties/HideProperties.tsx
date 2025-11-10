@@ -83,7 +83,7 @@ const HideProperties = ({ propertyId }: HideProperty) => {
         toast.success("Ẩn bất động sản thất bại!");
       }
       setOpen(false);
-      navigate("/admin/properties", { state: { refresh: true } });
+      // navigate("/admin/properties", { state: { refresh: true } });
     } catch (error) {
       toast.error(property.deleted ? "hide thành công!" : "hide thất bại!");
       console.error(error);
