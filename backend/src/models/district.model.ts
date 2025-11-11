@@ -27,4 +27,8 @@ const DistrictSchema = new Schema<IDistrict>(
   { timestamps: true }
 );
 
+// Unique index theo tên + parent city
+DistrictSchema.index({ "district_name.vi": 1, city_id: 1 }, { unique: true, sparse: true });
+DistrictSchema.index({ "district_name.en": 1, city_id: 1 }, { unique: true, sparse: true });
+
 export default mongoose.model<IDistrict>("District", DistrictSchema);

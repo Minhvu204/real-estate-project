@@ -27,4 +27,8 @@ const WardSchema = new Schema<IWard>(
   { timestamps: true }
 );
 
+// Unique index theo tên + parent district
+WardSchema.index({ "ward_name.vi": 1, district_id: 1 }, { unique: true, sparse: true });
+WardSchema.index({ "ward_name.en": 1, district_id: 1 }, { unique: true, sparse: true });
+
 export default mongoose.model<IWard>("Ward", WardSchema);

@@ -83,7 +83,7 @@ export const propertyService = {
     };
   },
 
-  // 🧑‍💼 Lấy property theo owner hoặc agent
+  // Lấy property theo owner hoặc agent
   async getPropertiesByOwnerOrAgent(
     user: { id?: string; _id?: string; role?: string },
     queryParams: any
@@ -149,7 +149,7 @@ export const propertyService = {
     };
   },
 
-  // 🔍 Lấy chi tiết property
+  // Lấy chi tiết property
   async getPropertyById(id: string) {
     const property = await Property.findById(id)
       .populate("city_id", "city_name")
