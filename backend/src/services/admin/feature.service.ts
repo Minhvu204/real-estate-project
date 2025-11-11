@@ -7,12 +7,27 @@ export const getAllFeatures = async () => {
 };
 
 export const createFeature = async (data: any) => {
-  const { feature_name } = data;
-  if (!feature_name) throw new Error("Tên tiện ích là bắt buộc.");
+  if (!data.feature_name) throw new Error("Thiếu tên tiện ích");
+  const featureNameObj = await createMultilangText(data.feature_name);
 
-  const multiLangName = await createMultilangText(feature_name);
+  const existingFeature = await Feature.findOne({
+    $or: [
+      { "feature_name.vi": featureNameObj.vi },
+      { "feature_name.en": featureNameObj.en },
+    ],
+  });
+
+  if (existingFeature) {
+    if (existingFeature.deleted) {
+      existingFeature.feature_name = featureNameObj;
+      existingFeature.deleted = false;
+      await existingFeature.save();
+      return existingFeature;
+    } else throw new Error("Tiện ích đã tồn tại");
+  }
+
   return await Feature.create({
-    feature_name: multiLangName,
+    feature_name: featureNameObj,
     deleted: false,
   });
 };
