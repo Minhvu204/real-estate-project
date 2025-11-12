@@ -43,7 +43,7 @@ const PropertyDetails = () => {
         return <Typography textAlign="center" mt={3}>Loading...</Typography>;
     }
 
-
+    const features = property.features ?? [];
 
     return (
         <Container sx={{ mt: 1, mb: 1 }}>

@@ -516,13 +516,7 @@ const Navbar: React.FC = () => {
                 {["buyer", "seller", "agent"].includes(role) && (
                     <MenuItem
                         onClick={() => {
-                            if (role === "buyer") {
-                                navigate("/my-properties");
-                            } else if (role === "seller") {
-                                navigate("/seller/my-properties");
-                            } else if (role === "agent") {
-                                navigate("/agent/my-properties");
-                            }
+                            navigate("/seller/properties");
                             setAnchorEl(null);
                         }}
                         sx={{
@@ -566,7 +560,13 @@ const Navbar: React.FC = () => {
                 {["seller", "agent"].includes(role) && (
                     <MenuItem
                         onClick={() => {
-                            navigate("/listings");
+                            if (role === "buyer") {
+                                navigate("/my-properties");
+                            } else if (role === "seller") {
+                                navigate("/seller/my-properties");
+                            } else if (role === "agent") {
+                                navigate("/agent/my-properties");
+                            }
                             setAnchorEl(null);
                         }}
                         sx={{
