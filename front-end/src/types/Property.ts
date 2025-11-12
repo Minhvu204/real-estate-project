@@ -49,12 +49,14 @@ export type Property = {
     fullName: string;
     email: string;
     phone?: string;
+    avatar?: string;
   };
   agent_id?: {
     _id: string;
     fullName: string;
     email: string;
     phone?: string;
+    avatar?: string;
   };
   features?: {
     _id: string;

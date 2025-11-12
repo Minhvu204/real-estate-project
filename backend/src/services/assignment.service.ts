@@ -5,13 +5,11 @@ import mongoose from "mongoose";
 
 export const assignmentService = {
   async createRequest(propertyId: string, agentId: string, ownerId: string, note?: string) {
-    // validate IDs (optional)
     // check property exists & owner matches
     const property = await Property.findById(propertyId);
     if (!property) throw Object.assign(new Error("Property không tồn tại"), { status: 404 });
     if (property.owner_id?.toString() !== ownerId) throw Object.assign(new Error("Không có quyền"), { status: 403 });
 
-    // Optional: prevent duplicate pending request to same agent
     const existing = await Assignment.findOne({ property_id: propertyId, agent_id: agentId, status: "pending" });
     if (existing) throw Object.assign(new Error("Đã có yêu cầu đang chờ với agent này"), { status: 409 });
 
@@ -69,7 +67,6 @@ export const assignmentService = {
       { status: 404 }
     );
 
-    // Optional: if property already has agent, decide policy (reject or overwrite). We'll reject here.
     if (property.agent_id) throw Object.assign(
       new Error("Property đã có agent"),
       { status: 409 }
@@ -106,7 +103,6 @@ export const assignmentService = {
     if (reason) (assignment as any).note = reason;
     await assignment.save();
 
-    // Optionally push a 'remove'/'rejected' record into property.assignmentHistory
     const property = await Property.findById(assignment.property_id);
     if (property) {
       property.assignmentHistory = property.assignmentHistory || [];

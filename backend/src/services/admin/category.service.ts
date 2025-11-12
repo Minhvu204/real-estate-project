@@ -7,12 +7,27 @@ export const getAllCategories = async () => {
 };
 
 export const createCategory = async (data: any) => {
-  const { category_name } = data;
-  if (!category_name) throw new Error("Tên danh mục là bắt buộc.");
+  if (!data.category_name) throw new Error("Thiếu tên danh mục");
+  const categoryNameObj = await createMultilangText(data.category_name);
 
-  const multiLangName = await createMultilangText(category_name);
+  const existingCategory = await Category.findOne({
+    $or: [
+      { "category_name.vi": categoryNameObj.vi },
+      { "category_name.en": categoryNameObj.en },
+    ],
+  });
+
+  if (existingCategory) {
+    if (existingCategory.deleted) {
+      existingCategory.category_name = categoryNameObj;
+      existingCategory.deleted = false;
+      await existingCategory.save();
+      return existingCategory;
+    } else throw new Error("Danh mục đã tồn tại");
+  }
+
   return await Category.create({
-    category_name: multiLangName,
+    category_name: categoryNameObj,
     deleted: false,
   });
 };

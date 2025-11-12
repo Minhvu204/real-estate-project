@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 const JWT_SECRET = process.env.JWT_SECRET as string;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET as string;
 console.log("JWT_SECRET:", JWT_SECRET);
-console.log("JWT_SECRET:", JWT_REFRESH_SECRET);
+console.log("JWT_REFRESH_SECRET:", JWT_REFRESH_SECRET);
 
 // Tạo access token
 export const generateAccessToken = (payload: object) => {

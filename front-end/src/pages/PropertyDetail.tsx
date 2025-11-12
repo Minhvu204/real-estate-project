@@ -4,13 +4,15 @@ import { Box, Chip, Container, Divider, Grid, Paper, Stack, Typography, Avatar, 
 import PlaceIcon from "@mui/icons-material/Place";
 import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
-import type { PropertyDetail } from "../types/PropertyDetail";
+import type { Property } from "../types/Property";
 import { useTranslation } from "react-i18next";
 import { getLanguage } from "../utils/storage";
+import axios from "axios";
+import { getDetailPropertiesById } from "@/services/propertyService";
 
 const PropertyDetail = () => {
     const { id } = useParams();
-    const [property, setProperty] = useState<PropertyDetail | null>(null);
+    const [property, setProperty] = useState<Property | null>(null);
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const isMobile = useMediaQuery("(max-width:900px)");
@@ -33,17 +35,23 @@ const PropertyDetail = () => {
     };
 
     useEffect(() => {
-        fetch(`http://localhost:3000/api/public/properties/${id}`)
-            .then(res => res.json())
-            .then(data => setProperty(data.data))
-            .catch(err => console.error(err));
-    }, [id]);
+        const fetchProperty = async () => {
+          try {
+            const data: Property = await getDetailPropertiesById(id!);
+            setProperty(data);
+          } catch (error) {
+            console.error("Error fetching property:", error);
+          }
+        };
+    
+        fetchProperty();
+      }, [id]);
 
     if (!property) {
         return <Typography textAlign="center" mt={3}>Loading...</Typography>;
     }
 
-
+    const features = property.features ?? [];
 
 
 
@@ -163,9 +171,9 @@ const PropertyDetail = () => {
 
                 {/* TAGS */}
                 <Stack direction="row" spacing={1} mt={1}>
-                    <Chip label={property.city?.city_name[lang]} />
-                    <Chip label={property.category?.category_name[lang]} />
-                    <Chip label={property.type?.type_name[lang]} />
+                    <Chip label={property.city_id?.city_name[lang]} />
+                    <Chip label={property.category_id?.category_name[lang]} />
+                    <Chip label={property.type_id?.type_name[lang]} />
                     <Chip label={property.status} color="success" />
                 </Stack>
 
@@ -192,13 +200,13 @@ const PropertyDetail = () => {
 
                 {/* FEATURES */}
                 {
-                    property.features?.length > 0 && (
+                    features?.length > 0 && (
                         <>
                             <Typography variant="h6" fontWeight="bold" mt={2}>
                                 {t("features")}
                             </Typography>
                             <Stack direction="row" spacing={1} flexWrap="wrap" mb={1}>
-                                {property.features.map((f: any) => (
+                                {features.map((f: any) => (
                                     <Chip key={f._id} label={f.feature_name[lang]} variant="outlined" />
                                 ))}
                             </Stack>
@@ -214,11 +222,14 @@ const PropertyDetail = () => {
                         <Paper sx={{ p: 2 }}>
                             <Typography variant="h6" fontWeight="bold">{t("owner")}</Typography>
                             <Stack direction="row" spacing={2}>
-                                <Avatar>{property.owner?.fullName?.charAt(0)}</Avatar>
+                                <Avatar
+                                    src={property.owner_id?.avatar}
+                                    alt={property.owner_id?.fullName || "Owner"}
+                                />
                                 <Box>
-                                    <Typography fontWeight="bold">{property.owner?.fullName}</Typography>
-                                    <Typography color="text.secondary">{property.owner?.phone}</Typography>
-                                    <Typography color="text.secondary">{property.owner?.email}</Typography>
+                                    <Typography fontWeight="bold">{property.owner_id?.fullName}</Typography>
+                                    <Typography color="text.secondary">{property.owner_id?.phone}</Typography>
+                                    <Typography color="text.secondary">{property.owner_id?.email}</Typography>
                                 </Box>
                             </Stack>
                         </Paper>
@@ -228,11 +239,14 @@ const PropertyDetail = () => {
                         <Paper sx={{ p: 2 }}>
                             <Typography variant="h6" fontWeight="bold">{t("agent")}</Typography>
                             <Stack direction="row" spacing={2} mt={1}>
-                                <Avatar>{property.agent?.fullName?.charAt(0)}</Avatar>
+                                <Avatar
+                                    src={property.agent_id?.avatar}
+                                    alt={property.agent_id?.fullName || "Agent"}
+                                />
                                 <Box>
-                                    <Typography fontWeight="bold">{property.agent?.fullName}</Typography>
-                                    <Typography color="text.secondary">{property.agent?.phone}</Typography>
-                                    <Typography color="text.secondary">{property.agent?.email}</Typography>
+                                    <Typography fontWeight="bold">{property.agent_id?.fullName}</Typography>
+                                    <Typography color="text.secondary">{property.agent_id?.phone}</Typography>
+                                    <Typography color="text.secondary">{property.agent_id?.email}</Typography>
                                 </Box>
                             </Stack>
                         </Paper>

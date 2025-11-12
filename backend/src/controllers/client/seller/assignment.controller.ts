@@ -7,13 +7,13 @@ export const createAssignmentRequest = async (req: Request, res: Response) => {
     const user = (req as any).user;
     const propertyId = req.params.id;
     const { agent_id, note } = req.body;
-    if (!agent_id) return errorResponse(res, "Thiếu agent_id", 400);
+    if (!agent_id) return errorResponse(req, res, "Thiếu agent_id", 400);
 
     const doc = await assignmentService.createRequest(propertyId, agent_id, user.id || user._id, note);
-    return successResponse(res, "Tạo yêu cầu gán agent thành công", doc);
+    return successResponse(req, res, "Tạo yêu cầu gán agent thành công", doc);
   } catch (error: any) {
     console.error("createAssignmentRequest error:", error);
-    return errorResponse(res, error.message, error.status || 500);
+    return errorResponse(req, res, error.message, error.status || 500);
   }
 };
 

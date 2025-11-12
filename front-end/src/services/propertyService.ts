@@ -110,7 +110,7 @@ export const createProperty = async (
 
 export const getDetailPropertiesById = async (
   id: string
-): Promise<DetailProperty> => {
+): Promise<Property> => {
   try {
     const response = await httpPublic.get(`${RESOURCE}/${id}`);
     console.log("API Response:", response.data);
@@ -148,4 +148,6 @@ export const restoreProperty = async (id: string): Promise<DetailProperty> => {
     );
   }
 };
+
+
 

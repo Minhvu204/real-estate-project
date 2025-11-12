@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import type { DetailProperty } from "../../../types/Property";
+import type { Property } from "../../../types/Property";
 import { useEffect, useState } from "react";
 import { getDetailPropertiesById } from "../../../services/propertyService";
 import { Carousel } from "react-responsive-carousel";
@@ -10,26 +10,24 @@ import { faBed, faShower, faTreeCity } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "react-i18next";
 
 const ViewDetailProperties = () => {
-  const [property, setProperty] = useState<DetailProperty | null>(null);
+  const [property, setProperty] = useState<Property | null>(null);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const currentLanguage: Lang = getLanguage();
   const { t } = useTranslation("detailProperty");
+
   useEffect(() => {
-    const fetchProperty = async () => {
-      try {
-        const data = await getDetailPropertiesById(id!);
-        console.log("Property data:", data);
-        setProperty(data);
-      } catch (error: any) {
-        console.error("Error fetching property:", error);
-        console.error("Error response:", error.response?.data);
-      }
-    };
-    if (id) {
+      const fetchProperty = async () => {
+        try {
+          const data: Property = await getDetailPropertiesById(id!);
+          setProperty(data);
+        } catch (error) {
+          console.error("Error fetching property:", error);
+        }
+      };
+  
       fetchProperty();
-    }
-  }, [id]);
+    }, [id]);
 
   if (!property) {
     return (
@@ -40,6 +38,8 @@ const ViewDetailProperties = () => {
       </div>
     );
   }
+
+  const features = property.features ?? [];
 
   return (
     <>
@@ -152,7 +152,7 @@ const ViewDetailProperties = () => {
             <div>
               <p className="text-sm text-gray-500">{t("city")}</p>
               <p className="text-lg font-semibold">
-                {property.city?.city_name?.[currentLanguage] || ""}
+                {property.city_id?.city_name?.[currentLanguage] || ""}
               </p>
             </div>
           </div>
@@ -168,7 +168,7 @@ const ViewDetailProperties = () => {
           </p>
         </div>
 
-        {property.features?.length > 0 && (
+        {features?.length > 0 && (
           <div className="mb-8">
             <h4 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3">
               🌟
@@ -188,22 +188,22 @@ const ViewDetailProperties = () => {
         )}
 
         <div className="p-4 sm:p-6 bg-gray-50 rounded-xl border border-gray-200 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
-          {property.owner?.avatar && (
+          {property.owner_id?.avatar && (
             <img
-              src={property.owner.avatar}
-              alt={property.owner?.fullName || "Owner"}
+              src={property.owner_id.avatar}
+              alt={property.owner_id?.fullName || "Owner"}
               className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4 border-white shadow-md"
             />
           )}
           <div className="text-center sm:text-left">
             <h4 className="text-lg sm:text-xl font-semibold text-gray-800">
-              👤 {property.owner?.fullName || ""}
+              👤 {property.owner_id?.fullName || ""}
             </h4>
             <p className="text-gray-500 text-sm sm:text-base">
-              {property.owner?.email || ""}
+              {property.owner_id?.email || ""}
             </p>
             <p className="text-gray-500 text-sm sm:text-base">
-              {property.owner?.phone || ""}
+              {property.owner_id?.phone || ""}
             </p>
           </div>
         </div>
