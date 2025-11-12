@@ -1,6 +1,6 @@
 {
   "loading": "Đang tải dữ liệu...",
-  "text-listProperties": "Quản lí bất động sản",
+  "text-listProperties": "Danh sách bất động sản",
   "search": "Tìm kiếm tên hoặc địa chỉ",
   "avatar": "Ảnh đại diện",
   "name": "Tên bất động sản",
@@ -23,5 +23,13 @@
   "status": "Trạng thái",
   "createdAt": "Ngày tạo",
   "updatedAt": "Ngày cập nhập",
-  "view": "Xem chi tiết"
+  "view": "Xem chi tiết",
+  "All status": "tất cả",
+  "Approved": "Đã duyệt",
+  "Pending": "Chờ duyệt",
+  "Available": "Có sẵn",
+  "Rejected": "Đã hủy",
+  "text-ManageProperties": "Quản lí bất động sản",
+  "approve": "Đồng ý",
+  "reject": "Từ chối"
 }

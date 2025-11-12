@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { DetailProperty } from "../../../types/Property";
+import type { Property } from "../../../types/Property";
 import {
   getDetailPropertiesById,
   hideProperty,
@@ -35,7 +35,7 @@ type HideProperty = {
 };
 
 const HideProperties = ({ propertyId }: HideProperty) => {
-  const [property, setProperty] = useState<DetailProperty | null>(null);
+  const [property, setProperty] = useState<Property | null>(null);
   const [open, setOpen] = useState<boolean>(false);
   const [note, setNote] = useState<string>("");
   const navigate = useNavigate();
@@ -83,7 +83,6 @@ const HideProperties = ({ propertyId }: HideProperty) => {
         toast.success("Ẩn bất động sản thất bại!");
       }
       setOpen(false);
-      navigate("/admin/properties", { state: { refresh: true } });
     } catch (error) {
       toast.error(property.deleted ? "hide thành công!" : "hide thất bại!");
       console.error(error);
@@ -189,7 +188,7 @@ const HideProperties = ({ propertyId }: HideProperty) => {
                   />
                   <Typography variant="body2" color="text.secondary">
                     <FontAwesomeIcon icon={faHouse} /> {t("city")}:
-                    {property.city?.city_name?.[currentLanguage] || ""}
+                    {property.city_id?.city_name[currentLanguage]}
                   </Typography>
                 </div>
               </div>
@@ -200,19 +199,19 @@ const HideProperties = ({ propertyId }: HideProperty) => {
                 </Typography>
                 <div className="flex items-center gap-3 mt-2">
                   <img
-                    src={property.owner?.avatar || ""}
-                    alt={property.owner?.fullName || "Owner"}
+                    src={property.owner_id?.avatar}
+                    alt={property.owner_id?.fullName}
                     className="w-12 h-12 rounded-full object-cover border"
                   />
                   <div>
                     <Typography fontWeight={600}>
-                      {property.owner?.fullName || ""}
+                      {property.owner_id?.fullName}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {property.owner?.email || ""}
+                      {property.owner_id?.email}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {property.owner?.phone || ""}
+                      {property.owner_id?.phone}
                     </Typography>
                   </div>
                 </div>

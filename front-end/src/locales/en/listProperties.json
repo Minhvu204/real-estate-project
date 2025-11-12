@@ -1,6 +1,6 @@
 {
   "loading": "Loading...",
-  "text-listProperties": "Manage properties",
+  "text-listProperties": "List properties",
   "search": "Search by name or address",
   "avatar": "Avatar",
   "name": "Name",
@@ -23,5 +23,13 @@
   "status": "Status",
   "createdAt": "CreatedAt",
   "updatedAt": "UpdatedAt",
-  "view": "View Detail"
+  "view": "View Detail",
+  "All status": "All status",
+  "Approved": "Approved",
+  "Pending": "Pending",
+  "Available": "Available",
+  "Rejected": "Rejected",
+  "text-ManageProperties": "Manage Properties",
+  "approve": "Approve",
+  "reject": "Reject"
 }

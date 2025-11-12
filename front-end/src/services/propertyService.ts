@@ -1,4 +1,4 @@
-import type { Property, DetailProperty } from "../types/Property";
+import type { Property } from "../types/Property";
 import { httpPublic } from "../utils/httpPublic";
 import { createAxiosInstance } from "../utils/axiosInstance";
 import { httpClient } from "../utils/httpClient";
@@ -9,13 +9,26 @@ import { httpAdmin } from "../utils/httpAdmin";
 const RESOURCE = "/properties";
 const SELLER_RESOURCE = "/seller";
 export const getAllProperties = async (): Promise<Property[]> => {
-    const res = await httpPublic.get(`${RESOURCE}?populate=type_id,category_id,city_id`);
-    return res.data.data.data;
-}
-export const getPropertiesByAgentOrSeller = async (): Promise<Property[]> => {
-    const response = await httpClient.get(RESOURCE);
-    return response.data.data.data;
-}
+  const res = await httpAdmin.get(RESOURCE, {
+    params: { limit: 100 },
+  });
+  return res.data.data.data;
+};
+
+export const getAllPropertiesByPending = async (): Promise<Property[]> => {
+  const res = await httpAdmin.get(`${RESOURCE}?status=pending`, {
+    params: { limit: 100 },
+  });
+  return res.data.data.data;
+};
+
+export const getPropertiesByAgentOrSeller = async (
+  u: User
+): Promise<Property[]> => {
+  const RESOURCE = `${u.role}/properties`;
+  const response = await httpClient.get(`${u.role}/${RESOURCE}`);
+  return response.data.data.data;
+};
 export const getPropertiesById = async (id: string): Promise<Property> => {
     const response = await httpClient.get(`${RESOURCE}/${id}`);
     return response.data.data;
@@ -111,23 +124,14 @@ export const createProperty = async (
 export const getDetailPropertiesById = async (
   id: string
 ): Promise<Property> => {
-  try {
-    const response = await httpPublic.get(`${RESOURCE}/${id}`);
-    console.log("API Response:", response.data);
-    const propertyData = response?.data?.data?.data || response?.data?.data;
-    console.log("Property data extracted:", propertyData);
-    return propertyData;
-  } catch (error: any) {
-    console.error("Error in getDetailPropertiesById:", error);
-    console.error("Error response:", error.response?.data);
-    throw error;
-  }
+  const response = await httpPublic.get(`${RESOURCE}/${id}`);
+  return response?.data?.data?.data;
 };
 
 export const hideProperty = async (
   id: string,
   note?: string
-): Promise<DetailProperty> => {
+): Promise<Property> => {
   try {
     const res = await httpAdmin.patch(`${RESOURCE}/${id}/hide`, { note });
     return res?.data?.data;
@@ -137,7 +141,7 @@ export const hideProperty = async (
   }
 };
 
-export const restoreProperty = async (id: string): Promise<DetailProperty> => {
+export const restoreProperty = async (id: string): Promise<Property> => {
   try {
     const res = await httpAdmin.patch(`${RESOURCE}/${id}/restore`);
     return res?.data?.data;
@@ -149,5 +153,17 @@ export const restoreProperty = async (id: string): Promise<DetailProperty> => {
   }
 };
 
-
-
+export const updateStatus = async (
+  id: string,
+  status: string
+): Promise<Property> => {
+  try {
+    const res = await httpAdmin.patch(`${RESOURCE}/${id}/status`, { status });
+    return res?.data?.data;
+  } catch (error: any) {
+    console.log("lỗi khi update status property:", error);
+    throw new Error(
+      error.response?.data?.message || "update status property thất bại"
+    );
+  }
+};
