@@ -7,8 +7,6 @@ const router = express.Router();
 
 router.get(
   "/",
-  verifyToken,
-  roleCheck("seller"),
   getAgentList
 );
 

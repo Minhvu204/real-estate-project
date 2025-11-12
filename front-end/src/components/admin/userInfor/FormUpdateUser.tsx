@@ -9,6 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import React from "react";
+import { ToastContainer } from "react-toastify";
 
 interface FormUpdateUserProps {
   user?: User;
@@ -89,7 +90,7 @@ const FormUpdateUser: React.FC<FormUpdateUserProps> = ({
                 name="email"
                 InputProps={{ readOnly: true }}
               />
-              {/* <TextField
+              <TextField
                 label="Phone"
                 variant="outlined"
                 value={user.phone}
@@ -97,7 +98,7 @@ const FormUpdateUser: React.FC<FormUpdateUserProps> = ({
                 error={!!errors.phone}
                 helperText={errors.phone}
                 onChange={handleChange}
-              /> */}
+              />
               <TextField
                 label="Role"
                 select
@@ -158,6 +159,18 @@ const FormUpdateUser: React.FC<FormUpdateUserProps> = ({
           </Box>
         )}
       </Container>
+      <ToastContainer
+        position="top-right"
+        autoClose={1000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </>
   );
 };

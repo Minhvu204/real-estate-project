@@ -12,7 +12,7 @@ import { roleCheck } from "../../middlewares/roleCheck.middleware";
 const router = express.Router();
 
 // [GET] Danh sách cho admin
-router.get("", verifyToken, roleCheck("admin"), adminListProperties);
+router.get("", adminListProperties);
 
 router.get("/:id", verifyToken, roleCheck("admin"), getPropertyById);
 
@@ -25,18 +25,8 @@ router.patch(
 );
 
 // [PATCH] U014 - ẩn bài (hide) và khôi phục (restore)
-router.patch(
-  "/:id/hide",
-  verifyToken,
-  roleCheck("admin"),
-  hideProperty
-);
+router.patch("/:id/hide", verifyToken, roleCheck("admin"), hideProperty);
 
-router.patch(
-  "/:id/restore",
-  verifyToken,
-  roleCheck("admin"),
-  restoreProperty
-);
+router.patch("/:id/restore", verifyToken, roleCheck("admin"), restoreProperty);
 
 export default router;
