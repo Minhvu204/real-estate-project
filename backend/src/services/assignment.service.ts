@@ -1,7 +1,14 @@
 // src/services/assignment.service.ts
 import Assignment from "../models/assignment.model";
 import Property from "../models/property.model";
+import User from "../models/user.model";
 import mongoose from "mongoose";
+import {
+  notifyAssignmentRequest,
+  notifyAssignmentAccepted,
+  notifyAssignmentRejected,
+  notifyAssignmentCancelled,
+} from "../utils/notificationHelper";
 
 export const assignmentService = {
   async createRequest(propertyId: string, agentId: string, ownerId: string, note?: string) {
@@ -30,7 +37,20 @@ export const assignmentService = {
     });
     await property.save();
 
-    //Optional: create notification to agent
+    //create notification to agent
+    try {
+      const owner = await User.findById(ownerId).select("fullName").lean();
+      if (owner) {
+        await notifyAssignmentRequest(
+          agentId,
+          owner.fullName,
+          property.title.vi, // Hoặc property.title[lang] nếu bạn có
+          String(doc._id)
+        );
+      }
+    } catch (notifyError) {
+      console.error("Failed to send notification in createRequest:", notifyError);
+    }
 
     return doc;
   },
@@ -88,6 +108,21 @@ export const assignmentService = {
     assignment.actedAt = new Date();
     await assignment.save();
 
+    // <<< GỬI NOTIFICATION CHO SELLER
+    try {
+      const agent = await User.findById(agentId).select("fullName").lean();
+      if (agent) {
+        await notifyAssignmentAccepted(
+          assignment.owner_id.toString(),
+          agent.fullName,
+          property.title.vi,
+          String(assignment._id)
+        );
+      }
+    } catch (notifyError) {
+      console.error("Failed to send notification in acceptRequest:", notifyError);
+    }
+
     return { assignment, property };
   },
 
@@ -102,6 +137,27 @@ export const assignmentService = {
     assignment.actedAt = new Date();
     if (reason) (assignment as any).note = reason;
     await assignment.save();
+
+    //GỬI NOTIFICATION CHO SELLER
+    try {
+      // Cần lấy property title và agent name
+      const [agent, property] = await Promise.all([
+        User.findById(agentId).select("fullName").lean(),
+        Property.findById(assignment.property_id).select("title.vi").lean(),
+      ]);
+
+      if (agent && property) {
+        await notifyAssignmentRejected(
+          assignment.owner_id.toString(),
+          agent.fullName,
+          property.title.vi,
+          String(assignment._id),
+          reason
+        );
+      }
+    } catch (notifyError) {
+      console.error("Failed to send notification in rejectRequest:", notifyError);
+    }
 
     const property = await Property.findById(assignment.property_id);
     if (property) {
@@ -118,7 +174,7 @@ export const assignmentService = {
     return assignment;
   },
 
-    async cancelRequest(assignmentId: string, ownerId: string) {
+  async cancelRequest(assignmentId: string, ownerId: string) {
     const assignment = await Assignment.findById(assignmentId);
     if (!assignment) throw Object.assign(new Error("Yêu cầu không tồn tại"), { status: 404 });
 
@@ -137,6 +193,28 @@ export const assignmentService = {
     assignment.actedBy = new mongoose.Types.ObjectId(ownerId);
     assignment.actedAt = new Date();
     await assignment.save();
+
+    // <<< GỬI NOTIFICATION CHO AGENT
+    try {
+      const [owner, property] = await Promise.all([
+        User.findById(ownerId).select("fullName").lean(),
+        Property.findById(assignment.property_id).select("title.vi").lean(),
+      ]);
+
+      if (owner && property) {
+        await notifyAssignmentCancelled(
+          assignment.agent_id.toString(),
+          owner.fullName,
+          property.title.vi,
+          String(assignment._id)
+        );
+      }
+    } catch (notifyError) {
+      console.error(
+        "Failed to send notification in cancelRequest:",
+        notifyError
+      );
+    }
 
     // Ghi lại vào lịch sử property
     const property = await Property.findById(assignment.property_id);

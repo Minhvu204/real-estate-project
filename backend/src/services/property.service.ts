@@ -6,10 +6,12 @@ import PropertyType from "../models/propertyType.model";
 import Feature from "../models/feature.model";
 import Ward from "../models/ward.model";
 import District from "../models/district.model";
+import User from "../models/user.model";
 import mongoose from "mongoose";
 import { assignmentService } from "./assignment.service";
 import { createMultilangText } from "../utils/translateHelper";
 import { getFullAddress } from "../utils/addressHelper";
+import { notifyAgentRemoved } from "../utils/notificationHelper";
 
 export const propertyService = {
   async getAllProperties(filters: any) {
@@ -238,17 +240,41 @@ export const propertyService = {
       throw err;
     }
 
+    const agentToRemoveId = property.agent_id; // ID của agent SẮP bị gỡ
+    const actorId = options?.actorId;
+
     // Save old agent into history
     property.assignmentHistory = property.assignmentHistory || [];
     property.assignmentHistory.push({
-      agent_id: property.agent_id,
-      assignedBy: options?.actorId ? new mongoose.Types.ObjectId(options.actorId) : undefined,
+      agent_id: agentToRemoveId,
+      assignedBy: actorId ? new mongoose.Types.ObjectId(options.actorId) : undefined,
       action: "remove",
       assignedAt: new Date(),
     } as any);
 
     property.agent_id = undefined;
     await property.save();
+
+    //GỬI NOTIFICATION CHO AGENT BỊ GỠ
+    try {
+      if (actorId) {
+        const owner = await User.findById(actorId).select("fullName").lean();
+        if (owner) {
+          await notifyAgentRemoved(
+            String(agentToRemoveId),    
+            owner.fullName,            
+            property.title.vi,
+            String(property._id)    
+          );
+        }
+      } else {
+        // Ghi log nếu không có actorId, vì không biết ai đã gỡ
+        console.warn(`Cannot send notification: actorId is missing for removeAgent on property ${propertyId}`);
+      }
+    } catch (notifyError) {
+      console.error("Failed to send notification in removeAgent:", notifyError);
+    }
+
     return property;
   },
 
