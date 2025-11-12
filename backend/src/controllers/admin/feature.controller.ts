@@ -36,7 +36,7 @@ export const updateFeature = async (req: Request, res: Response) => {
 export const deleteFeature = async (req: Request, res: Response) => {
   try {
     await featureService.deleteFeature(req.params.id);
-    return successResponse(res, "Xóa tiện ích thành công (đã đánh dấu deleted).");
+    return successResponse(res, "Xóa tiện ích thành công.");
   } catch (error: any) {
     return errorResponse(res, error.message);
   }

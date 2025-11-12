@@ -4,6 +4,7 @@ import {
   adminListProperties,
   hideProperty,
   restoreProperty,
+  getPropertyById,
 } from "../../controllers/admin/property.controller";
 import { verifyToken } from "../../middlewares/auth.middleware";
 import { roleCheck } from "../../middlewares/roleCheck.middleware";
@@ -12,6 +13,8 @@ const router = express.Router();
 
 // [GET] Danh sách cho admin
 router.get("", adminListProperties);
+
+router.get("/:id", verifyToken, roleCheck("admin"), getPropertyById);
 
 // [PATCH] U011 - phê duyệt hoặc từ chối
 router.patch(
