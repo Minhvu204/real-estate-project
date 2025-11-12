@@ -37,8 +37,8 @@ export const propertyService = {
     if (status) query.status = status;
     if (minPrice != null || maxPrice != null) {
       query.price = {
-        ...(minPrice ? { $gte: Number(minPrice) } : {}),
-        ...(maxPrice ? { $lte: Number(maxPrice) } : {}),
+        ...(minPrice != null ? { $gte: Number(minPrice) } : {}),
+        ...(maxPrice != null ? { $lte: Number(maxPrice) } : {}),
       };
     }
     if (keyword) query["title.vi"] = { $regex: keyword, $options: "i" };
