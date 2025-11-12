@@ -7,14 +7,26 @@ export const getAllTypes = async () => {
 };
 
 export const createType = async (data: any) => {
-  const { type_name } = data;
-  if (!type_name) throw new Error("Tên loại bất động sản là bắt buộc.");
+  if (!data.type_name) throw new Error("Thiếu tên loại bất động sản");
+  const typeNameObj = await createMultilangText(data.type_name);
 
-  const multiLangName = await createMultilangText(type_name);
-  return await PropertyType.create({
-    type_name: multiLangName,
-    deleted: false,
+  const existingType = await PropertyType.findOne({
+    $or: [
+      { "type_name.vi": typeNameObj.vi },
+      { "type_name.en": typeNameObj.en },
+    ],
   });
+
+  if (existingType) {
+    if (existingType.deleted) {
+      existingType.type_name = typeNameObj;
+      existingType.deleted = false;
+      await existingType.save();
+      return existingType;
+    } else throw new Error("Loại bất động sản đã tồn tại");
+  }
+
+  return await PropertyType.create({ type_name: typeNameObj, deleted: false });
 };
 
 export const updateType = async (id: string, data: any) => {
