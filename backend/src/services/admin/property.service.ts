@@ -130,7 +130,7 @@ export const adminPropertyService = {
     (property as any).hiddenNote = undefined;
     await property.save();
 
-    return { id: property._id, deleted: property.deleted, status: property.status };
+    return { id: property._id, deleted: property.deleted, status: "available" };
   },
 
   getPropertyById: async (id: string) => {
