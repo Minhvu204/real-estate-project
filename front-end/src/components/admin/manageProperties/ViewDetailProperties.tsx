@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import type { DetailProperty } from "../../../types/Property";
+import type { Property } from "../../../types/Property";
 import { useEffect, useState } from "react";
 import { getDetailPropertiesById } from "../../../services/propertyService";
 import { Carousel } from "react-responsive-carousel";
@@ -12,7 +12,7 @@ import { faBed, faShower, faTreeCity } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "react-i18next";
 
 const ViewDetailProperties = () => {
-  const [property, setProperty] = useState<DetailProperty | null>(null);
+  const [property, setProperty] = useState<Property>();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const currentLanguage: Lang = getLanguage();
@@ -20,7 +20,7 @@ const ViewDetailProperties = () => {
   useEffect(() => {
     const fetchProperty = async () => {
       const data = await getDetailPropertiesById(id!);
-      console.log(data);
+      console.log("getDetailPropertiesById: ", data);
 
       setProperty(data);
     };
@@ -57,7 +57,7 @@ const ViewDetailProperties = () => {
           stopOnHover={true}
           swipeable={true}
         >
-          {property?.images.map((item, index) => (
+          {property?.images?.map((item, index) => (
             <div key={index}>
               <img
                 src={item}
@@ -70,10 +70,10 @@ const ViewDetailProperties = () => {
 
         <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 via-black/20 to-transparent text-white px-4 sm:px-8 py-4 sm:py-6">
           <h2 className="text-xl sm:text-3xl font-bold drop-shadow-lg">
-            {property.title[currentLanguage]}
+            {property.title?.[currentLanguage]}
           </h2>
           <p className="text-xs sm:text-sm text-gray-200 italic mt-1">
-            {property.address[currentLanguage]}
+            {property.address?.[currentLanguage]}
           </p>
         </div>
       </div>
@@ -94,7 +94,7 @@ const ViewDetailProperties = () => {
 
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-4 lg:mt-0">
             <span className="text-2xl sm:text-3xl font-bold text-green-600">
-              {property.price.toLocaleString()} VND
+              {property?.price?.toLocaleString()} VND
             </span>
             <span
               className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -146,7 +146,7 @@ const ViewDetailProperties = () => {
             <div>
               <p className="text-sm text-gray-500">{t("city")}</p>
               <p className="text-lg font-semibold">
-                {property.city.city_name[currentLanguage]}
+                {property?.city_id?.city_name?.[currentLanguage]}
               </p>
             </div>
           </div>
@@ -158,11 +158,11 @@ const ViewDetailProperties = () => {
             {t("detailDescription")}
           </h4>
           <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
-            {property.description[currentLanguage]}
+            {property.description?.[currentLanguage]}
           </p>
         </div>
 
-        {property.features?.length > 0 && (
+        {property.features && property.features.length > 0 && (
           <div className="mb-8">
             <h4 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3">
               <EventNoteTwoToneIcon color="secondary" />
@@ -174,7 +174,7 @@ const ViewDetailProperties = () => {
                   key={f._id}
                   className="bg-indigo-50 text-indigo-700 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium border border-indigo-100"
                 >
-                  {f.feature_name[currentLanguage]}
+                  {f?.feature_name?.[currentLanguage]}
                 </span>
               ))}
             </div>
@@ -183,19 +183,19 @@ const ViewDetailProperties = () => {
 
         <div className="p-4 sm:p-6 bg-gray-50 rounded-xl border border-gray-200 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
           <img
-            src={property.owner.avatar}
-            alt={property.owner.fullName}
+            src={property.owner_id?.avatar}
+            alt={property.owner_id?.fullName}
             className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4 border-white shadow-md"
           />
           <div className="text-center sm:text-left">
             <h4 className="text-lg sm:text-xl font-semibold text-gray-800">
-              👤 {property.owner.fullName}
+              👤 {property.owner_id?.fullName}
             </h4>
             <p className="text-gray-500 text-sm sm:text-base">
-              {property.owner.email}
+              {property.owner_id?.email}
             </p>
             <p className="text-gray-500 text-sm sm:text-base">
-              {property.owner.phone}
+              {property.owner_id?.phone}
             </p>
           </div>
         </div>

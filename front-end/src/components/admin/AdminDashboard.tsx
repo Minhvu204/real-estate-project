@@ -57,11 +57,6 @@ export default function AdminDashboard() {
     { text: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
     { text: "List User", icon: <PersonIcon />, path: "/admin/users" },
     { text: "List Properties", icon: <HomeIcon />, path: "/admin/properties" },
-    {
-      text: "Manage Properties",
-      icon: <HomeIcon />,
-      path: "/admin/manageProperties",
-    },
   ];
 
   const listUserItem = [

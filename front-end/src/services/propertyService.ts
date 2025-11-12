@@ -1,4 +1,4 @@
-import type { Property, DetailProperty } from "../types/Property";
+import type { Property } from "../types/Property";
 import { httpPublic } from "../utils/httpPublic";
 import { httpClient } from "../utils/httpClient";
 import type { User } from "../types/Users";
@@ -6,12 +6,16 @@ import { httpAdmin } from "../utils/httpAdmin";
 const RESOURCE = "/properties";
 
 export const getAllProperties = async (): Promise<Property[]> => {
-  const res = await httpAdmin.get(RESOURCE);
+  const res = await httpAdmin.get(RESOURCE, {
+    params: { limit: 100 },
+  });
   return res.data.data.data;
 };
 
 export const getAllPropertiesByPending = async (): Promise<Property[]> => {
-  const res = await httpAdmin.get(`${RESOURCE}?status=pending`);
+  const res = await httpAdmin.get(`${RESOURCE}?status=pending`, {
+    params: { limit: 100 },
+  });
   return res.data.data.data;
 };
 
@@ -29,15 +33,15 @@ export const getPropertiesById = async (id: string): Promise<Property> => {
 
 export const getDetailPropertiesById = async (
   id: string
-): Promise<DetailProperty> => {
+): Promise<Property> => {
   const response = await httpPublic.get(`${RESOURCE}/${id}`);
-  return response?.data?.data;
+  return response?.data?.data?.data;
 };
 
 export const hideProperty = async (
   id: string,
   note?: string
-): Promise<DetailProperty> => {
+): Promise<Property> => {
   try {
     const res = await httpAdmin.patch(`${RESOURCE}/${id}/hide`, { note });
     return res?.data?.data;
@@ -47,7 +51,7 @@ export const hideProperty = async (
   }
 };
 
-export const restoreProperty = async (id: string): Promise<DetailProperty> => {
+export const restoreProperty = async (id: string): Promise<Property> => {
   try {
     const res = await httpAdmin.patch(`${RESOURCE}/${id}/restore`);
     return res?.data?.data;
