@@ -3,7 +3,6 @@ dotenv.config();
 import http from "http";
 import { Server } from "socket.io"; 
 import app from "./app";
-import routes from "./routes/index.route";
 import { connectDB } from "./config/db.config";
 import { setupSocketIO } from "./socket/socket";
 

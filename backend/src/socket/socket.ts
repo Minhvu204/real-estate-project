@@ -3,7 +3,6 @@ import { Server, Socket } from "socket.io";
 import jwt from "jsonwebtoken";
 import { notificationService } from "../services/notification.service";
 
-// Map để lưu userId -> socketId
 const userSocketMap = new Map<string, string>();
 
 // Map để lưu socketId -> userId
