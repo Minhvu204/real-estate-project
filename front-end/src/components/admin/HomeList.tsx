@@ -5,6 +5,8 @@ import Paper from '@mui/material/Paper';
 import { useState, useEffect } from 'react';
 import { getAllProperties } from '../../services/propertyService';
 import type { Property } from '../../types/Property';
+import type { Lang } from '../../utils/storage';
+import { getLanguage } from '../../utils/storage';
 
 
 const columns = [
@@ -29,7 +31,7 @@ export default function DataTable() {
     const [loading, setLoading] = useState(true);
     const [filterRow, setFilterRow] = useState<Property[]>();
     const [searchText, setSearchText] = useState("");
-
+    const currentLanguage: Lang = getLanguage();
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -48,13 +50,12 @@ export default function DataTable() {
     }, []);
     useEffect(() => {
         const filtered = rows?.filter((r) =>
-            r.title.toLowerCase().includes(searchText.toLowerCase()) ||
-            r.address.toLowerCase().includes(searchText.toLowerCase()) ||
+            r.title[currentLanguage].toLowerCase().includes(searchText.toLowerCase()) ||
+            r.address[currentLanguage].toLowerCase().includes(searchText.toLowerCase()) ||
             r.price.toString().toLowerCase().includes(searchText.toLowerCase())
         );
         setFilterRow(filtered);
     }, [searchText, rows]);
-
 
     if (rows == null) return <p>Is loading </p>
     return (

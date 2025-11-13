@@ -27,10 +27,14 @@ export async function createNotification(
     const io = getIO();
     if (io) {
       io.to(`user:${userId}`).emit("new_notification", notification);
+      console.log(`[Socket] Emitted 'new_notification' to room: ${`user:${userId}`}`);
       
       // Emit unread count update
       const unreadCount = await notificationService.getUnreadCount(userId);
       io.to(`user:${userId}`).emit("unread_count_update", { unreadCount });
+      console.log(`[Socket] Emitted 'unread_count_update' to room: ${`user:${userId}`}`);
+    }else {
+      console.warn("[Socket] IO instance is not available. Emit skipped.");
     }
 
     return notification;
@@ -38,6 +42,101 @@ export async function createNotification(
     console.error("Failed to create notification:", error);
     return null;
   }
+}
+
+
+// Notification khi seller gửi yêu cầu gán agent
+export async function notifyAssignmentRequest(
+  agentId: string,
+  sellerName: string,
+  propertyTitle: string,
+  assignmentId: string
+) {
+  return createNotification(
+    agentId,
+    "Yêu cầu quản lý property mới",
+    `${sellerName} đã gửi cho bạn yêu cầu quản lý cho property "${propertyTitle}"`,
+    {
+      type: "property",
+      relatedId: assignmentId,
+      actionUrl: `/agent/assignments`, // (URL ví dụ, bạn đổi thành URL agent xem request)
+    }
+  );
+}
+
+// Notification khi agent chấp nhận yêu cầu
+export async function notifyAssignmentAccepted(
+  sellerId: string,
+  agentName: string,
+  propertyTitle: string,
+  assignmentId: string
+) {
+  return createNotification(
+    sellerId,
+    "Yêu cầu quản lý đã được chấp nhận",
+    `${agentName} đã chấp nhận yêu cầu quản lý cho property "${propertyTitle}"`,
+    {
+      type: "property",
+      relatedId: assignmentId,
+      actionUrl: `/seller/properties/${assignmentId}`, // (URL ví dụ)
+    }
+  );
+}
+
+// Notification khi agent từ chối yêu cầu
+export async function notifyAssignmentRejected(
+  sellerId: string,
+  agentName: string,
+  propertyTitle: string,
+  assignmentId: string,
+  reason?: string
+) {
+  const message = `${agentName} đã từ chối yêu cầu quản lý cho property "${propertyTitle}"${
+    reason ? `: ${reason}` : ""
+  }`;
+  return createNotification(sellerId, "Yêu cầu quản lý bị từ chối", message, {
+    type: "property",
+    relatedId: assignmentId,
+    actionUrl: `/seller/properties/${assignmentId}`, // (URL ví dụ)
+  });
+}
+
+// Notification khi seller hủy yêu cầu (khi đang pending)
+export async function notifyAssignmentCancelled(
+  agentId: string,
+  sellerName: string,
+  propertyTitle: string,
+  assignmentId: string
+) {
+  return createNotification(
+    agentId,
+    "Yêu cầu quản lý đã bị hủy",
+    `${sellerName} đã hủy yêu cầu quản lý cho property "${propertyTitle}"`,
+    {
+      type: "property",
+      relatedId: assignmentId,
+      actionUrl: `/agent/assignments`, // (URL ví dụ)
+    }
+  );
+}
+
+// Notification khi seller gỡ agent khỏi property
+export async function notifyAgentRemoved(
+  agentId: string,
+  sellerName: string,
+  propertyTitle: string,
+  propertyId: string
+) {
+  return createNotification(
+    agentId,
+    "Bạn đã bị gỡ khỏi property",
+    `${sellerName} đã gỡ bạn khỏi property "${propertyTitle}".`,
+    {
+      type: "property",
+      relatedId: propertyId,
+      actionUrl: `/properties/${propertyId}`,
+    }
+  );
 }
 
 export async function createNotificationsForUsers(

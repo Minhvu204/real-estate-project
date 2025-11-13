@@ -1,20 +1,41 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Box, Chip, Container, Divider, Grid, Paper, Stack, Typography, Avatar, } from "@mui/material";
+import { Box, Chip, Container, Divider, Grid, Paper, Stack, Typography, Avatar, useMediaQuery, Button, } from "@mui/material";
 import PlaceIcon from "@mui/icons-material/Place";
 import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
-import Carousel from "../components/property/Carousel";
+import { useTranslation } from "react-i18next";
+import { getLanguage } from "../utils/storage";
+import type { Property } from "@/types/Property";
 
-
-const PropertyDetail = () => {
+const PropertyDetailUser = () => {
     const { id } = useParams();
-    const [property, setProperty] = useState<any>(null);
+    const [property, setProperty] = useState<Property | null>(null);
+
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const isMobile = useMediaQuery("(max-width:900px)");
+
+    const { t } = useTranslation("propertyDetail");
+    const lang = getLanguage();
+
+    const nextSlide = () => {
+        if (!property || !property.images) return;
+        setCurrentIndex((prev) =>
+            prev == property.images.length - 1 ? 0 : prev + 1
+        );
+    };
+
+    const prevSlide = () => {
+        if (!property || !property.images) return;
+        setCurrentIndex((prev) =>
+            prev === 0 ? property.images.length - 1 : prev - 1
+        );
+    };
 
     useEffect(() => {
         fetch(`http://localhost:3000/api/public/properties/${id}`)
             .then(res => res.json())
-            .then(data => setProperty(data.data))
+            .then(data => setProperty(data.data.data))
             .catch(err => console.error(err));
     }, [id]);
 
@@ -22,127 +43,238 @@ const PropertyDetail = () => {
         return <Typography textAlign="center" mt={3}>Loading...</Typography>;
     }
 
+    const features = property.features ?? [];
+
     return (
-        <Container sx={{ mt: 4, mb: 6 }}>
+        <Container sx={{ mt: 1, mb: 1 }}>
             {/* CAROUSEL */}
-            <div className="aspect-[4/3] w-full relative">
-                <Carousel>
-                    {property.images.map((imageUrl: any, index: number) => (
-                        <img
-                            key={index}
-                            src={imageUrl}
-                            alt={`Ảnh ${index + 1}`}
-                            className="w-full h-full object-cover"
-                        />
-                    ))}
-                </Carousel>
-            </div>
-            {/* TITLE + PRICE */}
-            <Typography variant="h4" mt={3} fontWeight="bold">
-                {property.title}
-            </Typography>
+            {property.images && property.images.length > 0 && (
+                <Box
+                    sx={{
+                        position: "relative",
+                        width: "100%",
+                        height: isMobile ? "100%" : 500,
+                        overflow: "hidden",
+                        borderRadius: 2,
+                    }}
+                >
+                    {/* IMAGE */}
+                    <img
+                        src={property.images[currentIndex]}
+                        alt="property"
+                        style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            transition: "0.4s ease"
+                        }}
+                    />
 
-            <Typography color="text.secondary" mt={1}>
-                <PlaceIcon sx={{ fontSize: 20, mr: 1 }} />
-                {property.address}
-            </Typography>
-
-            <Typography variant="h5" color="primary" fontWeight="bold" mt={2}>
-                ${property.price}
-            </Typography>
-
-            {/* TAGS */}
-            <Stack direction="row" spacing={1} mt={2}>
-                <Chip label={property.city?.city_name} />
-                <Chip label={property.category?.category_name} />
-                <Chip label={property.type?.type_name} />
-                <Chip label={property.status} color="success" />
-            </Stack>
-
-            {/* BED - BATH */}
-            <Stack direction="row" spacing={2} mt={2}>
-                <Chip icon={<BedIcon />} label={`${property.bedrooms} Bedrooms`} />
-                <Chip icon={<BathtubIcon />} label={`${property.bathrooms} Bathrooms`} />
-            </Stack>
-
-            {/* DESCRIPTION */}
-            <Typography variant="h6" fontWeight="bold" mt={4}>
-                Description
-            </Typography>
-            <Typography color="text.secondary" mt={1}>
-                {property.description}
-            </Typography>
-
-            {/* FEATURES */}
-            {property.features?.length > 0 && (
-                <>
-                    <Typography variant="h6" fontWeight="bold" mt={4}>
-                        Features
-                    </Typography>
-                    <Stack direction="row" spacing={1} flexWrap="wrap" mt={1}>
-                        {property.features.map((f: any) => (
-                            <Chip key={f._id} label={f.feature_name} variant="outlined" />
-                        ))}
-                    </Stack>
-                </>
-            )}
-
-            {/* OWNER & AGENT */}
-            <Grid container spacing={3} mt={4}>
-                <Grid item xs={12} md={6}>
-                    <Paper sx={{ p: 2 }}>
-                        <Typography variant="h6" fontWeight="bold">Owner</Typography>
-                        <Stack direction="row" spacing={2} mt={1}>
-                            <Avatar>{property.owner?.fullName?.charAt(0)}</Avatar>
-                            <Box>
-                                <Typography fontWeight="bold">{property.owner?.fullName}</Typography>
-                                <Typography color="text.secondary">{property.owner?.phone}</Typography>
-                                <Typography color="text.secondary">{property.owner?.email}</Typography>
+                    {/* ONLY SHOW BUTTONS IF MORE THAN 1 IMAGE */}
+                    {property.images.length > 1 && (
+                        <>
+                            {/* PREV BTN */}
+                            <Box
+                                onClick={prevSlide}
+                                sx={{
+                                    position: "absolute",
+                                    top: "50%",
+                                    left: 10,
+                                    transform: "translateY(-50%)",
+                                    background: "rgba(0,0,0,0.5)",
+                                    color: "#fff",
+                                    p: "6px 10px",
+                                    borderRadius: "50%",
+                                    cursor: "pointer",
+                                    userSelect: "none",
+                                    fontWeight: "bold"
+                                }}
+                            >
+                                {"<"}
                             </Box>
-                        </Stack>
-                    </Paper>
+
+                            {/* NEXT BTN */}
+                            <Box
+                                onClick={nextSlide}
+                                sx={{
+                                    position: "absolute",
+                                    top: "50%",
+                                    right: 10,
+                                    transform: "translateY(-50%)",
+                                    background: "rgba(0,0,0,0.5)",
+                                    color: "#fff",
+                                    p: "6px 10px",
+                                    borderRadius: "50%",
+                                    cursor: "pointer",
+                                    userSelect: "none",
+                                    fontWeight: "bold"
+                                }}
+                            >
+                                {">"}
+                            </Box>
+
+                            {/* DOTS */}
+                            <Box
+                                sx={{
+                                    position: "absolute",
+                                    bottom: 10,
+                                    width: "100%",
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    gap: 1
+                                }}
+                            >
+                                {property.images.map((_: any, i: number) => (
+                                    <Box
+                                        key={i}
+                                        onClick={() => setCurrentIndex(i)}
+                                        sx={{
+                                            width: 10,
+                                            height: 10,
+                                            borderRadius: "50%",
+                                            background: currentIndex === i ? "#fff" : "rgba(255,255,255,0.5)",
+                                            cursor: "pointer"
+                                        }}
+                                    />
+                                ))}
+                            </Box>
+                        </>
+                    )}
+                </Box>
+            )
+            }
+
+
+
+            <Grid>
+
+                <Box display="flex" justifyContent="flex-end" mt={2} mb={2}>
+                    <Button variant="contained" color="primary">
+                        Request a tour
+                    </Button>
+                </Box>
+                {/* TITLE + PRICE */}
+                <Typography variant="h4" fontWeight="bold" mt={1}>
+                    {property.title[lang]}
+                </Typography>
+
+                <Typography color="text.secondary" mt={1}>
+                    <PlaceIcon sx={{ fontSize: 20, mr: 1 }} />
+                    {property.address[lang]}
+                </Typography>
+
+                <Typography variant="h5" color="primary" fontWeight="bold" mt={1}>
+                    ${property.price.toLocaleString()}
+                </Typography>
+
+                {/* TAGS */}
+                <Stack direction="row" spacing={1} mt={1}>
+                    <Chip label={property.city_id?.city_name[lang]} />
+                    <Chip label={property.category_id?.category_name[lang]} />
+                    <Chip label={property.type_id?.type_name[lang]} />
+                    <Chip label={property.status} color="success" />
+                </Stack>
+
+                {/* BED - BATH */}
+                <Stack direction="row" spacing={2} mt={1}>
+                    <Chip icon={<BedIcon />} label={`${property.bedrooms} ${t("bedrooms")}`} />
+                    <Chip icon={<BathtubIcon />} label={`${property.bathrooms} ${t("bathrooms")}`} />
+                </Stack>
+
+                {/* DESCRIPTION */}
+                <Typography variant="h6" fontWeight="bold" mt={2}>{t("description")}</Typography>
+                <Typography color="text.secondary">
+                    {property.description[lang]}
+                </Typography>
+                <Typography color="text.secondary">
+                    {t("area")}: {property.area}{property.unit}
+                </Typography>
+                <Typography color="text.secondary">
+                    {t("floors")}: {property.floors}
+                </Typography>
+                <Typography color="text.secondary">
+                    {t("yearBuilt")}: {property.yearBuilt}
+                </Typography>
+
+                {/* FEATURES */}
+                {
+                    features?.length > 0 && (
+                        <>
+                            <Typography variant="h6" fontWeight="bold" mt={2}>
+                                {t("features")}
+                            </Typography>
+                            <Stack direction="row" spacing={1} flexWrap="wrap" mb={1}>
+                                {features.map((f: any) => (
+                                    <Chip key={f._id} label={f.feature_name[lang]} variant="outlined" />
+                                ))}
+                            </Stack>
+                        </>
+                    )
+                }
+                <Typography variant="h6" fontWeight="bold" mt={2}>
+                    {t("owner")} & {t("agent")}
+                </Typography>
+
+                <Grid container spacing={3} mt={2}>
+                    <Grid size={{ xs: 12, md: 6 }}>
+                        <Paper sx={{ p: 2 }}>
+                            <Typography variant="h6" fontWeight="bold">{t("owner")}</Typography>
+                            <Stack direction="row" spacing={2}>
+                                <Avatar>{property.owner_id?.fullName?.charAt(0)}</Avatar>
+                                <Box>
+                                    <Typography fontWeight="bold">{property.owner_id?.fullName}</Typography>
+                                    <Typography color="text.secondary">{property.owner_id?.phone}</Typography>
+                                    <Typography color="text.secondary">{property.owner_id?.email}</Typography>
+                                </Box>
+                            </Stack>
+                        </Paper>
+                    </Grid>
+
+                    <Grid size={{ xs: 12, md: 6 }}>
+                        <Paper sx={{ p: 2 }}>
+                            <Typography variant="h6" fontWeight="bold">{t("agent")}</Typography>
+                            <Stack direction="row" spacing={2} mt={1}>
+                                <Avatar>{property.agent_id?.fullName?.charAt(0)}</Avatar>
+                                <Box>
+                                    <Typography fontWeight="bold">{property.agent_id?.fullName}</Typography>
+                                    <Typography color="text.secondary">{property.agent_id?.phone}</Typography>
+                                    <Typography color="text.secondary">{property.agent_id?.email}</Typography>
+                                </Box>
+                            </Stack>
+                        </Paper>
+                    </Grid>
                 </Grid>
 
-                <Grid item xs={12} md={6}>
-                    <Paper sx={{ p: 2 }}>
-                        <Typography variant="h6" fontWeight="bold">Agent</Typography>
-                        <Stack direction="row" spacing={2} mt={1}>
-                            <Avatar>{property.agent?.fullName?.charAt(0)}</Avatar>
-                            <Box>
-                                <Typography fontWeight="bold">{property.agent?.fullName}</Typography>
-                                <Typography color="text.secondary">{property.agent?.phone}</Typography>
-                                <Typography color="text.secondary">{property.agent?.email}</Typography>
+                {/* MAP */}
+                {
+                    property.coordinates?.lat && property.coordinates?.lng && (
+                        <>
+                            <Typography variant="h6" fontWeight="bold" mt={2}>
+                                {t("location")}
+                            </Typography>
+                            <Box mt={2} sx={{ borderRadius: 2, overflow: "hidden" }}>
+                                <iframe
+                                    title="map"
+                                    src={`https://www.google.com/maps?q=${property.coordinates.lat},${property.coordinates.lng}&z=15&output=embed`}
+                                    width="100%"
+                                    height="300"
+                                    style={{ border: 0 }}
+                                />
                             </Box>
-                        </Stack>
-                    </Paper>
-                </Grid>
-            </Grid>
+                        </>
+                    )
+                }
 
-            {/* MAP */}
-            {property.coordinates?.lat && property.coordinates?.lng && (
-                <>
-                    <Typography variant="h6" fontWeight="bold" mt={4}>
-                        Location
-                    </Typography>
-                    <Box mt={2} sx={{ borderRadius: 2, overflow: "hidden" }}>
-                        <iframe
-                            title="map"
-                            src={`https://www.google.com/maps?q=${property.coordinates.lat},${property.coordinates.lng}&z=15&output=embed`}
-                            width="100%"
-                            height="300"
-                            style={{ border: 0 }}
-                        />
-                    </Box>
-                </>
-            )}
-
-            {/* CREATED AT */}
-            <Divider sx={{ mt: 4 }} />
-            <Typography color="text.secondary" mt={2}>
-                Posted on: {new Date(property.createdAt).toLocaleDateString()}
-            </Typography>
-        </Container>
+                <Divider sx={{ mt: 2 }} />
+                <Typography color="text.secondary" mt={1}>
+                    {t("postedOn")}: {new Date(property.createdAt).toLocaleDateString()}
+                </Typography>
+                <Typography color="text.secondary">
+                    {t("updatedOn")}: {new Date(property.updatedAt).toLocaleDateString()}
+                </Typography>
+            </Grid >
+        </Container >
     );
 };
 
-export default PropertyDetail;
+export default PropertyDetailUser;
