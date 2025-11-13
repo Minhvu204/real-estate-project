@@ -128,7 +128,7 @@ const ListProperties = () => {
           className="border px-3 py-2 rounded-md w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-400 ml-3"
         />
 
-        {!isManageMode && (
+        {!isManageMode && !status && (
           <select title="select"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -183,25 +183,25 @@ const ListProperties = () => {
               <td className="px-4 py-3 border-b">
                 <span
                   className={`px-3 py-1 rounded-full text-sm font-medium ${item.status === "approved"
-                      ? "bg-green-100 text-green-700"
-                      : item.status === "pending"
+                    ? "bg-green-100 text-green-700"
+                    : item.status === "pending"
                       ? "bg-yellow-100 text-yellow-700"
                       : item.status === "available"
-                      ? "bg-blue-100 text-blue-700"
-                      : item.status === "rejected"
-                      ? "bg-red-100 text-red-700"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
+                        ? "bg-blue-100 text-blue-700"
+                        : item.status === "rejected"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-gray-200 text-gray-700"
+                    }`}
                 >
                   {currentLanguage === "en"
                     ? item.status
                     : item.status === "approved"
-                    ? "Đã duyệt"
-                    : item.status === "pending"
-                    ? "Chờ duyệt"
-                    : item.status === "available"
-                    ? "Có sẵn"
-                    : "Bị từ chối"}
+                      ? "Đã duyệt"
+                      : item.status === "pending"
+                        ? "Chờ duyệt"
+                        : item.status === "available"
+                          ? "Có sẵn"
+                          : "Bị từ chối"}
                 </span>
               </td>
               <td className="px-4 py-3 border-b space-x-2">

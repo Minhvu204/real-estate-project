@@ -123,21 +123,20 @@ const HideProperties = ({ propertyId }: HideProperty) => {
       {property && (
         <>
           <Tooltip title={property.deleted ? t("restore") : t("hide")}>
-            <button
+            <button title="button"
               onClick={handleOpen}
               className={`w-9 h-9 cursor-pointer flex items-center justify-center rounded-md text-white shadow-sm hover:shadow-md transition-all duration-200 
-      ${
-        property.deleted
-          ? "bg-red-500 hover:bg-red-600"
-          : "bg-green-500 hover:bg-green-600"
-      }`}
+      ${property.deleted
+                  ? "bg-red-500 hover:bg-red-600"
+                  : "bg-green-500 hover:bg-green-600"
+                }`}
             >
               <FontAwesomeIcon icon={property.deleted ? faLock : faLockOpen} />
             </button>
           </Tooltip>
           {property.deleted && (
             <Tooltip title={property.hiddenNote || "Không có ghi chú"}>
-              <button className="w-9 h-9 flex items-center cursor-pointer justify-center bg-amber-500 text-white rounded-md hover:bg-amber-600 shadow-sm hover:shadow-md transition-all duration-200">
+              <button title="button" className="w-9 h-9 flex items-center cursor-pointer justify-center bg-amber-500 text-white rounded-md hover:bg-amber-600 shadow-sm hover:shadow-md transition-all duration-200">
                 <FontAwesomeIcon icon={faCircleInfo} />
               </button>
             </Tooltip>
@@ -170,19 +169,19 @@ const HideProperties = ({ propertyId }: HideProperty) => {
                       property.status === "approved"
                         ? "Approved"
                         : property.status === "pending"
-                        ? "Pending"
-                        : property.status === "available"
-                        ? "Available"
-                        : "Rejected"
+                          ? "Pending"
+                          : property.status === "available"
+                            ? "Available"
+                            : "Rejected"
                     }
                     color={
                       property.status === "approved"
                         ? "success"
                         : property.status === "pending"
-                        ? "warning"
-                        : property.status === "available"
-                        ? "info"
-                        : "default"
+                          ? "warning"
+                          : property.status === "available"
+                            ? "info"
+                            : "default"
                     }
                     size="small"
                   />

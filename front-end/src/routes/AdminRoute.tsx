@@ -9,7 +9,6 @@ import BlockUser from "../components/admin/userInfor/BlockUser";
 import ListProperties from "../components/admin/manageProperties/ListProperties";
 import ViewDetailProperties from "../components/admin/manageProperties/ViewDetailProperties";
 import HideProperties from "../components/admin/manageProperties/HideProperties";
-import ManageProperties from "../components/admin/manageProperties/ManageProperties";
 
 const AdminProtectedRoute = () => {
   const user = getUser();
@@ -46,10 +45,6 @@ export const AdminRoute = [
           {
             path: "properties/hide",
             element: <HideProperties propertyId="" />,
-          },
-          {
-            path: "manageProperties",
-            element: <ManageProperties />,
           },
           {
             path: "manageProperties/:id",
