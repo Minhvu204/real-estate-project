@@ -1,4 +1,4 @@
-import type { Property, DetailProperty } from "../types/Property";
+import type { Property } from "../types/Property";
 import { httpPublic } from "../utils/httpPublic";
 import { httpClient } from "../utils/httpClient";
 import type { PropertyListData } from "../types/Respondata";
@@ -9,7 +9,16 @@ import type { Taxonomy } from "@/types/Taxonomy";
 const RESOURCE = "/properties";
 const SELLER_RESOURCE = "/seller";
 export const getAllProperties = async (): Promise<Property[]> => {
-  const res = await httpAdmin.get(RESOURCE);
+  const res = await httpAdmin.get(RESOURCE, {
+    params: { limit: 100 },
+  });
+  return res.data.data.data;
+};
+
+export const getAllPropertiesByPending = async (): Promise<Property[]> => {
+  const res = await httpAdmin.get(`${RESOURCE}?status=pending`, {
+    params: { limit: 100 },
+  });
   return res.data.data.data;
 };
 export const getAllPropertiesByUser = async (): Promise<Property[]> => {
@@ -31,15 +40,15 @@ export const getPropertiesById = async (id: string): Promise<Property> => {
 
 export const getDetailPropertiesById = async (
   id: string
-): Promise<DetailProperty> => {
+): Promise<Property> => {
   const response = await httpPublic.get(`${RESOURCE}/${id}`);
-  return response?.data?.data;
+  return response?.data?.data?.data;
 };
 
 export const hideProperty = async (
   id: string,
   note?: string
-): Promise<DetailProperty> => {
+): Promise<Property> => {
   try {
     const res = await httpAdmin.patch(`${RESOURCE}/${id}/hide`, { note });
     return res?.data?.data;
@@ -49,7 +58,7 @@ export const hideProperty = async (
   }
 };
 
-export const restoreProperty = async (id: string): Promise<DetailProperty> => {
+export const restoreProperty = async (id: string): Promise<Property> => {
   try {
     const res = await httpAdmin.patch(`${RESOURCE}/${id}/restore`);
     return res?.data?.data;
@@ -57,6 +66,36 @@ export const restoreProperty = async (id: string): Promise<DetailProperty> => {
     console.log("lỗi khi restore property:", error);
     throw new Error(
       error.response?.data?.message || "restore property thất bại"
+    );
+  }
+};
+
+export const updateStatus = async (
+  id: string,
+  status: string
+): Promise<Property> => {
+  try {
+    const res = await httpAdmin.patch(`${RESOURCE}/${id}/status`, { status });
+    return res?.data?.data;
+  } catch (error: any) {
+    console.log("lỗi khi update status property:", error);
+    throw new Error(
+      error.response?.data?.message || "update status property thất bại"
+    );
+  }
+};
+
+export const updateStatus = async (
+  id: string,
+  status: string
+): Promise<Property> => {
+  try {
+    const res = await httpAdmin.patch(`${RESOURCE}/${id}/status`, { status });
+    return res?.data?.data;
+  } catch (error: any) {
+    console.log("lỗi khi update status property:", error);
+    throw new Error(
+      error.response?.data?.message || "update status property thất bại"
     );
   }
 };

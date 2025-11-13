@@ -1,19 +1,23 @@
-// src/scripts/seedProperties.ts
+// src/seed/seedPropertiesWithDistrictWard.ts
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import bcrypt from "bcryptjs";
 
 // 🧩 Models
 import City from "../models/city.model";
+import District from "../models/district.model";
+import Ward from "../models/ward.model";
 import Category from "../models/category.model";
 import PropertyType from "../models/propertyType.model";
 import Feature from "../models/feature.model";
 import User from "../models/user.model";
-import Property from "../models/property.model";
+import Property, { IProperty } from "../models/property.model";
 
 dotenv.config();
 
-const MONGO_URI = process.env.MONGO_URL || "your_mongodb_atlas_url_here";
+const MONGO_URI = process.env.MONGO_URL || "mongodb://localhost:27017/real_estate_db";
+
+// Hàm lấy ngẫu nhiên 1 phần tử từ array
+const getRandom = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
 async function seed() {
   try {
@@ -21,93 +25,41 @@ async function seed() {
     await mongoose.connect(MONGO_URI);
     console.log("✅ MongoDB connected successfully!");
 
-    // 🧹 Clear old data
-    await Promise.all([
-      City.deleteMany({}),
-      Category.deleteMany({}),
-      PropertyType.deleteMany({}),
-      Feature.deleteMany({}),
-      User.deleteMany({}),
-      Property.deleteMany({}),
-    ]);
-    console.log("🧼 Old collections cleared!");
+    // Lấy dữ liệu cần thiết
+    const cities = await City.find({
+      "city_name.vi": { $in: ["Thành phố Hồ Chí Minh", "Đà Nẵng", "Thành phố Huế", "Thành phố Hải Phòng","Thành phố Hà Nội"] }
+    });
 
-    // 🏙️ Cities
-    await City.insertMany([
-      { city_name: { vi: "Thành phố Hồ Chí Minh", en: "Ho Chi Minh City" } },
-      { city_name: { vi: "Hà Nội", en: "Hanoi" } },
-      { city_name: { vi: "Đà Nẵng", en: "Da Nang" } },
-    ]);
-    const cities = await City.find();
-    console.log("🏙️ Cities seeded!");
 
-    // 🏷️ Categories
-    await Category.insertMany([
-      { category_name: { vi: "Căn hộ", en: "Apartment" } },
-      { category_name: { vi: "Nhà", en: "House" } },
-      { category_name: { vi: "Biệt thự", en: "Villa" } },
-    ]);
+    const districts = await District.find({ city_id: { $in: cities.map(c => c._id) } });
+    const wards = await Ward.find({ district_id: { $in: districts.map(d => d._id) } });
     const categories = await Category.find();
-    console.log("🏷️ Categories seeded!");
-
-    // 🏠 Property Types
-    await PropertyType.insertMany([
-      { type_name: { vi: "Cho thuê", en: "For Rent" } },
-      { type_name: { vi: "Bán", en: "For Sale" } },
-    ]);
     const types = await PropertyType.find();
-    console.log("🏠 Property types seeded!");
-
-    // ✨ Features
-    await Feature.insertMany([
-      { feature_name: { vi: "Ban công", en: "Balcony" } },
-      { feature_name: { vi: "Hồ bơi", en: "Swimming Pool" } },
-      { feature_name: { vi: "Nhà để xe", en: "Garage" } },
-      { feature_name: { vi: "Vườn", en: "Garden" } },
-      { feature_name: { vi: "Phòng gym", en: "Gym" } },
-      { feature_name: { vi: "Thang máy", en: "Elevator" } },
-    ]);
     const features = await Feature.find();
-    console.log("✨ Features seeded!");
 
-    // 👤 Users
-    // const hashedPassword = await bcrypt.hash("123456", 10); // hash mật khẩu mẫu
+    const owner = await User.findOne({ role: "seller" });
+    const agent = await User.findOne({ role: "agent" });
 
-    const users = await User.create([
-      {
-        fullName: "Nguyen Van A",
-        email: "owner@example.com",
-        password: "123456",
-        role: "seller",
-        phone: "0901234567",
-        isActive: true
-      },
-      {
-        fullName: "Le Thi B",
-        email: "agent@example.com",
-        password: "123456",
-        role: "agent",
-        phone: "0907654321",
-        isActive: true
-      },
-    ]);
-    console.log("👤 Users seeded!");
+    if (!owner || !agent) {
+      throw new Error("Owner or Agent not found in DB!");
+    }
+    console.log("Owner:", owner.email, "Agent:", agent.email);
 
-    const owner = users.find((u) => u.role === "seller");
-    const agent = users.find((u) => u.role === "agent");
 
-    if (!cities.length || !categories.length || !types.length || !owner || !agent) {
+    if (!cities.length || !districts.length || !wards.length || !categories.length || !types.length || !owner || !agent) {
       throw new Error("Collections or users not seeded properly!");
     }
-    // 🏡 Properties
+
     const now = new Date();
-    await Property.insertMany([
+
+    // Properties dữ liệu cũ nhưng gán district và ward ngẫu nhiên
+    const propertiesData = [
       {
         // 1
         title: { vi: "Căn hộ cao cấp ở Quận 1", en: "Luxury Apartment in District 1" },
         description: { vi: "Căn hộ hiện đại đẹp mắt với view thành phố và đầy đủ tiện ích.", en: "A beautiful modern apartment with city view and full amenities." },
         price: 250000,
-        address: { vi: "123 Nguyễn Huệ, Quận 1, Thành phố Hồ Chí Minh", en: "123 Nguyen Hue, District 1, Ho Chi Minh City" },
+        address: { vi: "123 Nguyễn Huệ", en: "123 Nguyen Hue" },
         bedrooms: 2,
         bathrooms: 2,
         area: 75,
@@ -132,7 +84,7 @@ async function seed() {
         title: { vi: "Ngôi nhà ấm cúng gần Hồ Tây", en: "Cozy House near West Lake" },
         description: { vi: "Ngôi nhà gia đình ấm cúng nằm gần khu vực Hồ Tây với khu vườn rộng lớn.", en: "A cozy family home located near the West Lake area with a large garden." },
         price: 180000,
-        address: { vi: "45 Trích Sài, Tây Hồ, Hà Nội", en: "45 Trich Sai, Tay Ho, Hanoi" },
+        address: { vi: "45 Trích Sài", en: "45 Trich Sai" },
         bedrooms: 3,
         bathrooms: 2,
         area: 120,
@@ -154,10 +106,10 @@ async function seed() {
       },
       {
         // 3
-        title: { vi: "Biệt thự ven biển tại Đà Nẵng", en: "Beachfront Villa in Da Nang" },
+        title: { vi: "Biệt thự ven biển", en: "Beachfront Villa" },
         description: { vi: "Biệt thự sang trọng với view biển, hồ bơi và đường riêng ra bãi biển.", en: "Luxury villa with sea view, swimming pool and private access to the beach." },
         price: 450000,
-        address: { vi: "Bán đảo Sơn Trà, Đà Nẵng", en: "Son Tra Peninsula, Da Nang" },
+        address: { vi: "123 abc", en: "123 abc" },
         bedrooms: 5,
         bathrooms: 4,
         area: 350,
@@ -182,7 +134,7 @@ async function seed() {
         title: { vi: "Studio hiện đại ở Quận 3", en: "Modern Studio in District 3" },
         description: { vi: "Studio nhỏ gọn lý tưởng cho các chuyên gia độc thân, gần các quán cà phê và không gian làm việc chung.", en: "Compact studio ideal for single professionals, close to cafés and coworking spaces." },
         price: 85000,
-        address: { vi: "78 Pasteur, Quận 3, Thành phố Hồ Chí Minh", en: "78 Pasteur, District 3, Ho Chi Minh City" },
+        address: { vi: "78 Pasteur, Quận 3", en: "78 Pasteur, District 3" },
         bedrooms: 1,
         bathrooms: 1,
         area: 350,
@@ -207,7 +159,7 @@ async function seed() {
         title: { vi: "Nhà gia đình ở Quận 9", en: "Family House in District 9" },
         description: { vi: "Ngôi nhà gia đình rộng rãi với nhà để xe và vườn, hoàn hảo cho các gia đình đang phát triển.", en: "Spacious family house with garage and garden, perfect for growing families." },
         price: 200000,
-        address: { vi: "12 Long Trường, Quận 9, Thành phố Hồ Chí Minh", en: "12 Long Truong, District 9, Ho Chi Minh City" },
+        address: { vi: "12 Long Trường, Quận 9", en: "12 Long Truong, District 9" },
         bedrooms: 4,
         bathrooms: 3,
         area: 350,
@@ -232,7 +184,7 @@ async function seed() {
         title: { vi: "Penthouse với view thành phố", en: "Penthouse with City View" },
         description: { vi: "Penthouse tầng cao với view 360 độ ra thành phố, nội thất thiết kế sang trọng.", en: "High-floor penthouse offering 360° views of the city, designer finishes." },
         price: 1200000,
-        address: { vi: "50 Lê Lợi, Quận 1, Thành phố Hồ Chí Minh", en: "50 Le Loi, District 1, Ho Chi Minh City" },
+        address: { vi: "50 Lê Lợi, Quận 1", en: "50 Le Loi, District 1" },
         bedrooms: 4,
         bathrooms: 4,
         area: 350,
@@ -257,7 +209,7 @@ async function seed() {
         title: { vi: "Căn hộ ven sông ở Thảo Điền", en: "Riverside Condo in Thao Dien" },
         description: { vi: "Căn hộ hiện đại với đường ra sông và hồ bơi chung. Tuyệt vời cho các gia đình nước ngoài.", en: "Modern condo with river access and communal pool. Great for expat families." },
         price: 320000,
-        address: { vi: "Thảo Điền, Quận 2, Thành phố Hồ Chí Minh", en: "Thao Dien, District 2, Ho Chi Minh City" },
+        address: { vi: "Thảo Điền", en: "Thao Dien" },
         bedrooms: 3,
         bathrooms: 2,
         area: 350,
@@ -282,7 +234,7 @@ async function seed() {
         title: { vi: "Nhà phố đầy nắng gần Ngũ Hành Sơn", en: "Sunny Townhouse near Marble Mountain" },
         description: { vi: "Nhà phố thoải mái với sân thượng và hai ban công, gần các bãi biển.", en: "Comfortable townhouse with terrace and two balconies, close to beaches." },
         price: 150000,
-        address: { vi: "Gần Ngũ Hành Sơn, Đà Nẵng", en: "Near Marble Mountain, Da Nang" },
+        address: { vi: "Gần Ngũ Hành Sơn", en: "Near Marble Mountain" },
         bedrooms: 3,
         bathrooms: 3,
         area: 350,
@@ -307,7 +259,7 @@ async function seed() {
         title: { vi: "Studio nhỏ gọn gần Đại học", en: "Compact Studio near University" },
         description: { vi: "Studio giá cả phải chăng gần khuôn viên trường đại học, lý tưởng cho sinh viên.", en: "Affordable studio near university campus, ideal for students." },
         price: 35000,
-        address: { vi: "Khu vực Đại học, Đà Nẵng", en: "University area, Da Nang" },
+        address: { vi: "Khu vực Đại học", en: "University area" },
         bedrooms: 1,
         bathrooms: 1,
         area: 350,
@@ -332,7 +284,7 @@ async function seed() {
         title: { vi: "Bungalow ven biển", en: "Seaside Bungalow" },
         description: { vi: "Bungalow nhỏ hoàn hảo cho các kỳ nghỉ cuối tuần, có vườn riêng.", en: "Small bungalow perfect for weekend getaways, private garden included." },
         price: 90000,
-        address: { vi: "Đường ven biển, Đà Nẵng", en: "Coastal road, Da Nang" },
+        address: { vi: "Đường ven biển", en: "Coastal road" },
         bedrooms: 2,
         bathrooms: 1,
         area: 350,
@@ -352,13 +304,69 @@ async function seed() {
         createdAt: now,
         updatedAt: now,
       },
-    ]);
+      // ... thêm các property còn lại tương tự
+    ];
+    type SeedProperty = {
+      title: { vi: string; en: string };
+      description: { vi: string; en: string };
+      price: number;
+      address: { vi: string; en: string };
+      bedrooms: number;
+      bathrooms: number;
+      area: number;
+      unit: string;
+      yearBuilt: number;
+      city_id: mongoose.Types.ObjectId;
+      district_id?: mongoose.Types.ObjectId;
+      ward_id?: mongoose.Types.ObjectId;
+      features?: mongoose.Types.ObjectId[];
+      images?: string[];
+      listingType: string;
+      type_id?: mongoose.Types.ObjectId;
+      category_id?: mongoose.Types.ObjectId;
+      owner_id?: mongoose.Types.ObjectId;
+      agent_id?: mongoose.Types.ObjectId;
+      status?: string;
+      createdAt?: Date;
+      updatedAt?: Date;
+    };
 
-    console.log("🏡 Property seeded!");
+    const props = propertiesData as SeedProperty[];
 
-    console.log("✅ Seeding completed successfully!");
-  } catch (error) {
-    console.error("❌ Error while seeding:", error);
+    for (let prop of props) {
+      const cityId = prop.city_id;
+
+      const cityDistricts = districts.filter(d => (d.city_id as mongoose.Types.ObjectId).equals(cityId));
+      const district = getRandom(cityDistricts);
+
+      if (!district) {
+        throw new Error(`Không tìm thấy district cho city_id: ${cityId}`);
+      }
+
+      const cityWards = wards.filter(w =>
+        cityDistricts.some(d => (d._id as mongoose.Types.ObjectId).equals(w.district_id as mongoose.Types.ObjectId))
+      );
+      const ward = getRandom(cityWards);
+
+      if (!ward) {
+        throw new Error(`Không tìm thấy ward cho city_id: ${cityId}`);
+      }
+
+      // Ép kiểu ObjectId để TS không báo lỗi
+      prop.district_id = district._id as mongoose.Types.ObjectId;
+      prop.ward_id = ward._id as mongoose.Types.ObjectId;
+    }
+
+
+
+
+
+
+    await Property.insertMany(propertiesData);
+    console.log("🏡 Properties seeded with district & ward successfully!");
+
+  } catch (err) {
+    console.error("❌ Error seeding properties:", err);
   } finally {
     await mongoose.disconnect();
     console.log("🔌 MongoDB disconnected.");

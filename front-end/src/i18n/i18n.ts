@@ -13,44 +13,54 @@ import CREATEPROPERTYPAGE_EN from "../locales/en/createPropertyPage.json";
 import CREATEPROPERTYPAGE_VI from "../locales/vi/createPropertyPage.json";
 import ADDRESSAUTOCOMPLETE_EN from "../locales/en/addressAutocomplete.json";
 import ADDRESSAUTOCOMPLETE_VI from "../locales/vi/addressAutocomplete.json";
+import LIST_PROPERTIES_ADMIN_EN from "../locales/en/listProperties.json";
+import LIST_PROPERTIES_ADMIN_VI from "../locales/vi/listProperties.json";
+import DETAIL_PROPERTIES_ADMIN_EN from "../locales/en/detailProperty.json";
+import DETAIL_PROPERTIES_ADMIN_VI from "../locales/vi/detailProperty.json";
 
 export const resources = {
-    en: {
-        home: HOME_EN,
-        properties: PROPERTIES_EN,  //import từ các file ở locales/en mà muốn sử dụng, 
-        propertyPage: PROPERTY_PAGE_EN,
-        propertyDetail: PROPERTY_DETAIl_EN,
-        createPropertyPage: CREATEPROPERTYPAGE_EN,
-        addressAutocomplete: ADDRESSAUTOCOMPLETE_EN
-    },
-    vi: {
-        home: HOME_VI,
-        properties: PROPERTIES_VI,  //import từ các file ở locales/vi mà muốn sử dụng, 
-        propertyPage: PROPERTY_PAGE_VI,
-        propertyDetail: PROPERTY_DETAIl_VI,
-        createPropertyPage: CREATEPROPERTYPAGE_VI,
-        addressAutocomplete: ADDRESSAUTOCOMPLETE_VI
-    }
+  en: {
+    home: HOME_EN,
+    properties: PROPERTIES_EN,  //import từ các file ở locales/en mà muốn sử dụng, 
+    propertyPage: PROPERTY_PAGE_EN,
+    propertyDetail: PROPERTY_DETAIl_EN,
+    createPropertyPage: CREATEPROPERTYPAGE_EN,
+    addressAutocomplete: ADDRESSAUTOCOMPLETE_EN,
+    listProperties: LIST_PROPERTIES_ADMIN_EN,
+    detailProperty: DETAIL_PROPERTIES_ADMIN_EN,
+  },
+  vi: {
+    home: HOME_VI,
+    properties: PROPERTIES_VI,  //import từ các file ở locales/vi mà muốn sử dụng, 
+    propertyPage: PROPERTY_PAGE_VI,
+    propertyDetail: PROPERTY_DETAIl_VI,
+    createPropertyPage: CREATEPROPERTYPAGE_VI,
+    addressAutocomplete: ADDRESSAUTOCOMPLETE_VI,
+    listProperties: LIST_PROPERTIES_ADMIN_VI,
+    detailProperty: DETAIL_PROPERTIES_ADMIN_VI,
+  }
 };
-export const defaultNS = 'home';
+export const defaultNS = "home";
 i18n
-    .use(LanguageDetector)
-    .use(initReactI18next)
-    .init(
-        {
-            debug: true,
-            resources,
-            ns: ['home', 'properties', 'propertyPage', 'createPropertyPage', 'addressAutocomplete', 'propertyDetail', 'properties'],     //add các namespace khi viết thêm ở trên vào mảng này
-            defaultNS,
-            fallbackLng: 'en',
-            detection: {
-                // 👇 cấu hình để đọc/lưu ngôn ngữ vào localStorage
-                order: ["localStorage", "navigator"],
-                caches: ["localStorage"],
-                lookupLocalStorage: "i18nextLng", // key trong localStorage
-            },
-            interpolation: {
-                escapeValue: false
-            }
-        }
-    )
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init(
+    {
+      debug: true,
+      resources,
+      ns: ['home', 'properties', 'propertyPage', 'createPropertyPage', 'addressAutocomplete', 'propertyDetail', 'properties', 'listProperties', 'detailProperty'],     //add các namespace khi viết thêm ở trên vào mảng này
+      defaultNS,
+      fallbackLng: 'en',
+      detection: {
+        // 👇 cấu hình để đọc/lưu ngôn ngữ vào localStorage
+        order: ["localStorage", "navigator"],
+        caches: ["localStorage"],
+        lookupLocalStorage: "i18nextLng", // key trong localStorage
+      },
+      interpolation: {
+        escapeValue: false
+      }
+
+
+    }
+  )
