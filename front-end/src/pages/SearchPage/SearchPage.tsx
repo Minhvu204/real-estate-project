@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Property } from '../../types/Property';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { getAllProperties } from '../../services/propertyService';
+import { getAllProperties, getAllPropertiesByUser } from '../../services/propertyService';
 import { useSearchParams } from 'react-router-dom';
 import PropertyMap from '../../components/Property/PropertyMap';
 import PropertyCard from '../../components/Property/PropertyCard';
@@ -67,7 +67,7 @@ const SearchPage = () => {
         const fetchProperties = async () => {
             try {
                 setLoading(true);
-                const data = await getAllProperties();
+                const data = await getAllPropertiesByUser();
                 setProperties(data);
                 console.log(data);
             } catch (error: any) {

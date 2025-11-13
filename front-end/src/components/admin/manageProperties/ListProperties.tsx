@@ -82,7 +82,7 @@ const ListProperties = () => {
       item.address?.[currentLanguage]
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase());
-    const matchStatus = filterStatus === "" || item.status === filterStatus;
+const matchStatus = filterStatus === "" || item.status === filterStatus;
     return matchSearch && matchStatus;
   });
 
@@ -128,7 +128,7 @@ const ListProperties = () => {
           className="border px-3 py-2 rounded-md w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-400 ml-3"
         />
 
-        {!isManageMode && (
+        {!isManageMode && !status && (
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -169,7 +169,7 @@ const ListProperties = () => {
             <tr key={item._id} className="hover:bg-gray-50">
               <td className="px-4 py-3 border-b">
                 <img
-                  src={item.images[0]}
+src={item.images[0]}
                   alt={t("avatar")}
                   className="rounded-full w-10 h-10"
                 />

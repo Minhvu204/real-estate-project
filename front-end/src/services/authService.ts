@@ -17,7 +17,8 @@ export interface AuthResponse {
 }
 
 export async function loginRequest(payload: LoginPayload): Promise<AuthResponse> {
-    const res = await api.post("/api/client/auth/login", payload);
-    const data = res.data?.data;
-    return { token: data.accessToken, user: data.user };
+  const res = await api.post("/api/client/auth/login", payload);
+  // backend trả { message, data: { token, user } }
+  const data = res.data?.data;
+  return { token: data.accessToken, user: data.user };
 }

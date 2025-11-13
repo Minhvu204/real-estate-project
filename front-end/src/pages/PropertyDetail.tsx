@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Box, Chip, Container, Divider, Grid, Paper, Stack, Typography, Avatar, useMediaQuery, } from "@mui/material";
+import { Box, Chip, Container, Divider, Grid, Paper, Stack, Typography, Avatar, useMediaQuery, Button, } from "@mui/material";
 import PlaceIcon from "@mui/icons-material/Place";
 import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
 import type { Property } from "../types/Property";
 import { useTranslation } from "react-i18next";
 import { getLanguage } from "../utils/storage";
-import axios from "axios";
 import { getDetailPropertiesById } from "@/services/propertyService";
 
-const PropertyDetail = () => {
+const PropertyDetailUser = () => {
     const { id } = useParams();
     const [property, setProperty] = useState<Property | null>(null);
 
@@ -154,7 +153,15 @@ const PropertyDetail = () => {
             )
             }
 
+
+
             <Grid>
+
+                <Box display="flex" justifyContent="flex-end" mt={2} mb={2}>
+                    <Button variant="contained" color="primary">
+                        Request a tour
+                    </Button>
+                </Box>
                 {/* TITLE + PRICE */}
                 <Typography variant="h4" fontWeight="bold" mt={1}>
                     {property.title[lang]}
@@ -171,6 +178,9 @@ const PropertyDetail = () => {
 
                 {/* TAGS */}
                 <Stack direction="row" spacing={1} mt={1}>
+                    <Chip label={property.city_id?.city_name[lang]} />
+                    <Chip label={property.category_id?.category_name[lang]} />
+                    <Chip label={property.type_id?.type_name[lang]} />
                     <Chip label={property.city_id?.city_name[lang]} />
                     <Chip label={property.category_id?.category_name[lang]} />
                     <Chip label={property.type_id?.type_name[lang]} />
@@ -230,6 +240,9 @@ const PropertyDetail = () => {
                                     <Typography fontWeight="bold">{property.owner_id?.fullName}</Typography>
                                     <Typography color="text.secondary">{property.owner_id?.phone}</Typography>
                                     <Typography color="text.secondary">{property.owner_id?.email}</Typography>
+                                    <Typography fontWeight="bold">{property.owner_id?.fullName}</Typography>
+                                    <Typography color="text.secondary">{property.owner_id?.phone}</Typography>
+                                    <Typography color="text.secondary">{property.owner_id?.email}</Typography>
                                 </Box>
                             </Stack>
                         </Paper>
@@ -244,6 +257,9 @@ const PropertyDetail = () => {
                                     alt={property.agent_id?.fullName || "Agent"}
                                 />
                                 <Box>
+                                    <Typography fontWeight="bold">{property.agent_id?.fullName}</Typography>
+                                    <Typography color="text.secondary">{property.agent_id?.phone}</Typography>
+                                    <Typography color="text.secondary">{property.agent_id?.email}</Typography>
                                     <Typography fontWeight="bold">{property.agent_id?.fullName}</Typography>
                                     <Typography color="text.secondary">{property.agent_id?.phone}</Typography>
                                     <Typography color="text.secondary">{property.agent_id?.email}</Typography>
@@ -273,7 +289,6 @@ const PropertyDetail = () => {
                     )
                 }
 
-                {/* CREATED AT */}
                 <Divider sx={{ mt: 2 }} />
                 <Typography color="text.secondary" mt={1}>
                     {t("postedOn")}: {new Date(property.createdAt).toLocaleDateString()}
@@ -286,4 +301,4 @@ const PropertyDetail = () => {
     );
 };
 
-export default PropertyDetail;
+export default PropertyDetailUser;
