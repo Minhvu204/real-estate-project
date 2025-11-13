@@ -42,10 +42,12 @@ export function emitNotification(userId: string, notification: any) {
   if (!ioInstance) return;
   
   ioInstance.to(`user:${userId}`).emit("new_notification", notification);
+  console.log(`[Socket] Emitted 'new_notification' to room: ${`user:${userId}`}`);
   
   // Emit unread count update
   notificationService.getUnreadCount(userId).then((count) => {
     ioInstance?.to(`user:${userId}`).emit("unread_count_update", { unreadCount: count });
+    console.log(`[Socket] Emitted 'unread_count_update' to room: ${`user:${userId}`}`);
   }).catch((err) => {
     console.error("Error getting unread count:", err);
   });

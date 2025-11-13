@@ -1,6 +1,6 @@
 import { notificationService, CreateNotificationParams } from "../services/notification.service";
 import { NotificationType } from "../models/notification.model";
-import { getIO } from "../socket/socket";
+import { emitNotification } from "../socket/socket";
 
 
 export async function createNotification(
@@ -23,18 +23,8 @@ export async function createNotification(
       actionUrl: options?.actionUrl,
     });
 
-    // Emit notification real-time qua Socket.IO nếu user đang online
-    const io = getIO();
-    if (io) {
-      io.to(`user:${userId}`).emit("new_notification", notification);
-      console.log(`[Socket] Emitted 'new_notification' to room: ${`user:${userId}`}`);
-      
-      // Emit unread count update
-      const unreadCount = await notificationService.getUnreadCount(userId);
-      io.to(`user:${userId}`).emit("unread_count_update", { unreadCount });
-      console.log(`[Socket] Emitted 'unread_count_update' to room: ${`user:${userId}`}`);
-    }else {
-      console.warn("[Socket] IO instance is not available. Emit skipped.");
+    if (notification) {
+      emitNotification(userId, notification);
     }
 
     return notification;
