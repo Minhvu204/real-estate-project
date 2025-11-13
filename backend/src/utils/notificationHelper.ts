@@ -210,6 +210,25 @@ export async function notifyNewOffer(
   );
 }
 
+export async function notifySellerNewOffer(
+  sellerId: string,
+  buyerName: string,
+  propertyTitle: string,
+  amount: number,
+  offerId: string
+) {
+  return createNotification(
+    sellerId,
+    "Offer mới cho property của bạn",
+    `${buyerName} đã gửi offer ${amount.toLocaleString()} VNĐ cho ${propertyTitle}`,
+    {
+      type: "offer",
+      relatedId: offerId,
+      actionUrl: `/offers/${offerId}`,
+    }
+  );
+}
+
 // Notification khi agent accept/reject offer
 export async function notifyOfferStatus(
   buyerId: string,
