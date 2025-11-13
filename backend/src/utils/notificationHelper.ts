@@ -1,5 +1,6 @@
 import { notificationService, CreateNotificationParams } from "../services/notification.service";
 import { NotificationType } from "../models/notification.model";
+import { getIO } from "../socket/socket";
 
 
 export async function createNotification(
@@ -21,6 +22,17 @@ export async function createNotification(
       relatedId: options?.relatedId,
       actionUrl: options?.actionUrl,
     });
+
+    // Emit notification real-time qua Socket.IO nếu user đang online
+    const io = getIO();
+    if (io) {
+      io.to(`user:${userId}`).emit("new_notification", notification);
+      
+      // Emit unread count update
+      const unreadCount = await notificationService.getUnreadCount(userId);
+      io.to(`user:${userId}`).emit("unread_count_update", { unreadCount });
+    }
+
     return notification;
   } catch (error) {
     console.error("Failed to create notification:", error);
