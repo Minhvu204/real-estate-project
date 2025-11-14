@@ -24,6 +24,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import AuthContext from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
+import ButtonLanguage from "./common/ButtonLanguage";
 
 const Navbar: React.FC = () => {
     const { state, signOut } = useContext(AuthContext);
@@ -31,7 +32,24 @@ const Navbar: React.FC = () => {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const location = useLocation();
+    const role = state.user?.role || 'guest';
     const isAdminRoute = location.pathname.startsWith('/admin');
+
+    const roleMenus = {
+        buyer: [
+            { label: "My Properties", path: "/dwello/myProperties" },
+            { label: "My Agent", path: "/dwello/myAgent" },
+        ],
+        seller: [
+            { label: "My Properties", path: "/seller/properties" },
+            { label: "Manage Listings", path: "/seller/listings" },
+        ],
+        agent: [
+            { label: "My Properties", path: "/agent/properties" },
+            { label: "Manage Listings", path: "/agent/assignments" },
+        ],
+
+    };
 
     const handleLogout = () => {
         signOut();
@@ -48,6 +66,7 @@ const Navbar: React.FC = () => {
         { label: "Buy", path: "/buy" },
         { label: "Rent", path: "/rent" },
         { label: "Sell", path: "/sell" },
+        { label: "Booking", path: "/booking" },
         { label: "Get Help", path: "/get-help" },
     ];
 
@@ -277,6 +296,49 @@ const Navbar: React.FC = () => {
                         </Typography>
                     </Box>
 
+                    {/* Mobile Menu Items - Left Side */}
+                    {!isAdminRoute && (
+                        <Box
+                            sx={{
+                                display: { xs: "flex", md: "none" },
+                                gap: 0.5,
+                                alignItems: "center",
+                                overflowX: "auto",
+                                flex: 1,
+                                mx: 1,
+                                "&::-webkit-scrollbar": {
+                                    display: "none",
+                                },
+                                scrollbarWidth: "none",
+                            }}
+                        >
+                            {menuItems.map((item) => (
+                                <Button
+                                    key={item.label}
+                                    onClick={() => navigate(item.path)}
+                                    sx={{
+                                        color: "rgba(0,0,0,0.7)",
+                                        fontWeight: 600,
+                                        textTransform: "none",
+                                        px: 1.5,
+                                        py: 0.5,
+                                        borderRadius: 2,
+                                        fontSize: "0.85rem",
+                                        whiteSpace: "nowrap",
+                                        minWidth: "auto",
+                                        transition: "all 0.3s ease",
+                                        "&:hover": {
+                                            color: "#667eea",
+                                            backgroundColor: "rgba(102,126,234,0.08)",
+                                        },
+                                    }}
+                                >
+                                    {item.label}
+                                </Button>
+                            ))}
+                        </Box>
+                    )}
+
                     {/* Desktop Menu */}
                     {!isAdminRoute && (
                         <Box
@@ -326,72 +388,139 @@ const Navbar: React.FC = () => {
                             ))}
                         </Box>
                     )}
-
+                    <ButtonLanguage />
                     {/* Right Side */}
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                         {!state.token ? (
-                            <Box sx={{ display: { xs: "none", md: "flex" }, gap: 1.5 }}>
-                                <Button
-                                    onClick={() => navigate("/login")}
-                                    startIcon={<PersonOutlineIcon />}
-                                    sx={{
-                                        textTransform: "none",
-                                        fontWeight: 700,
-                                        px: 2.5,
-                                        py: 1,
-                                        borderRadius: 3,
-                                        color: "#667eea",
-                                        transition: "all 0.3s ease",
-                                        "&:hover": {
-                                            backgroundColor: "rgba(102,126,234,0.1)",
-                                            transform: "translateY(-2px)",
-                                        },
-                                    }}
-                                >
-                                    Sign In
-                                </Button>
+                            <>
+                                {/* Desktop Sign In/Up */}
+                                <Box sx={{ display: { xs: "none", md: "flex" }, gap: 1.5 }}>
+                                    <Button
+                                        onClick={() => navigate("/login")}
+                                        startIcon={<PersonOutlineIcon />}
+                                        sx={{
+                                            textTransform: "none",
+                                            fontWeight: 700,
+                                            px: 2.5,
+                                            py: 1,
+                                            borderRadius: 3,
+                                            color: "#667eea",
+                                            transition: "all 0.3s ease",
+                                            "&:hover": {
+                                                backgroundColor: "rgba(102,126,234,0.1)",
+                                                transform: "translateY(-2px)",
+                                            },
+                                        }}
+                                    >
+                                        Sign In
+                                    </Button>
 
-                                <Button
-                                    variant="contained"
-                                    onClick={() => navigate("/register")}
+                                    <Button
+                                        variant="contained"
+                                        onClick={() => navigate("/register")}
+                                        sx={{
+                                            textTransform: "none",
+                                            px: 3,
+                                            py: 1,
+                                            borderRadius: 3,
+                                            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                            fontWeight: 700,
+                                            boxShadow: "0 6px 20px rgba(102,126,234,0.35)",
+                                            transition: "all 0.3s ease",
+                                            "&:hover": {
+                                                boxShadow: "0 8px 28px rgba(102,126,234,0.45)",
+                                                transform: "translateY(-2px)",
+                                            },
+                                        }}
+                                    >
+                                        Sign up
+                                    </Button>
+                                </Box>
+                                {/* Mobile Menu Icon for non-logged users */}
+                                <IconButton
+                                    onClick={handleDrawerToggle}
                                     sx={{
-                                        textTransform: "none",
-                                        px: 3,
-                                        py: 1,
-                                        borderRadius: 3,
+                                        display: { md: "none" },
                                         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                        fontWeight: 700,
-                                        boxShadow: "0 6px 20px rgba(102,126,234,0.35)",
+                                        color: "white",
+                                        width: 42,
+                                        height: 42,
+                                        boxShadow: "0 4px 12px rgba(102,126,234,0.3)",
                                         transition: "all 0.3s ease",
                                         "&:hover": {
-                                            boxShadow: "0 8px 28px rgba(102,126,234,0.45)",
-                                            transform: "translateY(-2px)",
+                                            transform: "rotate(90deg)",
+                                            boxShadow: "0 6px 16px rgba(102,126,234,0.4)",
                                         },
                                     }}
                                 >
-                                    Sign up
-                                </Button>
-                            </Box>
+                                    <MenuIcon />
+                                </IconButton>
+                            </>
                         ) : (
-                            <Box
-                                sx={{
-                                    display: { xs: "none", md: "flex" },
-                                    alignItems: "center",
-                                    gap: 2,
-                                    px: 2,
-                                    py: 1,
-                                    borderRadius: 4,
-                                    background: "rgba(102,126,234,0.08)",
-                                    border: "1px solid rgba(102,126,234,0.15)",
-                                    transition: "all 0.3s ease",
-                                    "&:hover": {
-                                        background: "rgba(102,126,234,0.12)",
-                                        boxShadow: "0 4px 16px rgba(102,126,234,0.15)",
-                                    },
-                                }}
-                            >
+                            <>
+                                {/* Desktop User Info */}
+                                <Box
+                                    sx={{
+                                        display: { xs: "none", md: "flex" },
+                                        alignItems: "center",
+                                        gap: 2,
+                                        px: 2,
+                                        py: 1,
+                                        borderRadius: 4,
+                                        background: "rgba(102,126,234,0.08)",
+                                        border: "1px solid rgba(102,126,234,0.15)",
+                                        transition: "all 0.3s ease",
+                                        "&:hover": {
+                                            background: "rgba(102,126,234,0.12)",
+                                            boxShadow: "0 4px 16px rgba(102,126,234,0.15)",
+                                        },
+                                    }}
+                                >
+                                    <Avatar
+                                        sx={{
+                                            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                            cursor: "pointer",
+                                            boxShadow: "0 4px 12px rgba(102,126,234,0.3)",
+                                            width: 38,
+                                            height: 38,
+                                            fontSize: "1rem",
+                                            fontWeight: 700,
+                                            transition: "all 0.3s ease",
+                                            "&:hover": {
+                                                transform: "scale(1.1)",
+                                            },
+                                        }}
+                                        onClick={(e) => setAnchorEl(e.currentTarget)}
+                                    >
+                                        {state.user?.fullName?.[0] ?? "U"}
+                                    </Avatar>
+                                    <Typography
+                                        sx={{
+                                            fontWeight: 700,
+                                            color: "#667eea",
+                                            fontSize: "0.95rem",
+                                        }}
+                                    >
+                                        {state.user?.fullName}
+                                    </Typography>
+                                    <IconButton
+                                        onClick={handleLogout}
+                                        sx={{
+                                            color: "#ff6b6b",
+                                            transition: "all 0.3s ease",
+                                            "&:hover": {
+                                                backgroundColor: "rgba(255,107,107,0.1)",
+                                                transform: "rotate(15deg)",
+                                            },
+                                        }}
+                                    >
+                                        <LogoutIcon fontSize="small" />
+                                    </IconButton>
+                                </Box>
+                                {/* Mobile Avatar */}
                                 <Avatar
                                     sx={{
+                                        display: { xs: "flex", md: "none" },
                                         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                                         cursor: "pointer",
                                         boxShadow: "0 4px 12px rgba(102,126,234,0.3)",
@@ -408,50 +537,8 @@ const Navbar: React.FC = () => {
                                 >
                                     {state.user?.fullName?.[0] ?? "U"}
                                 </Avatar>
-                                <Typography
-                                    sx={{
-                                        fontWeight: 700,
-                                        color: "#667eea",
-                                        fontSize: "0.95rem",
-                                    }}
-                                >
-                                    {state.user?.fullName}
-                                </Typography>
-                                <IconButton
-                                    onClick={handleLogout}
-                                    sx={{
-                                        color: "#ff6b6b",
-                                        transition: "all 0.3s ease",
-                                        "&:hover": {
-                                            backgroundColor: "rgba(255,107,107,0.1)",
-                                            transform: "rotate(15deg)",
-                                        },
-                                    }}
-                                >
-                                    <LogoutIcon fontSize="small" />
-                                </IconButton>
-                            </Box>
+                            </>
                         )}
-
-                        {/* Mobile Menu Icon */}
-                        <IconButton
-                            onClick={handleDrawerToggle}
-                            sx={{
-                                display: { md: "none" },
-                                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                color: "white",
-                                width: 42,
-                                height: 42,
-                                boxShadow: "0 4px 12px rgba(102,126,234,0.3)",
-                                transition: "all 0.3s ease",
-                                "&:hover": {
-                                    transform: "rotate(90deg)",
-                                    boxShadow: "0 6px 16px rgba(102,126,234,0.4)",
-                                },
-                            }}
-                        >
-                            <MenuIcon />
-                        </IconButton>
                     </Box>
                 </Toolbar>
             </AppBar>
@@ -491,16 +578,25 @@ const Navbar: React.FC = () => {
                         navigate("/profile");
                         setAnchorEl(null);
                     }}
-                    sx={{
-                        py: 1.5,
-                        fontWeight: 600,
-                        "&:hover": {
-                            backgroundColor: "rgba(102,126,234,0.08)",
-                        },
-                    }}
+                    sx={{ py: 1.5, fontWeight: 600 }}
                 >
                     Profile
                 </MenuItem>
+
+                {roleMenus[role as keyof typeof roleMenus]?.map((item) => (
+                    <MenuItem
+                        key={item.path}
+                        onClick={() => {
+                            navigate(item.path);
+                            setAnchorEl(null);
+                        }}
+                        sx={{ py: 1.5, fontWeight: 600 }}
+                    >
+                        {item.label}
+                    </MenuItem>
+                ))}
+
+
                 <MenuItem
                     onClick={handleLogout}
                     sx={{

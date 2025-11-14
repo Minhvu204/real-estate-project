@@ -1,0 +1,14 @@
+{
+    "description": "Mô tả",
+    "features": "Tiện ích",
+    "owner": "Chủ sở hữu",
+    "agent": "Môi giới",
+    "location": "Vị trí",
+    "postedOn": "Ngày đăng",
+    "bedrooms": "Phòng ngủ",
+    "bathrooms": "Phòng tắm",
+    "updatedOn": "Ngày cập nhật",
+    "area": "Diện tích",
+    "yearBuilt": "Xây dựng năm",
+    "floors": "Tầng"
+}

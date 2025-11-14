@@ -1,5 +1,6 @@
 import { notificationService, CreateNotificationParams } from "../services/notification.service";
 import { NotificationType } from "../models/notification.model";
+import { emitNotification } from "../socket/socket";
 
 
 export async function createNotification(
@@ -21,6 +22,11 @@ export async function createNotification(
       relatedId: options?.relatedId,
       actionUrl: options?.actionUrl,
     });
+
+    if (notification) {
+      emitNotification(userId, notification);
+    }
+
     return notification;
   } catch (error) {
     console.error("Failed to create notification:", error);
