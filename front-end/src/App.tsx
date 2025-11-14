@@ -1,31 +1,40 @@
+
+import { useRoutes, useLocation } from "react-router-dom";
+import { ThemeProvider } from "@mui/material/styles";
+import { AuthProvider } from "./context/AuthContext";
+import Navbar from "./components/Navbar";
 import { AdminRoute } from "./routes/AdminRoute";
-import { useRoutes } from "react-router-dom";
-import LoginRoute from "./routes/LoginRoute";
-import { SearchPropertiesRoute } from "./routes/SearchPropertiesRoute";
-import { PropertyDetailRoute } from "./routes/PropertyDetailRoute";
-import { UpdateProfileRoute } from "./routes/UpdateProfileRoute";
-import { RegisterRoute } from "./routes/RegisterRoute";
+import { LoginRoute } from "./routes/LoginRoute";
+import { BuyerRoute } from "./routes/BuyerRoute";
 import { SellerRoute } from "./routes/SellerRoute";
-import "./i18n/i18n";
+import { AgentRoute } from "./routes/AgentRoute";
+
+import theme from "./theme";
+import './i18n/i18n';
 
 function App() {
-  const search = useRoutes(SearchPropertiesRoute);
-  const propertyDetail = useRoutes(PropertyDetailRoute);
-  const updateProfileRoutes = useRoutes(UpdateProfileRoute);
-  const registerRoutes = useRoutes(RegisterRoute);
-  const adminRoutes = useRoutes(AdminRoute);
-  const sellerRoutes = useRoutes(SellerRoute);
+  const location = useLocation();
+  const isAdmin = location.pathname.startsWith("/admin");
+
+  const allRoutes = [
+    ...LoginRoute,
+    ...BuyerRoute,
+    ...SellerRoute,
+    ...AdminRoute,
+    ...AgentRoute,
+
+  ];
+
+  const routing = useRoutes(allRoutes);
+
   return (
-    <>
-      {adminRoutes}
-      <LoginRoute></LoginRoute>
-      {search}
-      {updateProfileRoutes}
-      {propertyDetail}
-      {registerRoutes}
-      {sellerRoutes}
-    </>
-  );
+    <ThemeProvider theme={theme}>
+      <AuthProvider>
+        {!isAdmin && <Navbar />}
+        {routing}
+      </AuthProvider>
+    </ThemeProvider>
+  )
 }
 
 export default App;

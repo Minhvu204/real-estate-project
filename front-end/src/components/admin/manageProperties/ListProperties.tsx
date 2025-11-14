@@ -182,8 +182,7 @@ const ListProperties = () => {
               </td>
               <td className="px-4 py-3 border-b">
                 <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    item.status === "approved"
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${item.status === "approved"
                       ? "bg-green-100 text-green-700"
                       : item.status === "pending"
                       ? "bg-yellow-100 text-yellow-700"
@@ -214,7 +213,9 @@ const ListProperties = () => {
                     >
                       <FontAwesomeIcon icon={faEye} />
                     </button>
+
                   </Tooltip>
+
 
                   {isManageMode ? (
                     <>

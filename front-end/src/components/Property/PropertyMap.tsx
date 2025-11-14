@@ -2,6 +2,7 @@ import type { Property } from '../../types/Property';
 import { GoogleMap, Marker, InfoWindow, useLoadScript } from "@react-google-maps/api";
 import React, { useState } from 'react';
 import PropertyCard from './PropertyCard';
+import { useTranslation } from 'react-i18next';
 
 type PropertyMapProps = {
     properties: Property[];
@@ -21,9 +22,9 @@ const PropertyMap: React.FC<PropertyMapProps> = ({ properties, center }) => {
         googleMapsApiKey: import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY as string,
     });
     const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-
-    if (loadError) return <div>Không tải được bản đồ</div>;
-    if (!isLoaded) return <div>Đang tải bản đồ...</div>;
+    const { t } = useTranslation('propertyPage');
+    if (loadError) return <div>{t("propertyMap.errorMap")}</div>;
+    if (!isLoaded) return <div>{t("propertyMap.loading")}</div>;
 
     return (
         <GoogleMap
