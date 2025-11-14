@@ -1,0 +1,70 @@
+{
+  "title": "Offer Management",
+  "createTitle": "Create Offer",
+  "subtitle": "Create and track your real estate purchase proposals",
+  "tabs": {
+    "createNew": "Create New Offer",
+    "offerList": "Offer List",
+    "offerHistory": "Offer History"
+  },
+  "form": {
+    "title": "Offer Information",
+    "proposedPrice": "Proposed Price *",
+    "enterProposedPrice": "Enter proposed price",
+    "validityPeriod": "Validity Period *",
+    "validityPeriodHelper": "Offer will automatically expire after this date",
+    "notes": "Notes (Optional)",
+    "notesPlaceholder": "Add notes or special conditions (e.g., payment capability, desired house viewing time...)",
+    "characters": "characters",
+    "sendOffer": "Send Offer",
+    "sending": "Sending...",
+    "priceRequired": "Proposed price is required",
+    "priceInvalid": "Price must be greater than 0",
+    "dateRequired": "Validity period is required",
+    "dateInvalid": "Please select a valid date",
+    "datePast": "Validity period must be in the future",
+    "notesMaxLength": "Notes cannot exceed 500 characters"
+  },
+  "propertyInfo": {
+    "listedPrice": "Listed price:",
+    "area": "Area:",
+    "bedrooms": "Bedrooms:",
+    "bathrooms": "Bathrooms:",
+    "yearBuilt": "Year built:",
+    "tip": "Suggest a reasonable price (80-95% of listed price) to increase the likelihood of acceptance"
+  },
+  "list": {
+    "noOffers": "No offers found",
+    "proposedPrice": "Proposed price",
+    "note": "Note",
+    "created": "Created:",
+    "validUntil": "Valid until:",
+    "cancelOffer": "Cancel offer",
+    "status": {
+      "pending": "Pending",
+      "forwarded_to_seller": "Forwarded to Seller",
+      "seller_reviewing": "Seller Reviewing",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled"
+    },
+    "filter": {
+      "all": "All",
+      "filterByStatus": "Filter by status"
+    },
+    "cancelConfirm": "Are you sure you want to cancel this offer?",
+    "cancelSuccess": "Offer cancelled successfully",
+    "cancelError": "Failed to cancel offer",
+    "cancelNotAllowed": "Only pending offers can be cancelled"
+  },
+  "success": {
+    "offerCreated": "Offer created successfully!",
+    "offerCreatedMessage": "Your offer has been submitted and is pending review."
+  },
+  "error": {
+    "createFailed": "Failed to create offer",
+    "loadFailed": "Failed to load offers",
+    "propertyNotFound": "Property not found"
+  }
+}
+

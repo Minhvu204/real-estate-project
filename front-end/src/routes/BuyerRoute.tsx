@@ -6,6 +6,8 @@ import { ProfileLayout } from "../pages/Profile/ProfileLayout";
 import { PersonalInfo } from "../pages/Profile/PersonalInfo";
 import { ChangePassword } from "../pages/Profile/ChangePassword";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
+import CreateOfferPage from "../pages/Offer/CreateOfferPage";
+import OfferHistoryPage from "../pages/Offer/OfferHistoryPage";
 
 export const BuyerRoute = [
     {
@@ -45,5 +47,13 @@ export const BuyerRoute = [
     {
         path: "/my-properties",
         element: <MyPropertiesPage />,
+    },
+    {
+        path: "/buyer/offer",
+        element: <OfferHistoryPage />,
+    },
+    {
+        path: "/buyer/offer/create/:id",
+        element: <CreateOfferPage />,
     },
 ];

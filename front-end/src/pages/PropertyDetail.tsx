@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Box, Chip, Container, Divider, Grid, Paper, Stack, Typography, Avatar, useMediaQuery, Button, } from "@mui/material";
 import PlaceIcon from "@mui/icons-material/Place";
 import BedIcon from "@mui/icons-material/Bed";
@@ -11,6 +11,7 @@ import { getDetailPropertiesById } from "@/services/propertyService";
 
 const PropertyDetailUser = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [property, setProperty] = useState<Property | null>(null);
 
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -56,7 +57,7 @@ const PropertyDetailUser = () => {
 
     return (
         <Container sx={{ mt: 1, mb: 1 }}>
-            {/* CAROUSEL */}r
+            {/* CAROUSEL */}
             {property.images && property.images.length > 0 && (
                 <Box
                     sx={{
@@ -157,7 +158,14 @@ const PropertyDetailUser = () => {
 
             <Grid>
 
-                <Box display="flex" justifyContent="flex-end" mt={2} mb={2}>
+                <Box display="flex" justifyContent="flex-end" gap={2} mt={2} mb={2}>
+                    <Button 
+                        variant="outlined" 
+                        color="primary"
+                        onClick={() => navigate(`/buyer/offer/create/${id}`)}
+                    >
+                        {lang === 'vi' ? 'Tạo Offer' : 'Create Offer'}
+                    </Button>
                     <Button variant="contained" color="primary">
                         Request a tour
                     </Button>
@@ -178,9 +186,6 @@ const PropertyDetailUser = () => {
 
                 {/* TAGS */}
                 <Stack direction="row" spacing={1} mt={1}>
-                    <Chip label={property.city_id?.city_name[lang]} />
-                    <Chip label={property.category_id?.category_name[lang]} />
-                    <Chip label={property.type_id?.type_name[lang]} />
                     <Chip label={property.city_id?.city_name[lang]} />
                     <Chip label={property.category_id?.category_name[lang]} />
                     <Chip label={property.type_id?.type_name[lang]} />
@@ -240,9 +245,6 @@ const PropertyDetailUser = () => {
                                     <Typography fontWeight="bold">{property.owner_id?.fullName}</Typography>
                                     <Typography color="text.secondary">{property.owner_id?.phone}</Typography>
                                     <Typography color="text.secondary">{property.owner_id?.email}</Typography>
-                                    <Typography fontWeight="bold">{property.owner_id?.fullName}</Typography>
-                                    <Typography color="text.secondary">{property.owner_id?.phone}</Typography>
-                                    <Typography color="text.secondary">{property.owner_id?.email}</Typography>
                                 </Box>
                             </Stack>
                         </Paper>
@@ -257,9 +259,6 @@ const PropertyDetailUser = () => {
                                     alt={property.agent_id?.fullName || "Agent"}
                                 />
                                 <Box>
-                                    <Typography fontWeight="bold">{property.agent_id?.fullName}</Typography>
-                                    <Typography color="text.secondary">{property.agent_id?.phone}</Typography>
-                                    <Typography color="text.secondary">{property.agent_id?.email}</Typography>
                                     <Typography fontWeight="bold">{property.agent_id?.fullName}</Typography>
                                     <Typography color="text.secondary">{property.agent_id?.phone}</Typography>
                                     <Typography color="text.secondary">{property.agent_id?.email}</Typography>
