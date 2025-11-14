@@ -173,6 +173,24 @@ export async function notifyNewAppointment(
   );
 }
 
+export async function notifySellerNewAppointment(
+  sellerId: string,
+  buyerName: string,
+  propertyTitle: string,
+  appointmentId: string
+) {
+  return createNotification(
+    sellerId,
+    "Lịch hẹn mới cho bất động sản của bạn",
+    `${buyerName} đã đặt lịch hẹn xem ${propertyTitle}`,
+    {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }
+  );
+}
+
 // Notification khi agent accept/reject appointment
 export async function notifyAppointmentStatus(
   buyerId: string,
@@ -192,6 +210,28 @@ export async function notifyAppointmentStatus(
     relatedId: appointmentId,
     actionUrl: `/appointments/${appointmentId}`,
   });
+}
+
+export async function notifyAppointmentCancelled(
+  agentId: string,
+  sellerId: string,
+  buyerName: string,
+  propertyTitle: string,
+  appointmentId: string
+) {
+  const message = `${buyerName} đã hủy lịch hẹn xem ${propertyTitle}`;
+  await Promise.all([
+    createNotification(agentId, "Lịch hẹn bị hủy", message, {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }),
+    createNotification(sellerId, "Lịch hẹn bị hủy", message, {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }),
+  ]);
 }
 
 // Notification khi có offer mới
