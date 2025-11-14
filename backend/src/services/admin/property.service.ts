@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Property from "../../models/property.model";
+import { notifyPropertyStatus } from "../../utils/notificationHelper";
 
 export type ApproveStatus = "approved" | "rejected";
 
@@ -31,6 +32,21 @@ export const adminPropertyService = {
     }
 
     await property.save();
+
+    try {
+      const propertyTitle = property.title.vi || property.title.en;
+
+      if(property.owner_id){
+        await notifyPropertyStatus(
+          property.owner_id.toString(),
+          propertyTitle,
+          status,
+          propertyId
+        )
+      }
+    } catch (error) {
+      
+    }
 
     return {
       id: property._id,
