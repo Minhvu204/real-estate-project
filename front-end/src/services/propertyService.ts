@@ -6,8 +6,13 @@ import { httpAdmin } from "../utils/httpAdmin";
 
 import type { Feature } from "@/types/Feature";
 import type { Taxonomy } from "@/types/Taxonomy";
+import type { City } from "@/types/City";
+import type { District } from "@/types/District";
+import type { Ward } from "@/types/Ward";
 const RESOURCE = "/properties";
 const SELLER_RESOURCE = "/seller";
+const TAXONOMY_RESOURCE = "/taxonomy";
+
 export const getAllProperties = async (): Promise<Property[]> => {
   const res = await httpAdmin.get(RESOURCE, {
     params: { limit: 100 },
@@ -97,6 +102,21 @@ export const getAllTaxonomies = async (): Promise<Taxonomy> => {
   return response.data.data;
 }
 
+export const getAllCities = async (): Promise<City[]> => {
+  const response = await httpPublic.get(`${TAXONOMY_RESOURCE}/cities`);
+  return response.data.data;
+}
+
+export const getAllDistrictsByCityId = async (cityId: string): Promise<District[]> => {
+  const response = await httpPublic.get(`${TAXONOMY_RESOURCE}/cities/${cityId}/districts`);
+  return response.data.data;
+}
+
+export const getAllWardsByDistrictId = async (districtId: string): Promise<Ward[]> => {
+  const response = await httpPublic.get(`${TAXONOMY_RESOURCE}/districts/${districtId}/wards`);
+  return response.data.data;
+}
+
 export const createProperty = async (
   propertyData: any,
   images: File[]
@@ -115,6 +135,8 @@ export const createProperty = async (
     formData.append('yearBuilt', propertyData.yearBuilt.toString());
   }
   formData.append('city_id', propertyData.city_id);
+  formData.append('district_id', propertyData.district_id);
+  formData.append('ward_id', propertyData.ward_id);
   formData.append('category_id', propertyData.category_id);
   formData.append('type_id', propertyData.type_id);
   if (propertyData.coordinates?.lat && propertyData.coordinates?.lng) {
@@ -134,6 +156,5 @@ export const createProperty = async (
     }
   });
   const response = await httpClient.post(`${SELLER_RESOURCE}/properties/create`, formData,);
-
   return response.data.data;
 };

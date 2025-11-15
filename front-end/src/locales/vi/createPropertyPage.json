@@ -60,6 +60,8 @@
         "bathrooms": "Phòng tắm",
         "bedrooms": "Phòng ngủ",
         "city": "Thành phố",
+        "district": "Quận/Huyện",
+        "ward": "Phường/Xã",
         "category": "Loại BĐS",
         "area": "Diện tích",
         "unit": "Đơn vị",
@@ -82,7 +84,9 @@
         "select": {
             "city": "Chọn thành phố",
             "category": "Chọn loại BĐS",
-            "type": "Chọn hình thức"
+            "type": "Chọn hình thức",
+            "district": "Chọn quận/huyện",
+            "ward": "Chọn phường/xã"
         },
         "units": {
             "m2": "m²",

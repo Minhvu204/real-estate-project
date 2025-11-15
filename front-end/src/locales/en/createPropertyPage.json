@@ -62,6 +62,8 @@
         "bathrooms": "Bathrooms",
         "bedrooms": "Bedrooms",
         "city": "City",
+        "district": "District",
+        "ward": "Ward",
         "category": "Category",
         "area": "Area",
         "unit": "Unit",
@@ -84,7 +86,9 @@
         "select": {
             "city": "Select city",
             "category": "Select category",
-            "type": "Select transaction type"
+            "type": "Select transaction type",
+            "district": "Select district",
+            "ward": "Select ward"
         },
         "units": {
             "m2": "m²",

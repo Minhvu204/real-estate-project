@@ -8,28 +8,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
 import { IconButton } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-type common = number | string;
-
-interface PropertyData {
-    title: string;
-    price: common;
-    description: string;
-    address: string;
-    bathrooms: common;
-    bedrooms: common;
-    area: common;
-    unit: common;
-    floors: common;
-    yearBuilt?: common;
-    city_id: string;
-    category_id: string;
-    type_id: string;
-    coordinates?: {
-        lat: number;
-        lng: number;
-    };
-}
-
+import type { PropertyData } from '@/types/PropertyData';
 interface ImageItem {
     id: string;
     url: string;
@@ -40,13 +19,15 @@ const initialFormData: PropertyData = {
     price: '',
     description: '',
     address: '',
-    bathrooms: '',
-    bedrooms: '',
-    area: '',
+    bathrooms: '1',
+    bedrooms: '1',
+    area: '1',
     unit: 'm2',
-    floors: '',
+    floors: '1',
     yearBuilt: '',
     city_id: '',
+    district_id: '',
+    ward_id: '',
     category_id: '',
     type_id: '',
     coordinates: undefined,
