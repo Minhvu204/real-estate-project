@@ -9,16 +9,14 @@ import {
   Avatar,
   CircularProgress,
   Button,
+  Tooltip,
 } from "@mui/material";
-import { useState, useEffect, useRef } from "react";
-import {
-  getNotifications,
-  getUnreadCount,
-  markAsRead,
-  markAllAsRead,
-} from "../../../services/notificationService";
+import { useState, useEffect, useRef, useContext } from "react";
+import { getNotifications } from "../../../services/notificationService";
 import type { NotificationType } from "../../../types/Notification";
 import { useNavigate } from "react-router-dom";
+import { socket, SOCKET_URL } from "../../../socket/socket";
+import AuthContext from "../../../context/AuthContext";
 
 function debounce(fn: (...args: any[]) => void, delay: number) {
   let timer: number;
@@ -35,14 +33,74 @@ const Notification = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
+  const useAuth = () => useContext(AuthContext);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
   const isFetchingRef = useRef(false);
 
+  const {
+    state: { token },
+  } = useAuth();
+
   useEffect(() => {
-    fetchUnreadCount();
-  }, []);
+    console.log("[DEBUG] Token FE dùng cho socket:", token);
+    console.log("[FE] Socket connect tới URL:", SOCKET_URL);
+
+    if (!token) return;
+
+    socket.auth = { token };
+    if (!socket.connected) socket.connect();
+    console.log("[DEBUG] Socket.IO connect gọi xong!");
+
+    // Bắt mọi event
+    socket.onAny((event, ...args) => {
+      console.log(`[SOCKET EVENT] ${event}:`, ...args);
+    });
+
+    // Bắt kết nối/thất bại
+    socket.on("connect", () => {
+      console.log("[SOCKET FE] Đã connect BE, socket.id:", socket.id);
+    });
+    socket.on("connect_error", (err) => {
+      console.error("[SOCKET FE] CONNECT ERROR:", err);
+    });
+    socket.on("disconnect", (reason) => {
+      console.warn("[SOCKET FE] disconnect:", reason);
+    });
+
+    const handleConnect = () => {
+      socket.emit("get_unread_count");
+    };
+
+    const handleNewNotification = (notification: NotificationType) => {
+      console.log("[FE] CLIENT nhận new_notification:", notification);
+      setNotifications((prev) => {
+        if (prev.some((n) => n._id === notification._id)) return prev;
+        return [notification, ...prev];
+      });
+    };
+
+    const handleUnreadCountUpdate = (data: any) => {
+      console.log("[FE] CLIENT nhận unread_count_update:", data);
+      setUnreadCount(data.unreadCount);
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("new_notification", handleNewNotification);
+    socket.on("unread_count_update", handleUnreadCountUpdate);
+
+    if (socket.connected) handleConnect();
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("new_notification", handleNewNotification);
+      socket.off("unread_count_update", handleUnreadCountUpdate);
+      socket.offAny();
+      socket.off("connect");
+      socket.off("connect_error");
+      socket.off("disconnect");
+    };
+  }, [token]);
 
   useEffect(() => {
     if (anchorEl) {
@@ -62,17 +120,13 @@ const Notification = () => {
     isFetchingRef.current = true;
     try {
       const res = await getNotifications(page);
+      console.log("notification: ", res);
       setTotalPages(res.pagination?.totalPages || 1);
       setNotifications((prev) => (reset ? res.data : [...prev, ...res.data]));
     } finally {
       setLoading(false);
       isFetchingRef.current = false;
     }
-  };
-
-  const fetchUnreadCount = async () => {
-    const count = await getUnreadCount();
-    setUnreadCount(count ?? 0);
   };
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -95,10 +149,9 @@ const Notification = () => {
     return date.toLocaleDateString("vi-VN");
   };
 
-  const handleNotificationClick = async (notification: NotificationType) => {
+  const handleNotificationClick = (notification: NotificationType) => {
     if (!notification.is_read) {
-      await markAsRead(notification._id);
-      setUnreadCount((prev) => Math.max(0, prev - 1));
+      socket.emit("notification_read", { notificationId: notification._id });
       setNotifications((prev) =>
         prev.map((n) =>
           n._id === notification._id ? { ...n, is_read: true } : n
@@ -106,18 +159,15 @@ const Notification = () => {
       );
     }
     handleClose();
-    if (notification.action_url) window.location.href = notification.action_url;
+    if (notification.action_url) {
+      navigate(`seller/${notification.action_url}`);
+    }
   };
 
-  const handleMarkAllAsRead = async () => {
+  const handleMarkAllAsRead = () => {
     if (!notifications.some((n) => !n.is_read)) return;
-    try {
-      await markAllAsRead();
-      setUnreadCount(0);
-      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
-    } catch (err) {
-      console.log(err);
-    }
+    socket.emit("mark_all_notifications_read");
+    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
   };
 
   const debouncedHandleScroll = debounce(
@@ -137,21 +187,22 @@ const Notification = () => {
 
   return (
     <>
-      <IconButton
-        onClick={handleClick}
-        sx={{ "&:hover": { backgroundColor: "#1565c0" } }}
-      >
-        <Badge badgeContent={unreadCount} color="error">
-          <NotificationsIcon
-            sx={{
-              fontSize: 28,
-              color: "black",
-              "&:hover": { color: "white" },
-            }}
-          />
-        </Badge>
-      </IconButton>
-
+      <Tooltip title="Thông báo">
+        <IconButton
+          onClick={handleClick}
+          sx={{ "&:hover": { backgroundColor: "#1565c0" } }}
+        >
+          <Badge badgeContent={unreadCount} color="error">
+            <NotificationsIcon
+              sx={{
+                fontSize: 28,
+                color: "black",
+                "&:hover": { color: "white" },
+              }}
+            />
+          </Badge>
+        </IconButton>
+      </Tooltip>
       <Menu
         anchorEl={anchorEl}
         open={open}
@@ -199,7 +250,6 @@ const Notification = () => {
             Xem tất cả
           </Button>
         </Box>
-
         {notifications.length === 0 && !loading && (
           <Box sx={{ py: 6, textAlign: "center" }}>
             <Typography color="text.secondary">
@@ -207,7 +257,6 @@ const Notification = () => {
             </Typography>
           </Box>
         )}
-
         {notifications.map((n) => (
           <ListItemButton
             key={n._id}
@@ -262,13 +311,11 @@ const Notification = () => {
             </Box>
           </ListItemButton>
         ))}
-
         {loading && (
           <Box sx={{ py: 2, display: "flex", justifyContent: "center" }}>
             <CircularProgress size={24} />
           </Box>
         )}
-
         {notifications.length > 0 && notifications.some((n) => !n.is_read) && (
           <Box
             sx={{
