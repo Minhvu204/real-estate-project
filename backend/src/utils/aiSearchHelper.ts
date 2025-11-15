@@ -4,9 +4,6 @@ import { SearchCriteria } from "../types/searchCriteria";
 
 let aiClient: GoogleGenAI | null = null;
 
-/**
- * Khởi tạo lazy GoogleGenAI client
- */
 function getAIClient(): GoogleGenAI {
   if (!aiClient) {
     const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -20,9 +17,6 @@ function getAIClient(): GoogleGenAI {
   return aiClient;
 }
 
-/**
- * Gọi Gemini để phân tích câu chat
- */
 async function callLargeLanguageModel(
   message: string
 ): Promise<SearchCriteria> {
