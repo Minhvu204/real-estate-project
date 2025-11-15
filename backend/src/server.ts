@@ -19,6 +19,8 @@ const io = new Server(httpServer, {
 // gán ioInstance và cài đặt tất cả listeners
 setupSocketIO(io);
 
+app.use("/api", routes);
+
 const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
