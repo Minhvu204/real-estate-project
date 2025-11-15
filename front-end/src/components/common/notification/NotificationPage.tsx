@@ -16,6 +16,7 @@ import {
   getAllNotifications,
 } from "../../../services/notificationService";
 import type { NotificationType } from "../../../types/Notification";
+import { useNavigate } from "react-router-dom";
 
 const NotificationsPage = () => {
   const [allNotifications, setAllNotifications] = useState<NotificationType[]>(
@@ -24,6 +25,7 @@ const NotificationsPage = () => {
   const [notifications, setNotifications] = useState<NotificationType[]>([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState<"all" | "unread">("all");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -41,7 +43,6 @@ const NotificationsPage = () => {
     fetchNotifications();
   }, []);
 
-  // Đánh dấu đã đọc từng item
   const handleMarkAsRead = async (id: string) => {
     await markAsRead(id);
     setAllNotifications((prev) =>
@@ -144,7 +145,7 @@ const NotificationsPage = () => {
             key={n._id}
             onClick={() => {
               if (!n.is_read) handleMarkAsRead(n._id);
-              if (n.action_url) window.location.href = n.action_url;
+              if (n.action_url) navigate(`seller/${n.action_url}`);
             }}
             sx={{
               background: n.is_read
