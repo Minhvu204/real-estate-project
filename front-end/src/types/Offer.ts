@@ -44,9 +44,10 @@ export interface Offer {
     phone?: string;
   };
   amount: number;
+  currency?: string;
   note?: string;
   status: OfferStatus;
-  validityPeriod: string; // ISO date string
+  expires_at?: string; // ISO date string - từ backend
   forwarded_at?: string;
   reviewed_by?: string | {
     _id: string;
@@ -54,6 +55,8 @@ export interface Offer {
   };
   reviewed_at?: string;
   rejection_reason?: string;
+  attachments?: string[];
+  meta?: Record<string, any>;
   createdAt: string;
   updatedAt: string;
 }
@@ -63,6 +66,9 @@ export interface CreateOfferDto {
   amount: number;
   validityPeriod: string; // ISO date string
   note?: string;
+  currency?: string;
+  attachments?: string[];
+  meta?: Record<string, any>;
 }
 
 export interface OfferFilters {

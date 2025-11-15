@@ -1,18 +1,21 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Box, Chip, Container, Divider, Grid, Paper, Stack, Typography, Avatar, useMediaQuery, Button, } from "@mui/material";
+import { Box, Chip, Container, Divider, Grid, Paper, Stack, Typography, Avatar, useMediaQuery, Button, Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText } from "@mui/material";
 import PlaceIcon from "@mui/icons-material/Place";
 import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
 import type { Property } from "../types/Property";
 import { useTranslation } from "react-i18next";
-import { getLanguage } from "../utils/storage";
+import { toast, ToastContainer } from 'react-toastify';
+import { getLanguage, getUser } from "../utils/storage";
 import { getDetailPropertiesById } from "@/services/propertyService";
+import { OfferService } from "@/services/offerService";
 
 const PropertyDetailUser = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [property, setProperty] = useState<Property | null>(null);
+    const [restrictionDialogOpen, setRestrictionDialogOpen] = useState(false);
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const isMobile = useMediaQuery("(max-width:900px)");
@@ -160,14 +163,63 @@ const PropertyDetailUser = () => {
 
                 <Box display="flex" justifyContent="flex-end" gap={2} mt={2} mb={2}>
                     <Button 
-                        variant="outlined" 
-                        color="primary"
-                        onClick={() => navigate(`/buyer/offer/create/${id}`)}
+                        variant="contained"
+                        onClick={async () => {
+                            const user = getUser();
+                            if (!user) {
+                                toast.error(lang === 'vi' ? 'Vui lòng đăng nhập để tạo offer' : 'Please login to create an offer');
+                                setTimeout(() => {
+                                    navigate('/login');
+                                }, 1500);
+                                return;
+                            }
+                            if (user.role?.toLowerCase() !== 'buyer') {
+                                setRestrictionDialogOpen(true);
+                                return;
+                            }
+                            
+                            try {
+                                const offers = await OfferService.getMyOffers({ property_id: id });
+                                const activeOffer = offers.find(
+                                    offer => offer.status !== 'rejected' && offer.status !== 'cancelled'
+                                );
+                                
+                                if (activeOffer) {
+                                    toast.error(
+                                        lang === 'vi' 
+                                            ? 'Offer của bất động sản này bạn đã gửi để xử lý. Không thể gửi tiếp. (Chỉ có thể gửi lại khi offer trước đó bị từ chối)'
+                                            : 'You have already sent an offer for this property that is being processed. Cannot send another. (You can only resend if the previous offer was rejected)'
+                                    );
+                                    return;
+                                }
+                                
+                                navigate(`/buyer/offer/create/${id}`);
+                            } catch (error: any) {
+                                console.error("Error checking offer:", error);
+                                navigate(`/buyer/offer/create/${id}`);
+                            }
+                        }}
+                        sx={{
+                            background: 'linear-gradient(135deg, #1976D2 0%, #1565C0 100%)',
+                            color: 'white',
+                            fontWeight: 700,
+                            textTransform: 'none',
+                            fontSize: '1rem',
+                            py: 1.5,
+                            px: 4,
+                            boxShadow: '0 4px 15px rgba(25, 118, 210, 0.4)',
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                                background: 'linear-gradient(135deg, #1565C0 0%, #0D47A1 100%)',
+                                boxShadow: '0 6px 20px rgba(25, 118, 210, 0.6)',
+                                transform: 'translateY(-2px)',
+                            },
+                            '&:active': {
+                                transform: 'translateY(0px)',
+                            },
+                        }}
                     >
                         {lang === 'vi' ? 'Tạo Offer' : 'Create Offer'}
-                    </Button>
-                    <Button variant="contained" color="primary">
-                        Request a tour
                     </Button>
                 </Box>
                 {/* TITLE + PRICE */}
@@ -296,6 +348,41 @@ const PropertyDetailUser = () => {
                     {t("updatedOn")}: {new Date(property.updatedAt).toLocaleDateString()}
                 </Typography>
             </Grid >
+
+            {/* Dialog cho agent/seller */}
+            <Dialog
+                open={restrictionDialogOpen}
+                onClose={() => setRestrictionDialogOpen(false)}
+                aria-labelledby="restriction-dialog-title"
+                aria-describedby="restriction-dialog-description"
+            >
+                <DialogTitle id="restriction-dialog-title">
+                    {lang === 'vi' ? 'Không thể tạo Offer' : 'Cannot Create Offer'}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="restriction-dialog-description">
+                        {lang === 'vi' ? 'Chỉ buyer mới có thể tạo offer cho bất động sản.' : 'Only buyers can create offers for properties.'}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setRestrictionDialogOpen(false)} color="primary" variant="contained">
+                        {lang === 'vi' ? 'Đóng' : 'Close'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+            />
         </Container >
     );
 };

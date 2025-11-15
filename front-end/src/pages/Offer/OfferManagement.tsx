@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -10,13 +10,14 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'react-toastify';
-import { OfferForm } from '../components/Offer/OfferForm';
-import { OfferList } from '../components/Offer/OfferList';
-import { OfferService } from '../services/offerService';
-import type { Offer, CreateOfferDto, OfferStatus } from '../types/Offer';
-import type { Property } from '../types/Property';
-import { getDetailPropertiesById } from '../services/propertyService';
+import { toast, ToastContainer } from 'react-toastify';
+import { OfferForm } from '../../components/Offer/OfferForm';
+import { OfferList } from '../../components/Offer/OfferList';
+import { OfferService } from '../../services/offerService';
+import type { Offer, CreateOfferDto, OfferStatus } from '../../types/Offer';
+import type { Property } from '../../types/Property';
+import { getDetailPropertiesById } from '../../services/propertyService';
+import AuthContext from '../../context/AuthContext';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -36,6 +37,8 @@ const OfferManagement: React.FC = () => {
   const { t } = useTranslation('offerManagement');
   const { id: propertyId } = useParams<{ id?: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { state } = useContext(AuthContext);
   
   const [activeTab, setActiveTab] = useState(0);
   const [property, setProperty] = useState<Property | null>(null);
@@ -44,6 +47,23 @@ const OfferManagement: React.FC = () => {
   const [isLoadingOffers, setIsLoadingOffers] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [statusFilter, setStatusFilter] = useState<OfferStatus | undefined>();
+
+  useEffect(() => {
+    if (!state.loading) {
+      if (!state.user || !state.token) {
+        toast.error(t('error.loginRequired'));
+        setTimeout(() => {
+          navigate('/login');
+        }, 1500);
+      } else if (state.user.role?.toLowerCase() !== 'buyer') {
+        toast.error(t('error.onlyBuyerCanCreate'));
+        setTimeout(() => {
+          navigate('/home');
+        }, 1500);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.loading, state.user, state.token, navigate]);
 
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -61,16 +81,16 @@ const OfferManagement: React.FC = () => {
           setIsLoadingProperty(true);
           const data = await getDetailPropertiesById(propertyId);
           setProperty(data);
-        } catch (error) {
-          console.error('Error loading property:', error);
-          toast.error(t('error.propertyNotFound'));
+        } catch (error: any) {
+          toast.error(error?.message || t('error.propertyNotFound'));
         } finally {
           setIsLoadingProperty(false);
         }
       };
       loadProperty();
     }
-  }, [propertyId, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [propertyId]);
 
   const loadOffers = useCallback(async () => {
     try {
@@ -80,13 +100,13 @@ const OfferManagement: React.FC = () => {
         property_id: propertyId,
       });
       setOffers(data);
-    } catch (error) {
-      console.error('Error loading offers:', error);
-      toast.error(t('error.loadFailed'));
+    } catch (error: any) {
+      toast.error(error?.message || t('error.loadFailed'));
     } finally {
       setIsLoadingOffers(false);
     }
-  }, [statusFilter, propertyId, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter, propertyId]);
 
   useEffect(() => {
     loadOffers();
@@ -102,6 +122,22 @@ const OfferManagement: React.FC = () => {
   };
 
   const handleSubmitOffer = async (data: CreateOfferDto) => {
+    if (!state.user || !state.token) {
+      toast.error(t('error.loginRequired'));
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+      return;
+    }
+    
+    if (state.user.role?.toLowerCase() !== 'buyer') {
+      toast.error(t('error.onlyBuyerCanCreate'));
+      setTimeout(() => {
+        navigate('/home');
+      }, 1500);
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       await OfferService.createOffer(data);
@@ -112,8 +148,7 @@ const OfferManagement: React.FC = () => {
       setActiveTab(1);
       setSearchParams({ tab: 'list' });
     } catch (error: any) {
-      console.error('Error creating offer:', error);
-      toast.error(error.message || t('error.createFailed'));
+      toast.error(error?.message || t('error.createFailed'));
     } finally {
       setIsSubmitting(false);
     }
@@ -126,8 +161,7 @@ const OfferManagement: React.FC = () => {
       
       await loadOffers();
     } catch (error: any) {
-      console.error('Error cancelling offer:', error);
-      toast.error(error.message || t('list.cancelError'));
+      toast.error(error?.message || t('list.cancelError'));
     }
   };
 
@@ -137,12 +171,16 @@ const OfferManagement: React.FC = () => {
 
   const pendingCount = offers.filter(offer => offer.status === 'pending').length;
 
-  if (isLoadingProperty && !property && propertyId) {
+  if (state.loading || (isLoadingProperty && !property && propertyId)) {
     return (
       <Container sx={{ mt: 4, mb: 4, display: 'flex', justifyContent: 'center' }}>
         <CircularProgress />
       </Container>
     );
+  }
+
+  if (!state.user || !state.token || state.user.role?.toLowerCase() !== 'buyer') {
+    return null;
   }
 
   if (activeTab === 0 && !property && !propertyId) {
@@ -160,10 +198,27 @@ const OfferManagement: React.FC = () => {
 
   return (
     <Container sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h4" fontWeight="bold" mb={1}>
+      <Typography 
+        variant="h4" 
+        fontWeight="bold" 
+        mb={1}
+        sx={{ 
+          color: '#1976D2',
+          letterSpacing: '-0.02em',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        }}
+      >
         {t('title')}
       </Typography>
-      <Typography variant="body1" color="text.secondary" mb={4}>
+      <Typography 
+        variant="body1" 
+        mb={4}
+        sx={{ 
+          color: '#424242',
+          fontSize: '0.95rem',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        }}
+      >
         {t('subtitle')}
       </Typography>
 
@@ -203,6 +258,19 @@ const OfferManagement: React.FC = () => {
           onFilterChange={handleFilterChange}
         />
       </TabPanel>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </Container>
   );
 };

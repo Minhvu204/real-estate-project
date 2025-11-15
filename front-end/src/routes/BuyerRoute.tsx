@@ -8,6 +8,7 @@ import { ChangePassword } from "../pages/Profile/ChangePassword";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
 import CreateOfferPage from "../pages/Offer/CreateOfferPage";
 import OfferHistoryPage from "../pages/Offer/OfferHistoryPage";
+import CancelOfferPage from "../pages/Offer/CancelOfferPage";
 
 export const BuyerRoute = [
     {
@@ -55,5 +56,9 @@ export const BuyerRoute = [
     {
         path: "/buyer/offer/create/:id",
         element: <CreateOfferPage />,
+    },
+    {
+        path: "/buyer/offer/:id/cancel",
+        element: <CancelOfferPage />,
     },
 ];

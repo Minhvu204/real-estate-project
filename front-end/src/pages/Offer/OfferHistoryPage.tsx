@@ -37,15 +37,15 @@ const OfferHistoryPage: React.FC = () => {
         const data = await OfferService.getMyOffers(filters);
         setOffers(data);
         setStatusFilter(filters.status);
-      } catch (error) {
-        console.error('Error loading offers:', error);
-        toast.error(t('error.loadFailed'));
+      } catch (error: any) {
+        toast.error(error?.message || t('error.loadFailed'));
       } finally {
         setIsLoading(false);
       }
     };
     loadOffers();
-  }, [searchParams, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   const handleCancelOffer = async (offerId: string) => {
     try {
@@ -62,8 +62,7 @@ const OfferHistoryPage: React.FC = () => {
       const updatedOffers = await OfferService.getMyOffers(filters);
       setOffers(updatedOffers);
     } catch (error: any) {
-      console.error('Error cancelling offer:', error);
-      toast.error(error.message || t('list.cancelError'));
+      toast.error(error?.message || t('list.cancelError'));
     }
   };
 
@@ -80,15 +79,15 @@ const OfferHistoryPage: React.FC = () => {
 
   return (
     <Container sx={{ mt: 4, mb: 4 }}>
-      {/* Header with Title and Filter */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
         <Box>
           <Typography 
             variant="h4" 
             fontWeight="bold"
             sx={{ 
-              color: '#1a1a1a',
+              color: '#1976D2',
               letterSpacing: '-0.02em',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
             }}
           >
             {t('title')}
@@ -97,8 +96,9 @@ const OfferHistoryPage: React.FC = () => {
             variant="body1" 
             mt={1}
             sx={{ 
-              color: '#666666',
+              color: '#424242',
               fontSize: '0.95rem',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
             }}
           >
             {t('subtitle')}

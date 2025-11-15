@@ -64,7 +64,10 @@
   "error": {
     "createFailed": "Failed to create offer",
     "loadFailed": "Failed to load offers",
-    "propertyNotFound": "Property not found"
-  }
+    "propertyNotFound": "Property not found",
+    "loginRequired": "Please login to create an offer",
+    "onlyBuyerCanCreate": "Only buyers can create offers"
+  },
+  "back": "Back"
 }
 

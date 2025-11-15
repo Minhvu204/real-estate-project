@@ -4,6 +4,7 @@ import PropertyDetails from "../components/seller/PropertiesDetail";
 import ListAgent from "../components/seller/ListAgent";
 import CreatePropertyPage from "../pages/SellerPage/CreateProperty/CreatePropertyPage";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
+
 export const SellerRoute = [
 
     {

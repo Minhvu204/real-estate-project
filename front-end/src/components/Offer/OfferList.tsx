@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Paper,
@@ -24,7 +25,8 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import DescriptionIcon from '@mui/icons-material/Description';
 import type { Offer, OfferStatus } from '../../types/Offer';
 import { getLanguage } from '../../utils/storage';
-import { formatCurrency, getStatusColor } from '../../utils/offerUtils';
+import { formatCurrency, getStatusColor, getStatusColorConfig } from '../../utils/offerUtils';
+import PlaceIcon from '@mui/icons-material/Place';
 
 interface OfferListProps {
   offers: Offer[];
@@ -45,6 +47,7 @@ export const OfferList: React.FC<OfferListProps> = ({
 }) => {
   const { t } = useTranslation('offerManagement');
   const lang = getLanguage();
+  const navigate = useNavigate();
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
@@ -59,11 +62,10 @@ export const OfferList: React.FC<OfferListProps> = ({
 
     try {
       setCancelling(true);
-      await onCancelOffer(selectedOfferId);
+      navigate(`/buyer/offer/${selectedOfferId}/cancel`);
       setCancelDialogOpen(false);
       setSelectedOfferId(null);
     } catch (error) {
-      console.error('Error cancelling offer:', error);
     } finally {
       setCancelling(false);
     }
@@ -95,7 +97,6 @@ export const OfferList: React.FC<OfferListProps> = ({
 
   return (
     <Box>
-      {/* Filter */}
       {onFilterChange && (
         <FormControl fullWidth sx={{ mb: 3 }}>
           <InputLabel>{t('list.filter.filterByStatus')}</InputLabel>
@@ -115,7 +116,6 @@ export const OfferList: React.FC<OfferListProps> = ({
         </FormControl>
       )}
 
-      {/* Offer Cards */}
       <Stack spacing={3}>
         {offers.map((offer) => {
           const property = typeof offer.property_id === 'object' 
@@ -123,83 +123,145 @@ export const OfferList: React.FC<OfferListProps> = ({
             : null;
           
           const propertyTitle = property
-            ? property.title[lang]
+            ? (typeof property.title === 'object' ? property.title[lang] : property.title)
             : 'Property';
           
           const propertyAddress = property
-            ? property.address[lang]
+            ? (typeof property.address === 'object' ? property.address[lang] : property.address)
             : '';
 
+          const statusColors = getStatusColorConfig(offer.status);
+
           return (
-            <Paper key={offer._id} elevation={3} sx={{ p: 3 }}>
+            <Paper 
+              key={offer._id} 
+              elevation={2} 
+              sx={{ 
+                p: 3,
+                borderRadius: 3,
+                border: `1px solid ${statusColors.borderColor}`,
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  boxShadow: 4,
+                  transform: 'translateY(-2px)',
+                },
+              }}
+            >
               <Typography 
-                variant="h6" 
+                variant="h5" 
                 fontWeight="bold" 
-                mb={2}
+                mb={1.5}
                 sx={{ 
                   color: '#1a1a1a',
-                  fontSize: '1.1rem',
+                  fontSize: '1.25rem',
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                 }}
               >
                 {propertyTitle}
               </Typography>
 
-              {/* Dates */}
-              <Stack direction="row" spacing={2} mb={2} flexWrap="wrap">
-                <Typography 
-                  variant="body2"
-                  sx={{ 
-                    color: '#666666',
-                    fontSize: '0.85rem',
-                  }}
-                >
-                  <CalendarTodayIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle', color: '#999999' }} />
-                  {t('list.created')} {new Date(offer.createdAt).toLocaleDateString('vi-VN')}
-                </Typography>
-                <Typography 
-                  variant="body2"
-                  sx={{ 
-                    color: '#666666',
-                    fontSize: '0.85rem',
-                  }}
-                >
-                  <AccessTimeIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle', color: '#999999' }} />
-                  {t('list.validUntil')} {new Date(offer.validityPeriod).toLocaleDateString('vi-VN')}
-                </Typography>
-              </Stack>
+              {propertyAddress && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 2 }}>
+                  <PlaceIcon sx={{ fontSize: 18, color: '#666666' }} />
+                  <Typography 
+                    variant="body2"
+                    sx={{ 
+                      color: '#666666',
+                      fontSize: '0.9rem',
+                    }}
+                  >
+                    {propertyAddress}
+                  </Typography>
+                </Box>
+              )}
 
-              {/* Status */}
               <Chip
                 label={t(`list.status.${offer.status}`)}
                 size="small"
                 sx={{ 
-                  mb: 2,
-                  backgroundColor: offer.status === 'pending' ? '#FFF3E0' : undefined,
-                  color: offer.status === 'pending' ? '#E65100' : undefined,
+                  mb: 2.5,
+                  backgroundColor: statusColors.backgroundColor,
+                  color: statusColors.color,
+                  border: `1px solid ${statusColors.borderColor}`,
                   fontWeight: 600,
+                  fontSize: '0.75rem',
+                  height: 28,
                 }}
-                icon={offer.status === 'pending' ? <AccessTimeIcon sx={{ fontSize: 16 }} /> : undefined}
               />
 
-              {/* Proposed Price */}
               <Box 
-                mb={2}
+                mb={2.5}
                 sx={{
-                  backgroundColor: '#4CAF50',
-                  borderRadius: 2,
-                  p: 2,
-                  color: 'white',
+                  position: 'relative',
+                  pl: 3,
                 }}
               >
-                <Typography variant="body2" sx={{ opacity: 0.9, mb: 0.5 }}>
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: 4,
+                    backgroundColor: '#4CAF50',
+                    borderRadius: 2,
+                  }}
+                />
+                <Typography 
+                  variant="body2" 
+                  sx={{ 
+                    color: '#4CAF50',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    mb: 0.5,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                  }}
+                >
                   {t('list.proposedPrice')}
                 </Typography>
-                <Typography variant="h5" fontWeight="bold">
+                <Typography 
+                  variant="h4" 
+                  fontWeight="bold"
+                  sx={{
+                    color: '#1a1a1a',
+                    fontSize: '1.75rem',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                  }}
+                >
                   {formatCurrency(offer.amount)} ₫
                 </Typography>
               </Box>
 
-              {/* Notes */}
+              <Stack direction="row" spacing={2} mb={2.5} flexWrap="wrap">
+                <Typography 
+                  variant="body2"
+                  sx={{ 
+                    color: '#666666',
+                    fontSize: '0.85rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.5,
+                  }}
+                >
+                  <CalendarTodayIcon sx={{ fontSize: 16, color: '#999999' }} />
+                  {t('list.created')} {offer.createdAt ? new Date(offer.createdAt).toLocaleDateString('vi-VN') : 'N/A'}
+                </Typography>
+                <Typography 
+                  variant="body2"
+                  sx={{ 
+                    color: '#666666',
+                    fontSize: '0.85rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.5,
+                  }}
+                >
+                  <AccessTimeIcon sx={{ fontSize: 16, color: '#999999' }} />
+                  {t('list.validUntil')} {offer.expires_at ? new Date(offer.expires_at).toLocaleDateString('vi-VN') : 'N/A'}
+                </Typography>
+              </Stack>
+
               {offer.note && (
                 <Box 
                   mb={2}
@@ -236,7 +298,6 @@ export const OfferList: React.FC<OfferListProps> = ({
                 </Box>
               )}
 
-              {/* Rejection Reason */}
               {offer.rejection_reason && (
                 <Box mb={2}>
                   <Typography variant="body2" color="error" mb={0.5}>
@@ -248,7 +309,6 @@ export const OfferList: React.FC<OfferListProps> = ({
                 </Box>
               )}
 
-              {/* Cancel Button (only for pending offers) */}
               {offer.status === 'pending' && (
                 <Box display="flex" justifyContent="flex-end" mt={2}>
                   <Button

@@ -64,7 +64,10 @@
   "error": {
     "createFailed": "Tạo offer thất bại",
     "loadFailed": "Tải danh sách offer thất bại",
-    "propertyNotFound": "Không tìm thấy bất động sản"
-  }
+    "propertyNotFound": "Không tìm thấy bất động sản",
+    "loginRequired": "Vui lòng đăng nhập để tạo offer",
+    "onlyBuyerCanCreate": "Chỉ buyer mới có thể tạo offer"
+  },
+  "back": "Quay lại"
 }
 

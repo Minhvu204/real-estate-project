@@ -7,6 +7,7 @@ import {
   Paper,
   InputAdornment,
   Alert,
+  useMediaQuery,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
@@ -19,7 +20,7 @@ import BathtubIcon from '@mui/icons-material/Bathtub';
 import HomeIcon from '@mui/icons-material/Home';
 import type { CreateOfferDto } from '../../types/Offer';
 import type { Property } from '../../types/Property';
-import { getLanguage } from '../../utils/storage';
+import { getLanguage, type Lang } from '../../utils/storage';
 
 interface OfferFormProps {
   property: Property;
@@ -32,8 +33,9 @@ export const OfferForm: React.FC<OfferFormProps> = ({
   onSubmit,
   isLoading = false,
 }) => {
-  const { t } = useTranslation('offerManagement');
-  const lang = getLanguage();
+  const { t, i18n } = useTranslation('offerManagement');
+  const [currentLang, setCurrentLang] = useState<Lang>(getLanguage());
+  const isMobile = useMediaQuery('(max-width:900px)');
 
   const [formData, setFormData] = useState<CreateOfferDto>({
     property_id: property._id,
@@ -43,6 +45,21 @@ export const OfferForm: React.FC<OfferFormProps> = ({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const nextSlide = () => {
+    if (!property.images || property.images.length === 0) return;
+    setCurrentIndex((prev) =>
+      prev === property.images.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const prevSlide = () => {
+    if (!property.images || property.images.length === 0) return;
+    setCurrentIndex((prev) =>
+      prev === 0 ? property.images.length - 1 : prev - 1
+    );
+  };
 
   useEffect(() => {
     const defaultDate = new Date();
@@ -53,6 +70,30 @@ export const OfferForm: React.FC<OfferFormProps> = ({
       validityPeriod: dateString,
     }));
   }, []);
+
+  useEffect(() => {
+    const updateLang = () => {
+      const newLang = getLanguage();
+      setCurrentLang((prevLang) => {
+        if (newLang !== prevLang) {
+          return newLang;
+        }
+        return prevLang;
+      });
+    };
+    
+    updateLang();
+    
+    i18n.on('languageChanged', updateLang);
+    
+    const interval = setInterval(updateLang, 100);
+    
+    return () => {
+      i18n.off('languageChanged', updateLang);
+      clearInterval(interval);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [i18n]);
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -141,26 +182,105 @@ export const OfferForm: React.FC<OfferFormProps> = ({
 
   return (
     <Box>
-      <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
+      <Paper elevation={3} sx={{ p: 3, mb: 3, backgroundColor: '#FFFFFF' }}>
         {property.images && property.images.length > 0 && (
           <Box
             sx={{
+              position: 'relative',
               width: '100%',
-              height: 300,
+              height: isMobile ? 300 : 400,
               mb: 2,
               borderRadius: 2,
               overflow: 'hidden',
             }}
           >
             <img
-              src={property.images[0]}
-              alt={typeof property.title === 'object' ? property.title[lang] : property.title}
+              src={property.images[currentIndex]}
+              alt={typeof property.title === 'object' ? property.title[currentLang] : property.title}
               style={{
                 width: '100%',
                 height: '100%',
                 objectFit: 'cover',
+                transition: '0.4s ease',
               }}
             />
+
+            {property.images.length > 1 && (
+              <>
+                <Box
+                  onClick={prevSlide}
+                  sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: 10,
+                    transform: 'translateY(-50%)',
+                    background: 'rgba(0,0,0,0.5)',
+                    color: '#fff',
+                    p: '6px 10px',
+                    borderRadius: '50%',
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                    fontWeight: 'bold',
+                    '&:hover': {
+                      background: 'rgba(0,0,0,0.7)',
+                    },
+                  }}
+                >
+                  {'<'}
+                </Box>
+
+                <Box
+                  onClick={nextSlide}
+                  sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    right: 10,
+                    transform: 'translateY(-50%)',
+                    background: 'rgba(0,0,0,0.5)',
+                    color: '#fff',
+                    p: '6px 10px',
+                    borderRadius: '50%',
+                    cursor: 'pointer',
+                    userSelect: 'none',
+                    fontWeight: 'bold',
+                    '&:hover': {
+                      background: 'rgba(0,0,0,0.7)',
+                    },
+                  }}
+                >
+                  {'>'}
+                </Box>
+
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    bottom: 10,
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: 1,
+                  }}
+                >
+                  {property.images.map((_: any, i: number) => (
+                    <Box
+                      key={i}
+                      onClick={() => setCurrentIndex(i)}
+                      sx={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: '50%',
+                        background: currentIndex === i ? '#fff' : 'rgba(255,255,255,0.5)',
+                        cursor: 'pointer',
+                        transition: 'background 0.3s ease',
+                        '&:hover': {
+                          background: currentIndex === i ? '#fff' : 'rgba(255,255,255,0.8)',
+                        },
+                      }}
+                    />
+                  ))}
+                </Box>
+              </>
+            )}
           </Box>
         )}
         <Typography 
@@ -172,36 +292,36 @@ export const OfferForm: React.FC<OfferFormProps> = ({
             fontSize: '1.25rem',
           }}
         >
-          {typeof property.title === 'object' ? property.title[lang] : property.title}
+          {typeof property.title === 'object' ? property.title[currentLang] : property.title}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
-          <PlaceIcon sx={{ color: '#667eea', fontSize: 20 }} />
+          <PlaceIcon sx={{ color: '#E91E63', fontSize: 20 }} />
           <Typography 
             sx={{ 
               color: '#666666',
               fontSize: '0.9rem',
             }}
           >
-            {typeof property.address === 'object' ? property.address[lang] : property.address}
+            {typeof property.address === 'object' ? property.address[currentLang] : property.address}
           </Typography>
         </Box>
         
         <Box
           sx={{
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            background: 'linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)',
             borderRadius: 2,
             p: 2.5,
             mb: 2,
-            color: 'white',
+            border: '1px solid #90CAF9',
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-            <AttachMoneyIcon sx={{ fontSize: 18 }} />
-            <Typography variant="body2" sx={{ opacity: 0.9 }}>
+            <AttachMoneyIcon sx={{ fontSize: 18, color: '#666666' }} />
+            <Typography variant="body2" sx={{ color: '#666666', opacity: 0.8 }}>
               {t('propertyInfo.listedPrice')}
             </Typography>
           </Box>
-          <Typography variant="h4" fontWeight="bold">
+          <Typography variant="h4" fontWeight="bold" sx={{ color: '#1976D2' }}>
             {formatCurrency(property.price)} ₫
           </Typography>
         </Box>
@@ -230,7 +350,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                   fontSize: '0.875rem',
                 }}
               >
-                {property.bedrooms} {lang === 'vi' ? 'Phòng ngủ' : 'Bedrooms'}
+                {property.bedrooms} {currentLang === 'vi' ? 'Phòng ngủ' : 'Bedrooms'}
               </Typography>
             </Box>
           )}
@@ -284,7 +404,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                   fontSize: '0.875rem',
                 }}
               >
-                {property.bathrooms} {lang === 'vi' ? 'Phòng tắm' : 'Bathrooms'}
+                {property.bathrooms} {currentLang === 'vi' ? 'Phòng tắm' : 'Bathrooms'}
               </Typography>
             </Box>
           )}
@@ -311,7 +431,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                   fontSize: '0.875rem',
                 }}
               >
-                {property.floors} {lang === 'vi' ? 'Tầng' : 'Floors'}
+                {property.floors} {currentLang === 'vi' ? 'Tầng' : 'Floors'}
               </Typography>
             </Box>
           )}
@@ -330,31 +450,32 @@ export const OfferForm: React.FC<OfferFormProps> = ({
         }}
       >
         <Typography variant="body2" fontWeight="bold" mb={1}>
-          {lang === 'vi' ? 'Lưu ý quan trọng:' : 'Important note:'}
+          {currentLang === 'vi' ? 'Lưu ý quan trọng:' : 'Important note:'}
         </Typography>
         <Typography variant="body2" component="div">
           <Box component="ul" sx={{ m: 0, pl: 2 }}>
             <li>{t('propertyInfo.tip')}</li>
-            <li>{lang === 'vi' ? 'Agent sẽ xem xét và chuyển đến chủ nhà' : 'Agent will review and forward to the owner'}</li>
-            <li>{lang === 'vi' ? 'Có thể hủy offer khi đang chờ xử lý' : 'Offer can be canceled while pending'}</li>
+            <li>{currentLang === 'vi' ? 'Agent sẽ xem xét và chuyển đến chủ nhà' : 'Agent will review and forward to the owner'}</li>
+            <li>{currentLang === 'vi' ? 'Có thể hủy offer khi đang chờ xử lý' : 'Offer can be canceled while pending'}</li>
           </Box>
         </Typography>
       </Alert>
 
-      <Paper elevation={3} sx={{ p: 3 }}>
+      <Paper elevation={3} sx={{ p: 3, backgroundColor: '#FAFAFA' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
           <Box
             sx={{
               width: 40,
               height: 40,
               borderRadius: 1.5,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              border: '1px solid #90CAF9',
             }}
           >
-            <DescriptionIcon sx={{ color: 'white', fontSize: 20 }} />
+            <DescriptionIcon sx={{ color: '#1976D2', fontSize: 20 }} />
           </Box>
           <Typography 
             variant="h6" 
@@ -386,7 +507,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
               </Typography>
               <TextField
                 name="amount"
-                placeholder={lang === 'vi' ? 'Nhập giá đề xuất (VNĐ)' : 'Enter proposed price (VND)'}
+                placeholder={currentLang === 'vi' ? 'Nhập giá đề xuất (VNĐ)' : 'Enter proposed price (VND)'}
                 value={formData.amount || ''}
                 onChange={handleAmountChange}
                 error={!!errors.amount}
@@ -395,15 +516,15 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                 fullWidth
                 sx={{
                   '& .MuiOutlinedInput-root': {
-                    backgroundColor: '#E8F5E9',
+                    backgroundColor: '#E3F2FD',
                     '& fieldset': {
-                      borderColor: '#C8E6C9',
+                      borderColor: '#BBDEFB',
                     },
                     '&:hover fieldset': {
-                      borderColor: '#A5D6A7',
+                      borderColor: '#90CAF9',
                     },
                     '&.Mui-focused fieldset': {
-                      borderColor: '#66BB6A',
+                      borderColor: '#64B5F6',
                     },
                   },
                 }}
@@ -422,7 +543,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                   variant="body2" 
                   fontWeight="medium"
                   sx={{ 
-                    color: '#667eea',
+                    color: '#1976D2',
                     fontSize: '0.875rem',
                   }}
                 >
@@ -431,7 +552,6 @@ export const OfferForm: React.FC<OfferFormProps> = ({
               </Box>
             </Box>
 
-            {/* Validity Period */}
             <Box>
               <Typography 
                 variant="body2" 
@@ -473,7 +593,6 @@ export const OfferForm: React.FC<OfferFormProps> = ({
               />
             </Box>
 
-            {/* Notes */}
             <Box>
               <Typography 
                 variant="body2" 
@@ -513,7 +632,6 @@ export const OfferForm: React.FC<OfferFormProps> = ({
               />
             </Box>
 
-            {/* Submit Button */}
             <Button
               type="submit"
               variant="contained"
@@ -522,22 +640,30 @@ export const OfferForm: React.FC<OfferFormProps> = ({
               startIcon={<SendIcon />}
               sx={{ 
                 mt: 2,
-                background: 'linear-gradient(135deg, #667eea 0%, #f093fb 100%)',
+                background: 'linear-gradient(135deg, #1976D2 0%, #1565C0 100%)',
                 color: 'white',
-                fontWeight: 600,
+                fontWeight: 700,
                 textTransform: 'none',
-                py: 1.5,
-                boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+                fontSize: '1rem',
+                py: 1.75,
+                px: 4,
+                boxShadow: '0 6px 20px rgba(25, 118, 210, 0.5)',
+                transition: 'all 0.3s ease',
                 '&:hover': {
-                  background: 'linear-gradient(135deg, #5568d3 0%, #e082f0 100%)',
-                  boxShadow: '0 6px 20px rgba(102, 126, 234, 0.5)',
+                  background: 'linear-gradient(135deg, #1565C0 0%, #0D47A1 100%)',
+                  boxShadow: '0 8px 25px rgba(25, 118, 210, 0.6)',
+                  transform: 'translateY(-2px)',
+                },
+                '&:active': {
+                  transform: 'translateY(0px)',
                 },
                 '&:disabled': {
                   background: 'rgba(0, 0, 0, 0.12)',
+                  boxShadow: 'none',
                 },
               }}
             >
-              {isLoading ? t('form.sending') : (lang === 'vi' ? 'Gửi đề xuất ngay ✨✨' : 'Send proposal now ✨✨')}
+              {isLoading ? t('form.sending') : (currentLang === 'vi' ? 'Gửi đề xuất ngay ✨✨' : 'Send proposal now ✨✨')}
             </Button>
           </Box>
         </form>

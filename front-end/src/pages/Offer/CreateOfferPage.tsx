@@ -1,27 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
   Typography,
   CircularProgress,
+  Button,
 } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import { OfferForm } from '../../components/Offer/OfferForm';
 import { OfferService } from '../../services/offerService';
 import type { CreateOfferDto } from '../../types/Offer';
 import type { Property } from '../../types/Property';
 import { getDetailPropertiesById } from '../../services/propertyService';
+import AuthContext from '../../context/AuthContext';
 
 const CreateOfferPage: React.FC = () => {
   const { t } = useTranslation('offerManagement');
   const { id: propertyId } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { state } = useContext(AuthContext);
   
   const [property, setProperty] = useState<Property | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Kiểm tra đăng nhập và role buyer khi component mount
+  useEffect(() => {
+    if (!state.loading) {
+      if (!state.user || !state.token) {
+        toast.error(t('error.loginRequired'));
+        setTimeout(() => {
+          navigate('/login');
+        }, 1500);
+      } else if (state.user.role?.toLowerCase() !== 'buyer') {
+        toast.error(t('error.onlyBuyerCanCreate'));
+        setTimeout(() => {
+          navigate('/home');
+        }, 1500);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.loading, state.user, state.token, navigate]);
 
   useEffect(() => {
     if (propertyId) {
@@ -30,18 +52,35 @@ const CreateOfferPage: React.FC = () => {
           setIsLoading(true);
           const data = await getDetailPropertiesById(propertyId);
           setProperty(data);
-        } catch (error) {
-          console.error('Error loading property:', error);
-          toast.error(t('error.propertyNotFound'));
+        } catch (error: any) {
+          toast.error(error?.message || t('error.propertyNotFound'));
         } finally {
           setIsLoading(false);
         }
       };
       loadProperty();
     }
-  }, [propertyId, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [propertyId]);
 
   const handleSubmitOffer = async (data: CreateOfferDto) => {
+    // Kiểm tra đăng nhập và role buyer trước khi submit
+    if (!state.user || !state.token) {
+      toast.error(t('error.loginRequired'));
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+      return;
+    }
+    
+    if (state.user.role?.toLowerCase() !== 'buyer') {
+      toast.error(t('error.onlyBuyerCanCreate'));
+      setTimeout(() => {
+        navigate('/home');
+      }, 1500);
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       await OfferService.createOffer(data);
@@ -49,19 +88,24 @@ const CreateOfferPage: React.FC = () => {
       
       navigate('/buyer/offer');
     } catch (error: any) {
-      console.error('Error creating offer:', error);
-      toast.error(error.message || t('error.createFailed'));
+      toast.error(error?.message || t('error.createFailed'));
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  if (isLoading) {
+  // Hiển thị loading nếu đang kiểm tra auth hoặc loading property
+  if (state.loading || isLoading) {
     return (
       <Container sx={{ mt: 4, mb: 4, display: 'flex', justifyContent: 'center' }}>
         <CircularProgress />
       </Container>
     );
+  }
+
+  // Nếu chưa đăng nhập hoặc không phải buyer, không hiển thị form (sẽ redirect trong useEffect)
+  if (!state.user || !state.token || state.user.role?.toLowerCase() !== 'buyer') {
+    return null;
   }
 
   if (!property) {
@@ -79,32 +123,74 @@ const CreateOfferPage: React.FC = () => {
 
   return (
     <Container sx={{ mt: 4, mb: 4 }}>
-      <Typography 
-        variant="h4" 
-        fontWeight="bold" 
-        mb={1}
-        sx={{ 
-          color: '#1a1a1a',
-          letterSpacing: '-0.02em',
-        }}
-      >
-        {t('createTitle')}
-      </Typography>
-      <Typography 
-        variant="body1" 
-        mb={4}
-        sx={{ 
-          color: '#666666',
-          fontSize: '0.95rem',
-        }}
-      >
-        {t('subtitle')}
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+        <Box>
+          <Typography 
+            variant="h4" 
+            fontWeight="bold" 
+            mb={1}
+            sx={{ 
+              color: '#1976D2',
+              letterSpacing: '-0.02em',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            }}
+          >
+            {t('createTitle')}
+          </Typography>
+          <Typography 
+            variant="body1" 
+            mb={4}
+            sx={{ 
+              color: '#424242',
+              fontSize: '0.95rem',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            }}
+          >
+            {t('subtitle')}
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          startIcon={<ArrowBackIcon />}
+          onClick={() => navigate(-1)}
+          sx={{
+            backgroundColor: '#90CAF9',
+            color: 'white',
+            fontWeight: 600,
+            textTransform: 'none',
+            fontSize: '0.95rem',
+            px: 3,
+            py: 1.5,
+            borderRadius: 2,
+            boxShadow: '0 2px 8px rgba(144, 202, 249, 0.3)',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            '&:hover': {
+              backgroundColor: '#64B5F6',
+              boxShadow: '0 4px 12px rgba(144, 202, 249, 0.4)',
+            },
+          }}
+        >
+          {t('back')}
+        </Button>
+      </Box>
 
       <OfferForm
         property={property}
         onSubmit={handleSubmitOffer}
         isLoading={isSubmitting}
+      />
+
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
       />
     </Container>
   );
