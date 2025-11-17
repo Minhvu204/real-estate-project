@@ -4,6 +4,7 @@ import { verifyToken } from "../../../middlewares/auth.middleware";
 import { roleCheck } from "../../../middlewares/roleCheck.middleware";
 import {
   createProperty,
+  generatePropertyDescription,
   removeAgentFromProperty,
 } from "../../../controllers/client/seller/property.controller";
 import { createAssignmentRequest } from "../../../controllers/client/seller/assignment.controller";
@@ -41,6 +42,13 @@ router.post(
   createProperty
 );
 
+//POST /api/client/seller/properties/generate-description
+router.post(
+  "/generate-description",
+  verifyToken,
+  roleCheck("seller", "agent"),
+  generatePropertyDescription
+);
 
 
 export default router;
