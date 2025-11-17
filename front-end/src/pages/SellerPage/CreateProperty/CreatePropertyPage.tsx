@@ -1,6 +1,6 @@
 import SelectFeatures from '@/components/seller/CreateProperty/SelectFeatures';
 import FormProperty from '@/components/seller/CreateProperty/FormProperty';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import SelectImages from '@/components/seller/CreateProperty/SelectImages';
 import { createProperty } from '@/services/propertyService';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +9,8 @@ import { useNavigate } from "react-router-dom";
 import { IconButton } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import type { PropertyData } from '@/types/PropertyData';
+import useTitle from '@/hooks/useTitle';
+
 interface ImageItem {
     id: string;
     url: string;
@@ -40,7 +42,8 @@ const CreatePropertyPage = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { t } = useTranslation('createPropertyPage');
     const totalSteps = 3;
-
+    const isSubmittingRef = useRef(false);
+    useTitle(t('createProperty.pageTitle'))
     const handleNextStep = () => {
         if (currentStep < totalSteps) {
             setCurrentStep(currentStep + 1);
@@ -70,6 +73,8 @@ const CreatePropertyPage = () => {
     };
     const navigate = useNavigate();
     const handleFinalSubmit = async (submittedImages: ImageItem[] = images) => {
+        if (isSubmittingRef.current) return;
+        isSubmittingRef.current = true;
         setIsSubmitting(true);
         try {
             if (!propertyData.city_id || !propertyData.category_id || !propertyData.type_id) {
@@ -129,6 +134,9 @@ const CreatePropertyPage = () => {
             console.error('Error creating property:', error);
             const errorMessage = error.response?.data?.message || error.message || 'Có lỗi xảy ra';
             toast.error(t('createProperty.alerts.createError', { message: errorMessage }));
+            setIsSubmitting(false);
+        } finally {
+            isSubmittingRef.current = false;
             setIsSubmitting(false);
         }
     };

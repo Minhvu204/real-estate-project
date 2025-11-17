@@ -1,4 +1,3 @@
-import AddressAutocomplete from "@/components/common/AddressAutocomplete";
 import { getAllCities, getAllDistrictsByCityId, getAllTaxonomies, getAllWardsByDistrictId } from "@/services/propertyService";
 import type { Taxonomy } from "@/types/Taxonomy";
 import { getLanguage, type Lang } from "@/utils/storage";
@@ -11,14 +10,18 @@ import type { District } from "@/types/District";
 import type { Ward } from "@/types/Ward";
 import AddressInputOnBlur from "@/components/common/AddressInputOnBlur";
 import type { PropertyData } from "@/types/PropertyData";
-
-
+import Select from 'react-select';
+import LocationSelect from "@/components/common/LocationSelect";
+import ApartmentInfo from "./ApartmentInfo";
 
 interface FormPropertyProps {
     initialData: PropertyData;
     onSubmit: (data: PropertyData) => void;
 }
-
+interface SelectOption {
+    value: string;
+    label: string;
+}
 const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) => {
     const [formData, setFormData] = useState<PropertyData>(initialData);
     const [loading, setLoading] = useState<boolean>(true);
@@ -29,7 +32,18 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
     const [wards, setWards] = useState<Ward[] | null>(null);
     const { t } = useTranslation("createPropertyPage");
     const currentLanguage: Lang = getLanguage();
-
+    const cityOptions = (cities ?? []).map(city => ({
+        value: city._id,
+        label: city.city_name[currentLanguage]
+    }));
+    const districtOptions = (districts ?? []).map(district => ({
+        value: district._id,
+        label: district.district_name[currentLanguage]
+    }));
+    const wardOptions = (wards ?? []).map(ward => ({
+        value: ward._id,
+        label: ward.ward_name[currentLanguage]
+    }));
     useEffect(() => {
         const fetchCategories = async () => {
             try {
@@ -101,25 +115,33 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
     ) => {
         const { name, value } = e.target;
         setFormData(prev => {
-            if (name === "city_id") {
-                return {
-                    ...prev,
-                    city_id: value,
-                    district_id: "",
-                    ward_id: "",
-                };
-            }
-            if (name === "district_id") {
-                return {
-                    ...prev,
-                    district_id: value,
-                    ward_id: "",
-                };
-            }
             return { ...prev, [name]: value };
         });
     };
-
+    const handleCityChange = (selected: SelectOption | null) => {
+        const value = selected?.value ?? "";
+        setFormData(prev => ({
+            ...prev,
+            city_id: value,
+            district_id: "",
+            ward_id: "",
+        }));
+    };
+    const handleDistrictChange = (selected: SelectOption | null) => {
+        const value = selected?.value ?? "";
+        setFormData(prev => ({
+            ...prev,
+            district_id: value,
+            ward_id: "",
+        }));
+    };
+    const handleWardChange = (selected: SelectOption | null) => {
+        const value = selected?.value ?? "";
+        setFormData(prev => ({
+            ...prev,
+            ward_id: value,
+        }));
+    };
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!formData.title || !formData.price || !formData.description || !formData.address || !formData.city_id || !formData.category_id || !formData.type_id
@@ -179,27 +201,196 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                                 required
                             />
                         </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
+                                    {t("formProperty.price")} <span className="text-red-500">*</span>
+                                </label>
+                                <CurrencyInput
+                                    name="price"
+                                    value={formData.price}
+                                    allowDecimals={false}
+                                    allowNegativeValue={false}
+                                    onValueChange={(value, name) => {
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            [name!]: value ?? ""
+                                        }));
+                                    }}
+                                    placeholder={t("formProperty.placeholder.price")}
+                                    className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
+                                    {t("formProperty.type")} <span className="text-red-500">*</span>
+                                </label>
+                                <div className="text-xs">
+                                    <Select
+                                        options={taxonomies?.propertyTypes?.map(p => ({
+                                            value: p._id,
+                                            label: p.type_name[currentLanguage]
+                                        }))}
+                                        value={
+                                            taxonomies?.propertyTypes
+                                                ?.map(p => ({ value: p._id, label: p.type_name[currentLanguage] }))
+                                                .find(o => o.value === formData.type_id) ?? null
+                                        }
+                                        onChange={(selected) =>
+                                            setFormData(prev => ({ ...prev, type_id: selected?.value ?? "" }))
+                                        }
+                                        placeholder={t("formProperty.select.type")}
+                                        isClearable
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
+                                    {t("formProperty.category")} <span className="text-red-500">*</span>
+                                </label>
+                                <div className="text-xs">
+                                    <Select
+                                        options={taxonomies?.categories?.map(c => ({
+                                            value: c._id,
+                                            label: c.category_name[currentLanguage]
+                                        }))}
+                                        value={
+                                            taxonomies?.categories
+                                                ?.map(c => ({ value: c._id, label: c.category_name[currentLanguage] }))
+                                                .find(o => o.value === formData.category_id) ?? null
+                                        }
+                                        onChange={(selected) =>
+                                            setFormData(prev => ({ ...prev, category_id: selected?.value ?? "" }))
+                                        }
+                                        placeholder={t("formProperty.select.category")}
+                                        isClearable
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 grid-cols-1 mt-2 gap-5">
                         <div>
-                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
-                                {t("formProperty.price")} <span className="text-red-500">*</span>
-                            </label>
-                            <CurrencyInput
-                                name="price"
-                                value={formData.price}
-                                allowDecimals={false}
-                                allowNegativeValue={false}
-                                onValueChange={(value, name) => {
-                                    setFormData(prev => ({
-                                        ...prev,
-                                        [name!]: value ?? ""
-                                    }));
-                                }}
-                                placeholder={t("formProperty.placeholder.price")}
-                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                                required
+                            <LocationSelect
+                                label={t("formProperty.city")}
+                                value={formData.city_id}
+                                options={cityOptions}
+                                placeholder={t("formProperty.select.city")}
+                                onChange={handleCityChange}
+                            />
+                        </div>
+                        <div>
+                            <LocationSelect
+                                label={t("formProperty.district")}
+                                value={formData.district_id}
+                                options={districtOptions}
+                                placeholder={t("formProperty.select.district")}
+                                onChange={handleDistrictChange}
+                                disabled={!formData.city_id}
+                            />
+                        </div>
+                        <div>
+                            <LocationSelect
+                                label={t("formProperty.ward")}
+                                value={formData.ward_id}
+                                options={wardOptions}
+                                placeholder={t("formProperty.select.ward")}
+                                onChange={handleWardChange}
+                                disabled={!formData.district_id}
                             />
                         </div>
                     </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                        <div className="">
+                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
+                                {t("formProperty.address")} <span className="text-red-500">*</span>
+                            </label>
+                            <AddressInputOnBlur
+                                city={getCityNameById(formData.city_id)}
+                                district={getDistrictNameById(formData.district_id)}
+                                ward={getWardNameById(formData.ward_id)}
+                                value={formData.address}
+                                onChange={(val) => setFormData({ ...formData, address: val })}
+                                onSelect={(lat, lon) =>
+                                    setFormData({
+                                        ...formData, coordinates: {
+                                            type: "Point",
+                                            coordinates: [
+                                                lon,
+                                                lat,
+                                            ]
+                                        }
+                                    })
+                                }
+                            />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 ">
+                            <div>
+                                <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
+                                    {t("formProperty.bathrooms")}
+                                </label>
+                                <input
+                                    type="number"
+                                    name="bathrooms"
+                                    value={formData.bathrooms}
+                                    onChange={handleChange}
+                                    placeholder={t("formProperty.placeholder.bathrooms")}
+                                    className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
+                                    {t("formProperty.bedrooms")}
+                                </label>
+                                <input
+                                    type="number"
+                                    name="bedrooms"
+                                    value={formData.bedrooms}
+                                    onChange={handleChange}
+                                    placeholder={t("formProperty.placeholder.bedrooms")}
+                                    className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
+                                    {t("formProperty.area")}<span className="text-red-500">*</span>
+                                </label>
+                                <CurrencyInput
+                                    name="area"
+                                    value={formData.area}
+                                    allowDecimals={false}
+                                    allowNegativeValue={false}
+                                    placeholder={t("formProperty.placeholder.area")}
+                                    onValueChange={(value, name) => {
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            [name!]: value ?? ""
+                                        }));
+                                    }}
+                                    className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
+                                    {t("formProperty.floors")}
+                                </label>
+                                <input
+                                    type="number"
+                                    name="floors"
+                                    value={formData.floors}
+                                    onChange={handleChange}
+                                    placeholder={t("formProperty.placeholder.floors")}
+                                    min="1"
+                                    className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <ApartmentInfo formData={formData} setFormData={setFormData} />
                     <div className="mt-2">
                         <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
                             {t("formProperty.description")} <span className="text-red-500">*</span>
@@ -212,208 +403,30 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                             placeholder={t("formProperty.placeholder.description")}
                             className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                             required
+                            maxLength={1000}
                         ></textarea>
                     </div>
-                    <div className="grid md:grid-cols-3 grid-cols-1 mt-2 gap-5">
-                        <div>
-                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
-                                {t("formProperty.city")} <span className="text-red-500">*</span>
-                            </label>
-                            <select
-                                title="city"
-                                name="city_id"
-                                value={formData.city_id}
-                                onChange={handleChange}
-                                required
-                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                            >
-                                <option value="">{t("formProperty.select.city")}</option>
-                                {cities?.map((city) => (
-                                    <option key={city._id} value={city._id}>
-                                        {city.city_name[currentLanguage]}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
-                                {t("formProperty.district")} <span className="text-red-500">*</span>
-                            </label>
-                            <select
-                                title="district"
-                                name="district_id"
-                                value={formData.district_id}
-                                onChange={handleChange}
-                                required
-                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                            >
-                                <option value="">{t("formProperty.select.district")}</option>
-                                {districts?.map((district) => (
-                                    <option key={district._id} value={district._id}>
-                                        {district.district_name[currentLanguage]}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
-                                {t("formProperty.ward")} <span className="text-red-500">*</span>
-                            </label>
-                            <select
-                                title="ward"
-                                name="ward_id"
-                                value={formData.ward_id}
-                                onChange={handleChange}
-                                required
-                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                            >
-                                <option value="">{t("formProperty.select.ward")}</option>
-                                {wards?.map((ward) => (
-                                    <option key={ward._id} value={ward._id}>
-                                        {ward.ward_name[currentLanguage]}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
                     <div className="mt-2">
-                        <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
-                            {t("formProperty.address")} <span className="text-red-500">*</span>
-                        </label>
-                        <AddressInputOnBlur
-                            city={getCityNameById(formData.city_id)}
-                            district={getDistrictNameById(formData.district_id)}
-                            ward={getWardNameById(formData.ward_id)}
-                            value={formData.address}
-                            onChange={(val) => setFormData({ ...formData, address: val })}
-                            onSelect={(lat, lon) =>
-                                setFormData({
-                                    ...formData, coordinates: {
-                                        type: "Point",
-                                        coordinates: [
-                                            lon,
-                                            lat,
-                                        ]
-                                    }
-                                })
-                            }
-                        />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-2 mt-2">
-                        <div>
-                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
-                                {t("formProperty.bathrooms")}
-                            </label>
-                            <input
-                                type="number"
-                                name="bathrooms"
-                                value={formData.bathrooms}
-                                onChange={handleChange}
-                                placeholder={t("formProperty.placeholder.bathrooms")}
-                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
-                                {t("formProperty.bedrooms")}
-                            </label>
-                            <input
-                                type="number"
-                                name="bedrooms"
-                                value={formData.bedrooms}
-                                onChange={handleChange}
-                                placeholder={t("formProperty.placeholder.bedrooms")}
-                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
-                                {t("formProperty.category")} <span className="text-red-500">*</span>
-                            </label>
-                            <select
-                                title="category"
-                                name="category_id"
-                                value={formData.category_id}
-                                onChange={handleChange}
-                                required
-                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                            >
-                                <option value="">{t("formProperty.select.category")}</option>
-                                {taxonomies?.categories?.map((c) => (
-                                    <option key={c._id} value={c._id}>
-                                        {c.category_name[currentLanguage]}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
-                                {t("formProperty.area")}<span className="text-red-500">*</span>
-                            </label>
-                            <CurrencyInput
-                                name="area"
-                                value={formData.area}
-                                allowDecimals={false}
-                                allowNegativeValue={false}
-                                placeholder={t("formProperty.placeholder.area")}
-                                onValueChange={(value, name) => {
-                                    setFormData(prev => ({
-                                        ...prev,
-                                        [name!]: value ?? ""
-                                    }));
-                                }}
-                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
-                                {t("formProperty.floors")}
-                            </label>
-                            <input
-                                type="number"
-                                name="floors"
-                                value={formData.floors}
-                                onChange={handleChange}
-                                placeholder={t("formProperty.placeholder.floors")}
-                                min="1"
-                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
-                                {t("formProperty.type")} <span className="text-red-500">*</span>
-                            </label>
-                            <select
-                                title="type"
-                                name="type_id"
-                                value={formData.type_id}
-                                onChange={handleChange}
-                                required
-                                className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                            >
-                                <option value="">{t("formProperty.select.type")}</option>
-                                {taxonomies?.propertyTypes?.map((p) => (
-                                    <option key={p._id} value={p._id}>
-                                        {p.type_name[currentLanguage]}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                        <button
+                            title="genAI"
+                            type="button"
+                            className="bg-green-400 hover:bg-green-700 text-white font-semibold px-4 md:px-6 py-1.5 md:py-2 text-sm md:text-base rounded-lg transition-all duration-300 cursor-pointer"
+                        >
+                            {t("formProperty.autoDescription")}
+                        </button>
                     </div>
                 </div>
-            )}
+            )
+            }
             <div className="pt-3 md:pt-4 flex justify-end">
                 <button
                     type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 md:px-6 py-1.5 md:py-2 text-sm md:text-base rounded-lg transition-all duration-300"
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 md:px-6 py-1.5 md:py-2 text-sm md:text-base rounded-lg transition-all duration-300 cursor-pointer"
                 >
                     {t("formProperty.continue")}
                 </button>
             </div>
-        </form>
+        </form >
     );
 };
 

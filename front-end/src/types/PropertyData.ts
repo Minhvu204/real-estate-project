@@ -19,4 +19,7 @@ export type PropertyData = {
         type: "Point";
         coordinates: [number, number];
     };
+    floor_number?: string;
+    building_block?: string;
+    apartment_number?: string;
 }
