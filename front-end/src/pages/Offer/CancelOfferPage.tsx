@@ -19,7 +19,6 @@ const CancelOfferPage: React.FC = () => {
   const hasCancelled = useRef(false);
 
   useEffect(() => {
-    // Prevent double execution
     if (hasCancelled.current) return;
 
     const cancelOffer = async () => {
@@ -32,7 +31,6 @@ const CancelOfferPage: React.FC = () => {
         return;
       }
 
-      // Kiểm tra đăng nhập và role buyer
       if (!state.user || !state.token) {
         hasCancelled.current = true;
         toast.error(t('error.loginRequired'));

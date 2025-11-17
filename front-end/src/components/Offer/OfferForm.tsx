@@ -92,7 +92,6 @@ export const OfferForm: React.FC<OfferFormProps> = ({
       i18n.off('languageChanged', updateLang);
       clearInterval(interval);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [i18n]);
 
   const validate = (): boolean => {

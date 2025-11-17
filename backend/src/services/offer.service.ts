@@ -206,5 +206,56 @@ export const offerService = {
 
     return offer;
   },
+
+  async getOfferById(offerId: string, userId: string, userRole: string) {
+    if (!mongoose.isValidObjectId(offerId)) {
+      const err: any = new Error("Offer không hợp lệ");
+      err.status = 400;
+      throw err;
+    }
+
+    const offer = await Offer.findById(offerId)
+      .populate("property_id", "title price images status owner_id agent_id address")
+      .populate("buyer_id", "fullName email phone avatar")
+      .populate("agent_id", "fullName email phone avatar")
+      .populate("seller_id", "fullName email phone avatar")
+      .lean();
+
+    if (!offer) {
+      const err: any = new Error("Offer không tồn tại");
+      err.status = 404;
+      throw err;
+    }
+
+    // Kiểm tra quyền truy cập
+    const sellerId = typeof offer.seller_id === "object" && offer.seller_id !== null 
+      ? String(offer.seller_id._id) 
+      : String(offer.seller_id);
+    const agentId = offer.agent_id 
+      ? (typeof offer.agent_id === "object" && offer.agent_id !== null 
+          ? String(offer.agent_id._id) 
+          : String(offer.agent_id))
+      : null;
+
+    if (userRole === "seller") {
+      if (sellerId !== userId) {
+        const err: any = new Error("Bạn không có quyền xem offer này");
+        err.status = 403;
+        throw err;
+      }
+    } else if (userRole === "agent") {
+      if (!agentId || agentId !== userId) {
+        const err: any = new Error("Bạn không có quyền xem offer này");
+        err.status = 403;
+        throw err;
+      }
+    } else {
+      const err: any = new Error("Chỉ seller và agent mới có quyền xem offer này");
+      err.status = 403;
+      throw err;
+    }
+
+    return offer;
+  },
 };
 

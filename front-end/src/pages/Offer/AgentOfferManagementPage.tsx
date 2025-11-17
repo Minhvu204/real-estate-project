@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -11,30 +11,42 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
-import { OfferList } from '../../components/Offer/OfferList';
+import { AgentOfferList } from '../../components/Offer/AgentOfferList';
 import { OfferService } from '../../services/offerService';
 import type { Offer, OfferStatus } from '../../types/Offer';
+import AuthContext from '../../context/AuthContext';
 
-const OfferHistoryPage: React.FC = () => {
+const AgentOfferManagementPage: React.FC = () => {
   const { t } = useTranslation('offerManagement');
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { state } = useContext(AuthContext);
   
   const [offers, setOffers] = useState<Offer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState<OfferStatus | undefined>();
 
   useEffect(() => {
+    if (!state.loading && (!state.user || state.user.role?.toLowerCase() !== 'agent')) {
+      toast.error(t('error.noPermission'));
+      setTimeout(() => {
+        navigate('/home');
+      }, 1500);
+    }
+  }, [state.loading, state.user, navigate, t]);
+
+  useEffect(() => {
     const loadOffers = async () => {
       try {
         setIsLoading(true);
         const statusParam = searchParams.get('status') as OfferStatus | null;
-        const propertyId = searchParams.get('property_id');
+        const propertyIdParam = searchParams.get('property_id');
         
         const filters: { status?: OfferStatus; property_id?: string } = {};
         if (statusParam) filters.status = statusParam;
-        if (propertyId) filters.property_id = propertyId;
+        if (propertyIdParam) filters.property_id = propertyIdParam;
         
-        const data = await OfferService.getMyOffers(filters);
+        const data = await OfferService.getAgentOffers(filters);
         setOffers(data);
         setStatusFilter(filters.status);
       } catch (error: any) {
@@ -43,25 +55,27 @@ const OfferHistoryPage: React.FC = () => {
         setIsLoading(false);
       }
     };
-    loadOffers();
-  }, [searchParams]);
+    
+    if (!state.loading) {
+      loadOffers();
+    }
+  }, [searchParams, state.loading, t]);
 
-  const handleCancelOffer = async (offerId: string) => {
+  const handleForwardOffer = async (offerId: string) => {
     try {
-      await OfferService.cancelOffer(offerId);
-      toast.success(t('list.cancelSuccess'));
+      await OfferService.forwardOffer(offerId);
+      toast.success(t('agentList.forwardSuccess'));
       
       const statusParam = searchParams.get('status') as OfferStatus | null;
-      const propertyId = searchParams.get('property_id');
-      
+      const propertyIdParam = searchParams.get('property_id');
       const filters: { status?: OfferStatus; property_id?: string } = {};
       if (statusParam) filters.status = statusParam;
-      if (propertyId) filters.property_id = propertyId;
+      if (propertyIdParam) filters.property_id = propertyIdParam;
       
-      const updatedOffers = await OfferService.getMyOffers(filters);
+      const updatedOffers = await OfferService.getAgentOffers(filters);
       setOffers(updatedOffers);
     } catch (error: any) {
-      toast.error(error?.message || t('list.cancelError'));
+      toast.error(error?.message || t('agentList.forwardError'));
     }
   };
 
@@ -76,9 +90,13 @@ const OfferHistoryPage: React.FC = () => {
     setSearchParams(params);
   };
 
+  const handleViewDetail = (offerId: string) => {
+    navigate(`/agent/offers/${offerId}`);
+  };
+
   return (
     <Container sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box>
           <Typography 
             variant="h4" 
@@ -86,10 +104,9 @@ const OfferHistoryPage: React.FC = () => {
             sx={{ 
               color: '#1976D2',
               letterSpacing: '-0.02em',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
             }}
           >
-            {t('title')}
+            {t('agentList.title')}
           </Typography>
           <Typography 
             variant="body1" 
@@ -97,12 +114,14 @@ const OfferHistoryPage: React.FC = () => {
             sx={{ 
               color: '#424242',
               fontSize: '0.95rem',
-              fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
             }}
           >
-            {t('subtitle')}
+            {t('agentList.subtitle')}
           </Typography>
         </Box>
+      </Box>
+
+      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
         <FormControl sx={{ minWidth: 200 }}>
           <InputLabel>{t('list.filter.filterByStatus')}</InputLabel>
           <Select
@@ -121,18 +140,15 @@ const OfferHistoryPage: React.FC = () => {
         </FormControl>
       </Box>
 
-      <Box sx={{ mb: 4 }} />
-
-      <OfferList
+      <AgentOfferList
         offers={offers}
-        onCancelOffer={handleCancelOffer}
+        onForwardOffer={handleForwardOffer}
         isLoading={isLoading}
-        filters={{ status: statusFilter }}
-        onFilterChange={undefined}
+        onViewDetail={handleViewDetail}
       />
     </Container>
   );
 };
 
-export default OfferHistoryPage;
+export default AgentOfferManagementPage;
 

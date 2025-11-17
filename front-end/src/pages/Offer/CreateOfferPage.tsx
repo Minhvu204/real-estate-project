@@ -27,7 +27,6 @@ const CreateOfferPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Kiểm tra đăng nhập và role buyer khi component mount
   useEffect(() => {
     if (!state.loading) {
       if (!state.user || !state.token) {
@@ -42,7 +41,6 @@ const CreateOfferPage: React.FC = () => {
         }, 1500);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.loading, state.user, state.token, navigate]);
 
   useEffect(() => {
@@ -60,11 +58,9 @@ const CreateOfferPage: React.FC = () => {
       };
       loadProperty();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propertyId]);
 
   const handleSubmitOffer = async (data: CreateOfferDto) => {
-    // Kiểm tra đăng nhập và role buyer trước khi submit
     if (!state.user || !state.token) {
       toast.error(t('error.loginRequired'));
       setTimeout(() => {
@@ -94,7 +90,6 @@ const CreateOfferPage: React.FC = () => {
     }
   };
 
-  // Hiển thị loading nếu đang kiểm tra auth hoặc loading property
   if (state.loading || isLoading) {
     return (
       <Container sx={{ mt: 4, mb: 4, display: 'flex', justifyContent: 'center' }}>
@@ -103,7 +98,6 @@ const CreateOfferPage: React.FC = () => {
     );
   }
 
-  // Nếu chưa đăng nhập hoặc không phải buyer, không hiển thị form (sẽ redirect trong useEffect)
   if (!state.user || !state.token || state.user.role?.toLowerCase() !== 'buyer') {
     return null;
   }

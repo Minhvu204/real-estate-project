@@ -62,7 +62,6 @@ const OfferManagement: React.FC = () => {
         }, 1500);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.loading, state.user, state.token, navigate]);
 
   useEffect(() => {
@@ -89,7 +88,6 @@ const OfferManagement: React.FC = () => {
       };
       loadProperty();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propertyId]);
 
   const loadOffers = useCallback(async () => {
@@ -105,7 +103,6 @@ const OfferManagement: React.FC = () => {
     } finally {
       setIsLoadingOffers(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter, propertyId]);
 
   useEffect(() => {

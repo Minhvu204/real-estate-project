@@ -1,0 +1,269 @@
+{
+  "offers": [
+    {
+      "_id": "offer1",
+      "property_id": {
+        "_id": "1",
+        "title": {
+          "vi": "Căn hộ cao cấp tại Vinhomes Metropolis",
+          "en": "Luxury Apartment at Vinhomes Metropolis"
+        },
+        "address": {
+          "vi": "29 Liễu Giai, Ba Đình, Hà Nội",
+          "en": "29 Lieu Giai, Ba Dinh, Hanoi"
+        },
+        "price": 6800000000,
+        "area": 85,
+        "bedrooms": 2,
+        "bathrooms": 2,
+        "images": [
+          "https://picsum.photos/seed/p1a/800/600"
+        ]
+      },
+      "buyer_id": {
+        "_id": "3",
+        "fullName": "Tran Van Buyer",
+        "email": "buyer@example.com",
+        "phone": "0865130045"
+      },
+      "agent_id": {
+        "_id": "4",
+        "fullName": "Agent 1",
+        "email": "agent1@example.com",
+        "phone": "3434131431"
+      },
+      "seller_id": "2",
+      "amount": 6500000000,
+      "currency": "VND",
+      "note": "Tôi rất quan tâm đến căn hộ này. Có thể thanh toán 50% ngay, 50% còn lại trong 3 tháng.",
+      "status": "pending",
+      "expires_at": "2024-12-31T23:59:59.000Z",
+      "createdAt": "2024-12-10T09:00:00.000Z",
+      "updatedAt": "2024-12-15T10:30:00.000Z"
+    },
+    {
+      "_id": "offer2",
+      "property_id": {
+        "_id": "1",
+        "title": {
+          "vi": "Căn hộ cao cấp tại Vinhomes Metropolis",
+          "en": "Luxury Apartment at Vinhomes Metropolis"
+        },
+        "address": {
+          "vi": "29 Liễu Giai, Ba Đình, Hà Nội",
+          "en": "29 Lieu Giai, Ba Dinh, Hanoi"
+        },
+        "price": 6800000000,
+        "area": 85,
+        "bedrooms": 2,
+        "bathrooms": 2,
+        "images": [
+          "https://picsum.photos/seed/p1a/800/600"
+        ]
+      },
+      "buyer_id": {
+        "_id": "5",
+        "fullName": "Tran Van Buyer",
+        "email": "buyer@example.com",
+        "phone": "0865130045"
+      },
+      "agent_id": {
+        "_id": "4",
+        "fullName": "Agent 1",
+        "email": "agent1@example.com",
+        "phone": "3434131431"
+      },
+      "seller_id": "2",
+      "amount": 6400000000,
+      "currency": "VND",
+      "note": "Sẵn sàng thanh toán toàn bộ bằng tiền mặt trong vòng 1 tháng.",
+      "status": "seller_reviewing",
+      "expires_at": "2025-01-15T23:59:59.000Z",
+      "forwarded_at": "2024-12-12T14:20:00.000Z",
+      "reviewed_by": "2",
+      "reviewed_at": "2024-12-16T08:00:00.000Z",
+      "createdAt": "2024-12-11T10:15:00.000Z",
+      "updatedAt": "2024-12-16T08:00:00.000Z"
+    },
+    {
+      "_id": "offer3",
+      "property_id": {
+        "_id": "2",
+        "title": {
+          "vi": "Biệt thự sân vườn ven Hồ Tây",
+          "en": "Garden Villa by West Lake"
+        },
+        "address": {
+          "vi": "Tô Ngọc Vân, Tây Hồ, Hà Nội",
+          "en": "To Ngoc Van, Tay Ho, Hanoi"
+        },
+        "price": 25000000000,
+        "area": 250,
+        "bedrooms": 5,
+        "bathrooms": 4,
+        "images": [
+          "https://picsum.photos/seed/p2a/800/600"
+        ]
+      },
+      "buyer_id": {
+        "_id": "6",
+        "fullName": "Tran Van Buyer",
+        "email": "buyer@example.com",
+        "phone": "0865130045"
+      },
+      "agent_id": {
+        "_id": "4",
+        "fullName": "Agent 1",
+        "email": "agent1@example.com",
+        "phone": "3434131431"
+      },
+      "seller_id": "2",
+      "amount": 24000000000,
+      "currency": "VND",
+      "note": "Cần xem nhà trước khi quyết định. Có thể đàm phán thêm về giá.",
+      "status": "forwarded_to_seller",
+      "expires_at": "2025-01-20T23:59:59.000Z",
+      "forwarded_at": "2024-12-14T11:00:00.000Z",
+      "createdAt": "2024-12-13T15:30:00.000Z",
+      "updatedAt": "2024-12-14T11:00:00.000Z"
+    },
+    {
+      "_id": "offer4",
+      "property_id": {
+        "_id": "4",
+        "title": {
+          "vi": "Nhà phố thương mại tại The Manor",
+          "en": "Commercial Townhouse at The Manor"
+        },
+        "address": {
+          "vi": "Đường Mễ Trì, Mỹ Đình 1, Nam Từ Liêm, Hà Nội",
+          "en": "Me Tri Street, My Dinh 1, Nam Tu Liem, Hanoi"
+        },
+        "price": 18000000000,
+        "area": 180,
+        "bedrooms": 4,
+        "bathrooms": 4,
+        "images": [
+          "https://picsum.photos/seed/p4a/800/600"
+        ]
+      },
+      "buyer_id": {
+        "_id": "7",
+        "fullName": "Tran Van Buyer",
+        "email": "buyer@example.com",
+        "phone": "0865130045"
+      },
+      "agent_id": {
+        "_id": "4",
+        "fullName": "Agent 1",
+        "email": "agent1@example.com",
+        "phone": "3434131431"
+      },
+      "seller_id": "2",
+      "amount": 17500000000,
+      "currency": "VND",
+      "note": "Quan tâm đến vị trí và tiềm năng kinh doanh. Mong muốn được gặp trực tiếp để thảo luận.",
+      "status": "accepted",
+      "expires_at": "2025-01-10T23:59:59.000Z",
+      "forwarded_at": "2024-12-10T09:00:00.000Z",
+      "reviewed_by": {
+        "_id": "2",
+        "fullName": "Seller 1"
+      },
+      "reviewed_at": "2024-12-17T16:00:00.000Z",
+      "createdAt": "2024-12-08T11:20:00.000Z",
+      "updatedAt": "2024-12-17T16:00:00.000Z"
+    },
+    {
+      "_id": "offer5",
+      "property_id": {
+        "_id": "5",
+        "title": {
+          "vi": "Căn hộ 3 phòng ngủ tại Times City",
+          "en": "3 Bedroom Apartment at Times City"
+        },
+        "address": {
+          "vi": "458 Minh Khai, Hai Bà Trưng, Hà Nội",
+          "en": "458 Minh Khai, Hai Ba Trung, Hanoi"
+        },
+        "price": 4500000000,
+        "area": 95,
+        "bedrooms": 3,
+        "bathrooms": 2,
+        "images": [
+          "https://picsum.photos/seed/p5a/800/600"
+        ]
+      },
+      "buyer_id": {
+        "_id": "8",
+        "fullName": "Tran Van Buyer",
+        "email": "buyer@example.com",
+        "phone": "0865130045"
+      },
+      "agent_id": {
+        "_id": "4",
+        "fullName": "Agent 1",
+        "email": "agent1@example.com",
+        "phone": "3434131431"
+      },
+      "seller_id": "2",
+      "amount": 4200000000,
+      "currency": "VND",
+      "note": "Giá đề xuất dựa trên thị trường hiện tại. Có thể điều chỉnh nếu cần.",
+      "status": "rejected",
+      "expires_at": "2025-01-05T23:59:59.000Z",
+      "forwarded_at": "2024-12-09T10:00:00.000Z",
+      "reviewed_by": {
+        "_id": "2",
+        "fullName": "Seller 1"
+      },
+      "reviewed_at": "2024-12-15T14:30:00.000Z",
+      "rejection_reason": "Giá đề xuất thấp hơn mong đợi. Không phù hợp với giá trị thực tế của bất động sản.",
+      "createdAt": "2024-12-07T13:45:00.000Z",
+      "updatedAt": "2024-12-15T14:30:00.000Z"
+    },
+    {
+      "_id": "offer6",
+      "property_id": {
+        "_id": "10",
+        "title": {
+          "vi": "Căn hộ 2 ngủ giá tốt, khu Trung Hòa Nhân Chính",
+          "en": "Affordable 2 Bedroom Apartment in Trung Hoa Nhan Chinh"
+        },
+        "address": {
+          "vi": "Hoàng Đạo Thúy, Cầu Giấy, Hà Nội",
+          "en": "Hoang Dao Thuy, Cau Giay, Hanoi"
+        },
+        "price": 3200000000,
+        "area": 70,
+        "bedrooms": 2,
+        "bathrooms": 2,
+        "images": [
+          "https://picsum.photos/seed/p10a/800/600"
+        ]
+      },
+      "buyer_id": {
+        "_id": "9",
+        "fullName": "Tran Van Buyer",
+        "email": "buyer@example.com",
+        "phone": "0865130045"
+      },
+      "agent_id": {
+        "_id": "4",
+        "fullName": "Agent 1",
+        "email": "agent1@example.com",
+        "phone": "3434131431"
+      },
+      "seller_id": "2",
+      "amount": 3100000000,
+      "currency": "VND",
+      "note": "Đang tìm nhà để ở lâu dài. Sẵn sàng thanh toán nhanh nếu giá hợp lý.",
+      "status": "forwarded_to_seller",
+      "expires_at": "2025-01-25T23:59:59.000Z",
+      "forwarded_at": "2024-12-16T09:15:00.000Z",
+      "createdAt": "2024-12-15T16:00:00.000Z",
+      "updatedAt": "2024-12-16T09:15:00.000Z"
+    }
+  ]
+}
+

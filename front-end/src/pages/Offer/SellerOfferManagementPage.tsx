@@ -1,0 +1,463 @@
+import React, { useState, useEffect, useContext } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Container,
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Chip,
+  Button,
+  CircularProgress,
+  Collapse,
+  IconButton,
+} from '@mui/material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
+import { SellerOfferList } from '../../components/Offer/SellerOfferList';
+import { OfferService } from '../../services/offerService';
+import type { Offer, OfferStatus } from '../../types/Offer';
+import AuthContext from '../../context/AuthContext';
+import { getStatusColorConfig } from '../../utils/offerUtils';
+import { getLanguage } from '../../utils/storage';
+
+interface PropertyGroup {
+  propertyId: string;
+  propertyTitle: string;
+  propertyAddress: string;
+  offers: Offer[];
+}
+
+const SellerOfferManagementPage: React.FC = () => {
+  const { t } = useTranslation('offerManagement');
+  const lang = getLanguage();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { state } = useContext(AuthContext);
+  
+  const [offers, setOffers] = useState<Offer[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<OfferStatus | undefined>();
+  const [propertyFilter, setPropertyFilter] = useState<string | undefined>();
+  const [expandedProperties, setExpandedProperties] = useState<Set<string>>(new Set());
+  const [viewMode, setViewMode] = useState<'table' | 'list'>('table');
+
+  useEffect(() => {
+    if (!state.loading && (!state.user || state.user.role?.toLowerCase() !== 'seller')) {
+      toast.error(t('error.noPermission'));
+      setTimeout(() => {
+        navigate('/home');
+      }, 1500);
+    }
+  }, [state.loading, state.user, navigate, t]);
+
+  useEffect(() => {
+    const loadOffers = async () => {
+      try {
+        setIsLoading(true);
+        const statusParam = searchParams.get('status') as OfferStatus | null;
+        const propertyIdParam = searchParams.get('property_id');
+        
+        const filters: { status?: OfferStatus; property_id?: string } = {};
+        if (statusParam) filters.status = statusParam;
+        if (propertyIdParam) filters.property_id = propertyIdParam;
+        
+        const data = await OfferService.getSellerOffers(filters);
+        setOffers(data);
+        setStatusFilter(filters.status);
+        setPropertyFilter(filters.property_id);
+      } catch (error: any) {
+        toast.error(error?.message || t('error.loadFailed'));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    if (!state.loading) {
+      loadOffers();
+    }
+  }, [searchParams, state.loading, t]);
+
+  const handleAcceptOffer = async (offerId: string) => {
+    try {
+      await OfferService.acceptOffer(offerId);
+      toast.success(t('sellerList.acceptSuccess'));
+      
+      const statusParam = searchParams.get('status') as OfferStatus | null;
+      const propertyIdParam = searchParams.get('property_id');
+      const filters: { status?: OfferStatus; property_id?: string } = {};
+      if (statusParam) filters.status = statusParam;
+      if (propertyIdParam) filters.property_id = propertyIdParam;
+      
+      const updatedOffers = await OfferService.getSellerOffers(filters);
+      setOffers(updatedOffers);
+    } catch (error: any) {
+      toast.error(error?.message || t('sellerList.acceptError'));
+    }
+  };
+
+  const handleRejectOffer = async (offerId: string, reason?: string) => {
+    try {
+      await OfferService.rejectOffer(offerId, reason);
+      toast.success(t('sellerList.rejectSuccess'));
+      
+      const statusParam = searchParams.get('status') as OfferStatus | null;
+      const propertyIdParam = searchParams.get('property_id');
+      const filters: { status?: OfferStatus; property_id?: string } = {};
+      if (statusParam) filters.status = statusParam;
+      if (propertyIdParam) filters.property_id = propertyIdParam;
+      
+      const updatedOffers = await OfferService.getSellerOffers(filters);
+      setOffers(updatedOffers);
+    } catch (error: any) {
+      toast.error(error?.message || t('sellerList.rejectError'));
+    }
+  };
+
+  const handleFilterChange = (status?: OfferStatus) => {
+    setStatusFilter(status);
+    const params = new URLSearchParams(searchParams);
+    if (status) {
+      params.set('status', status);
+    } else {
+      params.delete('status');
+    }
+    setSearchParams(params);
+  };
+
+  const handlePropertyFilterChange = (propertyId?: string) => {
+    setPropertyFilter(propertyId);
+    const params = new URLSearchParams(searchParams);
+    if (propertyId) {
+      params.set('property_id', propertyId);
+    } else {
+      params.delete('property_id');
+    }
+    setSearchParams(params);
+  };
+
+  const togglePropertyExpanded = (propertyId: string) => {
+    const newExpanded = new Set(expandedProperties);
+    if (newExpanded.has(propertyId)) {
+      newExpanded.delete(propertyId);
+    } else {
+      newExpanded.add(propertyId);
+    }
+    setExpandedProperties(newExpanded);
+  };
+
+  const groupedOffers: PropertyGroup[] = offers.reduce((acc, offer) => {
+    const property = typeof offer.property_id === 'object' ? offer.property_id : null;
+    if (!property) return acc;
+
+    const propertyId = property._id;
+    const propertyTitle = typeof property.title === 'object' 
+      ? property.title[lang] 
+      : property.title || 'Unknown Property';
+    const propertyAddress = typeof property.address === 'object'
+      ? property.address[lang]
+      : property.address || '';
+
+    const existingGroup = acc.find(g => g.propertyId === propertyId);
+    if (existingGroup) {
+      existingGroup.offers.push(offer);
+    } else {
+      acc.push({
+        propertyId,
+        propertyTitle,
+        propertyAddress,
+        offers: [offer],
+      });
+    }
+    return acc;
+  }, [] as PropertyGroup[]);
+
+  const uniqueProperties = Array.from(
+    new Map(
+      offers
+        .map(offer => {
+          const property = typeof offer.property_id === 'object' ? offer.property_id : null;
+          if (!property) return null;
+          return {
+            id: property._id,
+            title: typeof property.title === 'object' ? property.title[lang] : property.title,
+          };
+        })
+        .filter((p): p is { id: string; title: string } => p !== null)
+        .map(p => [p.id, p])
+    ).values()
+  );
+
+  const handleViewDetail = (offerId: string) => {
+    navigate(`/seller/offers/${offerId}`);
+  };
+
+  return (
+    <Container sx={{ mt: 4, mb: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box>
+          <Typography 
+            variant="h4" 
+            fontWeight="bold"
+            sx={{ 
+              color: '#1976D2',
+              letterSpacing: '-0.02em',
+            }}
+          >
+            {t('sellerList.title')}
+          </Typography>
+          <Typography 
+            variant="body1" 
+            mt={1}
+            sx={{ 
+              color: '#424242',
+              fontSize: '0.95rem',
+            }}
+          >
+            {t('sellerList.subtitle')}
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button
+            variant={viewMode === 'table' ? 'contained' : 'outlined'}
+            onClick={() => setViewMode('table')}
+            size="small"
+          >
+            {t('sellerList.tableView')}
+          </Button>
+          <Button
+            variant={viewMode === 'list' ? 'contained' : 'outlined'}
+            onClick={() => setViewMode('list')}
+            size="small"
+          >
+            {t('sellerList.listView')}
+          </Button>
+        </Box>
+      </Box>
+
+      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel>{t('list.filter.filterByStatus')}</InputLabel>
+          <Select
+            value={statusFilter || 'all'}
+            label={t('list.filter.filterByStatus')}
+            onChange={(e) => handleFilterChange(e.target.value === 'all' ? undefined : (e.target.value as OfferStatus))}
+          >
+            <MenuItem value="all">{t('list.filter.all')}</MenuItem>
+            <MenuItem value="pending">{t('list.status.pending')}</MenuItem>
+            <MenuItem value="forwarded_to_seller">{t('list.status.forwarded_to_seller')}</MenuItem>
+            <MenuItem value="seller_reviewing">{t('list.status.seller_reviewing')}</MenuItem>
+            <MenuItem value="accepted">{t('list.status.accepted')}</MenuItem>
+            <MenuItem value="rejected">{t('list.status.rejected')}</MenuItem>
+            <MenuItem value="cancelled">{t('list.status.cancelled')}</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl sx={{ minWidth: 200 }}>
+          <InputLabel>{t('sellerList.filterByProperty')}</InputLabel>
+          <Select
+            value={propertyFilter || 'all'}
+            label={t('sellerList.filterByProperty')}
+            onChange={(e) => handlePropertyFilterChange(e.target.value === 'all' ? undefined : e.target.value)}
+          >
+            <MenuItem value="all">{t('list.filter.all')}</MenuItem>
+            {uniqueProperties.map(prop => (
+              <MenuItem key={prop.id} value={prop.id}>
+                {prop.title}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
+
+      {viewMode === 'table' ? (
+        <TableContainer component={Paper} elevation={3}>
+          <Table>
+            <TableHead>
+              <TableRow sx={{ bgcolor: 'primary.main' }}>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>{t('sellerList.table.property')}</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>{t('sellerList.table.buyer')}</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>{t('sellerList.table.amount')}</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>{t('sellerList.table.status')}</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>{t('sellerList.table.createdAt')}</TableCell>
+                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>{t('sellerList.table.actions')}</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                    <CircularProgress />
+                  </TableCell>
+                </TableRow>
+              ) : groupedOffers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                    <Typography color="text.secondary">{t('sellerList.noOffers')}</Typography>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                groupedOffers.map((group) => (
+                  <React.Fragment key={group.propertyId}>
+                    <TableRow 
+                      sx={{ 
+                        bgcolor: 'grey.100',
+                        cursor: 'pointer',
+                        '&:hover': { bgcolor: 'grey.200' },
+                      }}
+                      onClick={() => togglePropertyExpanded(group.propertyId)}
+                    >
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <IconButton size="small">
+                            {expandedProperties.has(group.propertyId) ? (
+                              <KeyboardArrowUpIcon />
+                            ) : (
+                              <KeyboardArrowDownIcon />
+                            )}
+                          </IconButton>
+                          <Box>
+                            <Typography fontWeight="bold">{group.propertyTitle}</Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {group.propertyAddress}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Chip 
+                          label={`${group.offers.length} ${t('sellerList.table.offers')}`}
+                          size="small"
+                          color="primary"
+                        />
+                      </TableCell>
+                      <TableCell colSpan={4} />
+                    </TableRow>
+                    <TableRow>
+                      <TableCell colSpan={6} sx={{ py: 0, border: 0 }}>
+                        <Collapse in={expandedProperties.has(group.propertyId)} timeout="auto" unmountOnExit>
+                          <Box sx={{ p: 2 }}>
+                            {group.offers.map((offer) => {
+                              const buyer = typeof offer.buyer_id === 'object' ? offer.buyer_id : null;
+                              const statusColors = getStatusColorConfig(offer.status);
+                              const canAccept = offer.status === 'forwarded_to_seller' || offer.status === 'seller_reviewing';
+                              const canReject = offer.status === 'forwarded_to_seller' || offer.status === 'seller_reviewing';
+
+                              return (
+                                <TableRow key={offer._id} sx={{ '&:hover': { bgcolor: 'action.hover' } }}>
+                                  <TableCell />
+                                  <TableCell>
+                                    {buyer ? (
+                                      <Box>
+                                        <Typography variant="body2" fontWeight="medium">
+                                          {buyer.fullName}
+                                        </Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                          {buyer.email}
+                                        </Typography>
+                                      </Box>
+                                    ) : (
+                                      <Typography variant="body2" color="text.secondary">
+                                        {t('sellerList.unknownBuyer')}
+                                      </Typography>
+                                    )}
+                                  </TableCell>
+                                  <TableCell>
+                                    <Typography variant="body2" fontWeight="bold" color="success.main">
+                                      {new Intl.NumberFormat('vi-VN').format(offer.amount)} ₫
+                                    </Typography>
+                                  </TableCell>
+                                  <TableCell>
+                                    <Chip
+                                      label={t(`list.status.${offer.status}`)}
+                                      size="small"
+                                      sx={{
+                                        backgroundColor: statusColors.backgroundColor,
+                                        color: statusColors.color,
+                                        border: `1px solid ${statusColors.borderColor}`,
+                                      }}
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    <Typography variant="body2">
+                                      {offer.createdAt ? new Date(offer.createdAt).toLocaleDateString('vi-VN') : 'N/A'}
+                                    </Typography>
+                                  </TableCell>
+                                  <TableCell>
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                      <Button
+                                        size="small"
+                                        variant="outlined"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleViewDetail(offer._id);
+                                        }}
+                                      >
+                                        {t('sellerList.viewDetail')}
+                                      </Button>
+                                      {canAccept && (
+                                        <Button
+                                          size="small"
+                                          variant="contained"
+                                          color="success"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleAcceptOffer(offer._id);
+                                          }}
+                                        >
+                                          {t('sellerList.accept')}
+                                        </Button>
+                                      )}
+                                      {canReject && (
+                                        <Button
+                                          size="small"
+                                          variant="contained"
+                                          color="error"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleRejectOffer(offer._id);
+                                          }}
+                                        >
+                                          {t('sellerList.reject')}
+                                        </Button>
+                                      )}
+                                    </Box>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </Box>
+                        </Collapse>
+                      </TableCell>
+                    </TableRow>
+                  </React.Fragment>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      ) : (
+        <SellerOfferList
+          offers={offers}
+          onAcceptOffer={handleAcceptOffer}
+          onRejectOffer={handleRejectOffer}
+          isLoading={isLoading}
+          onViewDetail={handleViewDetail}
+        />
+      )}
+    </Container>
+  );
+};
+
+export default SellerOfferManagementPage;
+

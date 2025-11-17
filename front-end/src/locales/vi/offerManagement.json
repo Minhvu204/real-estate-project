@@ -66,8 +66,99 @@
     "loadFailed": "Tải danh sách offer thất bại",
     "propertyNotFound": "Không tìm thấy bất động sản",
     "loginRequired": "Vui lòng đăng nhập để tạo offer",
-    "onlyBuyerCanCreate": "Chỉ buyer mới có thể tạo offer"
+    "onlyBuyerCanCreate": "Chỉ buyer mới có thể tạo offer",
+    "noPermission": "Bạn không có quyền truy cập trang này"
   },
-  "back": "Quay lại"
-}
+  "sellerList": {
+    "title": "Quản lý Offers",
+    "subtitle": "Xem xét và quyết định các đề xuất mua bất động sản",
+    "noOffers": "Không có offer nào",
+    "buyerInfo": "Thông tin người mua",
+    "agentInfo": "Thông tin agent",
+    "listedPrice": "Giá niêm yết",
+    "viewDetail": "Xem chi tiết",
+    "accept": "Chấp nhận",
+    "reject": "Từ chối",
+    "acceptOffer": "Chấp nhận Offer",
+    "rejectOffer": "Từ chối Offer",
+    "acceptConfirm": "Bạn có chắc chắn muốn chấp nhận offer này không? Hệ thống sẽ tự động tạo Deal sau khi chấp nhận.",
+    "rejectConfirm": "Bạn có chắc chắn muốn từ chối offer này không?",
+    "rejectionReason": "Lý do từ chối",
+    "rejectionReasonPlaceholder": "Nhập lý do từ chối (tùy chọn)",
+    "acceptSuccess": "Chấp nhận offer thành công! Deal đã được tạo tự động.",
+    "acceptError": "Chấp nhận offer thất bại",
+    "rejectSuccess": "Từ chối offer thành công",
+    "rejectError": "Từ chối offer thất bại",
+    "filterByProperty": "Lọc theo bất động sản",
+    "tableView": "Bảng",
+    "listView": "Danh sách",
+    "table": {
+      "property": "Bất động sản",
+      "buyer": "Người mua",
+      "amount": "Giá đề xuất",
+      "status": "Trạng thái",
+      "createdAt": "Ngày tạo",
+      "actions": "Thao tác",
+      "offers": "offers"
+    },
+    "unknownBuyer": "Không xác định"
+  },
+  "agentList": {
+    "title": "Quản lý Offers",
+    "subtitle": "Xem xét và chuyển tiếp các đề xuất mua bất động sản cho Seller",
+    "noOffers": "Không có offer nào",
+    "buyerInfo": "Thông tin người mua",
+    "sellerInfo": "Thông tin người bán",
+    "listedPrice": "Giá niêm yết",
+    "viewDetail": "Xem chi tiết",
+    "forward": "Chuyển tiếp",
+    "forwardOffer": "Chuyển tiếp Offer",
+    "forwardConfirm": "Bạn có chắc chắn muốn chuyển tiếp offer này cho Seller không?",
+    "forwardSuccess": "Chuyển tiếp offer thành công! Seller đã nhận được thông báo.",
+    "forwardError": "Chuyển tiếp offer thất bại",
+    "forwardedAt": "Đã chuyển tiếp lúc"
+  },
+  "back": "Quay lại",
+  "detail": {
+    "title": "Chi tiết Offer",
+    "back": "Quay lại",
+    "buyerInfo": {
+      "title": "Thông tin người mua",
+      "noName": "Không có tên",
+      "noEmail": "Không có email",
 
+      "email": "Email",
+      "phone": "Điện thoại",
+      "noBuyerInfo": "Không có thông tin người mua"
+    },
+    "amount": {
+      "title": "Giá đề xuất"
+    },
+    "deadline": {
+      "title": "Thời gian hiệu lực",
+      "noDeadline": "Không có"
+    },
+    "note": {
+      "title": "Ghi chú",
+      "noNote": "Không có ghi chú"
+    },
+    "additional": {
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Cập nhật lần cuối"
+    },
+    "status": {
+      "pending": "Đang chờ",
+      "accepted": "Đã chấp nhận",
+      "rejected": "Đã từ chối",
+      "cancelled": "Đã hủy",
+      "forwarded_to_seller": "Đã chuyển cho seller",
+      "seller_reviewing": "Seller đang xem xét"
+    },
+    "errors": {
+      "noId": "Không tìm thấy ID offer",
+      "noPermission": "Bạn không có quyền xem trang này",
+      "loadFailed": "Không thể tải thông tin offer",
+      "notFound": "Không tìm thấy thông tin offer"
+    }
+  }
+}

@@ -6,7 +6,7 @@ export type OfferStatus =
   | "rejected" 
   | "cancelled";
 
-export interface Offer {
+export type Offer = {
   _id: string;
   property_id: string | {
     _id: string;
@@ -61,7 +61,7 @@ export interface Offer {
   updatedAt: string;
 }
 
-export interface CreateOfferDto {
+export type CreateOfferDto = {
   property_id: string;
   amount: number;
   validityPeriod: string; // ISO date string
@@ -71,7 +71,7 @@ export interface CreateOfferDto {
   meta?: Record<string, any>;
 }
 
-export interface OfferFilters {
+export type OfferFilters = {
   status?: OfferStatus;
   property_id?: string;
 }

@@ -7,73 +7,68 @@ import {
   Button,
   Chip,
   Stack,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
+  CircularProgress,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogContentText,
   DialogActions,
-  CircularProgress,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import CancelIcon from '@mui/icons-material/Cancel';
 import DescriptionIcon from '@mui/icons-material/Description';
-import type { Offer, OfferStatus } from '../../types/Offer';
+import ForwardIcon from '@mui/icons-material/Forward';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import type { Offer } from '../../types/Offer';
 import { getLanguage } from '../../utils/storage';
 import { formatCurrency, getStatusColorConfig } from '../../utils/offerUtils';
 import PlaceIcon from '@mui/icons-material/Place';
 
-interface OfferListProps {
+interface AgentOfferListProps {
   offers: Offer[];
-  onCancelOffer: (offerId: string) => Promise<void>;
+  onForwardOffer: (offerId: string) => Promise<void>;
   isLoading?: boolean;
-  filters?: {
-    status?: OfferStatus;
-  };
-  onFilterChange?: (status?: OfferStatus) => void;
+  onViewDetail?: (offerId: string) => void;
 }
 
-export const OfferList: React.FC<OfferListProps> = ({
+export const AgentOfferList: React.FC<AgentOfferListProps> = ({
   offers,
-  onCancelOffer,
+  onForwardOffer,
   isLoading = false,
-  filters,
-  onFilterChange,
+  onViewDetail,
 }) => {
   const { t } = useTranslation('offerManagement');
   const lang = getLanguage();
   const navigate = useNavigate();
-  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [forwardDialogOpen, setForwardDialogOpen] = useState(false);
   const [selectedOfferId, setSelectedOfferId] = useState<string | null>(null);
-  const [cancelling, setCancelling] = useState(false);
+  const [processing, setProcessing] = useState(false);
 
-  const handleCancelClick = (offerId: string) => {
+  const handleForwardClick = (offerId: string) => {
     setSelectedOfferId(offerId);
-    setCancelDialogOpen(true);
+    setForwardDialogOpen(true);
   };
 
-  const handleCancelConfirm = async () => {
+  const handleForwardConfirm = async () => {
     if (!selectedOfferId) return;
 
     try {
-      setCancelling(true);
-      navigate(`/buyer/offer/${selectedOfferId}/cancel`);
-      setCancelDialogOpen(false);
+      setProcessing(true);
+      await onForwardOffer(selectedOfferId);
+      setForwardDialogOpen(false);
       setSelectedOfferId(null);
     } catch (error) {
     } finally {
-      setCancelling(false);
+      setProcessing(false);
     }
   };
 
-  const handleFilterChange = (status: OfferStatus | 'all') => {
-    if (onFilterChange) {
-      onFilterChange(status === 'all' ? undefined : status);
+  const handleViewDetail = (offerId: string) => {
+    if (onViewDetail) {
+      onViewDetail(offerId);
+    } else {
+      navigate(`/agent/offers/${offerId}`);
     }
   };
 
@@ -89,7 +84,7 @@ export const OfferList: React.FC<OfferListProps> = ({
     return (
       <Paper elevation={3} sx={{ p: 4, textAlign: 'center' }}>
         <Typography variant="h6" color="text.secondary">
-          {t('list.noOffers')}
+          {t('agentList.noOffers')}
         </Typography>
       </Paper>
     );
@@ -97,25 +92,6 @@ export const OfferList: React.FC<OfferListProps> = ({
 
   return (
     <Box>
-      {onFilterChange && (
-        <FormControl fullWidth sx={{ mb: 3 }}>
-          <InputLabel>{t('list.filter.filterByStatus')}</InputLabel>
-          <Select
-            value={filters?.status || 'all'}
-            label={t('list.filter.filterByStatus')}
-            onChange={(e) => handleFilterChange(e.target.value as OfferStatus | 'all')}
-          >
-            <MenuItem value="all">{t('list.filter.all')}</MenuItem>
-            <MenuItem value="pending">{t('list.status.pending')}</MenuItem>
-            <MenuItem value="forwarded_to_seller">{t('list.status.forwarded_to_seller')}</MenuItem>
-            <MenuItem value="seller_reviewing">{t('list.status.seller_reviewing')}</MenuItem>
-            <MenuItem value="accepted">{t('list.status.accepted')}</MenuItem>
-            <MenuItem value="rejected">{t('list.status.rejected')}</MenuItem>
-            <MenuItem value="cancelled">{t('list.status.cancelled')}</MenuItem>
-          </Select>
-        </FormControl>
-      )}
-
       <Stack spacing={3}>
         {offers.map((offer) => {
           const property = typeof offer.property_id === 'object' 
@@ -130,7 +106,11 @@ export const OfferList: React.FC<OfferListProps> = ({
             ? (typeof property.address === 'object' ? property.address[lang] : property.address)
             : '';
 
+          const buyer = typeof offer.buyer_id === 'object' ? offer.buyer_id : null;
+          const seller = typeof offer.seller_id === 'object' ? offer.seller_id : null;
+
           const statusColors = getStatusColorConfig(offer.status);
+          const canForward = offer.status === 'pending';
 
           return (
             <Paper 
@@ -147,47 +127,72 @@ export const OfferList: React.FC<OfferListProps> = ({
                 },
               }}
             >
-              <Typography 
-                variant="h5" 
-                fontWeight="bold" 
-                mb={1.5}
-                sx={{ 
-                  color: '#1a1a1a',
-                  fontSize: '1.25rem',
-                  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-                }}
-              >
-                {propertyTitle}
-              </Typography>
-
-              {propertyAddress && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 2 }}>
-                  <PlaceIcon sx={{ fontSize: 18, color: '#666666' }} />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                <Box sx={{ flex: 1 }}>
                   <Typography 
-                    variant="body2"
+                    variant="h5" 
+                    fontWeight="bold" 
+                    mb={1}
                     sx={{ 
-                      color: '#666666',
-                      fontSize: '0.9rem',
+                      color: '#1a1a1a',
+                      fontSize: '1.25rem',
                     }}
                   >
-                    {propertyAddress}
+                    {propertyTitle}
+                  </Typography>
+
+                  {propertyAddress && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1.5 }}>
+                      <PlaceIcon sx={{ fontSize: 18, color: '#666666' }} />
+                      <Typography 
+                        variant="body2"
+                        sx={{ 
+                          color: '#666666',
+                          fontSize: '0.9rem',
+                        }}
+                      >
+                        {propertyAddress}
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+                <Chip
+                  label={t(`list.status.${offer.status}`)}
+                  size="small"
+                  sx={{ 
+                    backgroundColor: statusColors.backgroundColor,
+                    color: statusColors.color,
+                    border: `1px solid ${statusColors.borderColor}`,
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    height: 28,
+                  }}
+                />
+              </Box>
+
+              {buyer && (
+                <Box sx={{ mb: 2, p: 2, bgcolor: 'grey.50', borderRadius: 2 }}>
+                  <Typography variant="body2" fontWeight="bold" mb={0.5}>
+                    {t('agentList.buyerInfo')}:
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {buyer.fullName} - {buyer.email}
+                    {buyer.phone && ` - ${buyer.phone}`}
                   </Typography>
                 </Box>
               )}
 
-              <Chip
-                label={t(`list.status.${offer.status}`)}
-                size="small"
-                sx={{ 
-                  mb: 2.5,
-                  backgroundColor: statusColors.backgroundColor,
-                  color: statusColors.color,
-                  border: `1px solid ${statusColors.borderColor}`,
-                  fontWeight: 600,
-                  fontSize: '0.75rem',
-                  height: 28,
-                }}
-              />
+              {seller && (
+                <Box sx={{ mb: 2, p: 2, bgcolor: 'green.50', borderRadius: 2 }}>
+                  <Typography variant="body2" fontWeight="bold" mb={0.5}>
+                    {t('agentList.sellerInfo')}:
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {seller.fullName} - {seller.email}
+                    {seller.phone && ` - ${seller.phone}`}
+                  </Typography>
+                </Box>
+              )}
 
               <Box 
                 mb={2.5}
@@ -226,11 +231,15 @@ export const OfferList: React.FC<OfferListProps> = ({
                   sx={{
                     color: '#1a1a1a',
                     fontSize: '1.75rem',
-                    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                   }}
                 >
                   {formatCurrency(offer.amount)} ₫
                 </Typography>
+                {property && (
+                  <Typography variant="body2" color="text.secondary" mt={0.5}>
+                    {t('agentList.listedPrice')}: {formatCurrency(property.price)} ₫
+                  </Typography>
+                )}
               </Box>
 
               <Stack direction="row" spacing={2} mb={2.5} flexWrap="wrap">
@@ -298,68 +307,74 @@ export const OfferList: React.FC<OfferListProps> = ({
                 </Box>
               )}
 
-              {offer.rejection_reason && (
-                <Box mb={2}>
-                  <Typography variant="body2" color="error" mb={0.5}>
-                    Lý do từ chối:
-                  </Typography>
-                  <Typography variant="body2" color="error">
-                    {offer.rejection_reason}
+              {offer.forwarded_at && (
+                <Box mb={2} sx={{ p: 1.5, bgcolor: '#E3F2FD', borderRadius: 2 }}>
+                  <Typography variant="body2" color="info.main">
+                    {t('agentList.forwardedAt')}: {new Date(offer.forwarded_at).toLocaleString('vi-VN')}
                   </Typography>
                 </Box>
               )}
 
-              {offer.status === 'pending' && (
-                <Box display="flex" justifyContent="flex-end" mt={2}>
+              <Box display="flex" justifyContent="flex-end" gap={2} mt={2}>
+                <Button
+                  variant="outlined"
+                  size="medium"
+                  startIcon={<VisibilityIcon />}
+                  onClick={() => handleViewDetail(offer._id)}
+                  sx={{
+                    borderRadius: 2,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                  }}
+                >
+                  {t('agentList.viewDetail')}
+                </Button>
+                {canForward && (
                   <Button
                     variant="contained"
-                    size="small"
-                    startIcon={<CancelIcon />}
-                    onClick={() => handleCancelClick(offer._id)}
+                    color="primary"
+                    size="medium"
+                    startIcon={<ForwardIcon />}
+                    onClick={() => handleForwardClick(offer._id)}
                     sx={{
-                      backgroundColor: '#F44336',
-                      color: 'white',
                       borderRadius: 2,
                       textTransform: 'none',
                       fontWeight: 600,
-                      '&:hover': {
-                        backgroundColor: '#D32F2F',
-                      },
                     }}
                   >
-                    {t('list.cancelOffer')}
+                    {t('agentList.forward')}
                   </Button>
-                </Box>
-              )}
+                )}
+              </Box>
             </Paper>
           );
         })}
       </Stack>
 
       <Dialog
-        open={cancelDialogOpen}
-        onClose={() => !cancelling && setCancelDialogOpen(false)}
+        open={forwardDialogOpen}
+        onClose={() => !processing && setForwardDialogOpen(false)}
       >
-        <DialogTitle>{t('list.cancelOffer')}</DialogTitle>
+        <DialogTitle>{t('agentList.forwardOffer')}</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {t('list.cancelConfirm')}
+            {t('agentList.forwardConfirm')}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={() => setCancelDialogOpen(false)}
-            disabled={cancelling}
+            onClick={() => setForwardDialogOpen(false)}
+            disabled={processing}
           >
             {lang === 'vi' ? 'Hủy' : 'Cancel'}
           </Button>
           <Button
-            onClick={handleCancelConfirm}
-            color="error"
+            onClick={handleForwardConfirm}
+            color="primary"
             variant="contained"
-            disabled={cancelling}
+            disabled={processing}
           >
-            {cancelling ? (lang === 'vi' ? 'Đang xử lý...' : 'Processing...') : (lang === 'vi' ? 'Xác nhận' : 'Confirm')}
+            {processing ? (lang === 'vi' ? 'Đang xử lý...' : 'Processing...') : (lang === 'vi' ? 'Xác nhận' : 'Confirm')}
           </Button>
         </DialogActions>
       </Dialog>

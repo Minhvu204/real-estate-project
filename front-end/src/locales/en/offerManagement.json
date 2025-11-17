@@ -66,8 +66,99 @@
     "loadFailed": "Failed to load offers",
     "propertyNotFound": "Property not found",
     "loginRequired": "Please login to create an offer",
-    "onlyBuyerCanCreate": "Only buyers can create offers"
+    "onlyBuyerCanCreate": "Only buyers can create offers",
+    "noPermission": "You don't have permission to access this page"
   },
-  "back": "Back"
+  "sellerList": {
+    "title": "Offer Management",
+    "subtitle": "Review and decide on real estate purchase proposals",
+    "noOffers": "No offers",
+    "buyerInfo": "Buyer Information",
+    "agentInfo": "Agent Information",
+    "listedPrice": "Listed Price",
+    "viewDetail": "View Detail",
+    "accept": "Accept",
+    "reject": "Reject",
+    "acceptOffer": "Accept Offer",
+    "rejectOffer": "Reject Offer",
+    "acceptConfirm": "Are you sure you want to accept this offer? A Deal will be automatically created after acceptance.",
+    "rejectConfirm": "Are you sure you want to reject this offer?",
+    "rejectionReason": "Rejection Reason",
+    "rejectionReasonPlaceholder": "Enter rejection reason (optional)",
+    "acceptSuccess": "Offer accepted successfully! Deal has been automatically created.",
+    "acceptError": "Failed to accept offer",
+    "rejectSuccess": "Offer rejected successfully",
+    "rejectError": "Failed to reject offer",
+    "filterByProperty": "Filter by Property",
+    "tableView": "Table",
+    "listView": "List",
+    "table": {
+      "property": "Property",
+      "buyer": "Buyer",
+      "amount": "Proposed Amount",
+      "status": "Status",
+      "createdAt": "Created At",
+      "actions": "Actions",
+      "offers": "offers"
+    },
+    "unknownBuyer": "Unknown"
+  },
+  "agentList": {
+    "title": "Offer Management",
+    "subtitle": "Review and forward real estate purchase proposals to Seller",
+    "noOffers": "No offers",
+    "buyerInfo": "Buyer Information",
+    "sellerInfo": "Seller Information",
+    "listedPrice": "Listed Price",
+    "viewDetail": "View Detail",
+    "forward": "Forward",
+    "forwardOffer": "Forward Offer",
+    "forwardConfirm": "Are you sure you want to forward this offer to Seller?",
+    "forwardSuccess": "Offer forwarded successfully! Seller has been notified.",
+    "forwardError": "Failed to forward offer",
+    "forwardedAt": "Forwarded at"
+  },
+  "back": "Back",
+  "detail": {
+    "title": "Offer Details",
+    "back": "Back",
+    "buyerInfo": {
+      "title": "Buyer Information",
+      "noName": "No name",
+      "noEmail": "No email",
+      "email": "Email",
+      "phone": "Phone",
+      "noBuyerInfo": "No buyer information"
+    },
+    "amount": {
+      "title": "Proposed Price"
+    },
+    "deadline": {
+      "title": "Validity Period",
+      "noDeadline": "Not set"
+    },
+    "note": {
+      "title": "Note",
+      "noNote": "No note"
+    },
+    "additional": {
+      "createdAt": "Created at",
+      "updatedAt": "Last updated"
+    },
+    "status": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled",
+      "forwarded_to_seller": "Forwarded to Seller",
+      "seller_reviewing": "Seller Reviewing"
+    },
+    "errors": {
+      "noId": "Offer ID not found",
+      "noPermission": "You don't have permission to view this page",
+      "loadFailed": "Failed to load offer information",
+      "notFound": "Offer information not found"
+    }
+  }
 }
 
