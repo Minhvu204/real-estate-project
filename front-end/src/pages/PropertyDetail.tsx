@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Box, Chip, Container, Divider, Grid, Paper, Stack, Typography, Avatar, useMediaQuery, Button, } from "@mui/material";
+import { Box, Chip, Container, Divider, Grid, Paper, Stack, Typography, Avatar, useMediaQuery, Button, Dialog, } from "@mui/material";
 import PlaceIcon from "@mui/icons-material/Place";
 import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
 import { useTranslation } from "react-i18next";
 import { getLanguage } from "../utils/storage";
 import type { Property } from "@/types/Property";
+import BuyerAppointment from "@/components/buyer/Appointment/BuyerAppointment";
 
 const PropertyDetailUser = () => {
     const { id } = useParams();
@@ -14,6 +15,7 @@ const PropertyDetailUser = () => {
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const isMobile = useMediaQuery("(max-width:900px)");
+    const isMobileSmall = useMediaQuery("(max-width:600px)");
 
     const { t } = useTranslation("propertyDetail");
     const lang = getLanguage();
@@ -38,6 +40,11 @@ const PropertyDetailUser = () => {
             .then(data => setProperty(data.data.data))
             .catch(err => console.error(err));
     }, [id]);
+    const [openTourModal, setOpenTourModal] = useState(false);
+
+
+    const handleOpenTour = () => setOpenTourModal(true);
+    const handleCloseTour = () => setOpenTourModal(false);
 
     if (!property) {
         return <Typography textAlign="center" mt={3}>Loading...</Typography>;
@@ -148,11 +155,7 @@ const PropertyDetailUser = () => {
 
             <Grid>
 
-                <Box display="flex" justifyContent="flex-end" mt={2} mb={2}>
-                    <Button variant="contained" color="primary">
-                        Request a tour
-                    </Button>
-                </Box>
+
                 {/* TITLE + PRICE */}
                 <Typography variant="h4" fontWeight="bold" mt={1}>
                     {property.title[lang]}
@@ -166,6 +169,14 @@ const PropertyDetailUser = () => {
                 <Typography variant="h5" color="primary" fontWeight="bold" mt={1}>
                     ${property.price.toLocaleString()}
                 </Typography>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    sx={{ mt: 2 }}
+                    onClick={handleOpenTour}
+                >
+                    Request a tour
+                </Button>
 
                 {/* TAGS */}
                 <Stack direction="row" spacing={1} mt={1}>
@@ -273,6 +284,20 @@ const PropertyDetailUser = () => {
                     {t("updatedOn")}: {new Date(property.updatedAt).toLocaleDateString()}
                 </Typography>
             </Grid >
+            <Dialog
+                open={openTourModal}
+                onClose={handleCloseTour}
+                fullScreen={isMobileSmall}
+                fullWidth
+                
+
+
+            >
+                <BuyerAppointment
+                    property={property}
+                    onClose={handleCloseTour}
+                />
+            </Dialog>
         </Container >
     );
 };

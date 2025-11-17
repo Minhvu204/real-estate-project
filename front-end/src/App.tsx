@@ -8,7 +8,6 @@ import { LoginRoute } from "./routes/LoginRoute";
 import { BuyerRoute } from "./routes/BuyerRoute";
 import { SellerRoute } from "./routes/SellerRoute";
 import { AgentRoute } from "./routes/AgentRoute";
-
 import theme from "./theme";
 import './i18n/i18n';
 
@@ -34,6 +33,10 @@ function App() {
         {routing}
       </AuthProvider>
     </ThemeProvider>
+
+
+
+
   )
 }
 

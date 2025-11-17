@@ -154,7 +154,7 @@ const SellerProperties = () => {
                                             </Typography>
                                             <Chip
                                                 label={p.status || 'Đang xử lý'}
-                                                color={p.status === 'available' ? 'success' : 'warning'}
+                                                color={p.status === 'available' ? 'primary' : p.status === 'pending' ? 'warning' : p.status === 'approved' ? 'success' : p.status === 'rejected' ? 'info' : 'secondary'}
                                                 size="small"
                                             />
                                         </Box>
