@@ -6,20 +6,30 @@ import { useTranslation } from 'react-i18next';
 
 import { getLanguage } from '../../utils/storage';
 import type { Lang } from '../../utils/storage';
-import { Button, Card, CardContent, CardMedia, Chip, Grid, Pagination, Typography, TextField, MenuItem, PaginationItem } from '@mui/material';
+import {
+    Button,
+    Card,
+    CardContent,
+    CardMedia,
+    Chip,
+    Grid,
+    Pagination,
+    Typography,
+    TextField,
+    MenuItem,
+    PaginationItem
+} from '@mui/material';
 import { Box } from '@mui/material';
 import { getPropertiesByAgentOrSeller } from '../../services/propertyService';
-import type { Meta } from '../../types/Pagination';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
->>>>>>>>> Temporary merge branch 2
+import AddIcon from '@mui/icons-material/Add';
 
 const SellerProperties = () => {
     const [properties, setProperties] = useState<Property[]>([]);
     const [filtered, setFiltered] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
     const user = getUser();
-    const [page, setPage] = useState<Meta>();
     const [itemsPerPage] = useState(6);
 
     const { t } = useTranslation(['home', 'properties']);
@@ -28,15 +38,16 @@ const SellerProperties = () => {
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
 
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(1);
+
     useEffect(() => {
         const fetchProperties = async () => {
             try {
                 if (!user) return;
                 const response = await getPropertiesByAgentOrSeller();
-                setProperties(response.data || []);
-                setFiltered(response.data || []);
-                setPage(response.pagination);
-                console.log(response.data);
+                setProperties(response || []);
+                setFiltered(response || []);
             } catch (error) {
                 console.log("Cannot fetch properties for this role", error);
             } finally {
@@ -46,6 +57,7 @@ const SellerProperties = () => {
         fetchProperties();
     }, []);
 
+    // Filtering logic
     useEffect(() => {
         let result = [...properties];
 
@@ -60,20 +72,19 @@ const SellerProperties = () => {
         }
 
         setFiltered(result);
-        setPage(prev => prev ? { ...prev, currentPage: 1 } : prev);
-
+        setCurrentPage(1); // Reset to page 1 when filters change
     }, [search, statusFilter, properties]);
 
     if (loading)
         return <p className="text-center text-gray-500 mt-10">Đang tải dữ liệu...</p>;
 
+    // Pagination calculations
     const totalPages = Math.ceil(filtered.length / itemsPerPage);
-    const startIndex = ((page?.currentPage || 1) - 1) * itemsPerPage;
+    const startIndex = (currentPage - 1) * itemsPerPage;
     const currentProperties = filtered.slice(startIndex, startIndex + itemsPerPage);
 
     const handleChangePage = (_: React.ChangeEvent<unknown>, value: number) => {
-        if (!page) return;
-        setPage({ ...page, currentPage: value });
+        setCurrentPage(value);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -84,7 +95,7 @@ const SellerProperties = () => {
                     Danh sách Bất Động Sản
                 </Typography>
 
-                <Box className="flex gap-3 flex-wrap">
+                <Box className="flex gap-3">
                     <TextField
                         label="Tìm kiếm..."
                         variant="outlined"
@@ -107,7 +118,6 @@ const SellerProperties = () => {
                         <MenuItem value="available">Available</MenuItem>
                         <MenuItem value="approved">Approved</MenuItem>
                     </TextField>
-
                     <Button
                         variant="contained"
                         color="primary"
@@ -124,8 +134,8 @@ const SellerProperties = () => {
                         Tạo mới
                     </Button>
                 </Box>
-            </Box>
 
+            </Box>
 
             {filtered.length === 0 ? (
                 <Box className="text-center w-full py-10">
@@ -170,7 +180,17 @@ const SellerProperties = () => {
                                             </Typography>
                                             <Chip
                                                 label={p.status || 'Đang xử lý'}
-                                                color={p.status === 'available' ? 'success' : 'warning'}
+                                                color={
+                                                    p.status === 'available'
+                                                        ? 'primary'
+                                                        : p.status === 'pending'
+                                                            ? 'warning'
+                                                            : p.status === 'approved'
+                                                                ? 'success'
+                                                                : p.status === 'rejected'
+                                                                    ? 'info'
+                                                                    : 'secondary'
+                                                }
                                                 size="small"
                                             />
                                         </Box>
@@ -198,6 +218,7 @@ const SellerProperties = () => {
                                         >
                                             {t('insideProperty.viewDetail')}
                                         </Button>
+
                                         {p.agent_id ? (
                                             <Button
                                                 fullWidth
@@ -247,6 +268,7 @@ const SellerProperties = () => {
                                             </Button>
                                         )}
                                     </Box>
+
                                     {p.agent_id && (
                                         <Box className="mt-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
                                             <Typography variant="caption" color="text.secondary" className="block mb-1">
@@ -272,6 +294,7 @@ const SellerProperties = () => {
                 <Box className="flex justify-center mt-10">
                     <Pagination
                         count={totalPages}
+                        page={currentPage}
                         onChange={handleChangePage}
                         renderItem={(item) => (
                             <PaginationItem
@@ -282,7 +305,6 @@ const SellerProperties = () => {
                     />
                 </Box>
             )}
-
         </Box>
     );
 };

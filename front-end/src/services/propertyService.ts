@@ -28,12 +28,9 @@ export const getAllPropertiesByPending = async (): Promise<Property[]> => {
   return res.data.data.data;
 };
 
-export const getPropertiesByAgentOrSeller = async (
-  u: User
-): Promise<Property[]> => {
-  const RESOURCE = `${u.role}/properties`;
-  const response = await httpClient.get(`${u.role}/${RESOURCE}`);
-  return response.data.data.data;
+export const getPropertiesByAgentOrSeller = async (): Promise<Property[]> => {
+  const response = await httpClient.get(`${RESOURCE}`);
+  return response.data.data;
 };
 export const getAllPropertiesByUser = async (): Promise<Property[]> => {
   const res = await httpPublic.get(`${RESOURCE}?populate=type_id,category_id,city_id`);
