@@ -123,7 +123,7 @@ export const uploadContract = async (req: Request, res: Response) => {
       allowReplace: false,
     });
 
-    await sendContractNotification(deal, contract._id.toString(), "uploaded");
+    await sendContractNotification(deal, String(contract._id), "uploaded");
 
     return successResponse(req, res, "Upload hợp đồng thành công", contract);
   } catch (error: any) {
@@ -166,7 +166,7 @@ export const replaceContract = async (req: Request, res: Response) => {
       allowReplace: true,
     });
 
-    await sendContractNotification(deal, contract._id.toString(), "updated");
+    await sendContractNotification(deal, String(contract._id), "updated");
 
     return successResponse(req, res, "Cập nhật hợp đồng thành công", contract);
   } catch (error: any) {
