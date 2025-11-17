@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { DetailProperty } from "../../../types/Property";
+import type { Property } from "../../../types/Property";
 import {
   getDetailPropertiesById,
   hideProperty,
@@ -35,7 +35,7 @@ type HideProperty = {
 };
 
 const HideProperties = ({ propertyId }: HideProperty) => {
-  const [property, setProperty] = useState<DetailProperty | null>(null);
+  const [property, setProperty] = useState<Property | null>(null);
   const [open, setOpen] = useState<boolean>(false);
   const [note, setNote] = useState<string>("");
   const navigate = useNavigate();
@@ -83,7 +83,6 @@ const HideProperties = ({ propertyId }: HideProperty) => {
         toast.success("Ẩn bất động sản thất bại!");
       }
       setOpen(false);
-      navigate("/admin/properties", { state: { refresh: true } });
     } catch (error) {
       toast.error(property.deleted ? "hide thành công!" : "hide thất bại!");
       console.error(error);
@@ -124,21 +123,20 @@ const HideProperties = ({ propertyId }: HideProperty) => {
       {property && (
         <>
           <Tooltip title={property.deleted ? t("restore") : t("hide")}>
-            <button
+            <button title="button"
               onClick={handleOpen}
               className={`w-9 h-9 cursor-pointer flex items-center justify-center rounded-md text-white shadow-sm hover:shadow-md transition-all duration-200 
-      ${
-        property.deleted
-          ? "bg-red-500 hover:bg-red-600"
-          : "bg-green-500 hover:bg-green-600"
-      }`}
+      ${property.deleted
+                  ? "bg-red-500 hover:bg-red-600"
+                  : "bg-green-500 hover:bg-green-600"
+                }`}
             >
               <FontAwesomeIcon icon={property.deleted ? faLock : faLockOpen} />
             </button>
           </Tooltip>
           {property.deleted && (
             <Tooltip title={property.hiddenNote || "Không có ghi chú"}>
-              <button className="w-9 h-9 flex items-center cursor-pointer justify-center bg-amber-500 text-white rounded-md hover:bg-amber-600 shadow-sm hover:shadow-md transition-all duration-200">
+              <button title="button" className="w-9 h-9 flex items-center cursor-pointer justify-center bg-amber-500 text-white rounded-md hover:bg-amber-600 shadow-sm hover:shadow-md transition-all duration-200">
                 <FontAwesomeIcon icon={faCircleInfo} />
               </button>
             </Tooltip>
@@ -171,25 +169,25 @@ const HideProperties = ({ propertyId }: HideProperty) => {
                       property.status === "approved"
                         ? "Approved"
                         : property.status === "pending"
-                        ? "Pending"
-                        : property.status === "available"
-                        ? "Available"
-                        : "Rejected"
+                          ? "Pending"
+                          : property.status === "available"
+                            ? "Available"
+                            : "Rejected"
                     }
                     color={
                       property.status === "approved"
                         ? "success"
                         : property.status === "pending"
-                        ? "warning"
-                        : property.status === "available"
-                        ? "info"
-                        : "default"
+                          ? "warning"
+                          : property.status === "available"
+                            ? "info"
+                            : "default"
                     }
                     size="small"
                   />
                   <Typography variant="body2" color="text.secondary">
                     <FontAwesomeIcon icon={faHouse} /> {t("city")}:
-                    {property.city?.city_name?.[currentLanguage] || ""}
+                    {property.city_id?.city_name[currentLanguage]}
                   </Typography>
                 </div>
               </div>
@@ -200,19 +198,19 @@ const HideProperties = ({ propertyId }: HideProperty) => {
                 </Typography>
                 <div className="flex items-center gap-3 mt-2">
                   <img
-                    src={property.owner?.avatar || ""}
-                    alt={property.owner?.fullName || "Owner"}
+                    src={property.owner_id?.avatar}
+                    alt={property.owner_id?.fullName}
                     className="w-12 h-12 rounded-full object-cover border"
                   />
                   <div>
                     <Typography fontWeight={600}>
-                      {property.owner?.fullName || ""}
+                      {property.owner_id?.fullName}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {property.owner?.email || ""}
+                      {property.owner_id?.email}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {property.owner?.phone || ""}
+                      {property.owner_id?.phone}
                     </Typography>
                   </div>
                 </div>

@@ -1,6 +1,8 @@
 import mongoose, { Document, Schema } from "mongoose";
-// Import các model để Mongoose đăng ký schema trước khi populate
+
 import "./city.model";
+import "./district.model";
+import "./ward.model";
 import "./category.model";
 import "./propertyType.model";
 import "./feature.model";
@@ -10,15 +12,17 @@ export interface IProperty extends Document {
   title: { vi: string; en: string };
   description?: { vi?: string; en?: string };
   price: number;
-  address: { vi: string; en: string };
+  address: { vi: string; en: string }; // chứa địa chỉ chi tiết (ví dụ: "123 Đường ABC")
   bedrooms: number;
   bathrooms: number;
   area: number;
   unit: "m2" | "ft2";
-  yearBuilt: number;
+  yearBuilt?: number;
   floors: number;
-  coordinates: { lat: number; lng: number };
+  coordinates?: { type: "Point"; coordinates: [number, number] }; // [lng, lat]
   city_id: mongoose.Types.ObjectId;
+  district_id: mongoose.Types.ObjectId;
+  ward_id: mongoose.Types.ObjectId;
   type_id: mongoose.Types.ObjectId;
   category_id: mongoose.Types.ObjectId;
   owner_id: mongoose.Types.ObjectId;
@@ -41,44 +45,50 @@ export interface IProperty extends Document {
   updatedAt: Date;
 }
 
-const PropertySchema: Schema = new Schema(
+const PropertySchema = new Schema<IProperty>(
   {
     title: {
-      vi: { type: String, required: true },
-      en: { type: String, required: true },
+      vi: { type: String, required: true, trim: true },
+      en: { type: String, required: true, trim: true },
     },
     description: {
-      vi: { type: String },
-      en: { type: String },
+      vi: { type: String, trim: true },
+      en: { type: String, trim: true },
     },
-    price: { type: Number, required: true },
+    price: { type: Number, required: true, min: 0 },
+
+    // địa chỉ chi tiết property (đường, số nhà, ...)
     address: {
-      vi: { type: String, required: true },
-      en: { type: String, required: true },
+      vi: { type: String, required: true, trim: true },
+      en: { type: String, required: true, trim: true },
     },
-    bedrooms: { type: Number, default: 0 },
-    bathrooms: { type: Number, default: 0 },
-    area: { type: Number, required: true },
+
+    bedrooms: { type: Number, default: 0, min: 0 },
+    bathrooms: { type: Number, default: 0, min: 0 },
+    area: { type: Number, required: true, min: 0 },
     unit: { type: String, enum: ["m2", "ft2"], default: "m2" },
     yearBuilt: { type: Number },
-    floors: { type: Number, default: 1 },
+    floors: { type: Number, default: 1, min: 0 },
+
     coordinates: {
-      lat: { type: Number },
-      lng: { type: Number },
+      type: {
+        type: String,
+        enum: ['Point'], // Chỉ chấp nhận kiểu 'Point'
+        default: 'Point',
+      },
+      coordinates: {
+        type: [Number], // Một mảng các con số [lng, lat]
+      },
     },
+
     city_id: { type: Schema.Types.ObjectId, ref: "City", required: true },
-    type_id: {
-      type: Schema.Types.ObjectId,
-      ref: "PropertyType",
-      required: true,
-    },
-    category_id: {
-      type: Schema.Types.ObjectId,
-      ref: "Category",
-      required: true,
-    },
+    district_id: { type: Schema.Types.ObjectId, ref: "District", required: true },
+    ward_id: { type: Schema.Types.ObjectId, ref: "Ward", required: true },
+    type_id: { type: Schema.Types.ObjectId, ref: "PropertyType", required: true },
+    category_id: { type: Schema.Types.ObjectId, ref: "Category", required: true },
     owner_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
     agent_id: { type: Schema.Types.ObjectId, ref: "User" },
+
     assignmentHistory: [
       {
         agent_id: { type: Schema.Types.ObjectId, ref: "User" },
@@ -86,24 +96,30 @@ const PropertySchema: Schema = new Schema(
         action: {
           type: String,
           enum: ["assign", "remove", "reject", "cancel", "request"],
+          required: true,
         },
         assignedAt: { type: Date, default: Date.now },
       },
     ],
+
     features: [{ type: Schema.Types.ObjectId, ref: "Feature" }],
-    images: [String],
+    images: [{ type: String }],
+
     status: {
       type: String,
       enum: ["available", "pending", "approved", "sold", "rejected"],
       default: "available",
     },
+
     reviewedBy: { type: Schema.Types.ObjectId, ref: "User" },
     reviewedAt: { type: Date },
     publishedAt: { type: Date },
-    hiddenNote: { type: String },
+    hiddenNote: { type: String, trim: true },
     deleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
+
+PropertySchema.index({ coordinates: "2dsphere" });
 
 export default mongoose.model<IProperty>("Property", PropertySchema);

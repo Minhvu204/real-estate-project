@@ -50,7 +50,8 @@
         "stepsHeader": {
             "completed": "✓",
             "current": "Bước {{number}}"
-        }
+        },
+        "pageTitle": "Dwello: Tạo Tin Đăng BĐS"
     },
     "formProperty": {
         "title": "Tiêu đề",
@@ -60,6 +61,8 @@
         "bathrooms": "Phòng tắm",
         "bedrooms": "Phòng ngủ",
         "city": "Thành phố",
+        "district": "Quận/Huyện",
+        "ward": "Phường/Xã",
         "category": "Loại BĐS",
         "area": "Diện tích",
         "unit": "Đơn vị",
@@ -82,7 +85,9 @@
         "select": {
             "city": "Chọn thành phố",
             "category": "Chọn loại BĐS",
-            "type": "Chọn hình thức"
+            "type": "Chọn hình thức",
+            "district": "Chọn quận/huyện",
+            "ward": "Chọn phường/xã"
         },
         "units": {
             "m2": "m²",
@@ -91,7 +96,18 @@
         "warnings": {
             "required": "Trường này là bắt buộc",
             "fetchFail": "Không thể tải danh mục bất động sản"
-        }
+        },
+        "apartmentInfo": {
+            "floorNumber": "Tầng căn hộ",
+            "buildingBlock": "Tháp / Khu",
+            "apartmentNumber": "Số căn hộ",
+            "placeholder": {
+                "floorNumber": "VD: 12A",
+                "buildingBlock": "VD: A1, B2",
+                "apartmentNumber": "VD: 1205"
+            }
+        },
+        "autoDescription": "Tạo mô tả AI"
     },
     "selectFeatures": {
         "title": "Chọn tiện ích BĐS",

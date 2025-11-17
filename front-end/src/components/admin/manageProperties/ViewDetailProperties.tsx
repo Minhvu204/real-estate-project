@@ -1,34 +1,31 @@
 import { useNavigate, useParams } from "react-router-dom";
-import type { DetailProperty } from "../../../types/Property";
+import type { Property } from "../../../types/Property";
 import { useEffect, useState } from "react";
 import { getDetailPropertiesById } from "../../../services/propertyService";
 import { Carousel } from "react-responsive-carousel";
 import { getLanguage, type Lang } from "../../../utils/storage";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
+import EventNoteTwoToneIcon from "@mui/icons-material/EventNoteTwoTone";
+import DescriptionTwoToneIcon from "@mui/icons-material/DescriptionTwoTone";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBed, faShower, faTreeCity } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from "react-i18next";
 
 const ViewDetailProperties = () => {
-  const [property, setProperty] = useState<DetailProperty | null>(null);
+  const [property, setProperty] = useState<Property>();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const currentLanguage: Lang = getLanguage();
   const { t } = useTranslation("detailProperty");
+
   useEffect(() => {
     const fetchProperty = async () => {
-      try {
-        const data = await getDetailPropertiesById(id!);
-        console.log("Property data:", data);
-        setProperty(data);
-      } catch (error: any) {
-        console.error("Error fetching property:", error);
-        console.error("Error response:", error.response?.data);
-      }
+      const data = await getDetailPropertiesById(id!);
+      console.log("getDetailPropertiesById: ", data);
+
+      setProperty(data);
     };
-    if (id) {
-      fetchProperty();
-    }
+    fetchProperty();
   }, [id]);
 
   if (!property) {
@@ -40,6 +37,8 @@ const ViewDetailProperties = () => {
       </div>
     );
   }
+
+  const features = property.features ?? [];
 
   return (
     <>
@@ -62,24 +61,22 @@ const ViewDetailProperties = () => {
           swipeable={true}
         >
           {property?.images?.map((item, index) => (
-            item && (
-              <div key={index}>
-                <img
-                  src={item}
-                  alt={`image ${index + 1}`}
-                  className="w-full h-[250px] sm:h-[400px] md:h-[500px] object-cover transition-transform duration-500 hover:scale-105"
-                />
-              </div>
-            )
+            <div key={index}>
+              <img
+                src={item}
+                alt={`image ${index + 1}`}
+                className="w-full h-[250px] sm:h-[400px] md:h-[500px] object-cover transition-transform duration-500 hover:scale-105"
+              />
+            </div>
           ))}
         </Carousel>
 
         <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 via-black/20 to-transparent text-white px-4 sm:px-8 py-4 sm:py-6">
           <h2 className="text-xl sm:text-3xl font-bold drop-shadow-lg">
-            {property.title?.[currentLanguage] || ""}
+            {property.title?.[currentLanguage]}
           </h2>
           <p className="text-xs sm:text-sm text-gray-200 italic mt-1">
-            {property.address?.[currentLanguage] || ""}
+            {property.address?.[currentLanguage]}
           </p>
         </div>
       </div>
@@ -100,7 +97,7 @@ const ViewDetailProperties = () => {
 
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-4 lg:mt-0">
             <span className="text-2xl sm:text-3xl font-bold text-green-600">
-              {property.price?.toLocaleString() || "0"} VND
+              {property?.price?.toLocaleString()} VND
             </span>
             <span
               className={`px-3 py-1 rounded-full text-sm font-medium ${
@@ -152,7 +149,7 @@ const ViewDetailProperties = () => {
             <div>
               <p className="text-sm text-gray-500">{t("city")}</p>
               <p className="text-lg font-semibold">
-                {property.city?.city_name?.[currentLanguage] || ""}
+                {property?.city_id?.city_name?.[currentLanguage]}
               </p>
             </div>
           </div>
@@ -160,18 +157,18 @@ const ViewDetailProperties = () => {
 
         <div className="mb-8">
           <h4 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3">
-            📝
+            <DescriptionTwoToneIcon color="primary" />
             {t("detailDescription")}
           </h4>
           <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
-            {property.description?.[currentLanguage] || ""}
+            {property.description?.[currentLanguage]}
           </p>
         </div>
 
-        {property.features?.length > 0 && (
+        {property.features && property.features.length > 0 && (
           <div className="mb-8">
             <h4 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3">
-              🌟
+              <EventNoteTwoToneIcon color="secondary" />
               {t("featuredAmenities")}
             </h4>
             <div className="flex flex-wrap gap-2 sm:gap-3">
@@ -180,7 +177,7 @@ const ViewDetailProperties = () => {
                   key={f._id}
                   className="bg-indigo-50 text-indigo-700 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium border border-indigo-100"
                 >
-                  {f.feature_name?.[currentLanguage] || ""}
+                  {f?.feature_name?.[currentLanguage]}
                 </span>
               ))}
             </div>
@@ -188,22 +185,20 @@ const ViewDetailProperties = () => {
         )}
 
         <div className="p-4 sm:p-6 bg-gray-50 rounded-xl border border-gray-200 flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
-          {property.owner?.avatar && (
-            <img
-              src={property.owner.avatar}
-              alt={property.owner?.fullName || "Owner"}
-              className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4 border-white shadow-md"
-            />
-          )}
+          <img
+            src={property.owner_id?.avatar}
+            alt={property.owner_id?.fullName}
+            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-4 border-white shadow-md"
+          />
           <div className="text-center sm:text-left">
             <h4 className="text-lg sm:text-xl font-semibold text-gray-800">
-              👤 {property.owner?.fullName || ""}
+              👤 {property.owner_id?.fullName}
             </h4>
             <p className="text-gray-500 text-sm sm:text-base">
-              {property.owner?.email || ""}
+              {property.owner_id?.email}
             </p>
             <p className="text-gray-500 text-sm sm:text-base">
-              {property.owner?.phone || ""}
+              {property.owner_id?.phone}
             </p>
           </div>
         </div>

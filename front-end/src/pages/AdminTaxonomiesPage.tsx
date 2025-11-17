@@ -7,6 +7,8 @@ import TaxonomyFormModal from "../components/admin/taxonomy/TaxonomyFormModal";
 import ConfirmDialog from "../components/admin/taxonomy/ConfirmDialog";
 import type { TaxonomyItem, TaxonomyType } from "../types/Taxonomy";
 import { useTranslation } from "react-i18next";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const tabs: TaxonomyType[] = ["cities", "types", "features", "categories"];
 
@@ -119,6 +121,7 @@ const AdminTaxonomyPage: React.FC = () => {
                 }}
                 message={t("areyoudelete")}
             />
+            <ToastContainer position="top-right" autoClose={2000} theme="colored" />
         </Container>
     );
 };

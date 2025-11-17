@@ -99,21 +99,7 @@ async function seed() {
     if (!cities.length || !categories.length || !types.length || !owner || !agent) {
       throw new Error("Collections or users not seeded properly!");
     }
-
-    // 🏡 Property
-    // await Property.create({
-    //   title: "Luxury Apartment in District 1",
-    //   description: "A beautiful modern apartment with city view and full amenities.",
-    //   price: 250000,
-    //   city_id: cities[0]._id,
-    //   type_id: types[1]._id,
-    //   category_id: categories[0]._id,
-    //   owner_id: owner._id,
-    //   agent_id: agent._id,
-    //   features: features.map((f) => f._id),
-    //   images: ["https://res.cloudinary.com/demo/image/upload/sample.jpg"],
-    //   status: "available",
-    // });
+    // 🏡 Properties
     const now = new Date();
     await Property.insertMany([
       {

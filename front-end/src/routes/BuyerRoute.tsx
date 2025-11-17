@@ -1,12 +1,12 @@
 import SearchPage from "../pages/SearchPage/SearchPage";
 import BuyPage from "../pages/SearchPage/BuyPage";
 import RentPage from "../pages/SearchPage/RentPage";
-import PropertyDetail from "../pages/PropertyDetail";
 import { ProfileLayout } from "../pages/Profile/ProfileLayout";
 import { PersonalInfo } from "../pages/Profile/PersonalInfo";
 import { ChangePassword } from "../pages/Profile/ChangePassword";
-import PropertyDetails from "../components/seller/PropertiesDetail";
 import ChatPage from "@/pages/Chat/ChatPage";
+import PropertyDetailUser from "../pages/PropertyDetail"; 
+import MyPropertiesPage from "../pages/MyPropertiesPage";
 
 export const BuyerRoute = [
     {
@@ -23,7 +23,7 @@ export const BuyerRoute = [
     },
     {
         path: "/property/detail/:id",
-        element: <PropertyDetail />
+        element: <PropertyDetailUser />
     },
     {
         path: "/profile",
@@ -44,10 +44,13 @@ export const BuyerRoute = [
         ],
     },
     {
+        path: "/my-properties",
+        element: <MyPropertiesPage />,
+    },    {
         path: "/chat",
         element: <ChatPage />,
         children: [
-            
+
         ]
     },
 

@@ -50,6 +50,10 @@ export const AdminRoute = [
             path: "properties/hide",
             element: <HideProperties propertyId="" />,
           },
+          {
+            path: "manageProperties/:id",
+            element: <ViewDetailProperties />,
+          },
         ],
       },
     ],
