@@ -1,7 +1,7 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import HOME_EN from "../locales/en/sellerPage.json";
-import HOME_VI from "../locales/VI/sellerPage.json";
+import HOME_VI from "../locales/vi/sellerPage.json";
 import PROPERTY_PAGE_EN from "../locales/en/propertyPage.json";
 import PROPERTY_PAGE_VI from "../locales/VI/propertyPage.json";
 import PROPERTY_DETAIl_EN from "../locales/en/propertyDetail.json";
@@ -25,6 +25,7 @@ import DETAIL_PROPERTIES_ADMIN_EN from "../locales/en/detailProperty.json";
 import DETAIL_PROPERTIES_ADMIN_VI from "../locales/vi/detailProperty.json";
 import OFFER_MANAGEMENT_EN from "../locales/en/offerManagement.json";
 import OFFER_MANAGEMENT_VI from "../locales/vi/offerManagement.json";
+
 export const resources = {
     en: {
         home: HOME_EN,
@@ -55,7 +56,7 @@ export const resources = {
         offerManagement: OFFER_MANAGEMENT_VI
     }
 };
-export const defaultNS = 'home';
+export const defaultNS = "home";
 i18n
     .use(LanguageDetector)
     .use(initReactI18next)

@@ -1,8 +1,9 @@
 import SellerProperties from "../components/seller/SellerProperties";
-import PropertyDetails from "../components/seller/PropertiesDetail";
-
 import ListAgent from "../components/seller/ListAgent";
 import CreatePropertyPage from "../pages/SellerPage/CreateProperty/CreatePropertyPage";
+import PropertyDetails from "../components/seller/PropertiesDetail";
+
+
 import MyPropertiesPage from "../pages/MyPropertiesPage";
 import OfferDetailPage from "../pages/Offer/OfferDetailPage";
 import SellerOfferManagementPage from "../pages/Offer/SellerOfferManagementPage";

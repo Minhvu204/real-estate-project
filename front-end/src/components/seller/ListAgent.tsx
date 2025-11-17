@@ -2,13 +2,13 @@
 import { useState, useEffect } from 'react'
 import { getAllAgents } from '../../services/seller.service';
 import type { Agent } from '@/types/Agent';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Pagination, PaginationItem, TextField, MenuItem } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Pagination, PaginationItem, TextField, MenuItem, IconButton } from '@mui/material';
 import { Card, CardContent, CardMedia, Chip, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import { useTranslation } from 'react-i18next';
 import { assignAgent } from '../../services/seller.service';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Bounce, ToastContainer, toast } from 'react-toastify';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -18,7 +18,7 @@ const ListAgent = () => {
     const [loading, setLoading] = useState(true);
     const { t } = useTranslation('home');
     const { id: propertyId } = useParams();
-
+    const navigate = useNavigate();
     const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
     const [openConfirm, setOpenConfirm] = useState(false);
     const [page, setPage] = useState(1);
@@ -62,6 +62,12 @@ const ListAgent = () => {
             const data = await assignAgent(propertyId, selectedAgent._id);
             console.log(data);
             toast.success('Gán môi giới thành công!');
+
+            // Delay navigate để toast có thời gian hiển thị
+            setTimeout(() => {
+                navigate('/seller/properties');
+            }, 1500);
+
         } catch (error: any) {
             if (error.response) {
                 const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Có lỗi xảy ra';
@@ -74,10 +80,10 @@ const ListAgent = () => {
                 toast.error(`Lỗi ${statusCode}: ${errorMessage}`);
             } else if (error.request) {
                 console.error('Request error:', error.request);
-                alert('Không nhận được phản hồi từ server.');
+                toast.error('Không nhận được phản hồi từ server.');
             } else {
                 console.error('Other error:', error.message);
-                alert(`Lỗi: ${error.message}`);
+                toast.error(`Lỗi: ${error.message}`);
             }
         } finally {
             setOpenConfirm(false);
@@ -101,6 +107,22 @@ const ListAgent = () => {
 
     return (
         <Box className="p-6 bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen">
+            {/* Back button for mobile/responsive */}
+            <Box sx={{ mb: 2, display: { xs: 'block', md: 'none' } }}>
+                <IconButton
+                    onClick={() => navigate(`/seller/properties/${propertyId}`)}
+                    sx={{
+                        backgroundColor: 'white',
+                        boxShadow: 1,
+                        '&:hover': {
+                            backgroundColor: 'grey.100',
+                        },
+                    }}
+                >
+                    <ArrowBackIcon />
+                </IconButton>
+            </Box>
+
             <Typography variant="h5" fontWeight="bold" className="mb-6 text-gray-800 text-center sm:text-left">
                 Danh sách Agent
             </Typography>

@@ -33,4 +33,4 @@ const AsssignAgent = () => {
     )
 }
 
-export default AsssignAgent
+export default AsssignAgent;

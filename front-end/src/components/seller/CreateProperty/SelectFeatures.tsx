@@ -78,7 +78,7 @@ const SelectFeatures: React.FC<SelectFeaturesProps> = ({ selectedFeatures, onSub
                         <span className="ml-3 text-gray-600">{t("selectFeatures.loading")}</span>
                     </div>
                 ) : (
-                    <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mt-4'>
+                    <div className='grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3 mt-4'>
                         {availableFeatures.map((feature) => (
                             <button
                                 key={feature._id}

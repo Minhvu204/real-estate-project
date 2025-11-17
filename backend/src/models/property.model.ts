@@ -19,7 +19,7 @@ export interface IProperty extends Document {
   unit: "m2" | "ft2";
   yearBuilt?: number;
   floors: number;
-  coordinates?: { lat: number; lng: number };
+  coordinates?: { type: "Point"; coordinates: [number, number] }; // [lng, lat]
   city_id: mongoose.Types.ObjectId;
   district_id: mongoose.Types.ObjectId;
   ward_id: mongoose.Types.ObjectId;
@@ -71,8 +71,14 @@ const PropertySchema = new Schema<IProperty>(
     floors: { type: Number, default: 1, min: 0 },
 
     coordinates: {
-      lat: { type: Number },
-      lng: { type: Number },
+      type: {
+        type: String,
+        enum: ['Point'], // Chỉ chấp nhận kiểu 'Point'
+        default: 'Point',
+      },
+      coordinates: {
+        type: [Number], // Một mảng các con số [lng, lat]
+      },
     },
 
     city_id: { type: Schema.Types.ObjectId, ref: "City", required: true },
@@ -113,5 +119,7 @@ const PropertySchema = new Schema<IProperty>(
   },
   { timestamps: true }
 );
+
+PropertySchema.index({ coordinates: "2dsphere" });
 
 export default mongoose.model<IProperty>("Property", PropertySchema);

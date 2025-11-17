@@ -1,32 +1,15 @@
 import SelectFeatures from '@/components/seller/CreateProperty/SelectFeatures';
 import FormProperty from '@/components/seller/CreateProperty/FormProperty';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import SelectImages from '@/components/seller/CreateProperty/SelectImages';
 import { createProperty } from '@/services/propertyService';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
-type common = number | string;
-
-interface PropertyData {
-    title: string;
-    price: common;
-    description: string;
-    address: string;
-    bathrooms: common;
-    bedrooms: common;
-    area: common;
-    unit: common;
-    floors: common;
-    yearBuilt?: common;
-    city_id: string;
-    category_id: string;
-    type_id: string;
-    coordinates?: {
-        lat: number;
-        lng: number;
-    };
-}
+import { IconButton } from '@mui/material';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import type { PropertyData } from '@/types/PropertyData';
+import useTitle from '@/hooks/useTitle';
 
 interface ImageItem {
     id: string;
@@ -38,13 +21,15 @@ const initialFormData: PropertyData = {
     price: '',
     description: '',
     address: '',
-    bathrooms: '',
-    bedrooms: '',
-    area: '',
+    bathrooms: '1',
+    bedrooms: '1',
+    area: '1',
     unit: 'm2',
-    floors: '',
+    floors: '1',
     yearBuilt: '',
     city_id: '',
+    district_id: '',
+    ward_id: '',
     category_id: '',
     type_id: '',
     coordinates: undefined,
@@ -54,9 +39,11 @@ const CreatePropertyPage = () => {
     const [propertyData, setPropertyData] = useState<PropertyData>(initialFormData);
     const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
     const [images, setImages] = useState<ImageItem[]>([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const { t } = useTranslation('createPropertyPage');
     const totalSteps = 3;
-
+    const isSubmittingRef = useRef(false);
+    useTitle(t('createProperty.pageTitle'))
     const handleNextStep = () => {
         if (currentStep < totalSteps) {
             setCurrentStep(currentStep + 1);
@@ -79,19 +66,24 @@ const CreatePropertyPage = () => {
         handleNextStep();
     };
 
-    const handleImagesSubmit = (imageList: ImageItem[]) => {
+    const handleImagesSubmit = async (imageList: ImageItem[]) => {
+        console.log('image from set images', imageList);
         setImages(imageList);
-        handleFinalSubmit();
+        await handleFinalSubmit(imageList);
     };
     const navigate = useNavigate();
-    const handleFinalSubmit = async () => {
+    const handleFinalSubmit = async (submittedImages: ImageItem[] = images) => {
+        if (isSubmittingRef.current) return;
+        isSubmittingRef.current = true;
+        setIsSubmitting(true);
         try {
             if (!propertyData.city_id || !propertyData.category_id || !propertyData.type_id) {
                 toast.error(t('createProperty.alerts.missingRequired'));
+                setIsSubmitting(false);
                 return;
             }
 
-            const imageFiles = images.map((img) => img.file);
+            const imageFiles = submittedImages.map((img) => img.file);
             const dataToSend = {
                 ...propertyData,
                 features: selectedFeatures,
@@ -101,20 +93,21 @@ const CreatePropertyPage = () => {
             console.log('Images count:', imageFiles.length);
 
             const response = await createProperty(dataToSend, imageFiles);
+            console.log('Created property:', response);
+
             setPropertyData(initialFormData);
             setSelectedFeatures([]);
             setImages([]);
             setCurrentStep(1);
-            const toastId = toast.info(
+            setIsSubmitting(false);
+
+            const toastId = toast.success(
                 <div className="space-y-2">
                     <p className="font-medium">{t('createProperty.alerts.createSuccess')}</p>
                     <div className="flex gap-3 mt-2">
                         <button
                             onClick={() => {
                                 toast.dismiss(toastId);
-                                toast.success(t('createProperty.alerts.startNew'));
-                                setPropertyData(initialFormData);
-                                setCurrentStep(1);
                             }}
                             className="px-3 py-1 rounded-md bg-blue-600 text-white text-sm hover:bg-blue-700 transition"
                         >
@@ -132,22 +125,19 @@ const CreatePropertyPage = () => {
                     </div>
                 </div>,
                 {
-                    autoClose: 4000,
+                    autoClose: 6000,
                     closeOnClick: false,
                     pauseOnHover: true,
                 }
             );
-            setTimeout(() => {
-                if (toast.isActive(toastId)) {
-                    toast.dismiss(toastId);
-                    navigate('/seller/properties');
-                }
-            }, 4000);
-            console.log('Created property:', response);
         } catch (error: any) {
             console.error('Error creating property:', error);
             const errorMessage = error.response?.data?.message || error.message || 'Có lỗi xảy ra';
             toast.error(t('createProperty.alerts.createError', { message: errorMessage }));
+            setIsSubmitting(false);
+        } finally {
+            isSubmittingRef.current = false;
+            setIsSubmitting(false);
         }
     };
 
@@ -160,6 +150,21 @@ const CreatePropertyPage = () => {
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4">
             <div className="max-w-5xl mx-auto">
+                <div className="mb-4 md:hidden">
+                    <IconButton
+                        onClick={() => navigate('/seller/properties')}
+                        sx={{
+                            backgroundColor: 'white',
+                            boxShadow: 1,
+                            '&:hover': {
+                                backgroundColor: 'grey.100',
+                            },
+                        }}
+                    >
+                        <ArrowBackIcon />
+                    </IconButton>
+                </div>
+
                 <div className="mb-8">
                     <div className="flex items-center justify-between">
                         {steps.map((step, index) => (
@@ -209,10 +214,23 @@ const CreatePropertyPage = () => {
                             images={images}
                             onSubmit={handleImagesSubmit}
                             onBack={handlePreviousStep}
+                            isSubmitting={isSubmitting}
                         />
                     )}
                 </div>
             </div>
+            <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+            />
         </div>
     );
 };
