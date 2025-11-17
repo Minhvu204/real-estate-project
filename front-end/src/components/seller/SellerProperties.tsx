@@ -12,7 +12,7 @@ import { getPropertiesByAgentOrSeller } from '../../services/propertyService';
 import type { Meta } from '../../types/Pagination';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import AddIcon from '@mui/icons-material/Add';
+>>>>>>>>> Temporary merge branch 2
 
 const SellerProperties = () => {
     const [properties, setProperties] = useState<Property[]>([]);
@@ -36,7 +36,6 @@ const SellerProperties = () => {
                 setProperties(response.data || []);
                 setFiltered(response.data || []);
                 setPage(response.pagination);
-
                 console.log(response.data);
             } catch (error) {
                 console.log("Cannot fetch properties for this role", error);

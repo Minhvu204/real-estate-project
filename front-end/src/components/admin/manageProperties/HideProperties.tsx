@@ -150,19 +150,19 @@ const HideProperties = ({ propertyId }: HideProperty) => {
               <div className="flex flex-col sm:flex-row gap-4">
                 <img
                   src={property.images?.[0] || "image"}
-                  alt={property.title[currentLanguage]}
+                  alt={property.title?.[currentLanguage] || "Property"}
                   className="w-full sm:w-1/2 h-[180px] object-cover rounded-lg"
                 />
                 <div className="flex-1 space-y-2">
                   <Typography variant="h6" color="primary">
-                    {property.title[currentLanguage]}
+                    {property.title?.[currentLanguage] || ""}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {property.address[currentLanguage]}
+                    {property.address?.[currentLanguage] || ""}
                   </Typography>
                   <Typography variant="body1" sx={{ fontWeight: 600 }}>
                     <FontAwesomeIcon icon={faCoins} />{" "}
-                    {property.price.toLocaleString()} VND
+                    {property.price?.toLocaleString() || "0"} VND
                   </Typography>
                   <Chip
                     label={

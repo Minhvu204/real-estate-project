@@ -6,10 +6,14 @@ import PropertyType from "../models/propertyType.model";
 import Feature from "../models/feature.model";
 import Ward from "../models/ward.model";
 import District from "../models/district.model";
+import User from "../models/user.model";
 import mongoose from "mongoose";
 import { assignmentService } from "./assignment.service";
 import { createMultilangText } from "../utils/translateHelper";
 import { getFullAddress } from "../utils/addressHelper";
+import { notifyAgentRemoved } from "../utils/notificationHelper";
+import { geocodeAddress } from "../utils/geocodingHelper";
+import { SearchCriteria } from "../types/searchCriteria";
 
 export const propertyService = {
   async getAllProperties(filters: any) {
@@ -238,17 +242,41 @@ export const propertyService = {
       throw err;
     }
 
+    const agentToRemoveId = property.agent_id; // ID của agent SẮP bị gỡ
+    const actorId = options?.actorId;
+
     // Save old agent into history
     property.assignmentHistory = property.assignmentHistory || [];
     property.assignmentHistory.push({
-      agent_id: property.agent_id,
-      assignedBy: options?.actorId ? new mongoose.Types.ObjectId(options.actorId) : undefined,
+      agent_id: agentToRemoveId,
+      assignedBy: actorId ? new mongoose.Types.ObjectId(options.actorId) : undefined,
       action: "remove",
       assignedAt: new Date(),
     } as any);
 
     property.agent_id = undefined;
     await property.save();
+
+    //GỬI NOTIFICATION CHO AGENT BỊ GỠ
+    try {
+      if (actorId) {
+        const owner = await User.findById(actorId).select("fullName").lean();
+        if (owner) {
+          await notifyAgentRemoved(
+            String(agentToRemoveId),
+            owner.fullName,
+            property.title.vi,
+            String(property._id)
+          );
+        }
+      } else {
+        // Ghi log nếu không có actorId, vì không biết ai đã gỡ
+        console.warn(`Cannot send notification: actorId is missing for removeAgent on property ${propertyId}`);
+      }
+    } catch (notifyError) {
+      console.error("Failed to send notification in removeAgent:", notifyError);
+    }
+
     return property;
   },
 
@@ -260,6 +288,41 @@ export const propertyService = {
       .populate("category_id", "category_name")
       .populate("type_id", "type_name")
       .populate("owner_id", "fullName email phone avatar")
+      .populate("features", "feature_name")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return list;
+  },
+
+  async getPropertiesByUser(userId: string, filters: any = {}) {
+    const { status, keyword } = filters;
+    
+    // Lấy properties mà user là owner HOẶC agent
+    const query: any = {
+      $or: [
+        { owner_id: userId },
+        { agent_id: userId }
+      ],
+      deleted: false,
+    };
+
+    if (status) query.status = status;
+    if (keyword) {
+      query.$or = [
+        { "title.vi": { $regex: keyword, $options: "i" } },
+        { "title.en": { $regex: keyword, $options: "i" } },
+        { "address.vi": { $regex: keyword, $options: "i" } },
+        { "address.en": { $regex: keyword, $options: "i" } },
+      ];
+    }
+
+    const list = await Property.find(query)
+      .populate("city_id", "city_name")
+      .populate("category_id", "category_name")
+      .populate("type_id", "type_name")
+      .populate("owner_id", "fullName email phone avatar")
+      .populate("agent_id", "fullName email phone avatar")
       .populate("features", "feature_name")
       .sort({ createdAt: -1 })
       .lean();
@@ -282,19 +345,19 @@ export const propertyService = {
       ...rest
     } = data;
 
-    // Validate taxonomy IDs
+    // Validate taxonomy IDs (Code của bạn đã đúng)
     const [city, district, ward, category, type] = await Promise.all([
-      City.findById(city_id),
-      District.findById(district_id),
-      Ward.findById(ward_id),
-      Category.findById(category_id),
-      PropertyType.findById(type_id),
+      City.findById(city_id).lean(),
+      District.findById(district_id).lean(),
+      Ward.findById(ward_id).lean(),
+      Category.findById(category_id).lean(),
+      PropertyType.findById(type_id).lean(),
     ]);
     if (!city || !district || !ward || !category || !type) {
       throw Object.assign(new Error("Dữ liệu taxonomy không hợp lệ"), { status: 400 });
     }
 
-    // Validate features nếu có
+    // Validate features (Code của bạn đã đúng)
     if (features.length > 0) {
       const count = await Feature.countDocuments({ _id: { $in: features } });
       if (count !== features.length) {
@@ -302,12 +365,40 @@ export const propertyService = {
       }
     }
 
-    // Convert title, description, address sang đa ngôn ngữ
+    // Convert đa ngôn ngữ (Code của bạn đã đúng)
     const [titleMultilang, descriptionMultilang, addressMultilang] = await Promise.all([
       createMultilangText(title || ""),
       description ? createMultilangText(description) : Promise.resolve({ vi: "", en: "" }),
       createMultilangText(address || ""),
     ]);
+
+
+    // <<< PHẦN SỬA LỖI BẮT ĐẦU TỪ ĐÂY >>>
+
+    // 1. Đổi tên biến để rõ ràng
+    let finalCoordinates: { type: 'Point', coordinates: number[] } | undefined = undefined;
+
+    try {
+      // 2. Build chuỗi địa chỉ đầy đủ (Code của bạn đã đúng)
+      const fullAddressString = `${address}, ${ward.ward_name.vi}, ${district.district_name.vi}, ${city.city_name.vi}`;
+      console.log(`[Geocoding] Đang tìm: ${fullAddressString}`);
+
+      // 3. Gọi helper (Code của bạn đã đúng)
+      const location = await geocodeAddress(fullAddressString); // (trả về { lat, lng })
+
+      // 4. Chuyển đổi sang format GeoJSON [lng, lat]
+      if (location) {
+        finalCoordinates = {
+          type: 'Point',
+          coordinates: [location.lng, location.lat] // [lng, lat]
+        };
+      } else {
+        console.warn(`Không tìm thấy tọa độ cho: ${fullAddressString}. Tọa độ sẽ là null.`);
+      }
+
+    } catch (geoError) {
+      console.warn(`Geocoding failed for address: ${address}`, geoError);
+    }
 
     // Tạo property mới
     const property = await Property.create({
@@ -324,9 +415,12 @@ export const propertyService = {
       owner_id: new mongoose.Types.ObjectId(ownerId),
       status: "pending",
       deleted: false,
+      coordinates: finalCoordinates, // 5. Gán object đã format (hoặc undefined)
     });
 
-    // Nếu có agent_id => tạo request gán agent
+    // <<< KẾT THÚC PHẦN SỬA LỖI >>>
+
+    // Nếu có agent_id => tạo request gán agent (Code của bạn đã đúng)
     if (agent_id) {
       await assignmentService.createRequest((property._id as mongoose.Types.ObjectId).toString(), agent_id, ownerId);
     }
@@ -409,5 +503,80 @@ export const propertyService = {
 
     property.deleted = true;
     await property.save();
+  },
+
+  // Tìm kiếm properties dựa trên tiêu chí AI
+  async findPropertiesByAiCriteria(
+    criteria: SearchCriteria,
+    centerPoint: { lat: number; lng: number } | null
+  ) {
+    const query: any = {
+      status: { $in: ["approved", "available"] },
+    };
+
+    const radiusInKm = 10; // Mặc định tìm trong bán kính 10km
+
+    // xử lí vị trí(Nếu có)
+    if (centerPoint) {
+      query.coordinates = {
+        $nearSphere: {
+          $geometry: {
+            type: "Point",
+            coordinates: [centerPoint.lng, centerPoint.lat],
+          },
+          // $maxDistance tính bằng mét
+          $maxDistance: radiusInKm * 1000,
+        },
+      };
+    }
+
+    // xử lí giá
+    if (criteria.min_price || criteria.max_price) {
+      query.price = {};
+      if (criteria.min_price) {
+        query.price.$gte = criteria.min_price;
+      }
+      if (criteria.max_price) {
+        query.price.$lte = criteria.max_price;
+      }
+    }
+
+    // xử lí loại bđs
+    if (criteria.category) {
+      // Tìm ID của category từ tên
+      const categoryDoc = await Category.findOne({
+        $or: [
+          { "category_name.vi": new RegExp(criteria.category, "i") },
+          { "category_name.en": new RegExp(criteria.category, "i") },
+        ],
+      }).lean();
+
+      if (categoryDoc) {
+        query.category_id = categoryDoc._id;
+      }
+    }
+
+    // xử lí tiện ích (features)
+    if (criteria.features && criteria.features.length > 0) {
+      const featureDocs = await Feature.find({
+        $or: [
+          { "feature_name.vi": { $in: criteria.features.map(f => new RegExp(f, "i")) } },
+          { "feature_name.en": { $in: criteria.features.map(f => new RegExp(f, "i")) } },
+        ],
+      }).select("_id");
+
+      if (featureDocs.length > 0) {
+        // $all = property phải có TẤT CẢ các tiện ích này
+        query.features = { $all: featureDocs.map(f => f._id) };
+      }
+    }
+
+    const properties = await Property.find(query)
+      .populate("category_id", "category_name")
+      .populate("features", "feature_name")
+      .limit(10) // Trả về 10 kết quả hàng đầu
+      .lean();
+
+    return properties;
   },
 };

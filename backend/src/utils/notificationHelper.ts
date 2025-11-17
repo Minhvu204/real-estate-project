@@ -1,5 +1,7 @@
 import { notificationService, CreateNotificationParams } from "../services/notification.service";
 import { NotificationType } from "../models/notification.model";
+import { ContractUploaderRole } from "../models/contract.model";
+import { emitNotification } from "../socket/socket";
 
 
 export async function createNotification(
@@ -10,6 +12,7 @@ export async function createNotification(
     type?: NotificationType;
     relatedId?: string;
     actionUrl?: string;
+    meta?: Record<string, any>;
   }
 ) {
   try {
@@ -20,12 +23,113 @@ export async function createNotification(
       type: options?.type || "system",
       relatedId: options?.relatedId,
       actionUrl: options?.actionUrl,
+      meta: options?.meta,
     });
+
+    if (notification) {
+      emitNotification(userId, notification);
+    }
+
     return notification;
   } catch (error) {
     console.error("Failed to create notification:", error);
     return null;
   }
+}
+
+
+// Notification khi seller gửi yêu cầu gán agent
+export async function notifyAssignmentRequest(
+  agentId: string,
+  sellerName: string,
+  propertyTitle: string,
+  assignmentId: string
+) {
+  return createNotification(
+    agentId,
+    "Yêu cầu quản lý property mới",
+    `${sellerName} đã gửi cho bạn yêu cầu quản lý cho property "${propertyTitle}"`,
+    {
+      type: "property",
+      relatedId: assignmentId,
+      actionUrl: `/agent/assignments`, // (URL ví dụ, bạn đổi thành URL agent xem request)
+    }
+  );
+}
+
+// Notification khi agent chấp nhận yêu cầu
+export async function notifyAssignmentAccepted(
+  sellerId: string,
+  agentName: string,
+  propertyTitle: string,
+  assignmentId: string
+) {
+  return createNotification(
+    sellerId,
+    "Yêu cầu quản lý đã được chấp nhận",
+    `${agentName} đã chấp nhận yêu cầu quản lý cho property "${propertyTitle}"`,
+    {
+      type: "property",
+      relatedId: assignmentId,
+      actionUrl: `/seller/properties/${assignmentId}`, // (URL ví dụ)
+    }
+  );
+}
+
+// Notification khi agent từ chối yêu cầu
+export async function notifyAssignmentRejected(
+  sellerId: string,
+  agentName: string,
+  propertyTitle: string,
+  assignmentId: string,
+  reason?: string
+) {
+  const message = `${agentName} đã từ chối yêu cầu quản lý cho property "${propertyTitle}"${
+    reason ? `: ${reason}` : ""
+  }`;
+  return createNotification(sellerId, "Yêu cầu quản lý bị từ chối", message, {
+    type: "property",
+    relatedId: assignmentId,
+    actionUrl: `/seller/properties/${assignmentId}`, // (URL ví dụ)
+  });
+}
+
+// Notification khi seller hủy yêu cầu (khi đang pending)
+export async function notifyAssignmentCancelled(
+  agentId: string,
+  sellerName: string,
+  propertyTitle: string,
+  assignmentId: string
+) {
+  return createNotification(
+    agentId,
+    "Yêu cầu quản lý đã bị hủy",
+    `${sellerName} đã hủy yêu cầu quản lý cho property "${propertyTitle}"`,
+    {
+      type: "property",
+      relatedId: assignmentId,
+      actionUrl: `/agent/assignments`, // (URL ví dụ)
+    }
+  );
+}
+
+// Notification khi seller gỡ agent khỏi property
+export async function notifyAgentRemoved(
+  agentId: string,
+  sellerName: string,
+  propertyTitle: string,
+  propertyId: string
+) {
+  return createNotification(
+    agentId,
+    "Bạn đã bị gỡ khỏi property",
+    `${sellerName} đã gỡ bạn khỏi property "${propertyTitle}".`,
+    {
+      type: "property",
+      relatedId: propertyId,
+      actionUrl: `/properties/${propertyId}`,
+    }
+  );
 }
 
 export async function createNotificationsForUsers(
@@ -36,6 +140,7 @@ export async function createNotificationsForUsers(
     type?: NotificationType;
     relatedId?: string;
     actionUrl?: string;
+    meta?: Record<string, any>;
   }
 ) {
   try {
@@ -68,6 +173,24 @@ export async function notifyNewAppointment(
   );
 }
 
+export async function notifySellerNewAppointment(
+  sellerId: string,
+  buyerName: string,
+  propertyTitle: string,
+  appointmentId: string
+) {
+  return createNotification(
+    sellerId,
+    "Lịch hẹn mới cho bất động sản của bạn",
+    `${buyerName} đã đặt lịch hẹn xem ${propertyTitle}`,
+    {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }
+  );
+}
+
 // Notification khi agent accept/reject appointment
 export async function notifyAppointmentStatus(
   buyerId: string,
@@ -89,6 +212,28 @@ export async function notifyAppointmentStatus(
   });
 }
 
+export async function notifyAppointmentCancelled(
+  agentId: string,
+  sellerId: string,
+  buyerName: string,
+  propertyTitle: string,
+  appointmentId: string
+) {
+  const message = `${buyerName} đã hủy lịch hẹn xem ${propertyTitle}`;
+  await Promise.all([
+    createNotification(agentId, "Lịch hẹn bị hủy", message, {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }),
+    createNotification(sellerId, "Lịch hẹn bị hủy", message, {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }),
+  ]);
+}
+
 // Notification khi có offer mới
 export async function notifyNewOffer(
   agentId: string,
@@ -101,6 +246,25 @@ export async function notifyNewOffer(
     agentId,
     "Offer mới",
     `${buyerName} đã đưa ra offer ${amount.toLocaleString()} VNĐ cho ${propertyTitle}`,
+    {
+      type: "offer",
+      relatedId: offerId,
+      actionUrl: `/offers/${offerId}`,
+    }
+  );
+}
+
+export async function notifySellerNewOffer(
+  sellerId: string,
+  buyerName: string,
+  propertyTitle: string,
+  amount: number,
+  offerId: string
+) {
+  return createNotification(
+    sellerId,
+    "Offer mới cho property của bạn",
+    `${buyerName} đã gửi offer ${amount.toLocaleString()} VNĐ cho ${propertyTitle}`,
     {
       type: "offer",
       relatedId: offerId,
@@ -280,4 +444,43 @@ export async function notifyDealCreated(
       actionUrl: `/deals/${dealId}`,
     }),
   ]);
+}
+
+export async function notifyContractUploaded(params: {
+  recipientIds: string[];
+  actorName: string;
+  actorRole: ContractUploaderRole;
+  propertyTitle: string;
+  dealId: string;
+  contractId: string;
+  action?: "uploaded" | "updated";
+}) {
+  const {
+    recipientIds,
+    actorName,
+    actorRole,
+    propertyTitle,
+    dealId,
+    contractId,
+    action = "uploaded",
+  } = params;
+
+  const isUpdate = action === "updated";
+  const title = isUpdate ? "Hợp đồng được cập nhật" : "Hợp đồng mới";
+  const actionVerb = isUpdate ? "đã cập nhật" : "đã tải lên";
+  const message = `${actorName} (${actorRole}) ${actionVerb} hợp đồng cho ${propertyTitle}`;
+  const actionUrl = `/deals/${dealId}/contract`;
+
+  await createNotificationsForUsers(recipientIds, title, message, {
+    type: "contract",
+    relatedId: contractId,
+    actionUrl,
+    meta: {
+      dealId,
+      contractId,
+      propertyTitle,
+      actorRole,
+      action,
+    },
+  });
 }

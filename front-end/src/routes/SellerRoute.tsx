@@ -4,7 +4,7 @@ import PropertyDetails from "../components/seller/PropertiesDetail";
 
 import ListAgent from "../components/seller/ListAgent";
 import CreatePropertyPage from "../pages/SellerPage/CreateProperty/CreatePropertyPage";
-
+import MyPropertiesPage from "../pages/MyPropertiesPage";
 export const SellerRoute = [
 
     {
@@ -18,6 +18,11 @@ export const SellerRoute = [
     },
     {
         path: "/seller/create", element: <CreatePropertyPage />
+    },
+    {
+        path: "/seller/my-properties", element: <MyPropertiesPage />
+    },
+    {
+        path: "/seller/my-properties/:id", element: <MyPropertiesPage />
     }
-
 ];
