@@ -13,8 +13,13 @@ export const handleAiSearch = async (req: Request, res: Response) => {
     const results = await chatService.searchWithAi(message);
     
     // Tạo một câu trả lời thân thiện
-    const aiMessage = `Dựa trên yêu cầu của bạn, tôi đã tìm thấy ${results.length} kết quả phù hợp.`;
-
+    let aiMessage = "";
+    if(results.length > 0) {
+      aiMessage = `Dựa trên yêu cầu của bạn, tôi đã tìm thấy ${results.length} kết quả phù hợp.`;
+    }else{
+      aiMessage = `Rất tiếc, tôi không tìm thấy kết quả nào phù hợp với yêu cầu của bạn. Vui lòng thử lại với các tiêu chí khác.`;
+    }
+    
     return successResponse(res, aiMessage, {
       properties: results,
     });
