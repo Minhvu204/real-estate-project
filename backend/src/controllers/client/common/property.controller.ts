@@ -3,16 +3,16 @@ import { propertyService } from "../../../services/property.service";
 import { successResponse, errorResponse } from "../../../utils/responseHandler";
 
 export const getMyProperties = async (req: Request, res: Response) => {
-  try {
-    const user = (req as any).user;
-    if (!user) return errorResponse(req, res, "Unauthorized", 401);
+	try {
+		const userId = (req as any).user?.id || (req as any).user?._id;
+		if (!userId) return errorResponse(req, res, "Unauthorized", 401);
 
-    const result = await propertyService.getPropertiesByOwnerOrAgent(user, req.query);
-    return successResponse(req, res, "Lấy danh sách bất động sản thành công", result);
-  } catch (error: any) {
-    const status = error.status || 500;
-    return errorResponse(req, res, error.message || "Server error", status);
-  }
+		const properties = await propertyService.getPropertiesByUser(String(userId), req.query);
+		return successResponse(req, res, "Lấy danh sách bất động sản thành công", properties);
+	} catch (error: any) {
+		console.error("getMyProperties error:", error);
+		return errorResponse(req, res, error.message || "Server error", error.status || 500);
+	}
 };
 
 export const updateProperty = async (req: Request, res: Response) => {
@@ -23,7 +23,29 @@ export const updateProperty = async (req: Request, res: Response) => {
 		const { id } = req.params;
 		const body = req.body || {};
 
-		// Middleware uploadMultiple đã gắn req.body.images = string[] nếu có tải ảnh
+		// Merge ảnh cũ (existingImages[]) + ảnh mới (images từ middleware)
+		const existingImages = req.body.existingImages || [];
+		const newImages = req.body.images || [];
+		
+		// existingImages có thể là string hoặc array
+		let existingImagesArray: string[] = [];
+		if (typeof existingImages === 'string') {
+			existingImagesArray = [existingImages];
+		} else if (Array.isArray(existingImages)) {
+			existingImagesArray = existingImages;
+		}
+
+		// newImages có thể là string hoặc array
+		let newImagesArray: string[] = [];
+		if (typeof newImages === 'string') {
+			newImagesArray = [newImages];
+		} else if (Array.isArray(newImages)) {
+			newImagesArray = newImages;
+		}
+
+		// Merge: ảnh cũ trước, ảnh mới sau
+		body.images = [...existingImagesArray, ...newImagesArray];
+
 		const updated = await propertyService.updateProperty(id, body, String(userId));
 		return successResponse(req, res, "Cập nhật bất động sản thành công", updated);
 	} catch (error: any) {
@@ -45,5 +67,3 @@ export const deleteProperty = async (req: Request, res: Response) => {
 		return errorResponse(req, res, error.message || "Server error", error.status || 500);
 	}
 };
-
-
