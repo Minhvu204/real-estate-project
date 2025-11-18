@@ -1,4 +1,7 @@
-import { blockUser, getUsersById } from "../../../services/userService";
+import {
+  blockUserAndUnBlock,
+  getUsersById,
+} from "../../../services/userService";
 import type { User } from "@/types/Users";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLock, faLockOpen } from "@fortawesome/free-solid-svg-icons";
@@ -44,7 +47,7 @@ const BlockUser = ({ userId }: BlockUserProps) => {
     fetchUser();
   }, [userId]);
 
-  const handleBlockUser = async () => {
+  const handleBlockAndUnBlockUser = async () => {
     if (!userId) {
       toast.error("Không tìm thấy ID người dùng!");
       return;
@@ -52,9 +55,9 @@ const BlockUser = ({ userId }: BlockUserProps) => {
     if (!user) return;
 
     try {
-      const updated = await blockUser(userId, user);
-      setUser(updated);
-      if (updated.isActive) {
+      const updatedStatus = await blockUserAndUnBlock(userId, user);
+      setUser(updatedStatus);
+      if (updatedStatus.isActive) {
         toast.success("Unblock thành công!");
       } else {
         toast.success("Block thành công!");
@@ -87,7 +90,6 @@ const BlockUser = ({ userId }: BlockUserProps) => {
           sx={{
             fontSize: "0.75rem",
             borderRadius: "4px",
-            textTransform: "none",
             minWidth: "auto",
             height: "24px",
           }}
@@ -195,13 +197,13 @@ const BlockUser = ({ userId }: BlockUserProps) => {
             Cancel
           </Button>
           <Button
-            onClick={handleBlockUser}
+            onClick={handleBlockAndUnBlockUser}
             variant="contained"
             color="error"
             sx={{ textTransform: "none", borderRadius: 2 }}
             autoFocus
           >
-            {user?.isActive ? "Block" : "Unblock"}
+            {user?.isActive ? "Block" : "unBlock"}
           </Button>
         </DialogActions>
       </Dialog>

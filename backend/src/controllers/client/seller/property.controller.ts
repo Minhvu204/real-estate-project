@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Property from "../../../models/property.model";
 import { successResponse, errorResponse } from "../../../utils/responseHandler";
 import { propertyService } from "../../../services/property.service";
+import { aiSearchHelper } from "../../../utils/aiSearchHelper";
 
 /**
  * POST /api/client/seller/properties/:id/assign-agent
@@ -93,5 +94,26 @@ export const createProperty = async (req: Request, res: Response) => {
   } catch (err: any) {
     console.error("Lỗi khi tạo property:", err);
     return errorResponse(req, res, "property.create_failed", 500);
+  }
+};
+
+// AI tạo mô tả bất động sản
+export const generatePropertyDescription = async (req: Request, res: Response) => {
+  try {
+    const data = req.body;
+    const lang = (req.language || "vi") as "vi" | "en";
+
+    // Gọi AI để tạo mô tả
+    const description = await aiSearchHelper.generateDescription(data, lang);
+
+    if (!description) {
+      throw new Error("AI failed to generate description");
+    }
+
+    return successResponse(req, res, "Tạo mô tả thành công", { description });
+
+  } catch (err: any) {
+    console.error("Lỗi khi tạo mô tả BĐS:", err);
+    return errorResponse(req, res, "Tạo mô tả thất bại", 500);
   }
 };

@@ -212,17 +212,22 @@ export const getContractByDeal = async (req: Request, res: Response) => {
 export const deleteContract = async (req: Request, res: Response) => {
   try {
     const agentId = getUserIdFromRequest(req);
-    const { dealId } = req.params;
+    
+    const { dealId, contractId } = req.params;
 
     if (!agentId) {
       return errorResponse(req, res, "Không xác định người dùng", 401);
     }
+    
+    if (!contractId) {
+        return errorResponse(req, res, "Thiếu ID hợp đồng", 400);
+    }
 
     await ensureDealForAgent(dealId, agentId);
 
-    await contractService.deleteLatestByDeal(dealId);
+    await contractService.deleteContractById(contractId, dealId);
 
-    return successResponse(req, res, "Xóa hợp đồng thành công", { deleted: true });
+    return successResponse(req, res, "Xóa hợp đồng thành công", { deleted: true, id: contractId });
   } catch (error: any) {
     console.error("deleteContract error:", error);
     const status = error?.status || 500;

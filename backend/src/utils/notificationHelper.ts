@@ -1,6 +1,5 @@
 import { notificationService, CreateNotificationParams } from "../services/notification.service";
 import { NotificationType } from "../models/notification.model";
-import { ContractUploaderRole } from "../models/contract.model";
 import { emitNotification } from "../socket/socket";
 import { DealStatus } from "../models/deal.model";
 
@@ -13,7 +12,6 @@ export async function createNotification(
     type?: NotificationType;
     relatedId?: string;
     actionUrl?: string;
-    meta?: Record<string, any>;
   }
 ) {
   try {
@@ -24,7 +22,6 @@ export async function createNotification(
       type: options?.type || "system",
       relatedId: options?.relatedId,
       actionUrl: options?.actionUrl,
-      meta: options?.meta,
     });
 
     if (notification) {
@@ -133,6 +130,7 @@ export async function notifyAgentRemoved(
   );
 }
 
+
 export async function createNotificationsForUsers(
   userIds: string[],
   title: string,
@@ -141,7 +139,6 @@ export async function createNotificationsForUsers(
     type?: NotificationType;
     relatedId?: string;
     actionUrl?: string;
-    meta?: Record<string, any>;
   }
 ) {
   try {
@@ -174,6 +171,24 @@ export async function notifyNewAppointment(
   );
 }
 
+export async function notifySellerNewAppointment(
+  sellerId: string,
+  buyerName: string,
+  propertyTitle: string,
+  appointmentId: string
+) {
+  return createNotification(
+    sellerId,
+    "Lịch hẹn mới cho bất động sản của bạn",
+    `${buyerName} đã đặt lịch hẹn xem ${propertyTitle}`,
+    {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }
+  );
+}
+
 // Notification khi agent accept/reject appointment
 export async function notifyAppointmentStatus(
   buyerId: string,
@@ -193,6 +208,86 @@ export async function notifyAppointmentStatus(
     relatedId: appointmentId,
     actionUrl: `/appointments/${appointmentId}`,
   });
+}
+
+// Notification khi agent accept/reject appointment - notify cả buyer và seller
+export async function notifyAppointmentStatusToBuyerAndSeller(
+  buyerId: string,
+  sellerId: string,
+  agentName: string,
+  propertyTitle: string,
+  status: "accepted" | "rejected",
+  appointmentId: string
+) {
+  const title = status === "accepted" ? "Lịch hẹn được chấp nhận" : "Lịch hẹn bị từ chối";
+  const buyerMessage =
+    status === "accepted"
+      ? `${agentName} đã chấp nhận lịch hẹn xem ${propertyTitle}`
+      : `${agentName} đã từ chối lịch hẹn xem ${propertyTitle}`;
+  
+  const sellerMessage =
+    status === "accepted"
+      ? `${agentName} đã chấp nhận lịch hẹn xem ${propertyTitle} của bạn`
+      : `${agentName} đã từ chối lịch hẹn xem ${propertyTitle} của bạn`;
+
+  await Promise.all([
+    createNotification(buyerId, title, buyerMessage, {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }),
+    createNotification(sellerId, title, sellerMessage, {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }),
+  ]);
+}
+
+export async function notifyAppointmentCancelled(
+  agentId: string,
+  sellerId: string,
+  buyerName: string,
+  propertyTitle: string,
+  appointmentId: string
+) {
+  const message = `${buyerName} đã hủy lịch hẹn xem ${propertyTitle}`;
+  await Promise.all([
+    createNotification(agentId, "Lịch hẹn bị hủy", message, {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }),
+    createNotification(sellerId, "Lịch hẹn bị hủy", message, {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }),
+  ]);
+}
+// tbao hoàn tất appointment
+export async function notifyAppointmentCompleted(
+  buyerId: string,
+  sellerId: string,
+  agentName: string,
+  propertyTitle: string,
+  appointmentId: string
+) {
+  const message = `${agentName} đã xác nhận hoàn tất lịch hẹn xem ${propertyTitle}`;
+
+  await Promise.all([
+    createNotification(buyerId, "Lịch hẹn đã hoàn tất", message, {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }),
+
+    createNotification(sellerId, "Lịch hẹn đã hoàn tất", message, {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }),
+  ]);
 }
 
 // Notification khi có offer mới
@@ -215,6 +310,7 @@ export async function notifyNewOffer(
   );
 }
 
+
 export async function notifySellerNewOffer(
   sellerId: string,
   buyerName: string,
@@ -233,6 +329,7 @@ export async function notifySellerNewOffer(
     }
   );
 }
+
 
 // Notification khi agent accept/reject offer
 export async function notifyOfferStatus(
@@ -407,16 +504,26 @@ export async function notifyDealCreated(
   ]);
 }
 
+// Notification khi Agent upload hoặc cập nhật hợp đồng
 export async function notifyContractUploaded(params: {
   recipientIds: string[];
   actorName: string;
-  actorRole: ContractUploaderRole;
+  actorRole: string;
   propertyTitle: string;
   dealId: string;
   contractId: string;
-  action?: "uploaded" | "updated";
+  action: "uploaded" | "updated";
 }) {
-  const {
+  const { recipientIds, actorName, propertyTitle, dealId, contractId, action } = params;
+
+  // Tùy chỉnh nội dung dựa trên hành động (upload mới hay cập nhật)
+  const actionText = action === "uploaded" ? "đã tải lên" : "đã cập nhật";
+  const title = action === "uploaded" ? "Hợp đồng mới" : "Hợp đồng được cập nhật";
+  
+  const message = `${actorName} ${actionText} hợp đồng cho giao dịch "${propertyTitle}"`;
+
+  // Gửi cho danh sách người nhận (thường là Buyer và Seller)
+  return createNotificationsForUsers(
     recipientIds,
     actorName,
     actorRole,

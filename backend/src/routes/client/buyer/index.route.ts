@@ -1,10 +1,8 @@
 import express from "express";
-import testRoutes from "./buyer.route";
-import offerRoutes from "./offer.route";
-
+import appointmentRoutes from "./appointment.route";
+import favoriteRoutes from "./favorite.route";
 const router = express.Router();
 
-router.use("/", testRoutes);
-router.use("/offers", offerRoutes);
-
+router.use("/appointments", appointmentRoutes);
+router.use("/favorites", favoriteRoutes);
 export default router;

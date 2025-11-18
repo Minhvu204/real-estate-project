@@ -39,7 +39,7 @@ router.put(
 );
 
 router.delete(
-  "/deals/:dealId",
+  "/deals/:dealId/contracts/:contractId",
   verifyToken,
   roleCheck("seller"),
   deleteContract
