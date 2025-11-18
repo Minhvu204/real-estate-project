@@ -170,6 +170,24 @@ export async function notifyNewAppointment(
   );
 }
 
+export async function notifySellerNewAppointment(
+  sellerId: string,
+  buyerName: string,
+  propertyTitle: string,
+  appointmentId: string
+) {
+  return createNotification(
+    sellerId,
+    "Lịch hẹn mới cho bất động sản của bạn",
+    `${buyerName} đã đặt lịch hẹn xem ${propertyTitle}`,
+    {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }
+  );
+}
+
 // Notification khi agent accept/reject appointment
 export async function notifyAppointmentStatus(
   buyerId: string,
@@ -189,6 +207,86 @@ export async function notifyAppointmentStatus(
     relatedId: appointmentId,
     actionUrl: `/appointments/${appointmentId}`,
   });
+}
+
+// Notification khi agent accept/reject appointment - notify cả buyer và seller
+export async function notifyAppointmentStatusToBuyerAndSeller(
+  buyerId: string,
+  sellerId: string,
+  agentName: string,
+  propertyTitle: string,
+  status: "accepted" | "rejected",
+  appointmentId: string
+) {
+  const title = status === "accepted" ? "Lịch hẹn được chấp nhận" : "Lịch hẹn bị từ chối";
+  const buyerMessage =
+    status === "accepted"
+      ? `${agentName} đã chấp nhận lịch hẹn xem ${propertyTitle}`
+      : `${agentName} đã từ chối lịch hẹn xem ${propertyTitle}`;
+  
+  const sellerMessage =
+    status === "accepted"
+      ? `${agentName} đã chấp nhận lịch hẹn xem ${propertyTitle} của bạn`
+      : `${agentName} đã từ chối lịch hẹn xem ${propertyTitle} của bạn`;
+
+  await Promise.all([
+    createNotification(buyerId, title, buyerMessage, {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }),
+    createNotification(sellerId, title, sellerMessage, {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }),
+  ]);
+}
+
+export async function notifyAppointmentCancelled(
+  agentId: string,
+  sellerId: string,
+  buyerName: string,
+  propertyTitle: string,
+  appointmentId: string
+) {
+  const message = `${buyerName} đã hủy lịch hẹn xem ${propertyTitle}`;
+  await Promise.all([
+    createNotification(agentId, "Lịch hẹn bị hủy", message, {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }),
+    createNotification(sellerId, "Lịch hẹn bị hủy", message, {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }),
+  ]);
+}
+// tbao hoàn tất appointment
+export async function notifyAppointmentCompleted(
+  buyerId: string,
+  sellerId: string,
+  agentName: string,
+  propertyTitle: string,
+  appointmentId: string
+) {
+  const message = `${agentName} đã xác nhận hoàn tất lịch hẹn xem ${propertyTitle}`;
+
+  await Promise.all([
+    createNotification(buyerId, "Lịch hẹn đã hoàn tất", message, {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }),
+
+    createNotification(sellerId, "Lịch hẹn đã hoàn tất", message, {
+      type: "appointment",
+      relatedId: appointmentId,
+      actionUrl: `/appointments/${appointmentId}`,
+    }),
+  ]);
 }
 
 // Notification khi có offer mới
