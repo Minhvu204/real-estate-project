@@ -14,14 +14,14 @@ const router = express.Router();
 const multerUpload = multer({ storage: multer.memoryStorage() });
 
 router.get(
-  "/deals/:dealId/contract",
+  "/deals/:dealId",
   verifyToken,
   roleCheck("agent"),
   getContractByDeal
 );
 
 router.post(
-  "/deals/:dealId/contract",
+  "/deals/:dealId",
   verifyToken,
   roleCheck("agent"),
   multerUpload.single("file"),
@@ -30,7 +30,7 @@ router.post(
 );
 
 router.put(
-  "/deals/:dealId/contract",
+  "/deals/:dealId",
   verifyToken,
   roleCheck("agent"),
   multerUpload.single("file"),
@@ -39,7 +39,7 @@ router.put(
 );
 
 router.delete(
-  "/deals/:dealId/contract",
+  "/deals/:dealId/contracts/:contractId",
   verifyToken,
   roleCheck("agent"),
   deleteContract

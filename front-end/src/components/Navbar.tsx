@@ -42,11 +42,11 @@ const Navbar: React.FC = () => {
         ],
         seller: [
             { label: "My Properties", path: "/seller/properties" },
-            { label: "Manage Listings", path: "/seller/listings" },
+            { label: "Manage Listings", path: "/seller/my-properties" },
         ],
         agent: [
             { label: "My Properties", path: "/agent/properties" },
-            { label: "Manage Listings", path: "/agent/assignments" },
+            { label: "Manage Listings", path: "/agent/my-properties" },
         ],
 
     };
