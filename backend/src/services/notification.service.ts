@@ -10,24 +10,31 @@ export interface CreateNotificationParams {
   type?: NotificationType;
   relatedId?: string;
   actionUrl?: string;
+  meta?: Record<string, any>;
 }
 
 export const notificationService = {
   async createNotification(params: CreateNotificationParams) {
-    const { userId, title, message, type = "system", relatedId, actionUrl } = params;
+    const { userId, title, message, type = "system", relatedId, actionUrl, meta } = params;
 
     const [titleMultilang, messageMultilang] = await Promise.all([
       createMultilangText(title),
       createMultilangText(message),
     ]);
 
+    const relatedObjectId =
+      relatedId && mongoose.Types.ObjectId.isValid(relatedId)
+        ? new mongoose.Types.ObjectId(relatedId)
+        : undefined;
+
     const notification = await Notification.create({
       user_id: new mongoose.Types.ObjectId(userId),
       title: titleMultilang,
       message: messageMultilang,
       type,
-      related_id: relatedId ? new mongoose.Types.ObjectId(relatedId) : undefined,
+      related_id: relatedObjectId,
       action_url: actionUrl,
+      meta,
       is_read: false,
     });
 
@@ -60,7 +67,7 @@ export const notificationService = {
       Notification.countDocuments(query),
     ]);
 
-    const data = notifications.map(n => ({
+    const data = notifications.map((n) => ({
       ...n,
       title: n.title?.[lang] ?? n.title?.vi ?? "",
       message: n.message?.[lang] ?? n.message?.vi ?? "",
