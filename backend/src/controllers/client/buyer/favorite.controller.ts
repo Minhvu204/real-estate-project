@@ -5,43 +5,29 @@ import { successResponse, errorResponse } from "../../../utils/responseHandler";
 
 interface AuthenticatedRequest extends Request {
   user?: {
-    id?: string;
-    _id?: string;
-    role?: string;
+    id: string;
+    role: string;
   };
 }
 
 export const addFavorite = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    const buyerId = req.user?.id || req.user?._id;
-    if (!buyerId) {
-      return errorResponse(req, res, "Không xác thực được người dùng", 401);
-    }
+    const userId = req.user?.id;
+    const { property_id } = req.body;
 
-    const { property_id } = req.body || {};
     if (!property_id) {
-      return errorResponse(req, res, "Thiếu property_id", 400);
+      return errorResponse(req, res, "Vui lòng truyền property_id", 400);
     }
 
-    const favorite = await favoriteService.addFavorite(
-      String(buyerId),
-      String(property_id)
-    );
-
+    const data = await favoriteService.addFavorite(userId!, property_id);
     return successResponse(
       req,
       res,
       "Thêm vào danh sách yêu thích thành công",
-      favorite
+      data
     );
-  } catch (error: any) {
-    const statusCode = error?.status || 500;
-    return errorResponse(
-      req,
-      res,
-      error.message || "Không thể thêm vào danh sách yêu thích",
-      statusCode
-    );
+  } catch (err: any) {
+    return errorResponse(req, res, err.message, err.status || 500);
   }
 };
 
@@ -50,32 +36,13 @@ export const removeFavorite = async (
   res: Response
 ) => {
   try {
-    const buyerId = req.user?.id || req.user?._id;
-    if (!buyerId) {
-      return errorResponse(req, res, "Không xác thực được người dùng", 401);
-    }
-
+    const userId = req.user?.id;
     const { propertyId } = req.params;
-    if (!propertyId) {
-      return errorResponse(req, res, "Property ID không hợp lệ", 400);
-    }
 
-    await favoriteService.removeFavorite(String(buyerId), String(propertyId));
-
-    return successResponse(
-      req,
-      res,
-      "Xóa khỏi danh sách yêu thích thành công",
-      null
-    );
-  } catch (error: any) {
-    const statusCode = error?.status || 500;
-    return errorResponse(
-      req,
-      res,
-      error.message || "Không thể xóa khỏi danh sách yêu thích",
-      statusCode
-    );
+    const data = await favoriteService.removeFavorite(userId!, propertyId);
+    return successResponse(req, res, "Xóa yêu thích thành công", data);
+  } catch (err: any) {
+    return errorResponse(req, res, err.message, err.status || 500);
   }
 };
 
@@ -84,34 +51,21 @@ export const getMyFavorites = async (
   res: Response
 ) => {
   try {
-    const buyerId = req.user?.id || req.user?._id;
-    if (!buyerId) {
-      return errorResponse(req, res, "Không xác thực được người dùng", 401);
-    }
+    const userId = req.user?.id;
+    const { sort } = req.query;
 
-    const { page, limit, sort } = req.query || {};
-
-    const filters: any = {};
-    if (page) filters.page = Number(page);
-    if (limit) filters.limit = Number(limit);
-    if (sort) filters.sort = String(sort);
-
-    const result = await favoriteService.getFavorites(String(buyerId), filters);
+    const data = await favoriteService.getFavorites(userId!, {
+      sort: sort ? String(sort) : undefined,
+    });
 
     return successResponse(
       req,
       res,
-      "Lấy danh sách bất động sản yêu thích thành công",
-      result
+      "Lấy danh sách yêu thích thành công",
+      data
     );
-  } catch (error: any) {
-    const statusCode = error?.status || 500;
-    return errorResponse(
-      req,
-      res,
-      error.message || "Không thể lấy danh sách yêu thích",
-      statusCode
-    );
+  } catch (err: any) {
+    return errorResponse(req, res, err.message, err.status || 500);
   }
 };
 
@@ -120,36 +74,16 @@ export const checkFavorite = async (
   res: Response
 ) => {
   try {
-    const buyerId = req.user?.id || req.user?._id;
-
+    const userId = req.user?.id;
     const { propertyId } = req.params;
-    if (!propertyId) {
-      return errorResponse(req, res, "Property ID không hợp lệ", 400);
-    }
 
-    if (!buyerId) {
-      return successResponse(req, res, "Trạng thái yêu thích", {
-        isFavorite: false,
-        favorite: null,
-      });
-    }
-
-    const favorite = await favoriteService.isFavorite(
-      String(buyerId),
-      String(propertyId)
-    );
+    const favorite = await favoriteService.isFavorite(userId!, propertyId);
 
     return successResponse(req, res, "Trạng thái yêu thích", {
       isFavorite: !!favorite,
       favorite,
     });
-  } catch (error: any) {
-    const statusCode = error?.status || 500;
-    return errorResponse(
-      req,
-      res,
-      error.message || "Không thể kiểm tra trạng thái yêu thích",
-      statusCode
-    );
+  } catch (err: any) {
+    return errorResponse(req, res, err.message, err.status || 500);
   }
 };

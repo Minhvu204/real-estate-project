@@ -4,8 +4,6 @@ import Favorite from "../models/favorite.model";
 import Property from "../models/property.model";
 
 interface FavoriteFilters {
-  page?: number;
-  limit?: number;
   sort?: string;
 }
 
@@ -76,49 +74,37 @@ export const favoriteService = {
   },
 
   async getFavorites(userId: string, filters: FavoriteFilters) {
-    const page = filters.page && filters.page > 0 ? filters.page : 1;
-    const limit = filters.limit && filters.limit > 0 ? filters.limit : 10;
     const sort = filters.sort || "-createdAt";
 
     const query = { user_id: userId };
 
-    const [total, favorites] = await Promise.all([
-      Favorite.countDocuments(query),
-      Favorite.find(query)
-        .populate({
-          path: "property_id",
-          model: "Property",
-          select: [
-            "title",
-            "price",
-            "images",
-            "address",
-            "city_id",
-            "district_id",
-            "ward_id",
-            "status",
-            "deleted",
-          ].join(" "),
-          populate: [
-            { path: "city_id", select: "name" },
-            { path: "district_id", select: "name" },
-            { path: "ward_id", select: "name" },
-          ],
-        })
-        .sort(sort)
-        .skip((page - 1) * limit)
-        .limit(limit),
-    ]);
+    const favorites = await Favorite.find(query)
+      .populate({
+        path: "property_id",
+        model: "Property",
+        select: [
+          "title",
+          "price",
+          "images",
+          "address",
+          "city_id",
+          "district_id",
+          "ward_id",
+          "status",
+          "deleted",
+        ].join(" "),
+        populate: [
+          { path: "city_id", select: "name" },
+          { path: "district_id", select: "name" },
+          { path: "ward_id", select: "name" },
+        ],
+      })
+      .sort(sort);
 
-    const totalPages = Math.ceil(total / limit);
+    const total = favorites.length;
 
     return {
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages,
-      },
+      total,
       data: favorites,
     };
   },
