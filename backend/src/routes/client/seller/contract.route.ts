@@ -8,7 +8,7 @@ import {
   replaceContract,
   getContractByDeal,
   deleteContract,
-} from "../../../controllers/client/agent/contract.controller";
+} from "../../../controllers/client/seller/contract.controller";
 
 const router = express.Router();
 const multerUpload = multer({ storage: multer.memoryStorage() });
@@ -16,14 +16,14 @@ const multerUpload = multer({ storage: multer.memoryStorage() });
 router.get(
   "/deals/:dealId",
   verifyToken,
-  roleCheck("agent"),
+  roleCheck("seller"),
   getContractByDeal
 );
 
 router.post(
   "/deals/:dealId",
   verifyToken,
-  roleCheck("agent"),
+  roleCheck("seller"),
   multerUpload.single("file"),
   uploadToCloudinary,
   uploadContract
@@ -32,7 +32,7 @@ router.post(
 router.put(
   "/deals/:dealId",
   verifyToken,
-  roleCheck("agent"),
+  roleCheck("seller"),
   multerUpload.single("file"),
   uploadToCloudinary,
   replaceContract
@@ -41,9 +41,8 @@ router.put(
 router.delete(
   "/deals/:dealId",
   verifyToken,
-  roleCheck("agent"),
+  roleCheck("seller"),
   deleteContract
 );
 
 export default router;
-
