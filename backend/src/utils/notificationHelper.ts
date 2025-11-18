@@ -1,6 +1,5 @@
 import { notificationService, CreateNotificationParams } from "../services/notification.service";
 import { NotificationType } from "../models/notification.model";
-import { ContractUploaderRole } from "../models/contract.model";
 import { emitNotification } from "../socket/socket";
 
 
@@ -12,7 +11,6 @@ export async function createNotification(
     type?: NotificationType;
     relatedId?: string;
     actionUrl?: string;
-    meta?: Record<string, any>;
   }
 ) {
   try {
@@ -23,7 +21,6 @@ export async function createNotification(
       type: options?.type || "system",
       relatedId: options?.relatedId,
       actionUrl: options?.actionUrl,
-      meta: options?.meta,
     });
 
     if (notification) {
@@ -132,6 +129,7 @@ export async function notifyAgentRemoved(
   );
 }
 
+
 export async function createNotificationsForUsers(
   userIds: string[],
   title: string,
@@ -140,7 +138,6 @@ export async function createNotificationsForUsers(
     type?: NotificationType;
     relatedId?: string;
     actionUrl?: string;
-    meta?: Record<string, any>;
   }
 ) {
   try {
@@ -206,25 +203,6 @@ export async function notifyNewOffer(
     agentId,
     "Offer mới",
     `${buyerName} đã đưa ra offer ${amount.toLocaleString()} VNĐ cho ${propertyTitle}`,
-    {
-      type: "offer",
-      relatedId: offerId,
-      actionUrl: `/offers/${offerId}`,
-    }
-  );
-}
-
-export async function notifySellerNewOffer(
-  sellerId: string,
-  buyerName: string,
-  propertyTitle: string,
-  amount: number,
-  offerId: string
-) {
-  return createNotification(
-    sellerId,
-    "Offer mới cho property của bạn",
-    `${buyerName} đã gửi offer ${amount.toLocaleString()} VNĐ cho ${propertyTitle}`,
     {
       type: "offer",
       relatedId: offerId,
@@ -404,43 +382,4 @@ export async function notifyDealCreated(
       actionUrl: `/deals/${dealId}`,
     }),
   ]);
-}
-
-export async function notifyContractUploaded(params: {
-  recipientIds: string[];
-  actorName: string;
-  actorRole: ContractUploaderRole;
-  propertyTitle: string;
-  dealId: string;
-  contractId: string;
-  action?: "uploaded" | "updated";
-}) {
-  const {
-    recipientIds,
-    actorName,
-    actorRole,
-    propertyTitle,
-    dealId,
-    contractId,
-    action = "uploaded",
-  } = params;
-
-  const isUpdate = action === "updated";
-  const title = isUpdate ? "Hợp đồng được cập nhật" : "Hợp đồng mới";
-  const actionVerb = isUpdate ? "đã cập nhật" : "đã tải lên";
-  const message = `${actorName} (${actorRole}) ${actionVerb} hợp đồng cho ${propertyTitle}`;
-  const actionUrl = `/deals/${dealId}/contract`;
-
-  await createNotificationsForUsers(recipientIds, title, message, {
-    type: "contract",
-    relatedId: contractId,
-    actionUrl,
-    meta: {
-      dealId,
-      contractId,
-      propertyTitle,
-      actorRole,
-      action,
-    },
-  });
 }
