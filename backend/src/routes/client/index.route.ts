@@ -5,7 +5,6 @@ import buyerRoutes from "./buyer/index.route";
 import sellerRoutes from "./seller/index.route";
 import agentRoutes from "./agent/index.route";
 import common from "./common/index.route";
-import propertyRoutes from "./property.route";
 
 const router = express.Router();
 router.use("/auth", authRoutes);
@@ -13,6 +12,5 @@ router.use("/buyer", buyerRoutes);
 router.use("/seller", sellerRoutes);
 router.use("/agent", agentRoutes);
 router.use("/", common);
-router.use("/properties", propertyRoutes);
 
 export default router;

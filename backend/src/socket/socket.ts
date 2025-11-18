@@ -105,7 +105,7 @@ export function setupSocketIO(io: Server) {
     // Join room theo userId để có thể gửi notification trực tiếp
     socket.join(`user:${userId}`);
 
-    // ========== NOTIFICATION EVENTS ==========
+    // NOTIFICATION EVENTS 
 
     // Event: Client yêu cầu unread count khi connect
     socket.on("get_unread_count", async () => {

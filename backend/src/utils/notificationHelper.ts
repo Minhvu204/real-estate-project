@@ -1,6 +1,5 @@
 import { notificationService, CreateNotificationParams } from "../services/notification.service";
 import { NotificationType } from "../models/notification.model";
-import { ContractUploaderRole } from "../models/contract.model";
 import { emitNotification } from "../socket/socket";
 
 
@@ -12,7 +11,6 @@ export async function createNotification(
     type?: NotificationType;
     relatedId?: string;
     actionUrl?: string;
-    meta?: Record<string, any>;
   }
 ) {
   try {
@@ -23,7 +21,6 @@ export async function createNotification(
       type: options?.type || "system",
       relatedId: options?.relatedId,
       actionUrl: options?.actionUrl,
-      meta: options?.meta,
     });
 
     if (notification) {
@@ -132,6 +129,7 @@ export async function notifyAgentRemoved(
   );
 }
 
+
 export async function createNotificationsForUsers(
   userIds: string[],
   title: string,
@@ -140,7 +138,6 @@ export async function createNotificationsForUsers(
     type?: NotificationType;
     relatedId?: string;
     actionUrl?: string;
-    meta?: Record<string, any>;
   }
 ) {
   try {
@@ -312,6 +309,7 @@ export async function notifyNewOffer(
   );
 }
 
+
 export async function notifySellerNewOffer(
   sellerId: string,
   buyerName: string,
@@ -330,6 +328,7 @@ export async function notifySellerNewOffer(
     }
   );
 }
+
 
 // Notification khi agent accept/reject offer
 export async function notifyOfferStatus(
@@ -504,41 +503,33 @@ export async function notifyDealCreated(
   ]);
 }
 
+// Notification khi Agent upload hoặc cập nhật hợp đồng
 export async function notifyContractUploaded(params: {
   recipientIds: string[];
   actorName: string;
-  actorRole: ContractUploaderRole;
+  actorRole: string;
   propertyTitle: string;
   dealId: string;
   contractId: string;
-  action?: "uploaded" | "updated";
+  action: "uploaded" | "updated";
 }) {
-  const {
+  const { recipientIds, actorName, propertyTitle, dealId, contractId, action } = params;
+
+  // Tùy chỉnh nội dung dựa trên hành động (upload mới hay cập nhật)
+  const actionText = action === "uploaded" ? "đã tải lên" : "đã cập nhật";
+  const title = action === "uploaded" ? "Hợp đồng mới" : "Hợp đồng được cập nhật";
+  
+  const message = `${actorName} ${actionText} hợp đồng cho giao dịch "${propertyTitle}"`;
+
+  // Gửi cho danh sách người nhận (thường là Buyer và Seller)
+  return createNotificationsForUsers(
     recipientIds,
-    actorName,
-    actorRole,
-    propertyTitle,
-    dealId,
-    contractId,
-    action = "uploaded",
-  } = params;
-
-  const isUpdate = action === "updated";
-  const title = isUpdate ? "Hợp đồng được cập nhật" : "Hợp đồng mới";
-  const actionVerb = isUpdate ? "đã cập nhật" : "đã tải lên";
-  const message = `${actorName} (${actorRole}) ${actionVerb} hợp đồng cho ${propertyTitle}`;
-  const actionUrl = `/deals/${dealId}/contract`;
-
-  await createNotificationsForUsers(recipientIds, title, message, {
-    type: "contract",
-    relatedId: contractId,
-    actionUrl,
-    meta: {
-      dealId,
-      contractId,
-      propertyTitle,
-      actorRole,
-      action,
-    },
-  });
+    title,
+    message,
+    {
+      type: "contract", // Đảm bảo 'contract' có trong NotificationType (bạn đã có rồi)
+      relatedId: contractId,
+      actionUrl: `/deals/${dealId}`, // Link dẫn về trang chi tiết Deal để xem hợp đồng
+    }
+  );
 }
