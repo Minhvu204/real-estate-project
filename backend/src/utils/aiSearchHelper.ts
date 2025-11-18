@@ -153,6 +153,7 @@ export const aiSearchHelper = {
     return await callLargeLanguageModel(message);
   },
 
+  // AI tạo mô tả bất động sản
   async generateDescription(
     data: any,
     lang: "vi" | "en"
