@@ -9,9 +9,18 @@ import {
   getContractByDeal,
   deleteContract,
 } from "../../../controllers/client/seller/contract.controller";
+import { getAllContracts } from "../../../controllers/client/seller/contract.controller";
 
 const router = express.Router();
 const multerUpload = multer({ storage: multer.memoryStorage() });
+
+router.get(
+  "/deals/:dealId/list",
+  verifyToken,
+  roleCheck("seller"),
+  getAllContracts
+);
+
 
 router.get(
   "/deals/:dealId",
@@ -38,7 +47,7 @@ router.put(
   replaceContract
 );
 
-router.delete(
+router.patch(
   "/deals/:dealId/contracts/:contractId",
   verifyToken,
   roleCheck("seller"),

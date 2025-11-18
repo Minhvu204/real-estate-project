@@ -234,3 +234,26 @@ export const deleteContract = async (req: Request, res: Response) => {
     return errorResponse(req, res, error.message || "Xóa hợp đồng thất bại", status);
   }
 };
+
+
+// Lấy danh sách tất cả hợp đồng của Deal (chưa bị xóa)
+export const getAllContracts = async (req: Request, res: Response) => {
+  try {
+    const agentId = getUserIdFromRequest(req);
+    const { dealId } = req.params;
+
+    if (!agentId) {
+      return errorResponse(req, res, "Không xác định người dùng", 401);
+    }
+
+    await ensureDealForSeller(dealId, agentId);
+
+    const contracts = await contractService.getHistoryByDeal(dealId);
+
+    return successResponse(req, res, "Lấy danh sách hợp đồng thành công", contracts);
+  } catch (error: any) {
+    console.error("getAllContracts error:", error);
+    const status = error?.status || 500;
+    return errorResponse(req, res, error.message || "Lấy danh sách thất bại", status);
+  }
+};
