@@ -55,7 +55,17 @@ export const contractAdminService = {
     return Contract.findOne({ _id: toObjectId(id), deleted: { $ne: true } })
       .populate("deal_id")
       .populate("uploaded_by", "fullName email role")
-      .populate("approved_by", "fullName email");
+      .populate("approved_by", "fullName email")
+      .populate({
+        path: "deal_id",
+        select: "buyer_id seller_id agent_id property_id amounts status", 
+        populate: [
+          { path: "buyer_id", select: "fullName email phone avatar" },
+          { path: "seller_id", select: "fullName email phone avatar" },
+          { path: "agent_id", select: "fullName email phone avatar" },
+          { path: "property_id", select: "title address" } 
+        ]
+      });
   },
 
   async approveContract(id: string, adminId: string, adminName: string) {
