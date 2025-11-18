@@ -11,19 +11,19 @@ import api from "./api";
 
 export const contractApi = {
     getContracts: (dealId: string, history = false) =>
-        api.get(`/api/client/agent/deals/${dealId}/contract`, {
+        api.get(`/api/client/agent/contracts/deals/${dealId}`, {
             params: { history: history ? "true" : undefined },
         }),
 
     uploadOrReplaceContract: (dealId: string, data: FormData, hasExisting: boolean, token: string) =>
         hasExisting
-            ? api.put(`/api/client/agent/deals/${dealId}/contract`, data, {
+            ? api.put(`/api/client/agent/contracts/deals/${dealId}`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "multipart/form-data",
                 },
             })
-            : api.post(`/api/client/agent/deals/${dealId}/contract`, data, {
+            : api.post(`/api/client/agent/contracts/deals/${dealId}`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "multipart/form-data",
@@ -31,7 +31,7 @@ export const contractApi = {
             }),
 
     deleteContract: (dealId: string, token: string) =>
-        api.delete(`/api/client/agent/deals/${dealId}/contract`, {
+        api.delete(`/api/client/agent/contracts/deals/${dealId}`, {
             headers: { Authorization: `Bearer ${token}` },
         }),
 };

@@ -7,7 +7,7 @@ export const AgentRoute = [
         children: [
             { path: "my-properties", element: <MyPropertiesPage /> },
             { path: "my-properties/:id", element: <MyPropertiesPage /> },
-            { path: "deals/:dealId/contracts", element: <DealContractPage /> }
+            { path: "contracts/deals/:dealId", element: <DealContractPage /> }
         ],
     },
 ];

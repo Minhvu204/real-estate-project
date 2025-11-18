@@ -15,7 +15,9 @@ export const ContractList: React.FC<Props> = ({ dealId, token }) => {
     const fetchContracts = async () => {
         try {
             const res = await contractApi.getContracts(dealId, true);
-            setContracts(res.data.data || []);
+            setContracts(res.data.data);
+            console.log(res.data.data);
+
         } catch (err) {
             console.error(err);
         }
@@ -58,7 +60,7 @@ export const ContractList: React.FC<Props> = ({ dealId, token }) => {
                 dealId={dealId}
                 token={token}
                 onUploaded={fetchContracts}
-                existingContracts={contracts} // ✅ truyền danh sách hợp đồng
+                existingContracts={contracts} //truyền danh sách hợp đồng
             />
         </Box>
     );
