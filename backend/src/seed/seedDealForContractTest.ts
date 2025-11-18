@@ -31,12 +31,12 @@ async function ensureProperty(titleEn: string, sellerId: mongoose.Types.ObjectId
   if (property) return property;
 
   property = await Property.create({
-    title: { vi: "Nhà test hợp đồng", en: titleEn },
+    title: { vi: "Nhà test hợp đồng 2", en: titleEn },
     description: {
       vi: "BĐS dùng cho test upload hợp đồng (U022).",
       en: "Property for contract upload testing (U022).",
     },
-    price: 2500000000,
+    price: 3500000000,
     address: { vi: "Số 1 Test, Quận 1, HCM", en: "1 Test St, District 1, HCMC" },
     bedrooms: 2,
     bathrooms: 2,
@@ -64,9 +64,9 @@ async function run() {
     console.log("✅ Connected");
 
     // Ensure users
-    const buyer = await ensureUser("buyer.contract.test@example.com", "Buyer Contract Test", "buyer");
-    const seller = await ensureUser("seller.contract.test@example.com", "Seller Contract Test", "seller");
-    const agent = await ensureUser("agent.contract.test@example.com", "Agent Contract Test", "agent");
+    const buyer = await ensureUser("buyer1.contract.test@example.com", "Buyer Contract Test", "buyer");
+    const seller = await ensureUser("seller1.contract.test@example.com", "Seller Contract Test", "seller");
+    const agent = await ensureUser("agent1.contract.test@example.com", "Agent Contract Test", "agent");
 
         // Ensure property (with seller/agent)
         const property = await ensureProperty("Contract Test Property", seller._id as mongoose.Types.ObjectId, agent._id as mongoose.Types.ObjectId);
@@ -75,7 +75,7 @@ async function run() {
     const offer = await Offer.create({
       property_id: property._id,
       buyer_id: buyer._id,
-      amount: 2000000000,
+      amount: 3000000000,
       status: "accepted",
     });
 
@@ -88,11 +88,11 @@ async function run() {
       agent_id: agent._id,
       status: "awaiting_contract",
       amounts: {
-        agreed_price: 2000000000,
+        agreed_price: 3000000000,
         currency: "VND",
         platform_fee: 10000000,
         agent_fee: 20000000,
-        seller_payout: 2000000000 - 10000000 - 20000000,
+        seller_payout: 3000000000 - 10000000 - 20000000,
       },
       audit: {
         created_from_offer_at: new Date(),

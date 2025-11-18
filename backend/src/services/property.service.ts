@@ -345,7 +345,6 @@ export const propertyService = {
       ...rest
     } = data;
 
-    // Validate taxonomy IDs (Code của bạn đã đúng)
     const [city, district, ward, category, type] = await Promise.all([
       City.findById(city_id).lean(),
       District.findById(district_id).lean(),
@@ -357,7 +356,6 @@ export const propertyService = {
       throw Object.assign(new Error("Dữ liệu taxonomy không hợp lệ"), { status: 400 });
     }
 
-    // Validate features (Code của bạn đã đúng)
     if (features.length > 0) {
       const count = await Feature.countDocuments({ _id: { $in: features } });
       if (count !== features.length) {
@@ -365,7 +363,6 @@ export const propertyService = {
       }
     }
 
-    // Convert đa ngôn ngữ (Code của bạn đã đúng)
     const [titleMultilang, descriptionMultilang, addressMultilang] = await Promise.all([
       createMultilangText(title || ""),
       description ? createMultilangText(description) : Promise.resolve({ vi: "", en: "" }),
@@ -373,20 +370,16 @@ export const propertyService = {
     ]);
 
 
-    // <<< PHẦN SỬA LỖI BẮT ĐẦU TỪ ĐÂY >>>
 
-    // 1. Đổi tên biến để rõ ràng
     let finalCoordinates: { type: 'Point', coordinates: number[] } | undefined = undefined;
 
     try {
-      // 2. Build chuỗi địa chỉ đầy đủ (Code của bạn đã đúng)
       const fullAddressString = `${address}, ${ward.ward_name.vi}, ${district.district_name.vi}, ${city.city_name.vi}`;
       console.log(`[Geocoding] Đang tìm: ${fullAddressString}`);
 
-      // 3. Gọi helper (Code của bạn đã đúng)
       const location = await geocodeAddress(fullAddressString); // (trả về { lat, lng })
 
-      // 4. Chuyển đổi sang format GeoJSON [lng, lat]
+      // Chuyển đổi sang format GeoJSON [lng, lat]
       if (location) {
         finalCoordinates = {
           type: 'Point',
@@ -415,12 +408,9 @@ export const propertyService = {
       owner_id: new mongoose.Types.ObjectId(ownerId),
       status: "pending",
       deleted: false,
-      coordinates: finalCoordinates, // 5. Gán object đã format (hoặc undefined)
+      coordinates: finalCoordinates,
     });
 
-    // <<< KẾT THÚC PHẦN SỬA LỖI >>>
-
-    // Nếu có agent_id => tạo request gán agent (Code của bạn đã đúng)
     if (agent_id) {
       await assignmentService.createRequest((property._id as mongoose.Types.ObjectId).toString(), agent_id, ownerId);
     }
