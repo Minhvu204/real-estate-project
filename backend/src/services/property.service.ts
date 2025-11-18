@@ -293,41 +293,6 @@ export const propertyService = {
     return list;
   },
 
-  async getPropertiesByUser(userId: string, filters: any = {}) {
-    const { status, keyword } = filters;
-    
-    // Lấy properties mà user là owner HOẶC agent
-    const query: any = {
-      $or: [
-        { owner_id: userId },
-        { agent_id: userId }
-      ],
-      deleted: false,
-    };
-
-    if (status) query.status = status;
-    if (keyword) {
-      query.$or = [
-        { "title.vi": { $regex: keyword, $options: "i" } },
-        { "title.en": { $regex: keyword, $options: "i" } },
-        { "address.vi": { $regex: keyword, $options: "i" } },
-        { "address.en": { $regex: keyword, $options: "i" } },
-      ];
-    }
-
-    const list = await Property.find(query)
-      .populate("city_id", "city_name")
-      .populate("category_id", "category_name")
-      .populate("type_id", "type_name")
-      .populate("owner_id", "fullName email phone avatar")
-      .populate("agent_id", "fullName email phone avatar")
-      .populate("features", "feature_name")
-      .sort({ createdAt: -1 })
-      .lean();
-
-    return list;
-  },
-
   async createProperty(data: any, ownerId: string) {
     const {
       city_id,
