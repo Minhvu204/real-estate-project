@@ -84,7 +84,6 @@ export const deleteProperty = async (id: string): Promise<void> => {
   await api.delete(RESOURCE);
 };
 
-
 export const getDetailPropertiesById = async (
   id: string
 ): Promise<Property> => {
@@ -131,8 +130,6 @@ export const updateStatus = async (
     );
   }
 };
-
-
 
 export const getAllFeatures = async (): Promise<Feature[]> => {
   const response = await httpClient.get(`${SELLER_RESOURCE}/taxonomies`);
@@ -197,6 +194,6 @@ export const createProperty = async (
       formData.append('images', file);
     }
   });
-  const response = await httpClient.post(`${SELLER_RESOURCE}/properties/create`, formData,);
+  const response = await httpClient.post(`${SELLER_RESOURCE}/properties/create`, formData);
   return response.data.data;
 };

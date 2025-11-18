@@ -40,7 +40,9 @@ const SearchPage = () => {
     const [page, setPage] = useState(1);
     const itemsPerPage = 6;
     const [mapView, setMapView] = useState(false);
-
+    const slug = (str: string) =>
+        str.toLowerCase().trim().replace(/\s+/g, "-");
+    const typeSlug = type.toLowerCase();
     useEffect(() => {
         setSearchInput(query);
     }, [query]);
@@ -94,7 +96,10 @@ const SearchPage = () => {
             const matchesPrice = (minPrice === '' || p.price >= minPrice) && (maxPrice === '' || p.price <= maxPrice);
             const matchesBed = bedrooms === '' || p.bedrooms >= bedrooms;
             const matchesBath = bathrooms === '' || p.bathrooms >= bathrooms;
-            const matchesStatus = !type || p.type_id?.type_name?.[currentLanguage] && p.type_id?.type_name[currentLanguage].toLowerCase().trim() === type.toLowerCase().trim();
+            const matchesStatus =
+                !type ||
+                (p.type_id?.type_name?.en &&
+                    slug(p.type_id.type_name.en) === typeSlug);
             return matchesPrice && matchesBed && matchesBath && matchesStatus && matchesQuery;
         })
         if (sortBy === 'priceAsc') result = [...result].sort((a, b) => a.price - b.price);

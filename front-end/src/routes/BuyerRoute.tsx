@@ -8,6 +8,8 @@ import { ChangePassword } from "../pages/Profile/ChangePassword";
 import ChatPage from "@/pages/Chat/ChatPage";
 import PropertyDetailUser from "../pages/PropertyDetail";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
+import { Favorite } from "@mui/icons-material";
+import FavoritePage from "@/pages/Favorite/FavoritePage";
 
 export const BuyerRoute = [
     {
@@ -47,12 +49,16 @@ export const BuyerRoute = [
     {
         path: "/my-properties",
         element: <MyPropertiesPage />,
-    },    {
+    }, {
         path: "/chat",
         element: <ChatPage />,
         children: [
 
         ]
+    },
+    {
+        path: "/favorites",
+        element: <FavoritePage />
     },
 
 ];
