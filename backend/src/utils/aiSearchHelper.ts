@@ -51,7 +51,6 @@ async function callLargeLanguageModel(
       contents: prompt,
     });
 
-    // ⚠️ Đây mới là cách đúng: .text là getter property
     const rawText = response.text;
 
     const cleanJson = String(rawText).replace(/```json/g, "").replace(/```/g, "").trim();
@@ -65,7 +64,6 @@ async function callLargeLanguageModel(
   }
 }
 
-// Hàm tạo AI mô tả bất động sản
 async function callGeneratorModel(
   data: any,
   lang: "vi" | "en"
@@ -73,7 +71,6 @@ async function callGeneratorModel(
   console.log(`[AI] Đang tạo mô tả...`);
   const langText = lang === "vi" ? "Tiếng Việt" : "Tiếng Anh";
 
-  //Xây dựng chuỗi thông tin chi tiết từ req.body
   const {
     title,
     price,
@@ -144,7 +141,7 @@ async function callGeneratorModel(
 
   } catch (err: any) {
     console.error("Lỗi gọi Gemini (Generate Description):", err.message);
-    return ""; // Trả về rỗng nếu lỗi
+    return ""; 
   }
 }
 
