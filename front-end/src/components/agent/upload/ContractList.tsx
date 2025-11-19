@@ -27,10 +27,10 @@ export const ContractList: React.FC<Props> = ({ dealId, token }) => {
         fetchContracts();
     }, [dealId]);
 
-    const handleDelete = async (id: string) => {
+    const handleDelete = async (contractId: string) => {
         if (!confirm("Bạn có chắc muốn xóa hợp đồng này?")) return;
         try {
-            await contractApi.deleteContract(dealId, token);
+            await contractApi.deleteContract(dealId, token, contractId);
             fetchContracts();
         } catch (err) {
             console.error(err);

@@ -211,21 +211,49 @@ export const getContractByDeal = async (req: Request, res: Response) => {
 
 export const deleteContract = async (req: Request, res: Response) => {
   try {
-    const sellerId = getUserIdFromRequest(req);
+    const agentId = getUserIdFromRequest(req);
+    
+    const { dealId, contractId } = req.params;
+
+    if (!agentId) {
+      return errorResponse(req, res, "Không xác định người dùng", 401);
+    }
+    
+    if (!contractId) {
+        return errorResponse(req, res, "Thiếu ID hợp đồng", 400);
+    }
+
+    await ensureDealForSeller(dealId, agentId);
+
+    await contractService.deleteContractById(contractId, dealId);
+
+    return successResponse(req, res, "Xóa hợp đồng thành công", { deleted: true, id: contractId });
+  } catch (error: any) {
+    console.error("deleteContract error:", error);
+    const status = error?.status || 500;
+    return errorResponse(req, res, error.message || "Xóa hợp đồng thất bại", status);
+  }
+};
+
+
+// Lấy danh sách tất cả hợp đồng của Deal (chưa bị xóa)
+export const getAllContracts = async (req: Request, res: Response) => {
+  try {
+    const agentId = getUserIdFromRequest(req);
     const { dealId } = req.params;
 
-    if (!sellerId) {
+    if (!agentId) {
       return errorResponse(req, res, "Không xác định người dùng", 401);
     }
 
-    await ensureDealForSeller(dealId, sellerId);
+    await ensureDealForSeller(dealId, agentId);
 
-    await contractService.deleteLatestByDeal(dealId);
+    const contracts = await contractService.getHistoryByDeal(dealId);
 
-    return successResponse(req, res, "Xóa hợp đồng thành công", { deleted: true });
+    return successResponse(req, res, "Lấy danh sách hợp đồng thành công", contracts);
   } catch (error: any) {
-    console.error("seller.deleteContract error:", error);
+    console.error("getAllContracts error:", error);
     const status = error?.status || 500;
-    return errorResponse(req, res, error.message || "Xóa hợp đồng thất bại", status);
+    return errorResponse(req, res, error.message || "Lấy danh sách thất bại", status);
   }
 };

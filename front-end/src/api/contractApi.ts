@@ -11,7 +11,7 @@ import api from "./api";
 
 export const contractApi = {
     getContracts: (dealId: string, history = false) =>
-        api.get(`/api/client/agent/contracts/deals/${dealId}`, {
+        api.get(`/api/client/agent/contracts/deals/${dealId}/list`, {
             params: { history: history ? "true" : undefined },
         }),
 
@@ -30,8 +30,8 @@ export const contractApi = {
                 },
             }),
 
-    deleteContract: (dealId: string, token: string) =>
-        api.delete(`/api/client/agent/contracts/deals/${dealId}`, {
+    deleteContract: (dealId: string, token: string, contractId: String) =>
+        api.patch(`/api/client/agent/contracts/deals/${dealId}/contracts/${contractId}`, {
             headers: { Authorization: `Bearer ${token}` },
         }),
 };

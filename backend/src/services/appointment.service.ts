@@ -6,6 +6,8 @@ import {
   notifyNewAppointment,
   notifySellerNewAppointment,
   notifyAppointmentCancelled,
+  notifyAppointmentStatusToBuyerAndSeller,
+  notifyAppointmentCompleted,
 } from "../utils/notificationHelper";
 
 interface CreateAppointmentParams {
@@ -21,6 +23,15 @@ interface BuyerAppointmentFilters {
   limit?: number;
   status?: AppointmentStatus;
   property_id?: string;
+}
+
+interface AgentAppointmentFilters {
+  page?: number;
+  limit?: number;
+  status?: AppointmentStatus;
+  property_id?: string;
+  startDate?: string | Date;
+  endDate?: string | Date;
 }
 
 function ensureValidObjectId(id: string, message: string) {
@@ -217,6 +228,233 @@ export const appointmentService = {
     }
 
     return populatedAppointment;
+  },
+
+  async getAppointmentsByAgent(
+    agentId: string,
+    filters: AgentAppointmentFilters = {}
+  ) {
+    ensureValidObjectId(agentId, "Agent ID không hợp lệ");
+
+    const { page = 1, limit = 10, status, property_id, startDate, endDate } = filters;
+    const pageNum = Number(page) > 0 ? Number(page) : 1;
+    const limitNum = Number(limit) > 0 ? Number(limit) : 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    const query: Record<string, any> = {
+      agent_id: new mongoose.Types.ObjectId(agentId),
+    };
+
+    if (status) {
+      query.status = status;
+    }
+
+    if (property_id) {
+      ensureValidObjectId(property_id, "Property ID không hợp lệ");
+      query.property_id = new mongoose.Types.ObjectId(property_id);
+    }
+
+    if (startDate || endDate) {
+      query.time = {};
+      if (startDate) {
+        query.time.$gte = new Date(startDate);
+      }
+      if (endDate) {
+        query.time.$lte = new Date(endDate);
+      }
+    }
+
+    const [items, total] = await Promise.all([
+      Appointment.find(query)
+        .sort({ time: 1 })
+        .skip(skip)
+        .limit(limitNum)
+        .populate("property_id", "title images price address status")
+        .populate("buyer_id", "fullName email phone avatar")
+        .populate("seller_id", "fullName email phone avatar")
+        .lean(),
+      Appointment.countDocuments(query),
+    ]);
+
+    return {
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+      data: items,
+    };
+  },
+
+  async acceptAppointment(appointmentId: string, agentId: string) {
+    ensureValidObjectId(appointmentId, "Appointment ID không hợp lệ");
+    ensureValidObjectId(agentId, "Agent ID không hợp lệ");
+
+    const appointment = await Appointment.findOne({
+      _id: appointmentId,
+      agent_id: agentId,
+    });
+
+    if (!appointment) {
+      throw Object.assign(new Error("Lịch hẹn không tồn tại hoặc không thuộc quyền quản lý của bạn"), { status: 404 });
+    }
+
+    if (appointment.status !== "pending") {
+      throw Object.assign(
+        new Error("Chỉ có thể chấp nhận lịch hẹn đang ở trạng thái pending"),
+        { status: 400 }
+      );
+    }
+
+    appointment.status = "accepted";
+    await appointment.save();
+
+    const [populatedAppointment, agent, property] = await Promise.all([
+      appointment.populate([
+        { path: "property_id", select: "title" },
+        { path: "buyer_id", select: "fullName email phone avatar" },
+        { path: "seller_id", select: "fullName email phone avatar" },
+      ]),
+      User.findById(agentId).select("fullName").lean(),
+      Property.findById(appointment.property_id).select("title").lean(),
+    ]);
+
+    const agentName = agent?.fullName || "Agent";
+    const propertyTitle =
+      (property?.title as any)?.vi ||
+      (property?.title as any)?.en ||
+      "bất động sản";
+
+    try {
+      const appointmentIdStr = appointment.id;
+      await notifyAppointmentStatusToBuyerAndSeller(
+        appointment.buyer_id.toString(),
+        appointment.seller_id.toString(),
+        agentName,
+        propertyTitle,
+        "accepted",
+        appointmentIdStr
+      );
+    } catch (error) {
+      console.error("Failed to notify appointment acceptance:", error);
+    }
+
+    return populatedAppointment;
+  },
+
+  async rejectAppointment(appointmentId: string, agentId: string, reason?: string) {
+    ensureValidObjectId(appointmentId, "Appointment ID không hợp lệ");
+    ensureValidObjectId(agentId, "Agent ID không hợp lệ");
+
+    const appointment = await Appointment.findOne({
+      _id: appointmentId,
+      agent_id: agentId,
+    });
+
+    if (!appointment) {
+      throw Object.assign(new Error("Lịch hẹn không tồn tại hoặc không thuộc quyền quản lý của bạn"), { status: 404 });
+    }
+
+    if (appointment.status !== "pending") {
+      throw Object.assign(
+        new Error("Chỉ có thể từ chối lịch hẹn đang ở trạng thái pending"),
+        { status: 400 }
+      );
+    }
+
+    appointment.status = "rejected";
+    await appointment.save();
+
+    const [populatedAppointment, agent, property] = await Promise.all([
+      appointment.populate([
+        { path: "property_id", select: "title" },
+        { path: "buyer_id", select: "fullName email phone avatar" },
+        { path: "seller_id", select: "fullName email phone avatar" },
+      ]),
+      User.findById(agentId).select("fullName").lean(),
+      Property.findById(appointment.property_id).select("title").lean(),
+    ]);
+
+    const agentName = agent?.fullName || "Agent";
+    const propertyTitle =
+      (property?.title as any)?.vi ||
+      (property?.title as any)?.en ||
+      "bất động sản";
+
+    try {
+      const appointmentIdStr = appointment.id;
+      await notifyAppointmentStatusToBuyerAndSeller(
+        appointment.buyer_id.toString(),
+        appointment.seller_id.toString(),
+        agentName,
+        propertyTitle,
+        "rejected",
+        appointmentIdStr
+      );
+    } catch (error) {
+      console.error("Failed to notify appointment rejection:", error);
+    }
+
+    return populatedAppointment;
+  },
+  async completeAppointment(appointmentId: string, agentId: string) {
+    ensureValidObjectId(appointmentId, "Appointment ID không hợp lệ");
+    ensureValidObjectId(agentId, "Agent ID không hợp lệ");
+
+    const appointment = await Appointment.findOne({
+      _id: appointmentId,
+      agent_id: agentId,
+    });
+
+    if (!appointment) {
+      throw Object.assign(
+        new Error("Không tìm thấy lịch hẹn hoặc không thuộc quyền quản lý của bạn"),
+        { status: 404 }
+      );
+    }
+
+    if (appointment.status !== "accepted") {
+      throw Object.assign(
+        new Error("Chỉ có thể hoàn tất lịch hẹn ở trạng thái 'accepted'"),
+        { status: 400 }
+      );
+    }
+    if (appointment.time > new Date()) {
+      throw Object.assign(
+        new Error("Chưa thể hoàn tất lịch hẹn trước khi diễn ra"),
+        { status: 400 }
+      );
+    }
+    appointment.status = "completed";
+    await appointment.save();
+
+    const [agent, property] = await Promise.all([
+      User.findById(agentId).select("fullName").lean(),
+      Property.findById(appointment.property_id).select("title").lean(),
+    ]);
+
+    const agentName = agent?.fullName || "Agent";
+
+    const propertyTitle =
+      (property?.title as any)?.vi ||
+      (property?.title as any)?.en ||
+      "bất động sản";
+
+
+    try {
+      await notifyAppointmentCompleted(
+        appointment.buyer_id.toString(),
+        appointment.seller_id.toString(),
+        agentName,
+        propertyTitle,
+        appointment.id
+      );
+    } catch (error) {
+      console.error("Failed to notify appointment completion:", error);
+    }
+
+    return appointment;
   },
 };
 

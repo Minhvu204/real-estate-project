@@ -99,42 +99,34 @@ export const contractService = {
 
     return contract;
   },
-
-  async deleteLatestByDeal(dealId: string) {
-    if (!mongoose.Types.ObjectId.isValid(dealId)) {
-      const err: any = new Error("Invalid deal id");
+  async deleteContractById(contractId: string, dealId: string) {
+    if (!mongoose.Types.ObjectId.isValid(contractId) || !mongoose.Types.ObjectId.isValid(dealId)) {
+      const err: any = new Error("Invalid identifiers");
       err.status = 400;
       throw err;
     }
 
-    // Tìm contract mới nhất chưa bị xóa
-    const latest = await Contract.findOne({
+    const contract = await Contract.findOne({
+      _id: toObjectId(contractId),
       deal_id: toObjectId(dealId),
-      deleted: { $ne: true }
-    }).sort({ version: -1 });
+      deleted: { $ne: true } 
+    });
 
-    if (!latest) {
-      const err: any = new Error("No contract found for this deal");
+    if (!contract) {
+      const err: any = new Error("Hợp đồng không tồn tại hoặc đã bị xóa");
       err.status = 404;
       throw err;
     }
 
-    await Contract.deleteOne({ _id: latest._id });
+    // Soft delete (xóa mềm)
+    contract.deleted = true;
+    contract.deleted_at = new Date();
 
-    // // Tìm contract tiếp theo chưa bị xóa (nếu có)
-    // const nextContract = await Contract.findOne({
-    //   deal_id: toObjectId(dealId),
-    //   deleted: { $ne: true }
-    // }).sort({ version: -1 });
+    // contract.status = "rejected"; 
 
-    // // Nếu còn contract khác và đang bị "superseded", restore về "submitted"
-    // if (nextContract && nextContract.status === "superseded") {
-    //   nextContract.status = "submitted";
-    //   nextContract.replaced_at = undefined;
-    //   await nextContract.save();
-    // }
+    await contract.save();
 
-    return { deleted: true };
+    return { deleted: true, contractId: contract._id };
   },
 };
 
