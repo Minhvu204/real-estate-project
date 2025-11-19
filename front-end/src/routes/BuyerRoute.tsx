@@ -6,6 +6,9 @@ import { ProfileLayout } from "../pages/Profile/ProfileLayout";
 import { PersonalInfo } from "../pages/Profile/PersonalInfo";
 import { ChangePassword } from "../pages/Profile/ChangePassword";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
+import BuyerAppointment from "@/components/buyer/Appointment/BuyerAppointment";
+import ListAppointment from "@/components/buyer/Appointment/ListAppointment";
+
 
 export const BuyerRoute = [
     {
@@ -42,8 +45,13 @@ export const BuyerRoute = [
             },
         ],
     },
+
     {
-        path: "/my-properties",
+        path: "dwello/my-properties",
         element: <MyPropertiesPage />,
     },
+    {
+        path: "dwello/appoinments",
+        element: <ListAppointment />
+    }
 ];

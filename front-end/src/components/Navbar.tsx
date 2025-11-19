@@ -39,6 +39,7 @@ const Navbar: React.FC = () => {
         buyer: [
             { label: "My Properties", path: "/dwello/myProperties" },
             { label: "My Agent", path: "/dwello/myAgent" },
+            { label: "My appointments", path: 'dwello/appoinments' },
         ],
         seller: [
             { label: "My Properties", path: "/seller/properties" },
@@ -47,6 +48,7 @@ const Navbar: React.FC = () => {
         agent: [
             { label: "My Properties", path: "/agent/properties" },
             { label: "Manage Listings", path: "/agent/my-properties" },
+            {label: "Assignments", path: "/agent/assignments" }
         ],
 
     };
@@ -388,7 +390,7 @@ const Navbar: React.FC = () => {
                             ))}
                         </Box>
                     )}
-                    <ButtonLanguage />
+                    {/* <ButtonLanguage /> */}
                     {/* Right Side */}
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                         {!state.token ? (

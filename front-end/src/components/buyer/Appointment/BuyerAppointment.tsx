@@ -20,7 +20,7 @@ const BuyerAppointment = (
     { property, onClose }: BuyerAppointmentProps
 ) => {
 
-    const [currentDate, setCurrentDate] = useState(new Date());
+
     const today = new Date();
 
 
@@ -48,32 +48,17 @@ const BuyerAppointment = (
         const displayHour = hour > 12 ? hour - 12 : hour;
         timeSlots.push(`${displayHour}:00 ${suffix}`);
     }
-    const [selectedDate, setSelectedDate] = useState<Date | null>(addDays(new Date(), 1));
 
-
-    const handlePrev = (index: number) => {
-        const newSlots = [...slots];
-        newSlots[index].baseDate = addDays(newSlots[index].baseDate, -3);
-        newSlots[index].date = null;
-        setSlots(newSlots);
-    };
-    const handleNext = (index: number) => {
-        const newSlots = [...slots];
-        newSlots[index].baseDate = addDays(newSlots[index].baseDate, +3);
-        newSlots[index].date = null;
-        setSlots(newSlots);
-    };
 
 
     return (
         <div className="w-full h-full overflow-y-auto overflow-x-hidden p-4">
 
-            {/* HEADER */}
+
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-center flex-1">
                     Request a tour
                 </h2>
-
                 <button className="p-2" onClick={onClose}>
                     <CloseOutlinedIcon />
                 </button>
@@ -81,8 +66,8 @@ const BuyerAppointment = (
 
             <hr className="my-4" />
 
-            {/* IMAGE + INFO */}
-            <div className="flex gap-4 mb-6">
+
+            <div className="flex gap-4 sm:gap-5 mb-6">
                 <img
                     src={property.images[0] || "/defaultHome.png"}
                     className="w-32 h-24 rounded-lg object-cover"
@@ -97,7 +82,7 @@ const BuyerAppointment = (
                 </div>
             </div>
 
-            {/* TIP SECTION */}
+
             <div className="flex gap-3 items-start bg-blue-50 p-4 rounded-xl mb-6">
                 <TipsAndUpdatesOutlinedIcon className="text-blue-400" />
                 <p className="text-sm">
@@ -184,7 +169,7 @@ const BuyerAppointment = (
                             />
                         </div>
 
-                        {/* TIME DROPDOWN */}
+
                         <div className="w-full max-w-xs mx-auto">
                             <select
                                 className="w-full border rounded-lg p-3 text-sm"
@@ -202,27 +187,12 @@ const BuyerAppointment = (
                                 ))}
                             </select>
 
-                            {/* DELETE BUTTON */}
-                            {index > 0 && (
-                                <div className="flex justify-end mt-3">
-                                    <button
-                                        onClick={() => {
-                                            const updated = [...slots];
-                                            updated.splice(index, 1);
-                                            setSlots(updated);
-                                        }}
-                                        className="text-blue-600 hover:text-red-600 text-sm"
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
-                            )}
+
                         </div>
                     </div>
                 );
             })}
 
-            {/* ADD TIME */}
             {slots.length < 3 && (
                 <button
                     onClick={() =>

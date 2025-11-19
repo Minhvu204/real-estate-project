@@ -7,7 +7,7 @@ import BathtubIcon from "@mui/icons-material/Bathtub";
 import type { Property } from "../types/Property";
 import { useTranslation } from "react-i18next";
 import { getLanguage } from "../utils/storage";
-import type { Property } from "@/types/Property";
+
 import BuyerAppointment from "@/components/buyer/Appointment/BuyerAppointment";
 
 const PropertyDetailUser = () => {
@@ -57,7 +57,7 @@ const PropertyDetailUser = () => {
 
     return (
         <Container sx={{ mt: 1, mb: 1 }}>
-            {/* CAROUSEL */}r
+            {/* CAROUSEL */}
             {property.images && property.images.length > 0 && (
                 <Box
                     sx={{
@@ -186,9 +186,7 @@ const PropertyDetailUser = () => {
                     <Chip label={property.city_id?.city_name[lang]} />
                     <Chip label={property.category_id?.category_name[lang]} />
                     <Chip label={property.type_id?.type_name[lang]} />
-                    <Chip label={property.city_id?.city_name[lang]} />
-                    <Chip label={property.category_id?.category_name[lang]} />
-                    <Chip label={property.type_id?.type_name[lang]} />
+                 
                     <Chip label={property.status} color="success" />
                 </Stack>
 
@@ -307,7 +305,6 @@ const PropertyDetailUser = () => {
                 onClose={handleCloseTour}
                 fullScreen={isMobileSmall}
                 fullWidth
-                
 
 
             >

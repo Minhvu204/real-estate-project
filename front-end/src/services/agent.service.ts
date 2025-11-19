@@ -8,6 +8,8 @@ export const getAllAssignments = async (): Promise<AssignAgent[]> => {
     const res = await httpClient.get(`${RESOURCE}/assignments`);
     return res.data.data;
 }
+
+
 export const acceptAssignAgent = async (id: string) => {
     try {
         const response = await httpClient.patch(`${RESOURCE}/assignments/${id}/accept`);
