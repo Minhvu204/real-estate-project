@@ -148,7 +148,7 @@ const HomePage: React.FC = () => {
             {/*List property*/}
             <Box paddingY={10}>
                 <Grid container spacing={3}>
-                    {properties?.map((p) => (
+                    {properties?.filter((p) => p.status !== "pending").map((p) => (
                         <Grid size={{ xs: 12, md: 4, sm: 6 }} key={p._id}>
                             <Card
                                 component={Link}
