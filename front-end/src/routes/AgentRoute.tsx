@@ -1,3 +1,4 @@
+import DealListPage from "../pages/DealListPage";
 import DealContractPage from "../pages/DealContractPage";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
 
@@ -7,7 +8,8 @@ export const AgentRoute = [
         children: [
             { path: "my-properties", element: <MyPropertiesPage /> },
             { path: "my-properties/:id", element: <MyPropertiesPage /> },
-            { path: "contracts/deals/:dealId", element: <DealContractPage /> }
+            { path: "contracts/deals/:dealId", element: <DealContractPage /> },
+            { path: "deals/list", element: <DealListPage /> }
         ],
     },
 ];

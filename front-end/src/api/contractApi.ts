@@ -1,12 +1,3 @@
-export interface Contract {
-    _id: string;
-    file_url: string;
-    original_filename: string;
-    createdAt: string;
-    contract_type: string;
-    status: string;
-}
-
 import api from "./api";
 
 export const contractApi = {

@@ -47,6 +47,7 @@ const Navbar: React.FC = () => {
         agent: [
             { label: "My Properties", path: "/agent/properties" },
             { label: "Manage Listings", path: "/agent/my-properties" },
+            { label: "Deals - Contract", path: "/agent/deals/list" },
         ],
 
     };

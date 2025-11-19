@@ -11,8 +11,7 @@ const DealContractPage: React.FC = () => {
     if (!dealId) return <div>Không tìm thấy deal</div>;
 
     return (
-        <div style={{ padding: "20px" }}>
-            <h2>Quản lý hợp đồng cho deal: {dealId}</h2>
+        <div>
             <ContractList dealId={dealId} token={token} />
         </div>
     );

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Box, Button, TextField, Typography, MenuItem } from "@mui/material";
-import { contractApi, type Contract } from "../../../api/contractApi";
-
+import { contractApi } from "../../../api/contractApi";
+import type { Contract } from "../../../types/Contract";
 
 interface Props {
     open: boolean;
@@ -58,10 +58,8 @@ export const ContractUploaderModal: React.FC<Props> = ({
             return;
         }
 
-        // Kiểm tra hợp đồng cùng type đã tồn tại chưa
-        const hasExisting = existingContracts.some(c => c.contract_type === contractType);
+        const hasExisting = existingContracts.length > 0;
 
-        // Nếu đã tồn tại, hỏi xác nhận thay thế
         if (hasExisting && !confirm("Hợp đồng này đã tồn tại, bạn có muốn thay thế không?")) {
             return;
         }
