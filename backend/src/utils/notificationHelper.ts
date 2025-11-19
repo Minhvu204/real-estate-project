@@ -588,6 +588,40 @@ export async function notifyContractReviewResult(params: {
   });
 }
 
+export async function notifyBuyerContractDecision(params: {
+  sellerId?: string;
+  agentId?: string;
+  buyerName: string;
+  propertyTitle?: string;
+  dealId: string;
+  decision: "accepted" | "rejected";
+  notes?: string;
+}) {
+  const { sellerId, agentId, buyerName, propertyTitle, dealId, decision, notes } = params;
+
+  const recipientIds = [sellerId, agentId].filter((id): id is string => Boolean(id));
+  if (!recipientIds.length) return;
+
+  const isAccepted = decision === "accepted";
+  const title = isAccepted ? "Buyer đã đồng ý hợp đồng" : "Buyer đã từ chối hợp đồng";
+
+  const detail = !isAccepted && notes ? ` Lý do: ${notes}` : "";
+  const message = isAccepted
+    ? `${buyerName} đã đồng ý với hợp đồng cho "${propertyTitle || "bất động sản"}".`
+    : `${buyerName} đã từ chối hợp đồng cho "${propertyTitle || "bất động sản"}".${detail}`;
+
+  await createNotificationsForUsers(recipientIds, title, message, {
+    type: "contract",
+    relatedId: dealId,
+    actionUrl: `/deals/${dealId}/contract`,
+    meta: {
+      decision,
+      buyerName,
+      dealId,
+    },
+  });
+}
+
 /**
  * Notification khi trạng thái Deal thay đổi
  */
