@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { successResponse, errorResponse } from "../../utils/responseHandler";
-import { adminReviewService } from "../../services/admin/review.admin.service";
+import { adminReviewService } from "../../services/admin/review.service";
 
 export const listReviews = async (req: Request, res: Response) => {
   try {
