@@ -85,10 +85,20 @@
     "rejectConfirm": "Bạn có chắc chắn muốn từ chối offer này không?",
     "rejectionReason": "Lý do từ chối",
     "rejectionReasonPlaceholder": "Nhập lý do từ chối (tùy chọn)",
-    "acceptSuccess": "Chấp nhận offer thành công! Deal đã được tạo tự động.",
+    "acceptSuccess": "✅ Chấp nhận offer thành công!",
     "acceptError": "Chấp nhận offer thất bại",
+    "acceptProcessing": "⏳ Đang xử lý chấp nhận offer...",
+    "dealCreatedInfo": "🎉 Deal đã được tạo! Bạn có thể xem trong mục Quản lý Deal.",
+    "processing": "Đang xử lý...",
     "rejectSuccess": "Từ chối offer thành công",
     "rejectError": "Từ chối offer thất bại",
+    "rejectReasonRequired": "Vui lòng nhập lý do từ chối",
+    "rejectDialogTitle": "Từ chối Offer",
+    "rejectDialogDescription": "Vui lòng cung cấp lý do từ chối offer này. Thông tin này sẽ được chia sẻ với người mua.",
+    "confirmReject": "Xác nhận từ chối",
+    "acceptDialogTitle": "Chấp nhận Offer",
+    "confirmAccept": "Xác nhận chấp nhận",
+    "cancel": "Hủy",
     "filterByProperty": "Lọc theo bất động sản",
     "tableView": "Bảng",
     "listView": "Danh sách",
@@ -144,7 +154,11 @@
     },
     "additional": {
       "createdAt": "Ngày tạo",
-      "updatedAt": "Cập nhật lần cuối"
+      "updatedAt": "Cập nhật lần cuối",
+      "reviewedAt": "Ngày xem xét"
+    },
+    "rejectionReason": {
+      "title": "Lý do từ chối"
     },
     "status": {
       "pending": "Đang chờ",
@@ -159,6 +173,16 @@
       "noPermission": "Bạn không có quyền xem trang này",
       "loadFailed": "Không thể tải thông tin offer",
       "notFound": "Không tìm thấy thông tin offer"
+    },
+    "propertyInfo": {
+      "title": "Thông tin bất động sản",
+      "listedPrice": "Giá niêm yết"
+    },
+    "sellerInfo": {
+      "title": "Thông tin người bán"
+    },
+    "agentInfo": {
+      "title": "Thông tin môi giới"
     }
   }
 }

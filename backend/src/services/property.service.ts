@@ -455,6 +455,10 @@ export const propertyService = {
       description,
       address,
       images,
+      city_id,
+      district_id,
+      ward_id,
+      coordinates,
       ...rest
     } = data || {};
 
@@ -474,7 +478,30 @@ export const propertyService = {
       property.address = await createMultilangText(address);
     }
 
-    // Ảnh: nếu gửi images (mảng URL) thì ghi đè; nếu không gửi thì giữ nguyên
+    // Xử lý city_id, district_id, ward_id
+    if (city_id) {
+      property.city_id = new mongoose.Types.ObjectId(city_id);
+    }
+    if (district_id) {
+      property.district_id = new mongoose.Types.ObjectId(district_id);
+    }
+    if (ward_id) {
+      property.ward_id = new mongoose.Types.ObjectId(ward_id);
+    }
+
+    // Xử lý coordinates
+    if (coordinates) {
+      // Nếu coordinates được gửi dưới dạng { lat, lng } hoặc coordinates[lat], coordinates[lng]
+      if (coordinates.lat !== undefined && coordinates.lng !== undefined) {
+        property.coordinates = {
+          type: 'Point',
+          coordinates: [coordinates.lng, coordinates.lat] // [lng, lat] format
+        };
+      } else if (Array.isArray(coordinates.coordinates)) {
+        property.coordinates = coordinates;
+      }
+    }
+
     if (Array.isArray(images)) {
       property.images = images;
     }
@@ -491,7 +518,7 @@ export const propertyService = {
       throw err;
     }
 
-    if (property.deleted) return; // idempotent
+    if (property.deleted) return; 
 
     const isOwner = property.owner_id?.toString() === userId;
     const isAgent = property.agent_id?.toString() === userId;

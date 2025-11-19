@@ -21,12 +21,18 @@ import {
 import { Close as CloseIcon, CloudUpload as UploadIcon } from "@mui/icons-material";
 import type { Property } from "../../types/Property";
 import type { Feature } from "../../types/Features";
-import type { City } from "../../types/Cities";
+import type { City } from "../../types/City";
+import type { District } from "../../types/District";
+import type { Ward } from "../../types/Ward";
 import type { PropertyType } from "../../types/PropertyTypes";
 import { taxonomyService } from "../../services/taxonomyService";
+import { getAllCities, getAllDistrictsByCityId, getAllWardsByDistrictId } from "../../services/propertyService";
 import { getText } from "../../utils/multilang";
 import { getLanguage, type Lang } from "../../utils/storage";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
+import LocationSelect from "../common/LocationSelect";
+import AddressInputOnBlur from "../common/AddressInputOnBlur";
 
 interface PropertyEditModalProps {
     open: boolean;
@@ -44,6 +50,8 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
     const [loading, setLoading] = useState(false);
     const [features, setFeatures] = useState<Feature[]>([]);
     const [cities, setCities] = useState<City[]>([]);
+    const [districts, setDistricts] = useState<District[]>([]);
+    const [wards, setWards] = useState<Ward[]>([]);
     const [propertyTypes, setPropertyTypes] = useState<PropertyType[]>([]);
 
     const [formData, setFormData] = useState({
@@ -51,6 +59,8 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
         description: "",
         price: 0,
         city_id: "",
+        district_id: "",
+        ward_id: "",
         type_id: "",
         city_name: "",
         type_name: "",
@@ -62,6 +72,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
         unit: "m²",
         yearBuilt: new Date().getFullYear(),
         floors: 1,
+        coordinates: undefined as { lat: number; lng: number } | undefined,
     });
 
     const [imageFiles, setImageFiles] = useState<File[]>([]);
@@ -79,15 +90,39 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
     useEffect(() => {
         loadCategories();
+        loadCities();
     }, []);
 
     useEffect(() => {
+        if (formData.city_id) {
+            loadDistricts(formData.city_id);
+        } else {
+            setDistricts([]);
+            setWards([]);
+        }
+    }, [formData.city_id]);
+
+    useEffect(() => {
+        if (formData.district_id) {
+            loadWards(formData.district_id);
+        } else {
+            setWards([]);
+        }
+    }, [formData.district_id]);
+
+    useEffect(() => {
         if (property && open) {
+            const cityId = property.city_id?._id || (property as any).city_id || "";
+            const districtId = (property as any).district_id?._id || (property as any).district_id || "";
+            const wardId = (property as any).ward_id?._id || (property as any).ward_id || "";
+            
             setFormData({
                 title: getText(property.title as any, currentLang) || "",
                 description: getText(property.description as any, currentLang) || "",
                 price: property.price || 0,
-                city_id: property.city_id?._id || "",
+                city_id: cityId,
+                district_id: districtId,
+                ward_id: wardId,
                 type_id: property.type_id?._id || "",
                 city_name: property.city_id?.city_name ? getText(property.city_id.city_name as any, currentLang) : "",
                 type_name: property.type_id?.type_name ? getText(property.type_id.type_name as any, currentLang) : "",
@@ -99,24 +134,124 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                 unit: property.unit || "m2",
                 yearBuilt: property.yearBuilt || new Date().getFullYear(),
                 floors: property.floors || 1,
+                coordinates: property.coordinates ? {
+                    lat: Array.isArray(property.coordinates) ? property.coordinates[1] : property.coordinates.lat,
+                    lng: Array.isArray(property.coordinates) ? property.coordinates[0] : property.coordinates.lng,
+                } : undefined,
             });
             setExistingImages(property.images || []);
             setImageFiles([]);
+            
+            // Load districts and wards if property has city_id and district_id
+            if (cityId) {
+                loadDistricts(cityId).then(() => {
+                    if (districtId) {
+                        loadWards(districtId);
+                    }
+                });
+            }
         }
-    }, [property, open]);
+    }, [property, open, currentLang]);
 
     const loadCategories = async () => {
         try {
             const data = await taxonomyService.getAll();
             setFeatures(data.features);
-            setCities(data.cities);
             setPropertyTypes(data.propertyTypes);
         } catch (error) {
         }
     };
 
+    const loadCities = async () => {
+        try {
+            const data = await getAllCities();
+            setCities(data);
+        } catch (error) {
+            console.error("Error loading cities:", error);
+        }
+    };
+
+    const loadDistricts = async (cityId: string) => {
+        try {
+            const data = await getAllDistrictsByCityId(cityId);
+            setDistricts(data);
+        } catch (error) {
+            console.error("Error loading districts:", error);
+            setDistricts([]);
+        }
+    };
+
+    const loadWards = async (districtId: string) => {
+        try {
+            const data = await getAllWardsByDistrictId(districtId);
+            setWards(data);
+        } catch (error) {
+            console.error("Error loading wards:", error);
+            setWards([]);
+        }
+    };
+
     const handleChange = (field: string, value: any) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const currentLanguage: Lang = getLanguage();
+    
+    const cityOptions = cities.map(city => ({
+        value: city._id,
+        label: city.city_name[currentLanguage]
+    }));
+
+    const districtOptions = districts.map(district => ({
+        value: district._id,
+        label: district.district_name[currentLanguage]
+    }));
+
+    const wardOptions = wards.map(ward => ({
+        value: ward._id,
+        label: ward.ward_name[currentLanguage]
+    }));
+
+    const handleCityChange = (selected: { value: string; label: string } | null) => {
+        const value = selected?.value ?? "";
+        setFormData(prev => ({
+            ...prev,
+            city_id: value,
+            district_id: "",
+            ward_id: "",
+        }));
+    };
+
+    const handleDistrictChange = (selected: { value: string; label: string } | null) => {
+        const value = selected?.value ?? "";
+        setFormData(prev => ({
+            ...prev,
+            district_id: value,
+            ward_id: "",
+        }));
+    };
+
+    const handleWardChange = (selected: { value: string; label: string } | null) => {
+        const value = selected?.value ?? "";
+        setFormData(prev => ({
+            ...prev,
+            ward_id: value,
+        }));
+    };
+
+    const getCityNameById = (cityId: string) => {
+        const city = cities.find(city => city._id === cityId);
+        return city ? city.city_name[currentLanguage] : "";
+    };
+
+    const getDistrictNameById = (districtId: string) => {
+        const district = districts.find(district => district._id === districtId);
+        return district ? district.district_name[currentLanguage] : "";
+    };
+
+    const getWardNameById = (wardId: string) => {
+        const ward = wards.find(ward => ward._id === wardId);
+        return ward ? ward.ward_name[currentLanguage] : "";
     };
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,15 +272,27 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
     const handleSubmit = async () => {
         if (!property) return;
 
+        // Validation
+        if (!formData.title || !formData.price || !formData.address) {
+            toast.error(t("validationRequiredFields"));
+            return;
+        }
+
+        if (!formData.city_id || !formData.district_id || !formData.ward_id) {
+            toast.error(t("validationRequiredLocation"));
+            return;
+        }
+
         setLoading(true);
         try {
             const data = new FormData();
-            data.append("title", formData.title);
-            data.append("description", formData.description);
-            data.append("price", formData.price.toString());
-            if (formData.city_id) {
-                data.append("city_id", formData.city_id);
-            }
+            data.append("title", formData.title || "");
+            data.append("description", formData.description || "");
+            data.append("price", (formData.price ?? 0).toString());
+            data.append("city_id", formData.city_id);
+            data.append("district_id", formData.district_id);
+            data.append("ward_id", formData.ward_id);
+            
             if (formData.city_name) {
                 data.append("city_name", formData.city_name);
             }
@@ -156,13 +303,18 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                 data.append("type_name", formData.type_name);
             }
             
-            data.append("address", formData.address);
-            data.append("bedrooms", formData.bedrooms.toString());
-            data.append("bathrooms", formData.bathrooms.toString());
-            data.append("area", formData.area.toString());
-            data.append("unit", formData.unit);
-            data.append("yearBuilt", formData.yearBuilt.toString());
-            data.append("floors", formData.floors.toString());
+            data.append("address", formData.address || "");
+            
+            if (formData.coordinates && formData.coordinates.lat !== undefined && formData.coordinates.lng !== undefined) {
+                data.append("coordinates[lat]", formData.coordinates.lat.toString());
+                data.append("coordinates[lng]", formData.coordinates.lng.toString());
+            }
+            data.append("bedrooms", (formData.bedrooms ?? 0).toString());
+            data.append("bathrooms", (formData.bathrooms ?? 0).toString());
+            data.append("area", (formData.area ?? 0).toString());
+            data.append("unit", formData.unit || "m2");
+            data.append("yearBuilt", (formData.yearBuilt ?? new Date().getFullYear()).toString());
+            data.append("floors", (formData.floors ?? 1).toString());
 
             formData.features.forEach((featureId) => {
                 data.append("features[]", featureId);
@@ -178,7 +330,10 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
             await onSubmit(property._id, data);
             onClose();
-        } catch (error) {
+        } catch (error: any) {
+            console.error("Error updating property:", error);
+            const errorMessage = error?.response?.data?.message || error?.message || t("updateFailed") || "Cập nhật thất bại";
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -230,38 +385,6 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                             }}
                         />
 
-                        <TextField
-                            label={t("addressLabel")}
-                            sx={{ flex: 1, minWidth: 200 }}
-                            fullWidth
-                            required
-                            value={formData.address}
-                            onChange={(e) => handleChange("address", e.target.value)}
-                        />
-                    </Box>
-
-                    <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-                        <FormControl sx={{ flex: 1, minWidth: 200 }} fullWidth>
-                            <InputLabel>{t("city")}</InputLabel>
-                            <Select
-                                label={t("city")}
-                                value={formData.city_id}
-                                onChange={(e) => {
-                                    const id = e.target.value as string;
-                                    const selected = cities.find((c) => c._id === id);
-                                    handleChange("city_id", id);
-                                    handleChange("city_name", selected ? getText(selected.city_name as any, currentLang) : "");
-                                }}
-                                required
-                            >
-                                {cities.map((city) => (
-                                    <MenuItem key={city._id} value={city._id}>
-                                        {getText(city.city_name as any, currentLang)}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-
                         <FormControl sx={{ flex: 1, minWidth: 200 }} fullWidth>
                             <InputLabel>{t("propertyType")}</InputLabel>
                             <Select
@@ -282,6 +405,54 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                                 ))}
                             </Select>
                         </FormControl>
+                    </Box>
+
+                    <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+                        <Box sx={{ flex: 1, minWidth: 200 }}>
+                            <LocationSelect
+                                label={t("city")}
+                                value={formData.city_id}
+                                options={cityOptions}
+                                placeholder={t("selectCity")}
+                                onChange={handleCityChange}
+                            />
+                        </Box>
+                        <Box sx={{ flex: 1, minWidth: 200 }}>
+                            <LocationSelect
+                                label={t("district")}
+                                value={formData.district_id}
+                                options={districtOptions}
+                                placeholder={t("selectDistrict")}
+                                onChange={handleDistrictChange}
+                                disabled={!formData.city_id}
+                            />
+                        </Box>
+                        <Box sx={{ flex: 1, minWidth: 200 }}>
+                            <LocationSelect
+                                label={t("ward")}
+                                value={formData.ward_id}
+                                options={wardOptions}
+                                placeholder={t("selectWard")}
+                                onChange={handleWardChange}
+                                disabled={!formData.district_id}
+                            />
+                        </Box>
+                    </Box>
+
+                    <Box>
+                        <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+                            {t("addressLabel")} <span style={{ color: "red" }}>*</span>
+                        </Typography>
+                        <AddressInputOnBlur
+                            city={getCityNameById(formData.city_id)}
+                            district={getDistrictNameById(formData.district_id)}
+                            ward={getWardNameById(formData.ward_id)}
+                            value={formData.address}
+                            onChange={(val) => handleChange("address", val)}
+                            onSelect={(lat, lon) =>
+                                handleChange("coordinates", { lat, lng: lon })
+                            }
+                        />
                     </Box>
 
                     <FormControl fullWidth>

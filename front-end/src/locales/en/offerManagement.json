@@ -85,10 +85,20 @@
     "rejectConfirm": "Are you sure you want to reject this offer?",
     "rejectionReason": "Rejection Reason",
     "rejectionReasonPlaceholder": "Enter rejection reason (optional)",
-    "acceptSuccess": "Offer accepted successfully! Deal has been automatically created.",
+    "acceptSuccess": "✅ Offer accepted successfully!",
     "acceptError": "Failed to accept offer",
+    "acceptProcessing": "⏳ Processing offer acceptance...",
+    "dealCreatedInfo": "🎉 Deal has been created! You can view it in the Deals section.",
+    "processing": "Processing...",
     "rejectSuccess": "Offer rejected successfully",
     "rejectError": "Failed to reject offer",
+    "rejectReasonRequired": "Please provide a rejection reason",
+    "rejectDialogTitle": "Reject Offer",
+    "rejectDialogDescription": "Please provide a reason for rejecting this offer. This will be shared with the buyer.",
+    "confirmReject": "Confirm Rejection",
+    "acceptDialogTitle": "Accept Offer",
+    "confirmAccept": "Confirm Accept",
+    "cancel": "Cancel",
     "filterByProperty": "Filter by Property",
     "tableView": "Table",
     "listView": "List",
@@ -143,7 +153,11 @@
     },
     "additional": {
       "createdAt": "Created at",
-      "updatedAt": "Last updated"
+      "updatedAt": "Last updated",
+      "reviewedAt": "Reviewed at"
+    },
+    "rejectionReason": {
+      "title": "Rejection Reason"
     },
     "status": {
       "pending": "Pending",
@@ -158,6 +172,16 @@
       "noPermission": "You don't have permission to view this page",
       "loadFailed": "Failed to load offer information",
       "notFound": "Offer information not found"
+    },
+    "propertyInfo": {
+      "title": "Property Information",
+      "listedPrice": "Listed Price"
+    },
+    "sellerInfo": {
+      "title": "Seller Information"
+    },
+    "agentInfo": {
+      "title": "Agent Information"
     }
   }
 }

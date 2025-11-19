@@ -20,6 +20,11 @@ import {
   CircularProgress,
   Collapse,
   IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -52,6 +57,11 @@ const SellerOfferManagementPage: React.FC = () => {
   const [propertyFilter, setPropertyFilter] = useState<string | undefined>();
   const [expandedProperties, setExpandedProperties] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<'table' | 'list'>('table');
+  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [acceptDialogOpen, setAcceptDialogOpen] = useState(false);
+  const [selectedOfferId, setSelectedOfferId] = useState<string>('');
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
     if (!state.loading && (!state.user || state.user.role?.toLowerCase() !== 'seller')) {
@@ -60,7 +70,7 @@ const SellerOfferManagementPage: React.FC = () => {
         navigate('/home');
       }, 1500);
     }
-  }, [state.loading, state.user, navigate, t]);
+  }, [state.loading, state.user, navigate]);
 
   useEffect(() => {
     const loadOffers = async () => {
@@ -74,11 +84,13 @@ const SellerOfferManagementPage: React.FC = () => {
         if (propertyIdParam) filters.property_id = propertyIdParam;
         
         const data = await OfferService.getSellerOffers(filters);
-        setOffers(data);
+        setOffers(Array.isArray(data) ? data : []);
         setStatusFilter(filters.status);
         setPropertyFilter(filters.property_id);
       } catch (error: any) {
+        console.error('Load offers error:', error);
         toast.error(error?.message || t('error.loadFailed'));
+        setOffers([]); // Set empty array on error
       } finally {
         setIsLoading(false);
       }
@@ -87,9 +99,100 @@ const SellerOfferManagementPage: React.FC = () => {
     if (!state.loading) {
       loadOffers();
     }
-  }, [searchParams, state.loading, t]);
+  }, [searchParams, state.loading]);
 
-  const handleAcceptOffer = async (offerId: string) => {
+  const openAcceptDialog = (offerId: string) => {
+    setSelectedOfferId(offerId);
+    setAcceptDialogOpen(true);
+  };
+
+  const closeAcceptDialog = () => {
+    setAcceptDialogOpen(false);
+    setSelectedOfferId('');
+  };
+
+  const handleAcceptOffer = async () => {
+    try {
+      setProcessing(true);
+      
+      const toastId = toast.loading(
+        t('sellerList.acceptProcessing') || 'Processing offer acceptance...'
+      );
+      
+      await OfferService.acceptOffer(selectedOfferId);
+      
+      toast.update(toastId, {
+        render: t('sellerList.acceptSuccess'),
+        type: 'success',
+        isLoading: false,
+        autoClose: 5000,
+      });
+      
+      setTimeout(() => {
+        toast.info(
+          t('sellerList.dealCreatedInfo') || 'Deal has been automatically created. Check your deals page.',
+          { autoClose: 7000 }
+        );
+      }, 1000);
+      
+      const statusParam = searchParams.get('status') as OfferStatus | null;
+      const propertyIdParam = searchParams.get('property_id');
+      const filters: { status?: OfferStatus; property_id?: string } = {};
+      if (statusParam) filters.status = statusParam;
+      if (propertyIdParam) filters.property_id = propertyIdParam;
+      
+      const updatedOffers = await OfferService.getSellerOffers(filters);
+      setOffers(Array.isArray(updatedOffers) ? updatedOffers : []);
+      closeAcceptDialog();
+    } catch (error: any) {
+      console.error('Accept offer error:', error);
+      toast.error(error?.message || t('sellerList.acceptError'));
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const openRejectDialog = (offerId: string) => {
+    setSelectedOfferId(offerId);
+    setRejectionReason('');
+    setRejectDialogOpen(true);
+  };
+
+  const closeRejectDialog = () => {
+    setRejectDialogOpen(false);
+    setSelectedOfferId('');
+    setRejectionReason('');
+  };
+
+  const handleRejectOfferInTable = async () => {
+    if (!rejectionReason.trim()) {
+      toast.error(t('sellerList.rejectReasonRequired') || 'Please provide a rejection reason');
+      return;
+    }
+
+    try {
+      setProcessing(true);
+      await OfferService.rejectOffer(selectedOfferId, rejectionReason);
+      toast.success(t('sellerList.rejectSuccess'));
+      
+      const statusParam = searchParams.get('status') as OfferStatus | null;
+      const propertyIdParam = searchParams.get('property_id');
+      const filters: { status?: OfferStatus; property_id?: string } = {};
+      if (statusParam) filters.status = statusParam;
+      if (propertyIdParam) filters.property_id = propertyIdParam;
+      
+      const updatedOffers = await OfferService.getSellerOffers(filters);
+      setOffers(Array.isArray(updatedOffers) ? updatedOffers : []);
+      closeRejectDialog();
+    } catch (error: any) {
+      console.error('Reject offer error:', error);
+      toast.error(error?.message || t('sellerList.rejectError'));
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleAcceptOfferForList = async (offerId: string) => {
     try {
       await OfferService.acceptOffer(offerId);
       toast.success(t('sellerList.acceptSuccess'));
@@ -101,8 +204,9 @@ const SellerOfferManagementPage: React.FC = () => {
       if (propertyIdParam) filters.property_id = propertyIdParam;
       
       const updatedOffers = await OfferService.getSellerOffers(filters);
-      setOffers(updatedOffers);
+      setOffers(Array.isArray(updatedOffers) ? updatedOffers : []);
     } catch (error: any) {
+      console.error('Accept offer error:', error);
       toast.error(error?.message || t('sellerList.acceptError'));
     }
   };
@@ -119,8 +223,9 @@ const SellerOfferManagementPage: React.FC = () => {
       if (propertyIdParam) filters.property_id = propertyIdParam;
       
       const updatedOffers = await OfferService.getSellerOffers(filters);
-      setOffers(updatedOffers);
+      setOffers(Array.isArray(updatedOffers) ? updatedOffers : []);
     } catch (error: any) {
+      console.error('Reject offer error:', error);
       toast.error(error?.message || t('sellerList.rejectError'));
     }
   };
@@ -282,15 +387,15 @@ const SellerOfferManagementPage: React.FC = () => {
 
       {viewMode === 'table' ? (
         <TableContainer component={Paper} elevation={3}>
-          <Table>
+          <Table sx={{ borderCollapse: 'separate', borderSpacing: 0 }}>
             <TableHead>
-              <TableRow sx={{ bgcolor: 'primary.main' }}>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>{t('sellerList.table.property')}</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>{t('sellerList.table.buyer')}</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>{t('sellerList.table.amount')}</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>{t('sellerList.table.status')}</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>{t('sellerList.table.createdAt')}</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>{t('sellerList.table.actions')}</TableCell>
+              <TableRow>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', border: 0, borderBottom: 1, borderColor: 'primary.dark' }}>{t('sellerList.table.property')}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', border: 0, borderBottom: 1, borderColor: 'primary.dark' }}>{t('sellerList.table.buyer')}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', border: 0, borderBottom: 1, borderColor: 'primary.dark' }}>{t('sellerList.table.amount')}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', border: 0, borderBottom: 1, borderColor: 'primary.dark' }}>{t('sellerList.table.status')}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', border: 0, borderBottom: 1, borderColor: 'primary.dark' }}>{t('sellerList.table.createdAt')}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', border: 0, borderBottom: 1, borderColor: 'primary.dark' }}>{t('sellerList.table.actions')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -412,7 +517,7 @@ const SellerOfferManagementPage: React.FC = () => {
                                           color="success"
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            handleAcceptOffer(offer._id);
+                                            openAcceptDialog(offer._id);
                                           }}
                                         >
                                           {t('sellerList.accept')}
@@ -425,7 +530,7 @@ const SellerOfferManagementPage: React.FC = () => {
                                           color="error"
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            handleRejectOffer(offer._id);
+                                            openRejectDialog(offer._id);
                                           }}
                                         >
                                           {t('sellerList.reject')}
@@ -449,12 +554,87 @@ const SellerOfferManagementPage: React.FC = () => {
       ) : (
         <SellerOfferList
           offers={offers}
-          onAcceptOffer={handleAcceptOffer}
+          onAcceptOffer={handleAcceptOfferForList}
           onRejectOffer={handleRejectOffer}
           isLoading={isLoading}
           onViewDetail={handleViewDetail}
         />
       )}
+
+      <Dialog 
+        open={acceptDialogOpen} 
+        onClose={closeAcceptDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          {t('sellerList.acceptDialogTitle') || 'Accept Offer'}
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary">
+            {t('sellerList.acceptConfirm')}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeAcceptDialog} color="inherit" disabled={processing}>
+            {t('sellerList.cancel') || 'Cancel'}
+          </Button>
+          <Button 
+            onClick={handleAcceptOffer} 
+            color="success" 
+            variant="contained"
+            disabled={processing}
+          >
+            {processing 
+              ? (t('sellerList.processing') || 'Processing...') 
+              : (t('sellerList.confirmAccept') || 'Confirm Accept')
+            }
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog 
+        open={rejectDialogOpen} 
+        onClose={closeRejectDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          {t('sellerList.rejectDialogTitle') || 'Reject Offer'}
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            {t('sellerList.rejectDialogDescription') || 'Please provide a reason for rejecting this offer. This will be shared with the buyer.'}
+          </Typography>
+          <TextField
+            autoFocus
+            multiline
+            rows={4}
+            fullWidth
+            label={t('sellerList.rejectionReason') || 'Rejection Reason'}
+            value={rejectionReason}
+            onChange={(e) => setRejectionReason(e.target.value)}
+            placeholder={t('sellerList.rejectionReasonPlaceholder') || 'Enter the reason for rejection...'}
+            required
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeRejectDialog} color="inherit" disabled={processing}>
+            {t('sellerList.cancel') || 'Cancel'}
+          </Button>
+          <Button 
+            onClick={handleRejectOfferInTable} 
+            color="error" 
+            variant="contained"
+            disabled={processing || !rejectionReason.trim()}
+          >
+            {processing 
+              ? (t('sellerList.processing') || 'Processing...') 
+              : (t('sellerList.confirmReject') || 'Confirm Rejection')
+            }
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

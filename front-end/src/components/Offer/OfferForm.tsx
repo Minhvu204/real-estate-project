@@ -46,6 +46,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [currentIndex, setCurrentIndex] = useState(0);
+  const hasAgent = property.agent_id !== null && property.agent_id !== undefined;
 
   const nextSlide = () => {
     if (!property.images || property.images.length === 0) return;
@@ -437,6 +438,30 @@ export const OfferForm: React.FC<OfferFormProps> = ({
         </Box>
       </Paper>
 
+      {!hasAgent && (
+        <Alert 
+          severity="error" 
+          sx={{ 
+            mb: 3,
+            backgroundColor: '#FFEBEE',
+            border: '1px solid #EF9A9A',
+            '& .MuiAlert-icon': {
+              color: '#D32F2F',
+            },
+          }}
+        >
+          <Typography variant="body2" fontWeight="bold" mb={1}>
+            {currentLang === 'vi' ? '⚠️ Không thể tạo offer' : '⚠️ Cannot create offer'}
+          </Typography>
+          <Typography variant="body2">
+            {currentLang === 'vi' 
+              ? 'Bất động sản này chưa có agent phụ trách. Vui lòng liên hệ với chúng tôi hoặc chọn bất động sản khác có agent để tạo offer.'
+              : 'This property does not have an assigned agent. Please contact us or choose another property with an agent to create an offer.'
+            }
+          </Typography>
+        </Alert>
+      )}
+
       <Alert 
         severity="warning" 
         sx={{ 
@@ -635,18 +660,20 @@ export const OfferForm: React.FC<OfferFormProps> = ({
               type="submit"
               variant="contained"
               size="large"
-              disabled={isLoading}
+              disabled={isLoading || !hasAgent}
               startIcon={<SendIcon />}
               sx={{ 
                 mt: 2,
-                background: 'linear-gradient(135deg, #1976D2 0%, #1565C0 100%)',
+                background: !hasAgent 
+                  ? 'linear-gradient(135deg, #9E9E9E 0%, #757575 100%)'
+                  : 'linear-gradient(135deg, #1976D2 0%, #1565C0 100%)',
                 color: 'white',
                 fontWeight: 700,
                 textTransform: 'none',
                 fontSize: '1rem',
                 py: 1.75,
                 px: 4,
-                boxShadow: '0 6px 20px rgba(25, 118, 210, 0.5)',
+                boxShadow: !hasAgent ? 'none' : '0 6px 20px rgba(25, 118, 210, 0.5)',
                 transition: 'all 0.3s ease',
                 '&:hover': {
                   background: 'linear-gradient(135deg, #1565C0 0%, #0D47A1 100%)',
@@ -662,7 +689,12 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                 },
               }}
             >
-              {isLoading ? t('form.sending') : (currentLang === 'vi' ? 'Gửi đề xuất ngay ✨✨' : 'Send proposal now ✨✨')}
+              {isLoading 
+                ? t('form.sending') 
+                : !hasAgent
+                  ? (currentLang === 'vi' ? 'Không thể gửi (Thiếu Agent)' : 'Cannot send (No Agent)')
+                  : (currentLang === 'vi' ? 'Gửi đề xuất ngay ✨✨' : 'Send proposal now ✨✨')
+              }
             </Button>
           </Box>
         </form>

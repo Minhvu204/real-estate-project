@@ -2,7 +2,14 @@ import mongoose from "mongoose";
 import Offer, { IOffer, OfferStatus, SUPPORTED_OFFER_CURRENCIES } from "../models/offer.model";
 import Property from "../models/property.model";
 import User from "../models/user.model";
-import { notifyNewOffer, notifySellerNewOffer } from "../utils/notificationHelper";
+import {
+  notifyNewOffer,
+  notifySellerNewOffer,
+  notifyOfferForwarded,
+  notifyOfferAccepted,
+  notifyOfferRejected,
+} from "../utils/notificationHelper";
+import { dealService } from "./deal.service";
 
 type SupportedCurrency = (typeof SUPPORTED_OFFER_CURRENCIES)[number];
 
@@ -21,9 +28,44 @@ interface OfferListFilters {
   limit?: number;
   status?: OfferStatus | OfferStatus[];
   propertyId?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 const toObjectId = (id: string) => new mongoose.Types.ObjectId(id);
+
+const normalizePagination = ({ page, limit }: { page?: number; limit?: number }) => {
+  const pageNum = Math.max(Number(page) || 1, 1);
+  const limitNum = Math.max(Math.min(Number(limit) || 10, 50), 1);
+  return { pageNum, limitNum, skip: (pageNum - 1) * limitNum };
+};
+
+const ensureFutureDate = (date: Date, errorMessage: string) => {
+  if (date <= new Date()) {
+    const err: any = new Error(errorMessage);
+    err.status = 400;
+    throw err;
+  }
+};
+
+const ensureNotExpired = (offer: IOffer) => {
+  if (offer.expires_at && offer.expires_at <= new Date()) {
+    const err: any = new Error("Offer đã hết hạn");
+    err.status = 400;
+    throw err;
+  }
+};
+
+const parseOptionalDate = (value?: string) => {
+  if (!value) return undefined;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    const err: any = new Error("Giá trị ngày không hợp lệ");
+    err.status = 400;
+    throw err;
+  }
+  return parsed;
+};
 
 export const offerService = {
   async createOffer(buyerId: string, payload: CreateOfferInput) {
@@ -66,18 +108,15 @@ export const offerService = {
       throw err;
     }
 
+    let expiresDate: Date | undefined;
     if (expiresAt) {
-      const expiresDate = new Date(expiresAt);
+      expiresDate = new Date(expiresAt);
       if (Number.isNaN(expiresDate.getTime())) {
         const err: any = new Error("Thời hạn offer không hợp lệ");
         err.status = 400;
         throw err;
       }
-      if (expiresDate <= new Date()) {
-        const err: any = new Error("Thời hạn offer phải ở tương lai");
-        err.status = 400;
-        throw err;
-      }
+      ensureFutureDate(expiresDate, "Thời hạn offer phải ở tương lai");
     }
 
     const buyer = await User.findById(buyerId).select("fullName").lean();
@@ -99,7 +138,7 @@ export const offerService = {
       currency,
       note,
       status: "pending",
-      expires_at: expiresAt ? new Date(expiresAt) : undefined,
+      expires_at: expiresDate,
       attachments: Array.isArray(attachments) ? attachments.filter((item) => typeof item === "string") : undefined,
       meta: meta && typeof meta === "object" && !Array.isArray(meta) ? meta : undefined,
     };
@@ -131,11 +170,8 @@ export const offerService = {
   },
 
   async getOffersByBuyer(buyerId: string, filters: OfferListFilters = {}) {
-    const { page = 1, limit = 10, status, propertyId } = filters;
-
-    const pageNum = Math.max(Number(page) || 1, 1);
-    const limitNum = Math.max(Math.min(Number(limit) || 10, 50), 1);
-    const skip = (pageNum - 1) * limitNum;
+    const { status, propertyId } = filters;
+    const { pageNum, limitNum, skip } = normalizePagination(filters);
 
     const query: any = {
       buyer_id: toObjectId(buyerId),
@@ -207,7 +243,298 @@ export const offerService = {
     return offer;
   },
 
-  async getOfferById(offerId: string, userId: string, userRole: string) {
+  async getOffersByAgent(agentId: string, filters: OfferListFilters = {}) {
+    const { status, propertyId, startDate, endDate } = filters;
+    const { pageNum, limitNum, skip } = normalizePagination(filters);
+
+    const query: any = {
+      agent_id: toObjectId(agentId),
+    };
+
+    if (status) {
+      query.status = Array.isArray(status) ? { $in: status } : status;
+    }
+
+    if (propertyId) {
+      if (!mongoose.isValidObjectId(propertyId)) {
+        const err: any = new Error("property_id không hợp lệ");
+        err.status = 400;
+        throw err;
+      }
+      query.property_id = toObjectId(propertyId);
+    }
+
+    const start = parseOptionalDate(startDate);
+    const end = parseOptionalDate(endDate);
+    if (start || end) {
+      query.createdAt = {};
+      if (start) query.createdAt.$gte = start;
+      if (end) query.createdAt.$lte = end;
+    }
+
+    const [offers, total] = await Promise.all([
+      Offer.find(query)
+        .populate("property_id", "title price images status owner_id agent_id")
+        .populate("buyer_id", "fullName email phone avatar")
+        .populate("seller_id", "fullName email phone avatar")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      Offer.countDocuments(query),
+    ]);
+
+    return {
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+      data: offers,
+    };
+  },
+
+  async forwardOffer(offerId: string, agentId: string) {
+    if (!mongoose.isValidObjectId(offerId)) {
+      const err: any = new Error("Offer không hợp lệ");
+      err.status = 400;
+      throw err;
+    }
+
+    const offer = await Offer.findOne({
+      _id: offerId,
+      agent_id: toObjectId(agentId),
+    });
+
+    if (!offer) {
+      const err: any = new Error("Offer không tồn tại hoặc không thuộc quyền quản lý");
+      err.status = 404;
+      throw err;
+    }
+
+    if (offer.status !== "pending") {
+      const err: any = new Error("Chỉ có thể forward offer khi đang pending");
+      err.status = 400;
+      throw err;
+    }
+
+    ensureNotExpired(offer);
+
+    offer.status = "forwarded_to_seller";
+    offer.forwarded_at = new Date();
+    await offer.save();
+
+    const [agent, property] = await Promise.all([
+      User.findById(agentId).select("fullName").lean(),
+      Property.findById(offer.property_id).select("title").lean(),
+    ]);
+
+    const propertyTitle =
+      property && typeof property.title === "object"
+        ? property.title.vi || property.title.en || "property"
+        : "property";
+
+    if (offer.seller_id) {
+      notifyOfferForwarded(
+        String(offer.seller_id),
+        agent?.fullName || "Agent",
+        propertyTitle,
+        offer.amount,
+        String(offer._id)
+      ).catch((err) => console.error("Failed to notify seller about forwarded offer:", err));
+    }
+
+    return offer;
+  },
+
+  async getOffersBySeller(sellerId: string, filters: OfferListFilters = {}) {
+    const { status, propertyId, startDate, endDate } = filters;
+    const { pageNum, limitNum, skip } = normalizePagination(filters);
+
+    const query: any = {
+      seller_id: toObjectId(sellerId),
+    };
+
+    if (status) {
+      query.status = Array.isArray(status) ? { $in: status } : status;
+    }
+
+    if (propertyId) {
+      if (!mongoose.isValidObjectId(propertyId)) {
+        const err: any = new Error("property_id không hợp lệ");
+        err.status = 400;
+        throw err;
+      }
+      query.property_id = toObjectId(propertyId);
+    }
+
+    const start = parseOptionalDate(startDate);
+    const end = parseOptionalDate(endDate);
+    if (start || end) {
+      query.createdAt = {};
+      if (start) query.createdAt.$gte = start;
+      if (end) query.createdAt.$lte = end;
+    }
+
+    const [offers, total] = await Promise.all([
+      Offer.find(query)
+        .populate("property_id", "title price images status owner_id agent_id")
+        .populate("buyer_id", "fullName email phone avatar")
+        .populate("agent_id", "fullName email phone avatar")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+      Offer.countDocuments(query),
+    ]);
+
+    return {
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+      data: offers,
+    };
+  },
+
+  async acceptOffer(offerId: string, sellerId: string, options?: { sellerName?: string }) {
+    if (!mongoose.isValidObjectId(offerId)) {
+      const err: any = new Error("Offer không hợp lệ");
+      err.status = 400;
+      throw err;
+    }
+
+    const offer = await Offer.findOne({
+      _id: offerId,
+      seller_id: toObjectId(sellerId),
+    });
+
+    if (!offer) {
+      const err: any = new Error("Offer không tồn tại hoặc không thuộc seller");
+      err.status = 404;
+      throw err;
+    }
+
+    if (!offer.agent_id) {
+      const err: any = new Error("Offer chưa được agent phụ trách");
+      err.status = 400;
+      throw err;
+    }
+
+    if (!["forwarded_to_seller", "seller_reviewing"].includes(offer.status)) {
+      const err: any = new Error("Chỉ chấp nhận offer đã được forward");
+      err.status = 400;
+      throw err;
+    }
+
+    ensureNotExpired(offer);
+
+    offer.status = "accepted";
+    offer.reviewed_by = offer.seller_id;
+    offer.reviewed_at = new Date();
+    offer.rejection_reason = undefined;
+    await offer.save();
+
+    const [seller, property] = await Promise.all([
+      options?.sellerName
+        ? Promise.resolve({ fullName: options.sellerName })
+        : User.findById(sellerId).select("fullName").lean(),
+      Property.findById(offer.property_id).select("title").lean(),
+    ]);
+
+    const propertyTitle =
+      property && typeof property.title === "object"
+        ? property.title.vi || property.title.en || "property"
+        : "property";
+
+    const deal = await dealService.createDealFromOffer(String(offer._id));
+//update property status to sold
+    try {
+      await Property.findByIdAndUpdate(offer.property_id, {
+        status: "sold",
+      });
+    } catch (error) {
+      console.error("Failed to update property status:", error);
+    }
+
+    notifyOfferAccepted(
+      String(offer.buyer_id),
+      String(offer.agent_id),
+      seller?.fullName || "Seller",
+      propertyTitle,
+      String(offer._id),
+      String(deal._id)
+    ).catch((err) => console.error("Failed to notify offer accepted:", err));
+
+    return { offer, deal };
+  },
+
+  async rejectOffer(offerId: string, sellerId: string, reason?: string) {
+    if (!mongoose.isValidObjectId(offerId)) {
+      const err: any = new Error("Offer không hợp lệ");
+      err.status = 400;
+      throw err;
+    }
+
+    const offer = await Offer.findOne({
+      _id: offerId,
+      seller_id: toObjectId(sellerId),
+    });
+
+    if (!offer) {
+      const err: any = new Error("Offer không tồn tại hoặc không thuộc seller");
+      err.status = 404;
+      throw err;
+    }
+
+    if (!offer.agent_id) {
+      const err: any = new Error("Offer chưa được agent phụ trách");
+      err.status = 400;
+      throw err;
+    }
+
+    if (!["forwarded_to_seller", "seller_reviewing"].includes(offer.status)) {
+      const err: any = new Error("Chỉ từ chối offer đã được forward");
+      err.status = 400;
+      throw err;
+    }
+
+    ensureNotExpired(offer);
+
+    offer.status = "rejected";
+    offer.reviewed_by = offer.seller_id;
+    offer.reviewed_at = new Date();
+    offer.rejection_reason = reason;
+    await offer.save();
+
+    const [seller, property] = await Promise.all([
+      User.findById(sellerId).select("fullName").lean(),
+      Property.findById(offer.property_id).select("title").lean(),
+    ]);
+
+    const propertyTitle =
+      property && typeof property.title === "object"
+        ? property.title.vi || property.title.en || "property"
+        : "property";
+
+    notifyOfferRejected(
+      String(offer.buyer_id),
+      String(offer.agent_id),
+      seller?.fullName || "Seller",
+      propertyTitle,
+      String(offer._id),
+      reason
+    ).catch((err) => console.error("Failed to notify offer rejected:", err));
+
+    return offer;
+  },
+
+
+    //Xem chi tiết offer
+  async getOfferById(offerId: string) {
     if (!mongoose.isValidObjectId(offerId)) {
       const err: any = new Error("Offer không hợp lệ");
       err.status = 400;
@@ -215,47 +542,12 @@ export const offerService = {
     }
 
     const offer = await Offer.findById(offerId)
-      .populate("property_id", "title price images status owner_id agent_id address")
+      .populate("property_id", "title price images status address owner_id agent_id category_id type_id")
       .populate("buyer_id", "fullName email phone avatar")
-      .populate("agent_id", "fullName email phone avatar")
       .populate("seller_id", "fullName email phone avatar")
+      .populate("agent_id", "fullName email phone avatar")
       .lean();
-
-    if (!offer) {
-      const err: any = new Error("Offer không tồn tại");
-      err.status = 404;
-      throw err;
-    }
-
-    // Kiểm tra quyền truy cập
-    const sellerId = typeof offer.seller_id === "object" && offer.seller_id !== null 
-      ? String(offer.seller_id._id) 
-      : String(offer.seller_id);
-    const agentId = offer.agent_id 
-      ? (typeof offer.agent_id === "object" && offer.agent_id !== null 
-          ? String(offer.agent_id._id) 
-          : String(offer.agent_id))
-      : null;
-
-    if (userRole === "seller") {
-      if (sellerId !== userId) {
-        const err: any = new Error("Bạn không có quyền xem offer này");
-        err.status = 403;
-        throw err;
-      }
-    } else if (userRole === "agent") {
-      if (!agentId || agentId !== userId) {
-        const err: any = new Error("Bạn không có quyền xem offer này");
-        err.status = 403;
-        throw err;
-      }
-    } else {
-      const err: any = new Error("Chỉ seller và agent mới có quyền xem offer này");
-      err.status = 403;
-      throw err;
-    }
 
     return offer;
   },
 };
-

@@ -63,15 +63,18 @@ export const SellerOfferList: React.FC<SellerOfferListProps> = ({
   };
 
   const handleRejectConfirm = async () => {
-    if (!selectedOfferId) return;
+    if (!selectedOfferId || !rejectionReason.trim()) {
+      return;
+    }
 
     try {
       setProcessing(true);
-      await onRejectOffer(selectedOfferId, rejectionReason || undefined);
+      await onRejectOffer(selectedOfferId, rejectionReason);
       setRejectDialogOpen(false);
       setSelectedOfferId(null);
       setRejectionReason('');
     } catch (error) {
+      console.error('Error rejecting offer:', error);
     } finally {
       setProcessing(false);
     }
@@ -438,6 +441,7 @@ export const SellerOfferList: React.FC<SellerOfferListProps> = ({
             {t('sellerList.rejectConfirm')}
           </DialogContentText>
           <TextField
+            autoFocus
             fullWidth
             multiline
             rows={4}
@@ -446,6 +450,7 @@ export const SellerOfferList: React.FC<SellerOfferListProps> = ({
             onChange={(e) => setRejectionReason(e.target.value)}
             placeholder={t('sellerList.rejectionReasonPlaceholder')}
             variant="outlined"
+            required
           />
         </DialogContent>
         <DialogActions>
@@ -459,7 +464,7 @@ export const SellerOfferList: React.FC<SellerOfferListProps> = ({
             onClick={handleRejectConfirm}
             color="error"
             variant="contained"
-            disabled={processing}
+            disabled={processing || !rejectionReason.trim()}
           >
             {processing ? (lang === 'vi' ? 'Đang xử lý...' : 'Processing...') : (lang === 'vi' ? 'Xác nhận' : 'Confirm')}
           </Button>

@@ -33,7 +33,7 @@ const AgentOfferManagementPage: React.FC = () => {
         navigate('/home');
       }, 1500);
     }
-  }, [state.loading, state.user, navigate, t]);
+  }, [state.loading, state.user, navigate]);
 
   useEffect(() => {
     const loadOffers = async () => {
@@ -47,10 +47,12 @@ const AgentOfferManagementPage: React.FC = () => {
         if (propertyIdParam) filters.property_id = propertyIdParam;
         
         const data = await OfferService.getAgentOffers(filters);
-        setOffers(data);
+        setOffers(Array.isArray(data) ? data : []);
         setStatusFilter(filters.status);
       } catch (error: any) {
+        console.error('Load offers error:', error);
         toast.error(error?.message || t('error.loadFailed'));
+        setOffers([]); 
       } finally {
         setIsLoading(false);
       }
@@ -59,7 +61,7 @@ const AgentOfferManagementPage: React.FC = () => {
     if (!state.loading) {
       loadOffers();
     }
-  }, [searchParams, state.loading, t]);
+  }, [searchParams, state.loading]);
 
   const handleForwardOffer = async (offerId: string) => {
     try {
@@ -73,8 +75,9 @@ const AgentOfferManagementPage: React.FC = () => {
       if (propertyIdParam) filters.property_id = propertyIdParam;
       
       const updatedOffers = await OfferService.getAgentOffers(filters);
-      setOffers(updatedOffers);
+      setOffers(Array.isArray(updatedOffers) ? updatedOffers : []);
     } catch (error: any) {
+      console.error('Forward offer error:', error);
       toast.error(error?.message || t('agentList.forwardError'));
     }
   };

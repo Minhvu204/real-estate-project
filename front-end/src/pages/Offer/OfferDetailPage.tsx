@@ -15,6 +15,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import NoteIcon from '@mui/icons-material/Note';
+import CancelIcon from '@mui/icons-material/Cancel';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { OfferService } from '../../services/offerService';
@@ -127,6 +128,19 @@ const OfferDetailPage: React.FC = () => {
   }
 
   const buyer = typeof offer.buyer_id === 'object' ? offer.buyer_id : null;
+  const seller = typeof offer.seller_id === 'object' ? offer.seller_id : null;
+  const agent = typeof offer.agent_id === 'object' ? offer.agent_id : null;
+  const property = typeof offer.property_id === 'object' ? offer.property_id : null;
+
+  const lang = i18n.language as 'vi' | 'en';
+  const propertyTitle = property 
+    ? (typeof property.title === 'object' ? property.title[lang] : property.title)
+    : 'Property';
+  const propertyAddress = property
+    ? (typeof property.address === 'object' ? property.address[lang] : property.address)
+    : '';
+
+  const userRole = state.user?.role?.toLowerCase();
 
   return (
     <Container sx={{ mt: 4, mb: 4 }}>
@@ -165,6 +179,34 @@ const OfferDetailPage: React.FC = () => {
 
         <Box sx={{ p: 4 }}>
 
+        {property && (
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+              {t('detail.propertyInfo.title') || 'Property Information'}
+            </Typography>
+            <Paper
+              variant="outlined"
+              sx={{
+                p: 3,
+                borderRadius: 2,
+                bgcolor: 'background.paper',
+              }}
+            >
+              <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
+                {propertyTitle}
+              </Typography>
+              {propertyAddress && (
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  📍 {propertyAddress}
+                </Typography>
+              )}
+              <Typography variant="body1" color="primary.main" fontWeight="bold">
+                {t('detail.propertyInfo.listedPrice') || 'Listed Price'}: {formatCurrency(property.price, 'VND')}
+              </Typography>
+            </Paper>
+          </Box>
+        )}
+
         <Box sx={{ mb: 4 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
             <PersonIcon sx={{ mr: 1, color: 'primary.main' }} />
@@ -183,7 +225,10 @@ const OfferDetailPage: React.FC = () => {
                 bgcolor: 'background.paper',
               }}
             >
-              <Avatar sx={{ mr: 2, bgcolor: 'primary.main', width: 56, height: 56 }}>
+              <Avatar 
+                src={buyer.avatar} 
+                sx={{ mr: 2, bgcolor: 'primary.main', width: 56, height: 56 }}
+              >
                 {buyer.fullName?.charAt(0) || 'B'}
               </Avatar>
               <Box>
@@ -204,6 +249,82 @@ const OfferDetailPage: React.FC = () => {
             <Typography color="text.secondary">{t('detail.buyerInfo.noBuyerInfo')}</Typography>
           )}
         </Box>
+
+        {userRole === 'agent' && seller && (
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+              {t('detail.sellerInfo.title') || 'Seller Information'}
+            </Typography>
+            <Paper
+              variant="outlined"
+              sx={{
+                p: 3,
+                borderRadius: 2,
+                display: 'flex',
+                alignItems: 'center',
+                bgcolor: 'background.paper',
+              }}
+            >
+              <Avatar 
+                src={seller.avatar} 
+                sx={{ mr: 2, bgcolor: 'success.main', width: 56, height: 56 }}
+              >
+                {seller.fullName?.charAt(0) || 'S'}
+              </Avatar>
+              <Box>
+                <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 0.5 }}>
+                  {seller.fullName}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Email: {seller.email}
+                </Typography>
+                {seller.phone && (
+                  <Typography variant="body2" color="text.secondary">
+                    {t('detail.buyerInfo.phone')}: {seller.phone}
+                  </Typography>
+                )}
+              </Box>
+            </Paper>
+          </Box>
+        )}
+
+        {userRole === 'seller' && agent && (
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+              {t('detail.agentInfo.title') || 'Agent Information'}
+            </Typography>
+            <Paper
+              variant="outlined"
+              sx={{
+                p: 3,
+                borderRadius: 2,
+                display: 'flex',
+                alignItems: 'center',
+                bgcolor: 'background.paper',
+              }}
+            >
+              <Avatar 
+                src={agent.avatar} 
+                sx={{ mr: 2, bgcolor: 'info.main', width: 56, height: 56 }}
+              >
+                {agent.fullName?.charAt(0) || 'A'}
+              </Avatar>
+              <Box>
+                <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 0.5 }}>
+                  {agent.fullName}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Email: {agent.email}
+                </Typography>
+                {agent.phone && (
+                  <Typography variant="body2" color="text.secondary">
+                    {t('detail.buyerInfo.phone')}: {agent.phone}
+                  </Typography>
+                )}
+              </Box>
+            </Paper>
+          </Box>
+        )}
 
         <Box sx={{ mb: 4 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -291,6 +412,30 @@ const OfferDetailPage: React.FC = () => {
           </Paper>
         </Box>
 
+        {offer.status === 'rejected' && offer.rejection_reason && (
+          <Box sx={{ mb: 4 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <CancelIcon sx={{ mr: 1, color: 'error.main' }} />
+              <Typography variant="h6" fontWeight="bold" color="error.main">
+                {t('detail.rejectionReason.title') || 'Rejection Reason'}
+              </Typography>
+            </Box>
+            <Paper
+              variant="outlined"
+              sx={{
+                p: 3,
+                bgcolor: '#ffebee',
+                borderRadius: 2,
+                borderColor: 'error.light',
+              }}
+            >
+              <Typography variant="body1" whiteSpace="pre-wrap" color="error.dark">
+                {offer.rejection_reason}
+              </Typography>
+            </Paper>
+          </Box>
+        )}
+
         <Box sx={{ pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
           <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
             {t('detail.additional.createdAt')}: {formatDate(offer.createdAt)}
@@ -298,6 +443,11 @@ const OfferDetailPage: React.FC = () => {
           {offer.updatedAt && offer.updatedAt !== offer.createdAt && (
             <Typography variant="body2" color="text.secondary">
               {t('detail.additional.updatedAt')}: {formatDate(offer.updatedAt)}
+            </Typography>
+          )}
+          {offer.reviewed_at && (
+            <Typography variant="body2" color="text.secondary">
+              {t('detail.additional.reviewedAt') || 'Reviewed at'}: {formatDate(offer.reviewed_at)}
             </Typography>
           )}
         </Box>

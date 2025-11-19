@@ -150,9 +150,13 @@ const NotificationsPage = () => {
               if (n.action_url) {
                 const userRole = state.user?.role?.toLowerCase();
                 if (userRole === 'agent') {
-                  navigate(`agent${n.action_url}`);
+                  navigate(`/agent${n.action_url}`);
+                } else if (userRole === 'seller') {
+                  navigate(`/seller${n.action_url}`);
+                } else if (userRole === 'buyer') {
+                  navigate(`/buyer${n.action_url}`);
                 } else {
-                  navigate(`seller/${n.action_url}`);
+                  navigate(n.action_url);
                 }
               }
             }}

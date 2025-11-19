@@ -30,24 +30,27 @@ export type Offer = {
     fullName: string;
     email: string;
     phone?: string;
+    avatar?: string;
   };
   agent_id?: string | {
     _id: string;
     fullName: string;
     email: string;
     phone?: string;
+    avatar?: string;
   };
   seller_id?: string | {
     _id: string;
     fullName: string;
     email: string;
     phone?: string;
+    avatar?: string;
   };
   amount: number;
   currency?: string;
   note?: string;
   status: OfferStatus;
-  expires_at?: string; // ISO date string - từ backend
+  expires_at?: string; 
   forwarded_at?: string;
   reviewed_by?: string | {
     _id: string;
@@ -64,7 +67,7 @@ export type Offer = {
 export type CreateOfferDto = {
   property_id: string;
   amount: number;
-  validityPeriod: string; // ISO date string
+  validityPeriod: string; 
   note?: string;
   currency?: string;
   attachments?: string[];
