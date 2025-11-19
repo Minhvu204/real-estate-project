@@ -25,7 +25,7 @@ interface CreateOrReplaceParams {
 export const contractService = {
   async getLatestByDeal(dealId: string) {
     if (!mongoose.Types.ObjectId.isValid(dealId)) return null;
-    return Contract.findOne({ 
+    return Contract.findOne({
       deal_id: toObjectId(dealId),
       deleted: { $ne: true } // Chỉ lấy contract chưa bị xóa
     }).sort({ version: -1 });
@@ -33,7 +33,7 @@ export const contractService = {
 
   async getHistoryByDeal(dealId: string) {
     if (!mongoose.Types.ObjectId.isValid(dealId)) return [];
-    return Contract.find({ 
+    return Contract.find({
       deal_id: toObjectId(dealId),
       deleted: { $ne: true } // Chỉ lấy contract chưa bị xóa
     }).sort({ version: -1 });
@@ -64,7 +64,7 @@ export const contractService = {
     const actorObjectId = toObjectId(actorId);
 
     // Tìm contract mới nhất chưa bị xóa
-    const latest = await Contract.findOne({ 
+    const latest = await Contract.findOne({
       deal_id: dealObjectId,
       deleted: { $ne: true }
     }).sort({ version: -1 });
@@ -99,45 +99,37 @@ export const contractService = {
 
     return contract;
   },
-
-  async deleteLatestByDeal(dealId: string) {
-    if (!mongoose.Types.ObjectId.isValid(dealId)) {
-      const err: any = new Error("Invalid deal id");
+  async deleteContractById(contractId: string, dealId: string) {
+    if (!mongoose.Types.ObjectId.isValid(contractId) || !mongoose.Types.ObjectId.isValid(dealId)) {
+      const err: any = new Error("Invalid identifiers");
       err.status = 400;
       throw err;
     }
 
-    // Tìm contract mới nhất chưa bị xóa
-    const latest = await Contract.findOne({ 
+    const contract = await Contract.findOne({
+      _id: toObjectId(contractId),
       deal_id: toObjectId(dealId),
-      deleted: { $ne: true }
-    }).sort({ version: -1 });
-    
-    if (!latest) {
-      const err: any = new Error("No contract found for this deal");
+      // deleted: { $ne: true } 
+    });
+
+    if (!contract) {
+      const err: any = new Error("Hợp đồng không tồn tại hoặc đã bị xóa");
       err.status = 404;
       throw err;
     }
 
-    // Soft delete: Mark deleted = true thay vì hard delete
-    latest.deleted = true;
-    latest.deleted_at = new Date();
-    await latest.save();
+    // Soft delete (xóa mềm)
+    // contract.deleted = true;
+    // contract.deleted_at = new Date();
 
-    // Tìm contract tiếp theo chưa bị xóa (nếu có)
-    const nextContract = await Contract.findOne({ 
-      deal_id: toObjectId(dealId),
-      deleted: { $ne: true }
-    }).sort({ version: -1 });
-    
-    // Nếu còn contract khác và đang bị "superseded", restore về "submitted"
-    if (nextContract && nextContract.status === "superseded") {
-      nextContract.status = "submitted";
-      nextContract.replaced_at = undefined;
-      await nextContract.save();
-    }
+    // xóa cứng
+    await Contract.deleteOne({ _id: contract._id });
 
-    return { deleted: true };
+    // contract.status = "rejected"; 
+
+    // await contract.save();
+
+    return { deleted: true, contractId: contract._id, hardDelete: true };
   },
 };
 

@@ -8,7 +8,6 @@ import { connectDB } from "./config/db.config";
 import { setupSocketIO } from "./socket/socket";
 
 const httpServer = http.createServer(app);
-// Khởi tạo Socket.IO Server
 const io = new Server(httpServer, {
   cors: {
     origin: true,
@@ -16,7 +15,6 @@ const io = new Server(httpServer, {
   },
 });
 
-// gán ioInstance và cài đặt tất cả listeners
 setupSocketIO(io);
 
 app.use("/api", routes);
