@@ -86,6 +86,7 @@ export default function DataTable() {
 
     fetchData();
   }, [role]);
+
   useEffect(() => {
     const filtered = rows.filter(
       (row) =>

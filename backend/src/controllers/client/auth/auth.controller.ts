@@ -55,7 +55,7 @@ export const loginController = async (req: Request, res: Response) => {
 export const refreshTokenController = async (req: Request, res: Response) => {
   try {
     const refreshToken = req.cookies?.refresh_token;
-    if (!refreshToken) return errorResponse(res, "Không có refresh token", 401);
+    if (!refreshToken) return errorResponse(req, res, "Không có refresh token", 401);
 
     const decoded = verifyRefreshToken(refreshToken) as any;
     const newAccessToken = generateAccessToken({ id: decoded.id, role: decoded.role, email: decoded.email });

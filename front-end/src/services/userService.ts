@@ -21,7 +21,7 @@ export const updateUser = async (id: string, userData: User): Promise<User> => {
   }
 };
 
-export const blockUser = async (id: string, userData: User): Promise<User> => {
+export const blockUserAndUnBlock = async (id: string, userData: User): Promise<User> => {
   try {
     const updatedUser = { ...userData, isActive: !userData.isActive };
     const res = await httpAdmin.patch(`${RESOURCE}/${id}/status`, updatedUser);
