@@ -92,6 +92,14 @@ export const assignmentService = {
       { status: 409 }
     );
 
+    if (property.coordinates && property.coordinates.type === 'Point') {
+       const coords = property.coordinates.coordinates;
+       
+       if (!coords || (coords as any).length === 0) {
+           property.coordinates = undefined; 
+       }
+    }
+
     property.assignmentHistory = property.assignmentHistory || [];
     property.assignmentHistory.push({
       agent_id: assignment.agent_id,

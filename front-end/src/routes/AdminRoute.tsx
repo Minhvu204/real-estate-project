@@ -6,12 +6,14 @@ import GradientTooltip from "../components/admin/Dashboard";
 import UserDetails from "../components/admin/UserDetails";
 import UpdateUser from "../components/admin/userInfor/UpdateUser";
 import BlockUser from "../components/admin/userInfor/BlockUser";
+import AdminTaxonomiesPage from "../pages/AdminTaxonomiesPage";
 import ListProperties from "../components/admin/manageProperties/ListProperties";
 import ViewDetailProperties from "../components/admin/manageProperties/ViewDetailProperties";
 import HideProperties from "../components/admin/manageProperties/HideProperties";
 import ContractsList from "../components/admin/manageContracts/ContractsList";
 import DealsList from "../components/admin/manageDeals/DealsList";
 import PaymentsList from "../components/admin/managePayments/PaymentsList";
+import HomeList from "../components/admin/HomeList";
 // import ViewContract from "../components/admin/manageContracts/ViewContract";
 
 const AdminProtectedRoute = () => {
@@ -41,6 +43,8 @@ export const AdminRoute = [
           { path: "users/:id", element: <UserDetails /> },
           { path: "users/edit/:id", element: <UpdateUser /> },
           { path: "users/block", element: <BlockUser userId="" /> },
+          { path: "/admin/taxonomies", element: <AdminTaxonomiesPage /> },
+          { index: true, element: <HomeList /> },
           { path: "properties", element: <ListProperties /> },
           {
             path: "properties/:id",

@@ -81,7 +81,7 @@ const ListProperties = () => {
       item.address?.[currentLanguage]
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase());
-    const matchStatus = filterStatus === "" || item.status === filterStatus;
+const matchStatus = filterStatus === "" || item.status === filterStatus;
     return matchSearch && matchStatus;
   });
 
