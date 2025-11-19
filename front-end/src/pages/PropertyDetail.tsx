@@ -186,7 +186,7 @@ const PropertyDetailUser = () => {
                     <Chip label={property.city_id?.city_name[lang]} />
                     <Chip label={property.category_id?.category_name[lang]} />
                     <Chip label={property.type_id?.type_name[lang]} />
-                 
+
                     <Chip label={property.status} color="success" />
                 </Stack>
 
@@ -243,9 +243,7 @@ const PropertyDetailUser = () => {
                                     <Typography fontWeight="bold">{property.owner_id?.fullName}</Typography>
                                     <Typography color="text.secondary">{property.owner_id?.phone}</Typography>
                                     <Typography color="text.secondary">{property.owner_id?.email}</Typography>
-                                    <Typography fontWeight="bold">{property.owner_id?.fullName}</Typography>
-                                    <Typography color="text.secondary">{property.owner_id?.phone}</Typography>
-                                    <Typography color="text.secondary">{property.owner_id?.email}</Typography>
+
                                 </Box>
                             </Stack>
                         </Paper>
@@ -263,9 +261,7 @@ const PropertyDetailUser = () => {
                                     <Typography fontWeight="bold">{property.agent_id?.fullName}</Typography>
                                     <Typography color="text.secondary">{property.agent_id?.phone}</Typography>
                                     <Typography color="text.secondary">{property.agent_id?.email}</Typography>
-                                    <Typography fontWeight="bold">{property.agent_id?.fullName}</Typography>
-                                    <Typography color="text.secondary">{property.agent_id?.phone}</Typography>
-                                    <Typography color="text.secondary">{property.agent_id?.email}</Typography>
+
                                 </Box>
                             </Stack>
                         </Paper>

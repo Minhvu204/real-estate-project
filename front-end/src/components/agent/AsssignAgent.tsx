@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getAllAssignments } from '../../services/agent.service';
 import type { AssignAgent } from '../../types/AsssignAgents';
-import { toast } from 'react-toastify';
+import { Bounce, toast, ToastContainer } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { acceptAssignAgent } from '../../services/agent.service';
 import { rejectAssignAgent } from '../../services/agent.service';
@@ -30,30 +30,23 @@ const AssignAgentPage = () => {
         try {
             await acceptAssignAgent(id);
             toast.success("Accepted assignment successfully");
-            setAssignments(prev =>
-                prev.map(item =>
-                    item._id === id ? { ...item, status: "accepted" } : item
-                )
-            );
-        } catch (error) {
+
+        } catch (error: any) {
             console.error("Error accepting assignment:", error);
-            toast.error("Error accepting assignment");
+            const errorMessage = error?.response?.data?.message || error?.message || "Error accepting assignment";
+            toast.error(errorMessage);
         }
     };
-
+    const note = "Abc"
     const handleReject = async (id: string) => {
         try {
-            await rejectAssignAgent(id);
-            toast.error("Rejected assignment successfully");
+            await rejectAssignAgent(id, note);
+            toast.success("Rejected assignment successfully");
 
-            setAssignments(prev =>
-                prev.map(item =>
-                    item._id === id ? { ...item, status: "rejected" } : item
-                )
-            );
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error rejecting assignment:", error);
-            toast.error("Error rejecting assignment");
+            const errorMessage = error?.response?.data?.message || error?.message || "Error rejecting assignment";
+            toast.error(errorMessage);
         }
     };
 
@@ -76,6 +69,7 @@ const AssignAgentPage = () => {
                             key={item._id}
                             className="border rounded-lg p-4 shadow-sm hover:shadow-md transition bg-white"
                         >
+                            <p>{item._id}</p>
                             <div className="flex items-center justify-between">
                                 <div className="space-y-1">
                                     <p className="text-lg font-semibold">
@@ -131,6 +125,19 @@ const AssignAgentPage = () => {
                     ))}
                 </div>
             )}
+            <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick={false}
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+                transition={Bounce}
+            />
         </div>
     );
 };

@@ -24,4 +24,6 @@ export interface AssignAgent {
     createdAt: string;
     updatedAt: string;
     __v: number;
+    actedAt?: string;
+    actedBy?: string
 }

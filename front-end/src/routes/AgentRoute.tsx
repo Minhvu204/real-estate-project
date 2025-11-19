@@ -1,5 +1,6 @@
-import AsssignAgent from "@/components/agent/AsssignAgent";
+import React from "react";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
+import AssignAgentPage from "@/components/agent/AsssignAgent";
 
 export const AgentRoute = [
     {
@@ -7,7 +8,7 @@ export const AgentRoute = [
         children: [
             { path: "my-properties", element: <MyPropertiesPage /> },
             { path: "my-properties/:id", element: <MyPropertiesPage /> },
-            {path: "assignments", element: <AsssignAgent /> }
+            {path: "assignments", element: <AssignAgentPage /> }
         ],
     },
 ];

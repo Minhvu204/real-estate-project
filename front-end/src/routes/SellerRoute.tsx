@@ -18,9 +18,7 @@ export const SellerRoute = [
     {
         path: "/seller/create", element: <CreatePropertyPage />
     },
-    {
-        path: "/seller/my-properties", element: <MyPropertiesPage />
-    },
+    
     {
         path: "/seller/my-properties/:id", element: <MyPropertiesPage />
     }

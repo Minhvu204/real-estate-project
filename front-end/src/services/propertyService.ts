@@ -5,7 +5,6 @@ import { httpClient } from "../utils/httpClient";
 import type { User } from "../types/Users";
 import type { Feature } from "@/types/Feature";
 import type { Taxonomy } from "@/types/Taxonomy";
-import type { PropertyListData } from "../types/Respondata";
 import { httpAdmin } from "../utils/httpAdmin";
 
 const RESOURCE = "/properties";
