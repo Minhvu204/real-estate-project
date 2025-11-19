@@ -17,6 +17,22 @@ export const dealService = {
       .populate("offer_id");
   },
 
+  async getDealForBuyer(dealId: string, buyerId: string) {
+    if (!mongoose.Types.ObjectId.isValid(dealId) || !mongoose.Types.ObjectId.isValid(buyerId)) {
+      return null;
+    }
+
+    return Deal.findOne({
+      _id: toObjectId(dealId),
+      buyer_id: toObjectId(buyerId),
+    })
+      .populate("property_id")
+      .populate("buyer_id")
+      .populate("seller_id")
+      .populate("agent_id")
+      .populate("offer_id");
+  },
+
   async getDealForAgent(dealId: string, agentId: string) {
     if (!mongoose.Types.ObjectId.isValid(dealId) || !mongoose.Types.ObjectId.isValid(agentId)) {
       return null;
