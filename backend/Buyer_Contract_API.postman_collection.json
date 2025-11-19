@@ -1,0 +1,302 @@
+{
+	"info": {
+		"_postman_id": "buyer-contract-api-001",
+		"name": "Buyer Contract API",
+		"description": "Collection để test API Buyer xem và upload hợp đồng",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Xem hợp đồng",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/client/buyer/deals/{{dealId}}/contract",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"client",
+						"buyer",
+						"deals",
+						"{{dealId}}",
+						"contract"
+					]
+				},
+				"description": "Lấy thông tin hợp đồng mới nhất của deal. Buyer phải là chủ sở hữu deal."
+			},
+			"response": []
+		},
+		{
+			"name": "2. Tải hợp đồng (Download)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/api/client/buyer/deals/{{dealId}}/contract/download",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"client",
+						"buyer",
+						"deals",
+						"{{dealId}}",
+						"contract",
+						"download"
+					]
+				},
+				"description": "Lấy thông tin download (URL, filename, mime_type) của hợp đồng."
+			},
+			"response": []
+		},
+		{
+			"name": "3. Upload hợp đồng đã ký",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": [],
+							"description": "File PDF hợp đồng đã ký"
+						},
+						{
+							"key": "notes",
+							"value": "Đã ký ngày {{$isoTimestamp}}",
+							"type": "text",
+							"description": "Ghi chú (optional)"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/client/buyer/deals/{{dealId}}/contract",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"client",
+						"buyer",
+						"deals",
+						"{{dealId}}",
+						"contract"
+					]
+				},
+				"description": "Upload bản hợp đồng đã ký. Yêu cầu: ALLOW_BUYER_CONTRACT_UPLOAD=true và deal status phải là 'awaiting_contract' hoặc 'contract_under_review'."
+			},
+			"response": []
+		},
+		{
+			"name": "Test Cases - Lỗi",
+			"item": [
+				{
+					"name": "Không có token",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/client/buyer/deals/{{dealId}}/contract",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"client",
+								"buyer",
+								"deals",
+								"{{dealId}}",
+								"contract"
+							]
+						},
+						"description": "Expected: 401 - Chưa đăng nhập"
+					},
+					"response": []
+				},
+				{
+					"name": "Token không hợp lệ",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer invalid_token_12345",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/client/buyer/deals/{{dealId}}/contract",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"client",
+								"buyer",
+								"deals",
+								"{{dealId}}",
+								"contract"
+							]
+						},
+						"description": "Expected: 401 - Token không hợp lệ"
+					},
+					"response": []
+				},
+				{
+					"name": "Buyer không phải chủ deal",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/client/buyer/deals/{{wrongDealId}}/contract",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"client",
+								"buyer",
+								"deals",
+								"{{wrongDealId}}",
+								"contract"
+							]
+						},
+						"description": "Expected: 404 - Deal không tồn tại hoặc không có quyền"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload không có file",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "notes",
+									"value": "Test không có file",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/client/buyer/deals/{{dealId}}/contract",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"client",
+								"buyer",
+								"deals",
+								"{{dealId}}",
+								"contract"
+							]
+						},
+						"description": "Expected: 400 - Không tìm thấy file"
+					},
+					"response": []
+				},
+				{
+					"name": "Role không phải buyer",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{agentToken}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/client/buyer/deals/{{dealId}}/contract",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"client",
+								"buyer",
+								"deals",
+								"{{dealId}}",
+								"contract"
+							]
+						},
+						"description": "Expected: 403 - Không có quyền truy cập"
+					},
+					"response": []
+				}
+			],
+			"description": "Các test case kiểm tra xử lý lỗi"
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string",
+			"description": "Token JWT của buyer (lấy từ login API)"
+		},
+		{
+			"key": "dealId",
+			"value": "",
+			"type": "string",
+			"description": "ID của deal mà buyer là chủ sở hữu"
+		},
+		{
+			"key": "wrongDealId",
+			"value": "507f1f77bcf86cd799439999",
+			"type": "string",
+			"description": "Deal ID không thuộc buyer này (để test lỗi)"
+		},
+		{
+			"key": "agentToken",
+			"value": "",
+			"type": "string",
+			"description": "Token của agent (để test role check)"
+		}
+	]
+}
+

@@ -35,20 +35,21 @@ const Navbar: React.FC = () => {
   const role = state.user?.role || "guest";
   const isAdminRoute = location.pathname.startsWith("/admin");
 
-  const roleMenus = {
-    buyer: [
-      { label: "My Properties", path: "/dwello/myProperties" },
-      { label: "My Agent", path: "/dwello/myAgent" },
-    ],
-    seller: [
-      { label: "My Properties", path: "/seller/properties" },
-      { label: "Manage Listings", path: "/seller/listings" },
-    ],
-    agent: [
-      { label: "My Properties", path: "/agent/properties" },
-      { label: "Manage Listings", path: "/agent/assignments" },
-    ],
-  };
+    const roleMenus = {
+        buyer: [
+            { label: "My Properties", path: "/dwello/myProperties" },
+            { label: "My Agent", path: "/dwello/myAgent" },
+        ],
+        seller: [
+            { label: "My Properties", path: "/seller/properties" },
+            { label: "Manage Listings", path: "/seller/my-properties" },
+        ],
+        agent: [
+            { label: "My Properties", path: "/agent/properties" },
+            { label: "Manage Listings", path: "/agent/my-properties" },
+        ],
+
+    };
 
   const handleLogout = () => {
     signOut();

@@ -17,6 +17,7 @@ const ViewDetailProperties = () => {
   const navigate = useNavigate();
   const currentLanguage: Lang = getLanguage();
   const { t } = useTranslation("detailProperty");
+
   useEffect(() => {
     const fetchProperty = async () => {
       const data = await getDetailPropertiesById(id!);
@@ -36,6 +37,8 @@ const ViewDetailProperties = () => {
       </div>
     );
   }
+
+  const features = property.features ?? [];
 
   return (
     <>
@@ -169,7 +172,7 @@ const ViewDetailProperties = () => {
               {t("featuredAmenities")}
             </h4>
             <div className="flex flex-wrap gap-2 sm:gap-3">
-              {property.features.map((f) => (
+              {property.features?.map((f) => (
                 <span
                   key={f._id}
                   className="bg-indigo-50 text-indigo-700 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium border border-indigo-100"

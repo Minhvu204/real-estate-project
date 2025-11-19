@@ -82,7 +82,7 @@ const ListProperties = () => {
       item.address?.[currentLanguage]
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase());
-    const matchStatus = filterStatus === "" || item.status === filterStatus;
+const matchStatus = filterStatus === "" || item.status === filterStatus;
     return matchSearch && matchStatus;
   });
 
@@ -169,7 +169,7 @@ const ListProperties = () => {
             <tr key={item._id} className="hover:bg-gray-50">
               <td className="px-4 py-3 border-b">
                 <img
-                  src={item.images[0]}
+src={item.images[0]}
                   alt={t("avatar")}
                   className="rounded-full w-10 h-10"
                 />
@@ -182,7 +182,8 @@ const ListProperties = () => {
               </td>
               <td className="px-4 py-3 border-b">
                 <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${item.status === "approved"
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    item.status === "approved"
                       ? "bg-green-100 text-green-700"
                       : item.status === "pending"
                       ? "bg-yellow-100 text-yellow-700"
@@ -213,9 +214,7 @@ const ListProperties = () => {
                     >
                       <FontAwesomeIcon icon={faEye} />
                     </button>
-
                   </Tooltip>
-
 
                   {isManageMode ? (
                     <>
