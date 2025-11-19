@@ -27,6 +27,12 @@ import {
   Hail as HailIcon,
   RealEstateAgent as RealEstateAgentIcon,
 } from "@mui/icons-material";
+import PaymentsIcon from "@mui/icons-material/Payments";
+import LocalOfferIcon from "@mui/icons-material/LocalOffer";
+import ArticleRoundedIcon from "@mui/icons-material/ArticleRounded";
+import RealEstateAgentRoundedIcon from "@mui/icons-material/RealEstateAgentRounded";
+import BackspaceRoundedIcon from "@mui/icons-material/BackspaceRounded";
+import DoneRoundedIcon from "@mui/icons-material/DoneRounded";
 import { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { getUser } from "../../utils/storage";
@@ -55,8 +61,19 @@ export default function AdminDashboard() {
 
   const menuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
-    { text: "List User", icon: <PersonIcon />, path: "/admin/users" },
-    { text: "List Properties", icon: <HomeIcon />, path: "/admin/properties" },
+    { text: "User", icon: <PersonIcon />, path: "/admin/users" },
+    {
+      text: "Properties",
+      icon: <RealEstateAgentRoundedIcon />,
+      path: "/admin/properties",
+    },
+    {
+      text: "Contracts",
+      icon: <ArticleRoundedIcon />,
+      path: "/admin/contracts",
+    },
+    { text: "Deals", icon: <LocalOfferIcon />, path: "/admin/deals" },
+    { text: "Payments", icon: <PaymentsIcon />, path: "/admin/payments" },
   ];
 
   const listUserItem = [
@@ -81,7 +98,7 @@ export default function AdminDashboard() {
   const listPropertyItem = [
     {
       text: "Available",
-      icon: <SupervisorAccountIcon />,
+      icon: <DoneRoundedIcon />,
       path: "/admin/properties?status=available",
     },
     {
@@ -96,7 +113,7 @@ export default function AdminDashboard() {
     },
     {
       text: "Rejected",
-      icon: <RealEstateAgentIcon />,
+      icon: <BackspaceRoundedIcon />,
       path: "/admin/properties?status=rejected",
     },
   ];
@@ -142,9 +159,9 @@ export default function AdminDashboard() {
                 component={Link}
                 to={item.path}
                 onClick={
-                  item.text === "List User"
+                  item.text === "User"
                     ? handleUserListToggle
-                    : item.text === "List Properties"
+                    : item.text === "Properties"
                     ? handlePropertyListToggle
                     : undefined
                 }
@@ -165,14 +182,14 @@ export default function AdminDashboard() {
                   {item.icon}
                 </ListItemIcon>
                 <ListItemText primary={item.text} />
-                {item.text === "List User" &&
+                {item.text === "User" &&
                   (userListOpen ? <ExpandLess /> : <ExpandMore />)}
-                {item.text === "List Properties" &&
+                {item.text === "Properties" &&
                   (userListOpen ? <ExpandLess /> : <ExpandMore />)}
               </ListItemButton>
             </ListItem>
 
-            {item.text === "List User" && (
+            {item.text === "User" && (
               <Collapse in={userListOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                   {listUserItem.map((sub) => (
@@ -203,7 +220,7 @@ export default function AdminDashboard() {
                 </List>
               </Collapse>
             )}
-            {item.text === "List Properties" && (
+            {item.text === "Properties" && (
               <Collapse in={userPropertyOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                   {listPropertyItem.map((sub) => (

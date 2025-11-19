@@ -9,6 +9,10 @@ import BlockUser from "../components/admin/userInfor/BlockUser";
 import ListProperties from "../components/admin/manageProperties/ListProperties";
 import ViewDetailProperties from "../components/admin/manageProperties/ViewDetailProperties";
 import HideProperties from "../components/admin/manageProperties/HideProperties";
+import ContractsList from "../components/admin/manageContracts/ContractsList";
+import DealsList from "../components/admin/manageDeals/DealsList";
+import PaymentsList from "../components/admin/managePayments/PaymentsList";
+// import ViewContract from "../components/admin/manageContracts/ViewContract";
 
 const AdminProtectedRoute = () => {
   const user = getUser();
@@ -49,6 +53,22 @@ export const AdminRoute = [
           {
             path: "manageProperties/:id",
             element: <ViewDetailProperties />,
+          },
+          {
+            path: "contracts",
+            element: <ContractsList />,
+          },
+          // {
+          //   path: "contracts/:id",
+          //   element: <ViewContract pdfUrl="" />,
+          // },
+          {
+            path: "deals",
+            element: <DealsList />,
+          },
+          {
+            path: "payments",
+            element: <PaymentsList />,
           },
         ],
       },

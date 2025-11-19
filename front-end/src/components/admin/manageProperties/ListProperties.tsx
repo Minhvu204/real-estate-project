@@ -12,7 +12,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import HideProperties from "./HideProperties";
 import { toast, ToastContainer } from "react-toastify";
-import ButtonLanguage from "../../common/ButtonLanguage";
 import { useTranslation } from "react-i18next";
 
 const ListProperties = () => {
@@ -25,7 +24,7 @@ const ListProperties = () => {
   const [searchParams] = useSearchParams();
   const { t } = useTranslation("listProperties");
 
-  const itemPerPages: number = 5;
+  const itemPerPages: number = 10;
   const currentLanguage: Lang = getLanguage();
   const status = searchParams.get("status");
   const isManageMode = status === "pending";
@@ -115,10 +114,6 @@ const ListProperties = () => {
 
   return (
     <>
-      <ButtonLanguage />
-      <h1 className="text-2xl font-bold mb-4 text-blue-700 text-center">
-        {isManageMode ? t("text-ManageProperties") : t("text-listProperties")}
-      </h1>
       <div className="flex justify-between items-center mb-4">
         <input
           type="text"
@@ -143,104 +138,131 @@ const ListProperties = () => {
         )}
       </div>
 
-      <table className="min-w-full border border-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-4 py-2 text-left text-gray-600 font-semibold border-b">
-              {t("avatar")}
-            </th>
-            <th className="px-4 py-2 text-left text-gray-600 font-semibold border-b">
-              {t("name")}
-            </th>
-            <th className="px-4 py-2 text-left text-gray-600 font-semibold border-b">
-              {t("address")}
-            </th>
-            <th className="px-4 py-2 text-left text-gray-600 font-semibold border-b">
-              {t("status")}
-            </th>
-            <th className="px-4 py-2 text-left text-gray-600 font-semibold border-b">
-              {t("action")}
-            </th>
-          </tr>
-        </thead>
+      <div className="mt-4">
+        <div className="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+          <table className="min-w-full table-auto divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  {t("avatar")}
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  {t("name")}
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  {t("address")}
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  {t("status")}
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  {t("action")}
+                </th>
+              </tr>
+            </thead>
 
-        <tbody>
-          {currentItems.map((item) => (
-            <tr key={item._id} className="hover:bg-gray-50">
-              <td className="px-4 py-3 border-b">
-                <img
-                  src={item.images[0]}
-                  alt={t("avatar")}
-                  className="rounded-full w-10 h-10"
-                />
-              </td>
-              <td className="px-4 py-3 border-b max-w-[250px]">
-                {item.title?.[currentLanguage]}
-              </td>
-              <td className="px-4 py-3 border-b max-w-[250px]">
-                {item.address?.[currentLanguage]}
-              </td>
-              <td className="px-4 py-3 border-b">
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${item.status === "approved"
-                      ? "bg-green-100 text-green-700"
-                      : item.status === "pending"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : item.status === "available"
-                      ? "bg-blue-100 text-blue-700"
-                      : item.status === "rejected"
-                      ? "bg-red-100 text-red-700"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
+            <tbody className="divide-y divide-gray-100 bg-white">
+              {currentItems.map((item) => (
+                <tr
+                  key={item._id}
+                  className="transition-colors hover:bg-gray-50"
                 >
-                  {currentLanguage === "en"
-                    ? item.status
-                    : item.status === "approved"
-                    ? "Đã duyệt"
+                  {/* Avatar */}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center">
+                      <img
+                        src={item.images[0]}
+                        alt={t("avatar")}
+                        className="h-10 w-10 rounded-full object-cover ring-2 ring-gray-100"
+                      />
+                    </div>
+                  </td>
+
+                  {/* Name */}
+                  <td className="px-4 py-3 max-w-[260px] text-sm font-medium text-gray-900">
+                    <span className="line-clamp-2">
+                      {item.title?.[currentLanguage]}
+                    </span>
+                  </td>
+
+                  {/* Address */}
+                  <td className="px-4 py-3 max-w-[280px] text-sm text-gray-700">
+                    <span className="line-clamp-2">
+                      {item.address?.[currentLanguage]}
+                    </span>
+                  </td>
+
+                  {/* Status */}
+                  <td className="px-4 py-3 text-sm">
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium
+                ${
+                  item.status === "approved"
+                    ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
                     : item.status === "pending"
-                    ? "Chờ duyệt"
+                    ? "bg-amber-50 text-amber-700 ring-1 ring-amber-100"
                     : item.status === "available"
-                    ? "Có sẵn"
-                    : "Bị từ chối"}
-                </span>
-              </td>
-              <td className="px-4 py-3 border-b space-x-2">
-                <div className="flex gap-2">
-                  <Tooltip title={t("view")}>
-                    <button
-                      onClick={() => navigate(`${item?._id}`)}
-                      className="cursor-pointer w-9 h-9 flex items-center justify-center rounded-md text-white bg-blue-500 hover:bg-blue-600 shadow-sm hover:shadow-md transition-all duration-200"
+                    ? "bg-sky-50 text-sky-700 ring-1 ring-sky-100"
+                    : item.status === "rejected"
+                    ? "bg-rose-50 text-rose-700 ring-1 ring-rose-100"
+                    : "bg-gray-100 text-gray-700 ring-1 ring-gray-200"
+                }`}
                     >
-                      <FontAwesomeIcon icon={faEye} />
-                    </button>
+                      <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                      {currentLanguage === "en"
+                        ? item.status
+                        : item.status === "approved"
+                        ? "Đã duyệt"
+                        : item.status === "pending"
+                        ? "Chờ duyệt"
+                        : item.status === "available"
+                        ? "Có sẵn"
+                        : "Bị từ chối"}
+                    </span>
+                  </td>
 
-                  </Tooltip>
+                  {/* Actions */}
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap items-center justify-left gap-2">
+                      <Tooltip title={t("view")}>
+                        <button
+                          onClick={() => navigate(`${item?._id}`)}
+                          className="cursor-pointer w-9 h-9 flex items-center justify-center rounded-md text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 shadow-sm hover:shadow-md transition-all duration-200"
+                        >
+                          <FontAwesomeIcon icon={faEye} />
+                        </button>
+                      </Tooltip>
 
-
-                  {isManageMode ? (
-                    <>
-                      <button
-                        onClick={() => handleUpdateStatus(item._id, "approved")}
-                        className="cursor-pointer px-3 h-9 flex items-center justify-center rounded-md text-white bg-green-500 hover:bg-green-700 shadow-sm hover:shadow-md transition-all duration-200"
-                      >
-                        {t("approve")}
-                      </button>
-                      <button
-                        onClick={() => handleUpdateStatus(item._id, "rejected")}
-                        className="cursor-pointer px-3 h-9 flex items-center justify-center rounded-md text-white bg-red-500 hover:bg-red-700 shadow-sm hover:shadow-md transition-all duration-200"
-                      >
-                        {t("reject")}
-                      </button>
-                    </>
-                  ) : (
-                    <HideProperties propertyId={item?._id} />
-                  )}
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                      {isManageMode ? (
+                        <>
+                          <button
+                            onClick={() =>
+                              handleUpdateStatus(item._id, "approved")
+                            }
+                            className="cursor-pointer px-3 h-9 flex items-center justify-center rounded-md text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm hover:shadow-md transition-all duration-200 text-xs font-medium"
+                          >
+                            {t("approve")}
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleUpdateStatus(item._id, "rejected")
+                            }
+                            className="cursor-pointer px-3 h-9 flex items-center justify-center rounded-md text-white bg-rose-600 hover:bg-rose-700 shadow-sm hover:shadow-md transition-all duration-200 text-xs font-medium"
+                          >
+                            {t("reject")}
+                          </button>
+                        </>
+                      ) : (
+                        <HideProperties propertyId={item?._id} />
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {totalPages > 1 && (
         <div className="flex justify-center items-center mt-6">
