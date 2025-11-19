@@ -1,7 +1,7 @@
-import { getAllCities, getAllDistrictsByCityId, getAllTaxonomies, getAllWardsByDistrictId } from "@/services/propertyService";
+import { generatePropertyDescription, getAllCities, getAllDistrictsByCityId, getAllFeatures, getAllTaxonomies, getAllWardsByDistrictId } from "@/services/propertyService";
 import type { Taxonomy } from "@/types/Taxonomy";
 import { getLanguage, type Lang } from "@/utils/storage";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import CurrencyInput from 'react-currency-input-field';
@@ -9,10 +9,12 @@ import type { City } from "@/types/City";
 import type { District } from "@/types/District";
 import type { Ward } from "@/types/Ward";
 import AddressInputOnBlur from "@/components/common/AddressInputOnBlur";
-import type { PropertyData } from "@/types/PropertyData";
+import type { PropertyData, PropertyFormData } from "@/types/PropertyData";
 import Select from 'react-select';
 import LocationSelect from "@/components/common/LocationSelect";
 import ApartmentInfo from "./ApartmentInfo";
+import SelectFeatures from "./SelectFeatures";
+import type { Feature } from "@/types/Feature";
 
 interface FormPropertyProps {
     initialData: PropertyData;
@@ -31,6 +33,9 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
     const [districts, setDistricts] = useState<District[] | null>(null);
     const [wards, setWards] = useState<Ward[] | null>(null);
     const { t } = useTranslation("createPropertyPage");
+    const [availableFeatures, setAvailableFeatures] = useState<Feature[]>([]);
+    const [featuresLoading, setFeaturesLoading] = useState(true);
+    const [generating, setGenerating] = useState(false);
     const currentLanguage: Lang = getLanguage();
     const cityOptions = (cities ?? []).map(city => ({
         value: city._id,
@@ -45,33 +50,26 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
         label: ward.ward_name[currentLanguage]
     }));
     useEffect(() => {
-        const fetchCategories = async () => {
+        const fetchInitialData = async () => {
             try {
                 setLoading(true);
-                setError(null);
-                const data = await getAllTaxonomies();
-                setTaxonomies(data);
-            } catch (error) {
-                console.error("Error fetch categories: ", error);
+                const [tax, citiesData, featuresData] = await Promise.all([
+                    getAllTaxonomies(),
+                    getAllCities(),
+                    getAllFeatures()
+                ]);
+                setTaxonomies(tax);
+                setCities(citiesData);
+                setAvailableFeatures(featuresData);
+            } catch (err) {
+                console.error(err);
                 setError(t("formProperty.errorFetch"));
             } finally {
                 setLoading(false);
+                setFeaturesLoading(false);
             }
         };
-        fetchCategories();
-    }, [t]);
-    useEffect(() => {
-        const fetchCities = async () => {
-            try {
-                setError(null);
-                const data = await getAllCities();
-                setCities(data);
-            } catch (error) {
-                console.log('Error Fetch', error);
-                setError("Error Fetch Cities");
-            }
-        }
-        fetchCities();
+        fetchInitialData();
     }, []);
     useEffect(() => {
         if (formData.city_id) {
@@ -109,11 +107,11 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
 
         fetchWards();
     }, [formData.city_id, formData.district_id]);
-
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => {
         const { name, value } = e.target;
+        console.log(formData);
         setFormData(prev => {
             return { ...prev, [name]: value };
         });
@@ -144,8 +142,9 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
     };
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.title || !formData.price || !formData.description || !formData.address || !formData.city_id || !formData.category_id || !formData.type_id
-        ) {
+        const requiredFields = ["title", "price", "description", "address", "city_id", "category_id", "type_id"];
+        const missing = requiredFields.some(f => !(formData as any)[f]);
+        if (missing) {
             toast.error(t("formProperty.alertMissing"));
             return;
         }
@@ -163,6 +162,51 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
     const getWardNameById = (wardId: string) => {
         const ward = wards?.find(ward => ward._id === wardId);
         return ward ? ward.ward_name[currentLanguage] : "";
+    }
+    const apartmentType = taxonomies?.categories.find(
+        (c) => c.category_name.en === "Apartment"
+    );
+    const featureNames: string[] = formData.features.map(id => {
+        const f = availableFeatures.find(feat => feat._id === id);
+        return f ? f.feature_name[currentLanguage] : "";
+    }).filter(Boolean);
+    const handleGenerateDescription = async () => {
+        if (!formData.title) {
+            toast.error("Title is required to generate description");
+            return;
+        }
+        try {
+            setGenerating(true);
+            const dataForAI: PropertyFormData = {
+                title: formData.title,
+                price: formData.price,
+                category_name: taxonomies?.categories.find(c => c._id === formData.category_id)?.category_name[currentLanguage] || "",
+                type_name: taxonomies?.propertyTypes.find(t => t._id === formData.type_id)?.type_name[currentLanguage] || "",
+                bedrooms: formData.bedrooms,
+                bathrooms: formData.bathrooms,
+                area: formData.area,
+                address: formData.address,
+                ward_name: getWardNameById(formData.ward_id),
+                district_name: getDistrictNameById(formData.district_id),
+                city_name: getCityNameById(formData.city_id),
+                features_names: featureNames,
+                floor_number: formData.floors,
+                building_block: formData.building_block,
+                apartment_number: formData.apartment_number,
+            };
+            console.log("data for AI", dataForAI);
+            const descriptionObj = await generatePropertyDescription(dataForAI);
+            setFormData(prev => ({
+                ...prev,
+                description: descriptionObj.description
+            }));
+            toast.success("Description generated successfully");
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to generate description");
+        } finally {
+            setGenerating(false);
+        }
     }
     return (
         <form
@@ -211,11 +255,11 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                                     value={formData.price}
                                     allowDecimals={false}
                                     allowNegativeValue={false}
-                                    onValueChange={(value, name) => {
+                                    onValueChange={(value) => {
                                         setFormData(prev => ({
                                             ...prev,
-                                            [name!]: value ?? ""
-                                        }));
+                                            price: value ?? ""
+                                        }))
                                     }}
                                     placeholder={t("formProperty.placeholder.price")}
                                     className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
@@ -237,9 +281,9 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                                                 ?.map(p => ({ value: p._id, label: p.type_name[currentLanguage] }))
                                                 .find(o => o.value === formData.type_id) ?? null
                                         }
-                                        onChange={(selected) =>
+                                        onChange={(selected) => {
                                             setFormData(prev => ({ ...prev, type_id: selected?.value ?? "" }))
-                                        }
+                                        }}
                                         placeholder={t("formProperty.select.type")}
                                         isClearable
                                     />
@@ -365,10 +409,10 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                                     allowDecimals={false}
                                     allowNegativeValue={false}
                                     placeholder={t("formProperty.placeholder.area")}
-                                    onValueChange={(value, name) => {
+                                    onValueChange={(value) => {
                                         setFormData(prev => ({
                                             ...prev,
-                                            [name!]: value ?? ""
+                                            area: value ?? ""
                                         }));
                                     }}
                                     className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
@@ -390,7 +434,13 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                             </div>
                         </div>
                     </div>
-                    <ApartmentInfo formData={formData} setFormData={setFormData} />
+                    <ApartmentInfo formData={formData} setFormData={setFormData} apartmentTypeId={apartmentType?._id} />
+                    <SelectFeatures
+                        selectedFeatures={formData.features}
+                        onChange={features => setFormData(prev => ({ ...prev, features }))}
+                        availableFeatures={availableFeatures}
+                        loading={featuresLoading}
+                    />
                     <div className="mt-2">
                         <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
                             {t("formProperty.description")} <span className="text-red-500">*</span>
@@ -410,8 +460,10 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                         <button
                             title="genAI"
                             type="button"
-                            className="bg-green-400 hover:bg-green-700 text-white font-semibold px-4 md:px-6 py-1.5 md:py-2 text-sm md:text-base rounded-lg transition-all duration-300 cursor-pointer"
-                        >
+                            onClick={handleGenerateDescription}
+                            disabled={generating || !formData.title}
+                            className={`bg-green-400 hover:bg-green-700 text-white font-semibold px-4 md:px-6 py-1.5 md:py-2 text-sm md:text-base rounded-lg transition-all duration-300 cursor-pointer ${generating ? "opacity-50 cursor-not-allowed" : ""
+                                }`}>
                             {t("formProperty.autoDescription")}
                         </button>
                     </div>
