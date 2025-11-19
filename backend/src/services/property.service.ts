@@ -297,7 +297,7 @@ export const propertyService = {
 
   async getPropertiesByUser(userId: string, filters: any = {}) {
     const { status, keyword } = filters;
-    
+
     // Lấy properties mà user là owner HOẶC agent
     const query: any = {
       $or: [
@@ -342,6 +342,7 @@ export const propertyService = {
       title,
       description,
       address,
+      coordinates,
       ...rest
     } = data;
 
@@ -373,24 +374,48 @@ export const propertyService = {
 
     let finalCoordinates: { type: 'Point', coordinates: number[] } | undefined = undefined;
 
-    try {
-      const fullAddressString = `${address}, ${ward.ward_name.vi}, ${district.district_name.vi}, ${city.city_name.vi}`;
-      console.log(`[Geocoding] Đang tìm: ${fullAddressString}`);
+    //Nếu FE có gửi tọa độ xuống
+    if (coordinates) {
+      let lat: number | undefined;
+      let lng: number | undefined;
 
-      const location = await geocodeAddress(fullAddressString); // (trả về { lat, lng })
-
-      // Chuyển đổi sang format GeoJSON [lng, lat]
-      if (location) {
-        finalCoordinates = {
-          type: 'Point',
-          coordinates: [location.lng, location.lat] // [lng, lat]
-        };
-      } else {
-        console.warn(`Không tìm thấy tọa độ cho: ${fullAddressString}. Tọa độ sẽ là null.`);
+      if (typeof coordinates === 'object' && !Array.isArray(coordinates)) {
+        lat = Number(coordinates.lat || coordinates.latitude);
+        lng = Number(coordinates.lng || coordinates.longitude);
+      } else if (Array.isArray(coordinates) && coordinates.length === 2) {
+        // Format: [lng, lat] (Chuẩn GeoJSON)
+        lng = Number(coordinates[0]);
+        lat = Number(coordinates[1]);
       }
 
-    } catch (geoError) {
-      console.warn(`Geocoding failed for address: ${address}`, geoError);
+      if (!isNaN(lat!) && !isNaN(lng!)) {
+        console.log(`[Property] Sử dụng tọa độ từ FE: [${lng}, ${lat}]`);
+        finalCoordinates = {
+          type: 'Point',
+          coordinates: [lng!, lat!] // MongoDB bắt buộc thứ tự: [Longitude, Latitude]
+        };
+      }
+    }
+
+    // còn không gửi thì tự geocoding
+    if (!finalCoordinates) {
+      try {
+        const fullAddressString = `${address}, ${ward.ward_name.vi}, ${district.district_name.vi}, ${city.city_name.vi}`;
+        console.log(`[Geocoding] Đang tìm tọa độ từ địa chỉ: ${fullAddressString}`);
+
+        const location = await geocodeAddress(fullAddressString); // (trả về { lat, lng })
+
+        if (location) {
+          finalCoordinates = {
+            type: 'Point',
+            coordinates: [location.lng, location.lat] // [lng, lat]
+          };
+        } else {
+          console.warn(`Không tìm thấy tọa độ cho: ${fullAddressString}. Tọa độ sẽ là null.`);
+        }
+      } catch (geoError) {
+        console.warn(`Geocoding failed for address: ${address}`, geoError);
+      }
     }
 
     // Tạo property mới
