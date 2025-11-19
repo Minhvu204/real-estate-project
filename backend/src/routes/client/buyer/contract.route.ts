@@ -34,15 +34,17 @@ router.post(
   uploadContract
 );
 
-router.post(
-  "/deals/:dealId/contract/accept",
+// API Accept: PATCH /deals/:dealId/contracts/:contractId/accept
+router.patch(
+  "/deals/:dealId/contracts/:contractId/accept",
   verifyToken,
   roleCheck("buyer"),
   acceptContract
 );
 
-router.post(
-  "/deals/:dealId/contract/reject",
+// API Reject: PATCH /deals/:dealId/contracts/:contractId/reject
+router.patch(
+  "/deals/:dealId/contracts/:contractId/reject",
   verifyToken,
   roleCheck("buyer"),
   rejectContract

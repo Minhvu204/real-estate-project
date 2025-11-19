@@ -125,6 +125,50 @@ export const uploadContract = async (req: Request, res: Response) => {
   }
 };
 
+export const acceptContract = async (req: Request, res: Response) => {
+  try {
+    const buyerId = getUserIdFromRequest(req);
+    const { dealId, contractId } = req.params;
+
+    if (!buyerId) return errorResponse(req, res, "Unauthorized", 401);
+
+    const result = await contractService.reviewContract({
+      contractId,
+      dealId,
+      buyerId,
+      decision: "approved"
+    });
+
+    return successResponse(req, res, "Đã chấp nhận hợp đồng", result);
+  } catch (error: any) {
+    return errorResponse(req, res, error.message || "Lỗi khi chấp nhận hợp đồng", error.status || 500);
+  }
+};
+
+export const rejectContract = async (req: Request, res: Response) => {
+  try {
+    const buyerId = getUserIdFromRequest(req);
+    const { dealId, contractId } = req.params;
+    const { reason } = req.body; // Lý do từ chối
+
+    if (!buyerId) return errorResponse(req, res, "Unauthorized", 401);
+    if (!reason) return errorResponse(req, res, "Vui lòng cung cấp lý do từ chối", 400);
+
+    const result = await contractService.reviewContract({
+      contractId,
+      dealId,
+      buyerId,
+      decision: "rejected",
+      notes: reason
+    });
+
+    return successResponse(req, res, "Đã từ chối hợp đồng", result);
+  } catch (error: any) {
+    return errorResponse(req, res, error.message || "Lỗi khi từ chối hợp đồng", error.status || 500);
+  }
+};
+
+
 const buildDealNotificationContext = (deal: any) => {
   const normalizeId = (value: any) => {
     if (!value) return undefined;
@@ -145,71 +189,3 @@ const buildDealNotificationContext = (deal: any) => {
     propertyTitle,
   };
 };
-
-export const acceptContract = async (req: Request, res: Response) => {
-  try {
-    const buyerId = getUserIdFromRequest(req);
-    const buyerName = getUserNameFromRequest(req);
-    const { dealId } = req.params;
-    const notes = (req.body as any)?.notes;
-
-    if (!buyerId) {
-      return errorResponse(req, res, "Không xác định người dùng", 401);
-    }
-
-    const { contract, deal } = await contractService.acceptContractByBuyer(dealId, buyerId, notes);
-
-    const { sellerId, agentId, propertyTitle } = buildDealNotificationContext(deal);
-    if (sellerId || agentId) {
-      await notifyBuyerContractDecision({
-        sellerId,
-        agentId,
-        buyerName,
-        propertyTitle,
-        dealId,
-        decision: "accepted",
-        notes,
-      });
-    }
-
-    return successResponse(req, res, "Xác nhận đồng ý hợp đồng thành công", contract);
-  } catch (error: any) {
-    const status = error?.status || 500;
-    return errorResponse(req, res, error.message || "Xác nhận hợp đồng thất bại", status);
-  }
-};
-
-export const rejectContract = async (req: Request, res: Response) => {
-  try {
-    const buyerId = getUserIdFromRequest(req);
-    const buyerName = getUserNameFromRequest(req);
-    const { dealId } = req.params;
-    const notes = (req.body as any)?.notes;
-
-    if (!buyerId) {
-      return errorResponse(req, res, "Không xác định người dùng", 401);
-    }
-
-    const { contract, deal } = await contractService.rejectContractByBuyer(dealId, buyerId, notes);
-
-    const { sellerId, agentId, propertyTitle } = buildDealNotificationContext(deal);
-    if (sellerId || agentId) {
-      await notifyBuyerContractDecision({
-        sellerId,
-        agentId,
-        buyerName,
-        propertyTitle,
-        dealId,
-        decision: "rejected",
-        notes,
-      });
-    }
-
-    return successResponse(req, res, "Từ chối hợp đồng thành công", contract);
-  } catch (error: any) {
-    const status = error?.status || 500;
-    return errorResponse(req, res, error.message || "Từ chối hợp đồng thất bại", status);
-  }
-};
-
-
