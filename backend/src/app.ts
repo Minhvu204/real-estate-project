@@ -8,13 +8,11 @@ import { errorHandler } from "./middlewares/errorHandler.middleware";
 
 const app = express();
 
-// Cấu hình CORS trước khi định nghĩa route
 app.use(cors({
-  origin: true, // FE URL
-  credentials: true, // cho phép gửi cookie
+  origin: true, 
+  credentials: true, 
 }));
 
-// Đọc cookie từ request
 app.use(cookieParser());
 
 // Middleware parse body

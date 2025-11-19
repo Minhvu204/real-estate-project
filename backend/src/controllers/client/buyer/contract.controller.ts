@@ -1,12 +1,18 @@
 import { Request, Response } from "express";
 import { successResponse, errorResponse } from "../../../utils/responseHandler";
 import { contractService } from "../../../services/contract.service";
+import { notifyBuyerContractDecision } from "../../../utils/notificationHelper";
 
 const BUYER_UPLOAD_ENABLED = process.env.ALLOW_BUYER_CONTRACT_UPLOAD === "true";
 
 const getUserIdFromRequest = (req: Request) => {
   const user = (req as any).user;
   return user?.id || user?._id;
+};
+
+const getUserNameFromRequest = (req: Request) => {
+  const user = (req as any).user;
+  return user?.fullName || "Người mua";
 };
 
 const extractFileUrl = (req: Request) => {
@@ -116,6 +122,93 @@ export const uploadContract = async (req: Request, res: Response) => {
   } catch (error: any) {
     const status = error?.status || 500;
     return errorResponse(req, res, error.message || "Upload hợp đồng thất bại", status);
+  }
+};
+
+const buildDealNotificationContext = (deal: any) => {
+  const normalizeId = (value: any) => {
+    if (!value) return undefined;
+    if (typeof value === "string") return value;
+    if (value?._id) return value._id.toString();
+    return value.toString();
+  };
+
+  const propertyTitle =
+    deal?.property_id?.title?.vi ||
+    deal?.property_id?.title ||
+    deal?.property_id?.name ||
+    "bất động sản";
+
+  return {
+    sellerId: normalizeId(deal?.seller_id),
+    agentId: normalizeId(deal?.agent_id),
+    propertyTitle,
+  };
+};
+
+export const acceptContract = async (req: Request, res: Response) => {
+  try {
+    const buyerId = getUserIdFromRequest(req);
+    const buyerName = getUserNameFromRequest(req);
+    const { dealId } = req.params;
+    const notes = (req.body as any)?.notes;
+
+    if (!buyerId) {
+      return errorResponse(req, res, "Không xác định người dùng", 401);
+    }
+
+    const { contract, deal } = await contractService.acceptContractByBuyer(dealId, buyerId, notes);
+
+    const { sellerId, agentId, propertyTitle } = buildDealNotificationContext(deal);
+    if (sellerId || agentId) {
+      await notifyBuyerContractDecision({
+        sellerId,
+        agentId,
+        buyerName,
+        propertyTitle,
+        dealId,
+        decision: "accepted",
+        notes,
+      });
+    }
+
+    return successResponse(req, res, "Xác nhận đồng ý hợp đồng thành công", contract);
+  } catch (error: any) {
+    const status = error?.status || 500;
+    return errorResponse(req, res, error.message || "Xác nhận hợp đồng thất bại", status);
+  }
+};
+
+export const rejectContract = async (req: Request, res: Response) => {
+  try {
+    const buyerId = getUserIdFromRequest(req);
+    const buyerName = getUserNameFromRequest(req);
+    const { dealId } = req.params;
+    const notes = (req.body as any)?.notes;
+
+    if (!buyerId) {
+      return errorResponse(req, res, "Không xác định người dùng", 401);
+    }
+
+    const { contract, deal } = await contractService.rejectContractByBuyer(dealId, buyerId, notes);
+
+    const { sellerId, agentId, propertyTitle } = buildDealNotificationContext(deal);
+    if (sellerId || agentId) {
+      await notifyBuyerContractDecision({
+        sellerId,
+        agentId,
+        buyerName,
+        propertyTitle,
+        dealId,
+        decision: "rejected",
+        notes,
+      });
+    }
+
+    return successResponse(req, res, "Từ chối hợp đồng thành công", contract);
+  } catch (error: any) {
+    const status = error?.status || 500;
+    return errorResponse(req, res, error.message || "Từ chối hợp đồng thất bại", status);
   }
 };
 

@@ -8,6 +8,8 @@ import {
   downloadContract,
   uploadContract,
   listContracts,
+  acceptContract,
+  rejectContract,
 } from "../../../controllers/client/buyer/contract.controller";
 
 const router = express.Router();
@@ -30,6 +32,20 @@ router.post(
   multerUpload.single("file"),
   uploadToCloudinary,
   uploadContract
+);
+
+router.post(
+  "/deals/:dealId/contract/accept",
+  verifyToken,
+  roleCheck("buyer"),
+  acceptContract
+);
+
+router.post(
+  "/deals/:dealId/contract/reject",
+  verifyToken,
+  roleCheck("buyer"),
+  rejectContract
 );
 
 export default router;

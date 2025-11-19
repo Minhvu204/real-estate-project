@@ -57,7 +57,13 @@ export const getUserById = async (userId: string) => {
 
 export const updateUserInfo = async (
   userId: string,
-  data: { fullName?: string; phone?: string; role?: string; avatar?: string; isActive?: boolean }
+  data: {
+    fullName?: string;
+    phone?: string;
+    role?: string;
+    avatar?: string;
+    isActive?: boolean;
+  }
 ) => {
   const updatedUser = await User.findByIdAndUpdate(
     userId,
@@ -83,8 +89,6 @@ export const updateUserInfo = async (
     updatedAt: updatedUser.updatedAt,
   };
 };
-
-
 
 export const updateUserStatus = async (userId: string, isActive: boolean) => {
   const updatedUser = await User.findByIdAndUpdate(
