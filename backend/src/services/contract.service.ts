@@ -127,7 +127,7 @@ export const contractService = {
 
     // contract.status = "rejected"; 
 
-    await contract.save();
+    // await contract.save();
 
     return { deleted: true, contractId: contract._id, hardDelete: true };
   },
