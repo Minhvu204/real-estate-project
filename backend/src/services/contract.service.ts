@@ -289,11 +289,35 @@ const getContractsForBuyer = async (
   }));
 };
 
+const deleteContractById = async (contractId: string, dealId: string) => {
+  if (!mongoose.Types.ObjectId.isValid(contractId) || !mongoose.Types.ObjectId.isValid(dealId)) {
+    const err: any = new Error("Invalid identifiers");
+    err.status = 400;
+    throw err;
+  }
+
+  const contract = await Contract.findOne({
+    _id: toObjectId(contractId),
+    deal_id: toObjectId(dealId),
+  });
+
+  if (!contract) {
+    const err: any = new Error("Hợp đồng không tồn tại hoặc đã bị xóa");
+    err.status = 404;
+    throw err;
+  }
+
+  await Contract.deleteOne({ _id: contract._id });
+
+  return { deleted: true, contractId: contract._id, hardDelete: true };
+};
+
 export const contractService = {
   getLatestByDeal,
   getHistoryByDeal,
   createOrReplaceByDeal,
   deleteLatestByDeal,
+  deleteContractById,
   getContractByDeal: getContractByDealForBuyer,
   createOrReplaceContract: createOrReplaceContractForBuyer,
   getContractsForBuyer,
