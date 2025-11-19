@@ -31,7 +31,7 @@ export const contractApi = {
             }),
 
     deleteContract: (dealId: string, token: string, contractId: String) =>
-        api.patch(`/api/client/agent/contracts/deals/${dealId}/contracts/${contractId}`, {
+        api.delete(`/api/client/agent/contracts/deals/${dealId}/contracts/${contractId}`, {
             headers: { Authorization: `Bearer ${token}` },
         }),
 };

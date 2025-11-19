@@ -9,14 +9,13 @@ interface Props {
     dealId: string;
     token: string;
     onUploaded?: () => void;
-    existingContracts?: Contract[]; // ✅ thêm prop danh sách hợp đồng hiện tại
+    existingContracts?: Contract[]; // thêm prop danh sách hợp đồng hiện tại
     initialContractType?: "initial" | "buyer_signed" | "final";
     initialStatus?: "draft" | "submitted";
 }
 
 const FILE_TYPES = [
     "application/pdf",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ];
 
 export const ContractUploaderModal: React.FC<Props> = ({
@@ -40,7 +39,7 @@ export const ContractUploaderModal: React.FC<Props> = ({
         if (!f) return;
 
         if (!FILE_TYPES.includes(f.type)) {
-            setError("Chỉ chấp nhận file PDF hoặc DOCX");
+            setError("Chỉ chấp nhận file PDF");
             return;
         }
 
