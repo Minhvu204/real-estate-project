@@ -109,7 +109,7 @@ export const contractService = {
     const contract = await Contract.findOne({
       _id: toObjectId(contractId),
       deal_id: toObjectId(dealId),
-      deleted: { $ne: true } 
+      // deleted: { $ne: true } 
     });
 
     if (!contract) {
@@ -119,14 +119,17 @@ export const contractService = {
     }
 
     // Soft delete (xóa mềm)
-    contract.deleted = true;
-    contract.deleted_at = new Date();
+    // contract.deleted = true;
+    // contract.deleted_at = new Date();
+
+    // xóa cứng
+    await Contract.deleteOne({ _id: contract._id });
 
     // contract.status = "rejected"; 
 
-    await contract.save();
+    // await contract.save();
 
-    return { deleted: true, contractId: contract._id };
+    return { deleted: true, contractId: contract._id, hardDelete: true };
   },
 };
 
