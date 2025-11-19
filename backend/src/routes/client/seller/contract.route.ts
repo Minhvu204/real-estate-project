@@ -47,7 +47,7 @@ router.put(
   replaceContract
 );
 
-router.patch(
+router.delete(
   "/deals/:dealId/contracts/:contractId",
   verifyToken,
   roleCheck("seller"),
