@@ -138,51 +138,70 @@ const DealListPage: React.FC = () => {
                                         marginLeft: 2.5
                                     }}
                                 >
-                                    <img
-                                        src={property.images[currentIndex]}
-                                        alt={property.title.vi}
-                                        style={{
-                                            width: "100%",
-                                            height: "100%",
-                                            objectFit: "inherit",
-                                        }}
-                                    />
+                                    {property.images.length === 0 ? (
+                                        // Không có ảnh → fallback image
+                                        <img
+                                            src="/no-image.png"
+                                            alt="No Image"
+                                            style={{
+                                                width: "100%",
+                                                height: "100%",
+                                                objectFit: "cover",
+                                                opacity: 0.8,
+                                            }}
+                                        />
+                                    ) : (
+                                        // Có 1 hoặc nhiều ảnh → hiển thị
+                                        <img
+                                            src={property.images[currentIndex]}
+                                            alt={property.title?.vi || "Image"}
+                                            style={{
+                                                width: "100%",
+                                                height: "100%",
+                                                objectFit: "cover",
+                                            }}
+                                        />
+                                    )}
 
-                                    {/* Prev */}
-                                    <IconButton
-                                        onClick={() =>
-                                            prevImage(deal._id, property.images.length)
-                                        }
-                                        sx={{
-                                            position: "absolute",
-                                            top: "50%",
-                                            left: 10,
-                                            transform: "translateY(-50%)",
-                                            bgcolor: "rgba(0,0,0,0.4)",
-                                            color: "white",
-                                            "&:hover": { bgcolor: "rgba(0,0,0,0.6)" },
-                                        }}
-                                    >
-                                        ‹
-                                    </IconButton>
+                                    {property.images.length > 1 && (
+                                        <>
+                                            {/* Prev */}
+                                            <IconButton
+                                                onClick={() =>
+                                                    prevImage(deal._id, property.images.length)
+                                                }
+                                                sx={{
+                                                    position: "absolute",
+                                                    top: "50%",
+                                                    left: 10,
+                                                    transform: "translateY(-50%)",
+                                                    bgcolor: "rgba(0,0,0,0.4)",
+                                                    color: "white",
+                                                    "&:hover": { bgcolor: "rgba(0,0,0,0.6)" },
+                                                }}
+                                            >
+                                                ‹
+                                            </IconButton>
 
-                                    {/* Next */}
-                                    <IconButton
-                                        onClick={() =>
-                                            nextImage(deal._id, property.images.length)
-                                        }
-                                        sx={{
-                                            position: "absolute",
-                                            top: "50%",
-                                            right: 10,
-                                            transform: "translateY(-50%)",
-                                            bgcolor: "rgba(0,0,0,0.4)",
-                                            color: "white",
-                                            "&:hover": { bgcolor: "rgba(0,0,0,0.6)" },
-                                        }}
-                                    >
-                                        ›
-                                    </IconButton>
+                                            {/* Next */}
+                                            <IconButton
+                                                onClick={() =>
+                                                    nextImage(deal._id, property.images.length)
+                                                }
+                                                sx={{
+                                                    position: "absolute",
+                                                    top: "50%",
+                                                    right: 10,
+                                                    transform: "translateY(-50%)",
+                                                    bgcolor: "rgba(0,0,0,0.4)",
+                                                    color: "white",
+                                                    "&:hover": { bgcolor: "rgba(0,0,0,0.6)" },
+                                                }}
+                                            >
+                                                ›
+                                            </IconButton>
+                                        </>
+                                    )}
                                 </Box>
 
                                 {/* Nội dung deal */}
