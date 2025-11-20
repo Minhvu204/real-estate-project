@@ -76,24 +76,26 @@ export const favoriteService = {
       .populate({
         path: "property_id",
         model: "Property",
-
         populate: [
-          { path: "city_id", select: "name -_id" },
-          { path: "district_id", select: "name -_id" },
-          { path: "ward_id", select: "name -_id" },
-          { path: "type_id", select: "name -_id" },
-          { path: "category_id", select: "name -_id" },
-          { path: "features", select: "name icon -_id" },
-          { path: "owner_id", select: "fullName email phone avatar -_id" },
-          { path: "agent_id", select: "fullName email phone avatar -_id" },
+          { path: "city_id", select: "city_name" },
+          { path: "district_id", select: "district_name" },
+          { path: "ward_id", select: "ward_name" },
+          { path: "type_id", select: "type_name" },
+          { path: "category_id", select: "category_name" },
+          { path: "features", select: "feature_name" },
+          {
+            path: "owner_id",
+            select: "fullName email phone avatar",
+          },
+          {
+            path: "agent_id",
+            select: "fullName email phone avatar",
+          },
         ],
       })
       .sort(sort);
 
-    return {
-      total: favorites.length,
-      data: favorites,
-    };
+    return favorites;
   },
 
   async isFavorite(userId: string, propertyId: string) {

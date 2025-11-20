@@ -1,12 +1,12 @@
-// Agent routes - có thể mở rộng thêm các route cho agent sau
-// Ví dụ: assignments, properties, profile, etc.
-
-import AsssignAgent from "../components/agent/AsssignAgent";
+import MyPropertiesPage from "../pages/MyPropertiesPage";
 
 export const AgentRoute = [
     {
-        path: "/agent/assignments", element: <AsssignAgent />
+        path: "/agent",
+        children: [
+            { path: "my-properties", element: <MyPropertiesPage /> },
+            { path: "my-properties/:id", element: <MyPropertiesPage /> }
+        ],
     },
-
 ];
 

@@ -6,9 +6,11 @@ import GradientTooltip from "../components/admin/Dashboard";
 import UserDetails from "../components/admin/UserDetails";
 import UpdateUser from "../components/admin/userInfor/UpdateUser";
 import BlockUser from "../components/admin/userInfor/BlockUser";
+import AdminTaxonomiesPage from "../pages/AdminTaxonomiesPage";
 import ListProperties from "../components/admin/manageProperties/ListProperties";
 import ViewDetailProperties from "../components/admin/manageProperties/ViewDetailProperties";
 import HideProperties from "../components/admin/manageProperties/HideProperties";
+import HomeList from "../components/admin/HomeList";
 
 const AdminProtectedRoute = () => {
   const user = getUser();
@@ -37,6 +39,8 @@ export const AdminRoute = [
           { path: "users/:id", element: <UserDetails /> },
           { path: "users/edit/:id", element: <UpdateUser /> },
           { path: "users/block", element: <BlockUser userId="" /> },
+          { path: "/admin/taxonomies", element: <AdminTaxonomiesPage /> },
+          { index: true, element: <HomeList /> },
           { path: "properties", element: <ListProperties /> },
           {
             path: "properties/:id",
@@ -45,6 +49,10 @@ export const AdminRoute = [
           {
             path: "properties/hide",
             element: <HideProperties propertyId="" />,
+          },
+          {
+            path: "manageProperties/:id",
+            element: <ViewDetailProperties />,
           },
         ],
       },

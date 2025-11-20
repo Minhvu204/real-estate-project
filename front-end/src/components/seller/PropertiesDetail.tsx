@@ -4,9 +4,11 @@ import { Box, Chip, Container, Divider, Grid, Paper, Stack, Typography, Avatar, 
 import PlaceIcon from "@mui/icons-material/Place";
 import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
+import type { Property } from "../../types/Property";
 import { useTranslation } from "react-i18next";
 import { getLanguage } from "../../utils/storage";
-import type { Property } from "@/types/Property";
+import axios from "axios";
+import { getDetailPropertiesById } from "../../services/propertyService";
 
 const PropertyDetails = () => {
     const { id } = useParams();
@@ -33,11 +35,19 @@ const PropertyDetails = () => {
     };
 
     useEffect(() => {
-        fetch(`http://localhost:3000/api/public/properties/${id}`)
-            .then(res => res.json())
-            .then(data => setProperty(data.data.data))
-            .catch(err => console.error(err));
-    }, [id]);
+    const fetchProperty = async () => {
+      try {
+        const data: Property = await getDetailPropertiesById(id!);
+        setProperty(data);
+      } catch (error) {
+        console.error("Error fetching property:", error);
+      }
+    };
+
+    fetchProperty();
+  }, [id]);
+
+
 
     if (!property) {
         return <Typography textAlign="center" mt={3}>Loading...</Typography>;
@@ -147,12 +157,12 @@ const PropertyDetails = () => {
             <Grid>
                 {/* TITLE + PRICE */}
                 <Typography variant="h4" fontWeight="bold" mt={1}>
-                    {property.title?.[lang] || property.title?.en || property.title?.vi || "N/A"}
+                    {property.title[lang]}
                 </Typography>
 
                 <Typography color="text.secondary" mt={1}>
                     <PlaceIcon sx={{ fontSize: 20, mr: 1 }} />
-                    {property.address?.[lang] || property.address?.en || property.address?.vi || "N/A"}
+                    {property.address[lang]}
                 </Typography>
 
                 <Typography variant="h5" color="primary" fontWeight="bold" mt={1}>
@@ -161,9 +171,9 @@ const PropertyDetails = () => {
 
                 {/* TAGS */}
                 <Stack direction="row" spacing={1} mt={1}>
-                    <Chip label={property.city_id?.city_name?.[lang] || property.city_id?.city_name?.en || property.city_id?.city_name?.vi || "N/A"} />
-                    <Chip label={property.category_id?.category_name?.[lang] || property.category_id?.category_name?.en || property.category_id?.category_name?.vi || "N/A"} />
-                    <Chip label={property.type_id?.type_name?.[lang] || property.type_id?.type_name?.en || property.type_id?.type_name?.vi || "N/A"} />
+                    <Chip label={property.city_id?.city_name[lang]} />
+                    <Chip label={property.category_id?.category_name[lang]} />
+                    <Chip label={property.type_id?.type_name[lang]} />
                     <Chip label={property.status} color="success" />
                 </Stack>
 
@@ -176,23 +186,17 @@ const PropertyDetails = () => {
                 {/* DESCRIPTION */}
                 <Typography variant="h6" fontWeight="bold" mt={2}>{t("description")}</Typography>
                 <Typography color="text.secondary">
-                    {property.description?.[lang] || property.description?.en || property.description?.vi || "N/A"}
+                    {property.description[lang]}
                 </Typography>
-                {property.area && (
-                    <Typography color="text.secondary">
-                        {t("area")}: {property.area} {property.unit || "m²"}
-                    </Typography>
-                )}
-                {property.floors && (
-                    <Typography color="text.secondary">
-                        {t("floors")}: {property.floors}
-                    </Typography>
-                )}
-                {property.yearBuilt && (
-                    <Typography color="text.secondary">
-                        {t("yearBuilt")}: {property.yearBuilt}
-                    </Typography>
-                )}
+                <Typography color="text.secondary">
+                    {t("area")}: {property.area}{property.unit}
+                </Typography>
+                <Typography color="text.secondary">
+                    {t("floors")}: {property.floors}
+                </Typography>
+                <Typography color="text.secondary">
+                    {t("yearBuilt")}: {property.yearBuilt}
+                </Typography>
 
                 {/* FEATURES */}
                 {
@@ -203,11 +207,7 @@ const PropertyDetails = () => {
                             </Typography>
                             <Stack direction="row" spacing={1} flexWrap="wrap" mb={1}>
                                 {features.map((f: any) => (
-                                    <Chip
-                                        key={f._id}
-                                        label={f.feature_name?.[lang] || f.feature_name?.en || f.feature_name?.vi || "N/A"}
-                                        variant="outlined"
-                                    />
+                                    <Chip key={f._id} label={f.feature_name[lang]} variant="outlined" />
                                 ))}
                             </Stack>
                         </>
@@ -222,7 +222,10 @@ const PropertyDetails = () => {
                         <Paper sx={{ p: 2 }}>
                             <Typography variant="h6" fontWeight="bold">{t("owner")}</Typography>
                             <Stack direction="row" spacing={2}>
-                                <Avatar>{property.owner_id?.fullName?.charAt(0)}</Avatar>
+                                <Avatar
+                                    src={property.owner_id?.avatar}
+                                    alt={property.owner_id?.fullName || "Owner"}
+                                />
                                 <Box>
                                     <Typography fontWeight="bold">{property.owner_id?.fullName}</Typography>
                                     <Typography color="text.secondary">{property.owner_id?.phone}</Typography>
@@ -235,20 +238,17 @@ const PropertyDetails = () => {
                     <Grid size={{ xs: 12, md: 6 }}>
                         <Paper sx={{ p: 2 }}>
                             <Typography variant="h6" fontWeight="bold">{t("agent")}</Typography>
-                            {property.agent_id ? (
-                                <Stack direction="row" spacing={2} mt={1}>
-                                    <Avatar>{property.agent_id?.fullName?.charAt(0) || "A"}</Avatar>
-                                    <Box>
-                                        <Typography fontWeight="bold">{property.agent_id?.fullName || "N/A"}</Typography>
-                                        <Typography color="text.secondary">{property.agent_id?.phone || "N/A"}</Typography>
-                                        <Typography color="text.secondary">{property.agent_id?.email || "N/A"}</Typography>
-                                    </Box>
-                                </Stack>
-                            ) : (
-                                <Typography color="text.secondary" mt={1}>
-                                    Chưa có agent được assign
-                                </Typography>
-                            )}
+                            <Stack direction="row" spacing={2} mt={1}>
+                                <Avatar
+                                    src={property.agent_id?.avatar}
+                                    alt={property.agent_id?.fullName || "Agent"}
+                                />
+                                <Box>
+                                    <Typography fontWeight="bold">{property.agent_id?.fullName}</Typography>
+                                    <Typography color="text.secondary">{property.agent_id?.phone}</Typography>
+                                    <Typography color="text.secondary">{property.agent_id?.email}</Typography>
+                                </Box>
+                            </Stack>
                         </Paper>
                     </Grid>
                 </Grid>

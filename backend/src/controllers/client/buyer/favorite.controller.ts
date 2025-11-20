@@ -46,11 +46,11 @@ export const getMyFavorites = async (
     const userId = req.user?.id;
     const { sort } = req.query;
 
-    const result = await favoriteService.getFavorites(userId!, {
+    const favorites = await favoriteService.getFavorites(userId!, {
       sort: sort ? String(sort) : undefined,
     });
 
-    const flatData = result.data.map((fav: any) => {
+    const flat = favorites.map((fav: any) => {
       const p = fav.property_id;
 
       return {
@@ -65,12 +65,18 @@ export const getMyFavorites = async (
         address_vi: p.address?.vi,
         address_en: p.address?.en,
 
-        city: p.city_id?.name || null,
-        district: p.district_id?.name || null,
-        ward: p.ward_id?.name || null,
+        city: p.city_id?.city_name?.vi || p.city_id?.city_name?.en || null,
+        district:
+          p.district_id?.district_name?.vi ||
+          p.district_id?.district_name?.en ||
+          null,
+        ward: p.ward_id?.ward_name?.vi || p.ward_id?.ward_name?.en || null,
 
-        type: p.type_id?.name || null,
-        category: p.category_id?.name || null,
+        type: p.type_id?.type_name?.vi || p.type_id?.type_name?.en || null,
+        category:
+          p.category_id?.category_name?.vi ||
+          p.category_id?.category_name?.en ||
+          null,
 
         area: p.area,
         unit: p.unit,
@@ -82,28 +88,42 @@ export const getMyFavorites = async (
         lat: p.coordinates?.lat,
         lng: p.coordinates?.lng,
 
-        features: p.features?.map((f: any) => f.name) || [],
-        feature_icons: p.features?.map((f: any) => f.icon) || [],
+        features:
+          p.features
+            ?.map((f: any) => f.feature_name?.vi || f.feature_name?.en || null)
+            .filter(Boolean) || [],
+        feature_icons: [],
 
-        owner_name: p.owner_id?.fullName || null,
-        owner_email: p.owner_id?.email || null,
-        owner_phone: p.owner_id?.phone || null,
-        owner_avatar: p.owner_id?.avatar || null,
+        owner: p.owner_id
+          ? {
+              id: p.owner_id._id,
+              fullName: p.owner_id.fullName,
+              email: p.owner_id.email,
+              phone: p.owner_id.phone,
+              avatar: p.owner_id.avatar,
+            }
+          : null,
 
-        agent_name: p.agent_id?.fullName || null,
-        agent_email: p.agent_id?.email || null,
-        agent_phone: p.agent_id?.phone || null,
-        agent_avatar: p.agent_id?.avatar || null,
+        agent: p.agent_id
+          ? {
+              id: p.agent_id._id,
+              fullName: p.agent_id.fullName,
+              email: p.agent_id.email,
+              phone: p.agent_id.phone,
+              avatar: p.agent_id.avatar,
+            }
+          : null,
 
         status: p.status,
         deleted: p.deleted,
         createdAt: p.createdAt,
+        updatedAt: p.updatedAt,
       };
     });
 
     return successResponse(req, res, "Lấy danh sách yêu thích thành công", {
-      total: flatData.length,
-      data: flatData,
+      total: flat.length,
+      data: flat,
     });
   } catch (err: any) {
     return errorResponse(req, res, err.message, err.status || 500);

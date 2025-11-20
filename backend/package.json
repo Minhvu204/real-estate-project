@@ -13,6 +13,8 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "@google/genai": "^1.29.1",
+    "@google/generative-ai": "^0.24.1",
     "@vitalets/google-translate-api": "^9.2.1",
     "axios": "^1.13.1",
     "bcryptjs": "^3.0.2",
@@ -31,6 +33,7 @@
     "mongodb": "^6.20.0",
     "mongoose": "^8.19.1",
     "multer": "^2.0.2",
+    "openai": "^6.9.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "streamifier": "^0.1.1"
