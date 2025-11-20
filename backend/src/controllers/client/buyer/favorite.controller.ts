@@ -57,26 +57,43 @@ export const getMyFavorites = async (
         favorite_id: fav._id,
         property_id: p._id,
 
-        title: p.title,
-        description: p.description,
+        title: {
+          vi: p.title?.vi || "",
+          en: p.title?.en || "",
+        },
+        description: {
+          vi: p.description?.vi || "",
+          en: p.description?.en || "",
+        },
         price: p.price,
-        images: p.images,
+        images: p.images || [],
 
-        address_vi: p.address?.vi,
-        address_en: p.address?.en,
+        address: {
+          vi: p.address?.vi || "",
+          en: p.address?.en || "",
+        },
 
-        city: p.city_id?.city_name?.vi || p.city_id?.city_name?.en || null,
-        district:
-          p.district_id?.district_name?.vi ||
-          p.district_id?.district_name?.en ||
-          null,
-        ward: p.ward_id?.ward_name?.vi || p.ward_id?.ward_name?.en || null,
+        city: {
+          vi: p.city_id?.city_name?.vi || "",
+          en: p.city_id?.city_name?.en || "",
+        },
+        district: {
+          vi: p.district_id?.district_name?.vi || "",
+          en: p.district_id?.district_name?.en || "",
+        },
+        ward: {
+          vi: p.ward_id?.ward_name?.vi || "",
+          en: p.ward_id?.ward_name?.en || "",
+        },
 
-        type: p.type_id?.type_name?.vi || p.type_id?.type_name?.en || null,
-        category:
-          p.category_id?.category_name?.vi ||
-          p.category_id?.category_name?.en ||
-          null,
+        type: {
+          vi: p.type_id?.type_name?.vi || "",
+          en: p.type_id?.type_name?.en || "",
+        },
+        category: {
+          vi: p.category_id?.category_name?.vi || "",
+          en: p.category_id?.category_name?.en || "",
+        },
 
         area: p.area,
         unit: p.unit,
@@ -85,18 +102,23 @@ export const getMyFavorites = async (
         floors: p.floors,
         yearBuilt: p.yearBuilt,
 
-        lat: p.coordinates?.lat,
-        lng: p.coordinates?.lng,
+        coordinates:
+          p.coordinates?.lat != null && p.coordinates?.lng != null
+            ? {
+                type: "Point",
+                coordinates: [p.coordinates.lng, p.coordinates.lat],
+              }
+            : undefined,
 
-        features:
-          p.features
-            ?.map((f: any) => f.feature_name?.vi || f.feature_name?.en || null)
-            .filter(Boolean) || [],
-        feature_icons: [],
+        feature_name:
+          p.features?.map((f: any) => ({
+            vi: f.feature_name?.vi || "",
+            en: f.feature_name?.en || "",
+          })) || [],
 
         owner: p.owner_id
           ? {
-              id: p.owner_id._id,
+              _id: p.owner_id._id,
               fullName: p.owner_id.fullName,
               email: p.owner_id.email,
               phone: p.owner_id.phone,
@@ -106,7 +128,7 @@ export const getMyFavorites = async (
 
         agent: p.agent_id
           ? {
-              id: p.agent_id._id,
+              _id: p.agent_id._id,
               fullName: p.agent_id.fullName,
               email: p.agent_id.email,
               phone: p.agent_id.phone,
