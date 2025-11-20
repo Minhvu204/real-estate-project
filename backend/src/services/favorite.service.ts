@@ -75,28 +75,22 @@ export const favoriteService = {
 
   async getFavorites(userId: string, filters: FavoriteFilters) {
     const sort = filters.sort || "-createdAt";
-
     const query = { user_id: userId };
 
     const favorites = await Favorite.find(query)
       .populate({
         path: "property_id",
         model: "Property",
-        select: [
-          "title",
-          "price",
-          "images",
-          "address",
-          "city_id",
-          "district_id",
-          "ward_id",
-          "status",
-          "deleted",
-        ].join(" "),
+
         populate: [
           { path: "city_id", select: "name" },
           { path: "district_id", select: "name" },
           { path: "ward_id", select: "name" },
+          { path: "type_id", select: "name" },
+          { path: "category_id", select: "name" },
+          { path: "owner_id", select: "fullName email phone avatar" },
+          { path: "agent_id", select: "fullName email phone avatar" },
+          { path: "features", select: "name icon" },
         ],
       })
       .sort(sort);
