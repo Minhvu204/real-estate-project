@@ -5,12 +5,13 @@ import { Bounce, toast, ToastContainer } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { acceptAssignAgent } from '../../services/agent.service';
 import { rejectAssignAgent } from '../../services/agent.service';
+import { getLanguage } from '@/utils/storage';
 
 const AssignAgentPage = () => {
     const [assignments, setAssignments] = useState<AssignAgent[]>([]);
     const [loading, setLoading] = useState(true);
     const { t } = useTranslation();
-
+    const language =  getLanguage();
     useEffect(() => {
         const fetchAllAssign = async () => {
             try {
@@ -28,7 +29,8 @@ const AssignAgentPage = () => {
 
     const handleAccept = async (id: string) => {
         try {
-            await acceptAssignAgent(id);
+            const data = await acceptAssignAgent(id);
+            toast.success(data)
             toast.success("Accepted assignment successfully");
 
         } catch (error: any) {
@@ -40,7 +42,8 @@ const AssignAgentPage = () => {
     const note = "Abc"
     const handleReject = async (id: string) => {
         try {
-            await rejectAssignAgent(id, note);
+            const response = await rejectAssignAgent(id, note);
+            console.log("Response data:", response);
             toast.success("Rejected assignment successfully");
 
         } catch (error: any) {
@@ -69,7 +72,7 @@ const AssignAgentPage = () => {
                             key={item._id}
                             className="border rounded-lg p-4 shadow-sm hover:shadow-md transition bg-white"
                         >
-                            <p>{item._id}</p>
+                           
                             <div className="flex items-center justify-between">
                                 <div className="space-y-1">
                                     <p className="text-lg font-semibold">

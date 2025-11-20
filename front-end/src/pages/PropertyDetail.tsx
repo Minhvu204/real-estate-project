@@ -168,18 +168,20 @@ const PropertyDetailUser = () => {
                     <PlaceIcon sx={{ fontSize: 20, mr: 1 }} />
                     {property.address[lang]}
                 </Typography>
-
-                <Typography variant="h5" color="primary" fontWeight="bold" mt={1}>
-                    ${property.price.toLocaleString()}
-                </Typography>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    sx={{ mt: 2 }}
-                    onClick={handleOpenTour}
-                >
-                    Request a tour
-                </Button>
+                <div className="flex flex-row space-x-4 items-center justify-between">
+                    <Typography variant="h5" color="primary" fontWeight="bold" mt={1} className="flex-start">
+                        ${property.price.toLocaleString()}
+                    </Typography>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        sx={{ mt: 2 }}
+                        onClick={handleOpenTour}
+                        className="flex-end"
+                    >
+                        Request a tour
+                    </Button>
+                </div>
 
                 {/* TAGS */}
                 <Stack direction="row" spacing={1} mt={1}>

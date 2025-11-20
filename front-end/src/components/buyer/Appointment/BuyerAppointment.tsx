@@ -9,23 +9,44 @@ import TipsAndUpdatesOutlinedIcon from '@mui/icons-material/TipsAndUpdatesOutlin
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import { Button } from '@mui/material';
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import { Bounce, toast, ToastContainer } from 'react-toastify';
+import { Today } from '@mui/icons-material';
+import { postAppointments } from '@/services/buyer.service';
+
 
 interface BuyerAppointmentProps {
     property: Property;
     onClose: () => void;
 }
+export type AppoinmentDate = {
+    propertyId: string;
+    time: {
+        date: Date,
+        note?: string
+    }[];
+    location?: string;
+}
 
+const homnay = new Date();
+console.group(homnay.toISOString());
 const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
 
     const today = new Date();
 
+
     const [slots, setSlots] = useState<
-        { baseDate: Date; date: Date | null; time: string | null }[]
+        { baseDate: Date; date: Date | null; time: string | null; note: string | null }[]
     >([
-        { baseDate: new Date(), date: null, time: null }
+        { baseDate: new Date(), date: null, time: null, note: null },
     ]);
 
-    // ---------------- HELPERS ----------------
+    const [selectedTimes, setSelectedTimes] = useState<{
+        time: {
+            date: Date,
+            note?: string
+        }
+    }>({ time: { date: new Date(), note: "" } });
+
 
     const formatDate = (date: Date) => {
         const day = date.toLocaleString('default', { weekday: 'short' });
@@ -46,26 +67,24 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
         timeSlots.push(`${displayHour}:00 ${suffix}`);
     }
 
-    // ---------------- HANDLERS ----------------
-
     const handlePrevDays = (index: number) => {
         setSlots((prev) => {
             const updated = [...prev];
-            updated[index].baseDate = addDays(updated[index].baseDate, -3);
-            updated[index].date = null;
+            if (updated[index].baseDate <= today) return updated;
+            updated[index].baseDate = addDays(updated[index].baseDate, -1);
             return updated;
+
         });
     };
 
     const handleNextDays = (index: number) => {
         setSlots((prev) => {
             const updated = [...prev];
-            updated[index].baseDate = addDays(updated[index].baseDate, 3);
-            updated[index].date = null;
+            updated[index].baseDate = addDays(updated[index].baseDate, 1);
             return updated;
         });
     };
-    today.setHours(0, 0, 0, 0);
+
 
     const isPastOrToday = (date: Date) => {
         const d = new Date(date);
@@ -73,10 +92,20 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
         return d <= today;
     };
 
+    const lastAllowedDate = addDays(today, 7);
+    lastAllowedDate.setHours(0, 0, 0, 0);
+
+    const canGoNext = (baseDate: Date) => {
+        const next = addDays(baseDate, 3);
+        next.setHours(0, 0, 0, 0);
+        return next <= lastAllowedDate;
+    };
+
+
     const canGoBack = (baseDate: Date) => {
-        const prev = addDays(baseDate, -3);
+        const prev = addDays(baseDate, -1);
         prev.setHours(0, 0, 0, 0);
-        return prev > today;
+        return prev >= today;
     };
 
     const handleSelectDate = (index: number, date: Date) => {
@@ -92,10 +121,25 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
         setSlots((prev) => {
             const updated = [...prev];
             updated[index].time = time;
+            console.log(updated[index].date);
             return updated;
         });
     };
 
+    const handlePostAppointment = (time: AppoinmentDate) => {
+        const sendAppointment = async () => {
+            try {
+                const response = await postAppointments(time);
+                toast.success("Đặt lịch hẹn thành công!");
+                onClose();
+            } catch (error) {
+                console.error("Failed to send appointment:", error);
+                toast.error("Đặt lịch hẹn thất bại. Vui lòng thử lại.");
+            }
+        }
+        sendAppointment();
+
+    }
     const handleDeleteSlot = (index: number) => {
         setSlots((prev) => prev.filter((_, i) => i !== index));
     };
@@ -103,7 +147,7 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
     const handleAddSlot = () => {
         setSlots((prev) => [
             ...prev,
-            { baseDate: new Date(), date: null, time: null }
+            { baseDate: new Date(), date: null, time: null, note: null }
         ]);
     };
 
@@ -188,14 +232,14 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
                                     <div
                                         key={dIndex}
                                         className={`
-        border-2 rounded-xl py-3 text-sm text-center
-        ${isPastOrToday(d)
+            border-2 rounded-xl py-3 text-sm text-center
+            ${isPastOrToday(d)
                                                 ? "opacity-40 cursor-not-allowed"
                                                 : "cursor-pointer"}
-        ${slot.date?.toDateString() === d.toDateString()
+            ${slot.date?.toDateString() === d.toDateString()
                                                 ? "border-blue-500 text-blue-600 bg-blue-50"
                                                 : "border-gray-300"}
-    `}
+        `}
                                         onClick={() => {
                                             if (isPastOrToday(d)) return;
                                             handleSelectDate(index, d);
@@ -207,8 +251,16 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
                             </div>
 
                             <ArrowForwardIosOutlinedIcon
-                                className="cursor-pointer"
-                                onClick={() => handleNextDays(index)}
+                                className={`
+                                                ${!canGoNext(slot.baseDate)
+                                        ? "opacity-30 cursor-not-allowed"
+                                        : "cursor-pointer"
+                                    }
+    `}
+                                onClick={() => {
+                                    if (!canGoNext(slot.baseDate)) return;
+                                    handleNextDays(index)
+                                }}
                             />
                         </div>
 
@@ -224,6 +276,23 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
                                     <option key={t}>{t}</option>
                                 ))}
                             </select>
+                            <div className="w-full max-w-xs mx-auto mt-3">
+                                <textarea
+                                    className="w-full border rounded-lg p-3 text-sm"
+                                    placeholder="Ghi chú (không bắt buộc tối đa 100 chữ) "
+                                    maxLength={100}
+                                    value={slot.note ?? ""}
+                                    onChange={(e) =>
+                                        setSlots((prev) => {
+                                            const updated = [...prev];
+                                            updated[index].note = e.target.value;
+                                            return updated;
+                                        })
+                                    }
+                                    rows={2}
+                                />
+                            </div>
+
                         </div>
                     </div>
                 );
@@ -237,7 +306,28 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
                     <span className="text-xl">＋</span> Add a time
                 </button>
             )}
+            <button
+                onClick={() => handlePostAppointment}
+                className="w-full bg-blue-600 text-white py-3 rounded-lg mt-6 hover:bg-blue-700 transition-colors"
+            >
+                Next
+            </button>
+
+            <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick={false}
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+                transition={Bounce}
+            />
         </div>
+
     );
 };
 
