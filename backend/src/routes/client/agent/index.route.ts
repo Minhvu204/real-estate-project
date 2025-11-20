@@ -8,6 +8,9 @@ import appointmentRoutes from "./appointment.route";
 const router = express.Router();
 
 router.use("/assignments", assignmentRoutes);
+router.use("/contracts", contractRoutes);
+router.use("/offers", offerRoutes);
+router.use("/deals", dealRoutes);
 router.use("/appointments", appointmentRoutes);
 router.use("/", contractRoutes);
 

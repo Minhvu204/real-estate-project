@@ -401,7 +401,7 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
 
                             <div>
                                 <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
-                                    {t("formProperty.area")}<span className="text-red-500">*</span>
+                                    {t("formProperty.area")} (m²)<span className="text-red-500">*</span>
                                 </label>
                                 <CurrencyInput
                                     name="area"

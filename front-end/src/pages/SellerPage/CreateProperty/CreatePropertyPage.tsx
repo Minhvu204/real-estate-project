@@ -80,7 +80,7 @@ const CreatePropertyPage = () => {
             }
 
             const imageFiles = submittedImages.map(img => img.file);
-            const dataToSend = { ...propertyData }; // features đã có trong propertyData
+            const dataToSend = { ...propertyData };
 
             const response = await createProperty(dataToSend, imageFiles);
             console.log('Created property:', response);

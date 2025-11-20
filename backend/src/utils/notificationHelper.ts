@@ -1,6 +1,7 @@
 import { notificationService, CreateNotificationParams } from "../services/notification.service";
 import { NotificationType } from "../models/notification.model";
 import { emitNotification } from "../socket/socket";
+import { DealStatus } from "../models/deal.model";
 
 
 export async function createNotification(
@@ -11,6 +12,7 @@ export async function createNotification(
     type?: NotificationType;
     relatedId?: string;
     actionUrl?: string;
+    meta?: Record<string, any>;
   }
 ) {
   try {
@@ -21,6 +23,7 @@ export async function createNotification(
       type: options?.type || "system",
       relatedId: options?.relatedId,
       actionUrl: options?.actionUrl,
+      meta: options?.meta,
     });
 
     if (notification) {
@@ -138,6 +141,7 @@ export async function createNotificationsForUsers(
     type?: NotificationType;
     relatedId?: string;
     actionUrl?: string;
+    meta?: Record<string, any>;
   }
 ) {
   try {
@@ -513,23 +517,185 @@ export async function notifyContractUploaded(params: {
   contractId: string;
   action: "uploaded" | "updated";
 }) {
-  const { recipientIds, actorName, propertyTitle, dealId, contractId, action } = params;
+  const { recipientIds, actorName, actorRole, propertyTitle, dealId, contractId, action } = params;
 
-  // Tùy chỉnh nội dung dựa trên hành động (upload mới hay cập nhật)
-  const actionText = action === "uploaded" ? "đã tải lên" : "đã cập nhật";
-  const title = action === "uploaded" ? "Hợp đồng mới" : "Hợp đồng được cập nhật";
+  const isUpdate = action === "updated";
+  const title = isUpdate ? "Hợp đồng được cập nhật" : "Hợp đồng mới";
+  const actionVerb = isUpdate ? "đã cập nhật" : "đã tải lên";
   
-  const message = `${actorName} ${actionText} hợp đồng cho giao dịch "${propertyTitle}"`;
+  const message = `${actorName} (${actorRole}) ${actionVerb} hợp đồng cho giao dịch "${propertyTitle}"`;
+  const actionUrl = `/deals/${dealId}/contract`;
 
-  // Gửi cho danh sách người nhận (thường là Buyer và Seller)
-  return createNotificationsForUsers(
-    recipientIds,
-    title,
-    message,
-    {
-      type: "contract", // Đảm bảo 'contract' có trong NotificationType (bạn đã có rồi)
-      relatedId: contractId,
-      actionUrl: `/deals/${dealId}`, // Link dẫn về trang chi tiết Deal để xem hợp đồng
-    }
-  );
+  await createNotificationsForUsers(recipientIds, title, message, {
+    type: "contract",
+    relatedId: contractId,
+    actionUrl,
+    meta: {
+      dealId,
+      contractId,
+      propertyTitle,
+      actorRole,
+      action,
+    },
+  });
+}
+
+/**
+ * Notification khi Admin phê duyệt hoặc từ chối hợp đồng
+ */
+export async function notifyContractReviewResult(params: {
+  contract: any;
+  deal: any;
+  result: "approved" | "rejected";
+  adminName: string;
+  notes?: string;
+}) {
+  const { contract, deal, result, adminName, notes } = params;
+
+  // Validate dữ liệu để tránh crash
+  if (!deal || !deal.buyer_id || !deal.seller_id || !deal.agent_id) {
+    console.error("Deal data is incomplete for contract review notification.");
+    return;
+  }
+
+  // Lấy tên property an toàn (tránh lỗi [object Object])
+  const propertyTitle = deal.property_id?.title?.vi || deal.property_id?.title || "Bất động sản";
+
+  const isApproved = result === "approved";
+  const title = isApproved ? "Hợp đồng đã được phê duyệt" : "Hợp đồng bị từ chối";
+  
+  const message = `${adminName} (${isApproved ? "đã phê duyệt" : "đã từ chối"}) hợp đồng cho property "${propertyTitle}".${!isApproved && notes ? ` Lý do: ${notes}` : ""}`;
+  
+  const actionUrl = `/deals/${deal._id}/contract`;
+  
+  // Lấy ID của các bên liên quan
+  const recipientIds = [
+    deal.buyer_id._id || deal.buyer_id, 
+    deal.seller_id._id || deal.seller_id, 
+    deal.agent_id._id || deal.agent_id
+  ].map(id => id.toString()).filter(Boolean);
+
+  await createNotificationsForUsers(recipientIds, title, message, {
+    type: "contract",
+    relatedId: contract._id,
+    actionUrl,
+    meta: {
+      dealId: deal._id,
+      contractId: contract._id,
+      result,
+      notes,
+    },
+  });
+}
+
+/**
+ * Notification khi trạng thái Deal thay đổi
+ */
+export async function notifyDealStatusChange(params: {
+  deal: any;
+  newStatus: string; // Hoặc DealStatus nếu bạn đã import
+  adminName: string;
+}) {
+  const { deal, newStatus, adminName } = params;
+
+  if (!deal || !deal.buyer_id || !deal.seller_id || !deal.agent_id) {
+    console.error("Deal data is incomplete for status change notification.");
+    return;
+  }
+
+  const propertyTitle = deal.property_id?.title?.vi || deal.property_id?.title || "Bất động sản";
+  
+  const title = `Trạng thái Deal được cập nhật: ${newStatus.toUpperCase()}`;
+  const message = `${adminName} đã cập nhật trạng thái Deal cho property "${propertyTitle}" thành **${newStatus}**`;
+  
+  const actionUrl = `/deals/${deal._id}`;
+  
+  const recipientIds = [
+    deal.buyer_id._id || deal.buyer_id, 
+    deal.seller_id._id || deal.seller_id, 
+    deal.agent_id._id || deal.agent_id
+  ].map(id => id.toString()).filter(Boolean);
+
+  await createNotificationsForUsers(recipientIds, title, message, {
+    type: "deal", // Đảm bảo 'deal' có trong NotificationType, nếu không dùng 'system'
+    relatedId: deal._id,
+    actionUrl,
+    meta: { dealId: deal._id, newStatus },
+  });
+}
+
+/**
+ * Notification khi Payment được tạo hoặc cập nhật
+ */
+export async function notifyPaymentUpdate(params: {
+  payment: any;
+  deal: any;
+  adminName: string;
+  action: "created" | "updated";
+}) {
+  const { payment, deal, adminName, action } = params;
+
+  if (!deal || !payment.initiated_by) {
+    console.error("Deal/Payment data is incomplete for payment update notification.");
+    return;
+  }
+
+  const propertyTitle = deal.property_id?.title?.vi || deal.property_id?.title || "Bất động sản";
+
+  const isCreated = action === "created";
+  const title = isCreated ? "Thanh toán mới được ghi nhận" : "Cập nhật Thanh toán";
+  const statusMessage = payment.status ? ` (Trạng thái: ${payment.status})` : "";
+  
+  const message = `${adminName} ${isCreated ? "đã ghi nhận" : "đã cập nhật"} thanh toán ${payment.amount?.toLocaleString() || "N/A"} VNĐ cho ${propertyTitle}${statusMessage}`;
+  
+  const actionUrl = `/deals/${deal._id}/payments`;
+
+  // Gửi cho người thực hiện thanh toán và Agent
+  const recipientIds = [
+    payment.initiated_by._id || payment.initiated_by, 
+    deal.agent_id?._id || deal.agent_id
+  ].map(id => id?.toString()).filter(Boolean);
+
+  await createNotificationsForUsers(recipientIds, title, message, {
+    type: "payment",
+    relatedId: payment._id,
+    actionUrl,
+    meta: { dealId: deal._id, paymentId: payment._id, amount: payment.amount, status: payment.status },
+  });
+}
+
+// Notification khi Buyer chấp nhận hoặc từ chối hợp đồng
+export async function notifyBuyerContractDecision(params: {
+  deal: any; // Object deal đã populate seller_id, agent_id, property_id
+  buyerName: string;
+  contractId: string;
+  decision: "approved" | "rejected";
+  notes?: string;
+}) {
+  const { deal, buyerName, contractId, decision, notes } = params;
+
+  const propertyTitle = deal.property_id?.title?.vi || deal.property_id?.title || "Bất động sản";
+  const actionText = decision === "approved" ? "đã chấp nhận" : "đã từ chối";
+  const title = decision === "approved" ? "Hợp đồng được chấp nhận" : "Hợp đồng bị từ chối";
+  
+  const message = `${buyerName} (Người mua) ${actionText} hợp đồng cho "${propertyTitle}".${decision === "rejected" && notes ? ` Lý do: ${notes}` : ""}`;
+
+  // Gửi cho Seller và Agent
+  const recipientIds = [
+    deal.seller_id?._id?.toString() || deal.seller_id?.toString(),
+    deal.agent_id?._id?.toString() || deal.agent_id?.toString()
+  ].filter(Boolean);
+
+  const actionUrl = `/deals/${deal._id}`; // Hoặc URL chi tiết hợp đồng
+
+  await createNotificationsForUsers(recipientIds, title, message, {
+    type: "contract",
+    relatedId: contractId,
+    actionUrl,
+    meta: {
+      dealId: deal._id,
+      contractId,
+      decision,
+    },
+  });
 }
