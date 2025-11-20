@@ -65,18 +65,17 @@ export const getMyFavorites = async (
         address_vi: p.address?.vi,
         address_en: p.address?.en,
 
-        city: p.city_id?.city_name?.vi || p.city_id?.city_name?.en || null,
-        district:
-          p.district_id?.district_name?.vi ||
-          p.district_id?.district_name?.en ||
-          null,
-        ward: p.ward_id?.ward_name?.vi || p.ward_id?.ward_name?.en || null,
+        city_vi: p.city_id?.city_name?.vi || null,
+        city_en: p.city_id?.city_name?.en || null,
+        district_vi: p.district_id?.district_name?.vi || null,
+        district_en: p.district_id?.district_name?.en || null,
+        ward_vi: p.ward_id?.ward_name?.vi || null,
+        ward_en: p.ward_id?.ward_name?.en || null,
 
-        type: p.type_id?.type_name?.vi || p.type_id?.type_name?.en || null,
-        category:
-          p.category_id?.category_name?.vi ||
-          p.category_id?.category_name?.en ||
-          null,
+        type_vi: p.type_id?.type_name?.vi || null,
+        type_en: p.type_id?.type_name?.en || null,
+        category_vi: p.category_id?.category_name?.vi || null,
+        category_en: p.category_id?.category_name?.en || null,
 
         area: p.area,
         unit: p.unit,
@@ -88,10 +87,10 @@ export const getMyFavorites = async (
         lat: p.coordinates?.lat,
         lng: p.coordinates?.lng,
 
-        features:
-          p.features
-            ?.map((f: any) => f.feature_name?.vi || f.feature_name?.en || null)
-            .filter(Boolean) || [],
+        features_vi:
+          p.features?.map((f: any) => f.feature_name?.vi).filter(Boolean) || [],
+        features_en:
+          p.features?.map((f: any) => f.feature_name?.en).filter(Boolean) || [],
         feature_icons: [],
 
         owner: p.owner_id
