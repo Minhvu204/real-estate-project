@@ -47,7 +47,16 @@ export const acceptAppointment = async (req: AuthenticatedRequest, res: Response
       return errorResponse(req, res, "Appointment ID không hợp lệ", 400);
     }
 
-    const appointment = await appointmentService.acceptAppointment(String(id), String(agentId));
+    const { selectedTime } = req.body || {};
+    if (!selectedTime) {
+      return errorResponse(req, res, "Vui lòng chọn thời gian cần chốt", 400);
+    }
+
+    const appointment = await appointmentService.acceptAppointment(
+      String(id),
+      String(agentId),
+      selectedTime
+    );
     return successResponse(req, res, "Chấp nhận lịch hẹn thành công", appointment);
   } catch (error: any) {
     return errorResponse(req, res, error.message || "Server error", error.status || 500);
