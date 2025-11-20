@@ -370,6 +370,8 @@ export const contractService = {
       contract.approved_at = new Date();
       // update contract_type thành "buyer_signed"
       contract.contract_type = "buyer_signed";
+      deal.status = "escrow_funded";
+      await deal.save();
     } else {
       contract.status = "rejected";
       contract.notes = notes; // Lưu lý do từ chối vào notes

@@ -4,6 +4,7 @@ import Offer, { IOffer } from "../models/offer.model";
 import Property from "../models/property.model";
 import { notifyDealCreated } from "../utils/notificationHelper";
 
+
 const toObjectId = (id: string) => new mongoose.Types.ObjectId(id);
 
 const calculateFees = (amount: number) => {
@@ -101,6 +102,26 @@ export const dealService = {
       console.error("Failed to send deal created notifications:", error);
     });
 
+    return deal;
+  },
+
+  async updateDealStatus(dealId: string, status: DealStatus, updatedBy: string) {
+    if (!mongoose.Types.ObjectId.isValid(dealId)) {
+      const err: any = new Error("DealId không hợp lệ");
+      err.status = 400;
+      throw err;
+    }
+
+    const deal = await Deal.findById(dealId);
+    if (!deal) {
+      const err: any = new Error("Deal không tồn tại");
+      err.status = 404;
+      throw err;
+    }
+
+    deal.status = status;
+
+    await deal.save();
     return deal;
   },
 

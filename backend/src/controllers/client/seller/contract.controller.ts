@@ -6,6 +6,7 @@ import { notifyContractUploaded } from "../../../utils/notificationHelper";
 import { DealStatus, IDeal } from "../../../models/deal.model";
 import { ContractStatus, ContractType } from "../../../models/contract.model";
 
+
 const CONTRACT_TYPES: ContractType[] = ["initial", "buyer_signed", "final"];
 const CONTRACT_UPLOADABLE_STATUSES: ContractStatus[] = ["draft", "submitted"];
 
@@ -122,6 +123,12 @@ export const uploadContract = async (req: Request, res: Response) => {
       notes: (req.body as any)?.notes,
       allowReplace: false,
     });
+    
+    await dealService.updateDealStatus(
+      dealId,
+      "contract_under_review",
+      sellerId
+    );
 
     await sendContractNotification(deal, String(contract._id), "uploaded");
 
@@ -212,15 +219,15 @@ export const getContractByDeal = async (req: Request, res: Response) => {
 export const deleteContract = async (req: Request, res: Response) => {
   try {
     const agentId = getUserIdFromRequest(req);
-    
+
     const { dealId, contractId } = req.params;
 
     if (!agentId) {
       return errorResponse(req, res, "Không xác định người dùng", 401);
     }
-    
+
     if (!contractId) {
-        return errorResponse(req, res, "Thiếu ID hợp đồng", 400);
+      return errorResponse(req, res, "Thiếu ID hợp đồng", 400);
     }
 
     await ensureDealForSeller(dealId, agentId);
