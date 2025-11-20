@@ -23,7 +23,7 @@ export const upload = async (req: Request, res: Response, next: NextFunction) =>
     const uploadFromBuffer = (fileBuffer: Buffer) => {
       return new Promise<any>((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { folder: "avatars" }, // folder trên Cloudinary
+          { folder: "real-estate", resource_type: "raw" },
           (error, result) => {
             if (error) return reject(error);
             resolve(result);

@@ -17,28 +17,18 @@ import { SearchCriteria } from "../types/searchCriteria";
 
 export const propertyService = {
   async getAllProperties(filters: any) {
-    const {
-      page = 1,
-      limit = 10,
-      city,
-      district,
-      ward,
-      type,
-      category,
-      minPrice,
-      maxPrice,
-      keyword,
-      status,
-    } = filters;
+    const { city, district, ward, type, category, minPrice, maxPrice, keyword } = filters;
 
-    const query: any = { deleted: false };
+    const query: any = {
+      deleted: false,
+      status: { $in: ["approved", "available"] },
+    };
 
     if (city) query.city_id = city;
     if (district) query.district_id = district;
     if (ward) query.ward_id = ward;
     if (type) query.type_id = type;
     if (category) query.category_id = category;
-    if (status) query.status = status;
     if (minPrice != null || maxPrice != null) {
       query.price = {
         ...(minPrice != null ? { $gte: Number(minPrice) } : {}),
@@ -47,45 +37,28 @@ export const propertyService = {
     }
     if (keyword) query["title.vi"] = { $regex: keyword, $options: "i" };
 
-    const pageNum = Number(page) || 1;
-    const limitNum = Number(limit) || 10;
-    const skip = (pageNum - 1) * limitNum;
+    const propertyList = await Property.find(query)
+      .populate("city_id", "city_name")
+      .populate("district_id", "district_name")
+      .populate("ward_id", "ward_name")
+      .populate("category_id", "category_name")
+      .populate("type_id", "type_name")
+      .populate("owner_id", "fullName email phone avatar")
+      .populate("agent_id", "fullName email phone avatar")
+      .populate("features", "feature_name")
+      .populate("assignmentHistory.agent_id", "fullName email")
+      .populate("assignmentHistory.assignedBy", "fullName email")
+      .sort({ createdAt: -1 })
+      .lean();
 
-    const [propertyList, totalCount] = await Promise.all([
-      Property.find(query)
-        .populate("city_id", "city_name")
-        .populate("district_id", "district_name")
-        .populate("ward_id", "ward_name")
-        .populate("category_id", "category_name")
-        .populate("type_id", "type_name")
-        .populate("owner_id", "fullName email phone avatar")
-        .populate("agent_id", "fullName email phone avatar")
-        .populate("features", "feature_name")
-        .populate("assignmentHistory.agent_id", "fullName email")
-        .populate("assignmentHistory.assignedBy", "fullName email")
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limitNum)
-        .lean(),
-
-      Property.countDocuments(query),
-    ]);
-
-    // Thêm fullAddress
     const dataWithAddress = propertyList.map((p) => ({
       ...p,
       fullAddress: getFullAddress(p, "vi"),
     }));
 
-    return {
-      pagination: {
-        currentPage: pageNum,
-        totalPages: Math.ceil(totalCount / limitNum),
-        totalItems: totalCount,
-      },
-      data: dataWithAddress,
-    };
+    return { data: dataWithAddress };
   },
+
 
   // Lấy property theo owner hoặc agent
   async getPropertiesByOwnerOrAgent(

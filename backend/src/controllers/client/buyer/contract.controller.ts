@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { successResponse, errorResponse } from "../../../utils/responseHandler";
 import { contractService } from "../../../services/contract.service";
 import { notifyBuyerContractDecision } from "../../../utils/notificationHelper";
+import { dealService } from "../../../services/deal.service";
 
 const BUYER_UPLOAD_ENABLED = process.env.ALLOW_BUYER_CONTRACT_UPLOAD === "true";
 
@@ -24,6 +25,20 @@ const parseBoolean = (value: any) => {
   if (typeof value === "boolean") return value;
   if (value === undefined || value === null) return false;
   return ["true", "1", "yes"].includes(String(value).toLowerCase());
+};
+
+export const getAllDealsForBuyer = async (req: Request, res: Response) => {
+  try {
+    const buyerId = getUserIdFromRequest(req);
+    if (!buyerId) return errorResponse(req, res, "Không xác định người dùng", 401);
+
+    const deals = await dealService.getDealsByBuyer(buyerId);
+
+    return successResponse(req, res, "Lấy danh sách deals thành công", deals);
+  } catch (error: any) {
+    console.error("getAllDealsForBuyer error:", error);
+    return errorResponse(req, res, error.message || "Lấy danh sách deals thất bại", error.status || 500);
+  }
 };
 
 export const listContracts = async (req: Request, res: Response) => {

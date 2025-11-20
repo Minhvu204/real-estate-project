@@ -10,10 +10,13 @@ import {
   listContracts,
   acceptContract,
   rejectContract,
+  getAllDealsForBuyer,
 } from "../../../controllers/client/buyer/contract.controller";
 
 const router = express.Router();
 const multerUpload = multer({ storage: multer.memoryStorage() });
+
+router.get("/deals", verifyToken, roleCheck("buyer"), getAllDealsForBuyer);
 
 router.get("/contracts", verifyToken, roleCheck("buyer"), listContracts);
 router.get("/deals/:dealId/contract", verifyToken, roleCheck("buyer"), getContractByDeal);
