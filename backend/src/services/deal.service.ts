@@ -4,6 +4,7 @@ import Offer, { IOffer } from "../models/offer.model";
 import Property from "../models/property.model";
 import { notifyDealCreated } from "../utils/notificationHelper";
 
+
 const toObjectId = (id: string) => new mongoose.Types.ObjectId(id);
 
 const calculateFees = (amount: number) => {
@@ -104,12 +105,48 @@ export const dealService = {
     return deal;
   },
 
+  async updateDealStatus(dealId: string, status: DealStatus, updatedBy: string) {
+    if (!mongoose.Types.ObjectId.isValid(dealId)) {
+      const err: any = new Error("DealId không hợp lệ");
+      err.status = 400;
+      throw err;
+    }
+
+    const deal = await Deal.findById(dealId);
+    if (!deal) {
+      const err: any = new Error("Deal không tồn tại");
+      err.status = 404;
+      throw err;
+    }
+
+    deal.status = status;
+
+    await deal.save();
+    return deal;
+  },
+
   async getDealById(dealId: string) {
     if (!mongoose.Types.ObjectId.isValid(dealId)) {
       return null;
     }
 
     return Deal.findById(dealId)
+      .populate("property_id")
+      .populate("buyer_id")
+      .populate("seller_id")
+      .populate("agent_id")
+      .populate("offer_id");
+  },
+
+  async getDealForBuyer(dealId: string, buyerId: string) {
+    if (!mongoose.Types.ObjectId.isValid(dealId) || !mongoose.Types.ObjectId.isValid(buyerId)) {
+      return null;
+    }
+
+    return Deal.findOne({
+      _id: toObjectId(dealId),
+      buyer_id: toObjectId(buyerId),
+    })
       .populate("property_id")
       .populate("buyer_id")
       .populate("seller_id")

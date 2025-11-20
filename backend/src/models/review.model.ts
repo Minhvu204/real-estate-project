@@ -14,10 +14,22 @@ const ReviewSchema = new Schema<IReview>(
     user_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
     target_id: { type: Schema.Types.ObjectId, required: true },
     target_type: { type: String, enum: ["agent", "property"], required: true },
-    rating: { type: Number, required: true },
+    rating: { 
+      type: Number, 
+      required: true,
+      min: 1,
+      max: 5,
+      validate: {
+        validator: (value: number) => Number.isInteger(value) && value >= 1 && value <= 5,
+        message: "Rating phải là số nguyên từ 1 đến 5"
+      }
+    },
     comment: String,
   },
   { timestamps: true }
 );
+
+// Unique composite index để tránh duplicate (1 buyer chỉ review 1 lần cho 1 target)
+ReviewSchema.index({ user_id: 1, target_id: 1, target_type: 1 }, { unique: true });
 
 export default mongoose.model<IReview>("Review", ReviewSchema);
