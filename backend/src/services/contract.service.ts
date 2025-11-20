@@ -5,7 +5,7 @@ import Contract, {
   ContractUploaderRole,
 } from "../models/contract.model";
 import Deal, { DealStatus } from "../models/deal.model";
-import { notifyBuyerContractDecision } from "../utils/notificationHelper";
+import { notifyBuyerContractDecision, notifyBuyerToPayEscrow } from "../utils/notificationHelper";
 import User from "../models/user.model";
 
 
@@ -372,6 +372,32 @@ export const contractService = {
       contract.contract_type = "buyer_signed";
       deal.status = "escrow_funded";
       await deal.save();
+
+      try {
+        const propertyTitle =
+          typeof deal.property_id === "object" && deal.property_id !== null
+            ? (deal.property_id as any).title || "bất động sản"
+            : "bất động sản";
+
+        const agreedPrice = deal.amounts?.agreed_price ?? 0;
+        const platformFeeRate = Number(process.env.DEFAULT_PLATFORM_FEE_RATE ?? 0.05);
+        const agentFeeRate = Number(process.env.DEFAULT_AGENT_FEE_RATE ?? 0.02);
+
+        const platformFee = Math.round(agreedPrice * platformFeeRate);
+        const agentFee = Math.round(agreedPrice * agentFeeRate);
+
+        await notifyBuyerToPayEscrow(
+          buyerId,
+          String(deal._id),
+          propertyTitle,
+          platformFee,
+          agentFee
+        );
+
+      } catch (err) {
+        console.error("Failed to send escrow payment notification", err);
+      }
+
     } else {
       contract.status = "rejected";
       contract.notes = notes; // Lưu lý do từ chối vào notes

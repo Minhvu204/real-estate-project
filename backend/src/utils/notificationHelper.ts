@@ -698,3 +698,23 @@ export async function notifyBuyerContractDecision(params: {
     },
   });
 }
+
+export async function notifyBuyerToPayEscrow(
+  buyerId: string,
+  dealId: string,
+  propertyTitle: string,
+  platformFee: number,
+  agentFee: number
+) {
+  const title = "Thanh toán Escrow";
+  const message = `Hợp đồng bất động sản "${propertyTitle}" đã được chấp nhận.
+Vui lòng tiến hành thanh toán escrow: 
+- Giá trị: ${platformFee + agentFee} VND (bao gồm phí nền tảng ${platformFee} VND, phí agent ${agentFee} VND)
+- Hoặc thanh toán trực tiếp với chủ nhà bằng tiền mặt.`;
+
+  return createNotification(buyerId, title, message, {
+    type: "system",
+    relatedId: dealId,
+    actionUrl: `/deals/${dealId}/payment` // link tới trang thanh toán
+  });
+}
