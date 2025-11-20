@@ -100,7 +100,6 @@ const OfferDetailPage: React.FC = () => {
     return { date: datePart, time: timePart };
   };
 
-
   const getStatusLabel = (status: string): string => {
     const statusKey = `detail.status.${status}`;
     try {
@@ -113,7 +112,15 @@ const OfferDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <Container sx={{ mt: 4, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+      <Container
+        sx={{
+          mt: 4,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '400px',
+        }}
+      >
         <CircularProgress />
       </Container>
     );
@@ -133,22 +140,28 @@ const OfferDetailPage: React.FC = () => {
   const property = typeof offer.property_id === 'object' ? offer.property_id : null;
 
   const lang = i18n.language as 'vi' | 'en';
-  const propertyTitle = property 
-    ? (typeof property.title === 'object' ? property.title[lang] : property.title)
+  const propertyTitle = property
+    ? typeof property.title === 'object'
+      ? property.title[lang]
+      : property.title
     : 'Property';
   const propertyAddress = property
-    ? (typeof property.address === 'object' ? property.address[lang] : property.address)
+    ? typeof property.address === 'object'
+      ? property.address[lang]
+      : property.address
     : '';
 
   const userRole = state.user?.role?.toLowerCase();
 
   return (
-    <Container sx={{ mt: 4, mb: 4 }}>
-      <Button
-        startIcon={<ArrowBackIcon />}
-        onClick={() => navigate(-1)}
-        sx={{ mb: 3 }}
-      >
+    <Container
+      sx={{
+        mt: { xs: 2, md: 4 },
+        mb: { xs: 2, md: 4 },
+        px: { xs: 1.5, sm: 2, md: 3 },
+      }}
+    >
+      <Button startIcon={<ArrowBackIcon />} onClick={() => navigate(-1)} sx={{ mb: 3 }}>
         {t('detail.back')}
       </Button>
 
@@ -157,15 +170,18 @@ const OfferDetailPage: React.FC = () => {
           sx={{
             bgcolor: 'primary.main',
             color: 'white',
-            p: 3,
+            p: { xs: 2, sm: 3 },
             display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
             justifyContent: 'space-between',
-            alignItems: 'center',
+            alignItems: { xs: 'flex-start', sm: 'center' },
+            gap: { xs: 1.5, sm: 0 },
           }}
         >
           <Typography variant="h4" fontWeight="bold" color="white">
             {t('detail.title')}
           </Typography>
+
           <Chip
             label={getStatusLabel(offer.status)}
             sx={{
@@ -177,280 +193,308 @@ const OfferDetailPage: React.FC = () => {
           />
         </Box>
 
-        <Box sx={{ p: 4 }}>
+        <Box sx={{ p: { xs: 2, sm: 4 } }}>
 
-        {property && (
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-              {t('detail.propertyInfo.title') || 'Property Information'}
-            </Typography>
-            <Paper
-              variant="outlined"
-              sx={{
-                p: 3,
-                borderRadius: 2,
-                bgcolor: 'background.paper',
-              }}
-            >
-              <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
-                {propertyTitle}
+          {property && (
+            <Box sx={{ mb: 4 }}>
+              <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+                {t('detail.propertyInfo.title') || 'Property Information'}
               </Typography>
-              {propertyAddress && (
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                  📍 {propertyAddress}
-                </Typography>
-              )}
-              <Typography variant="body1" color="primary.main" fontWeight="bold">
-                {t('detail.propertyInfo.listedPrice') || 'Listed Price'}: {formatCurrency(property.price, 'VND')}
-              </Typography>
-            </Paper>
-          </Box>
-        )}
 
-        <Box sx={{ mb: 4 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <PersonIcon sx={{ mr: 1, color: 'primary.main' }} />
-            <Typography variant="h6" fontWeight="bold">
-              {t('detail.buyerInfo.title')}
-            </Typography>
-          </Box>
-          {buyer ? (
-            <Paper
-              variant="outlined"
-              sx={{
-                p: 3,
-                borderRadius: 2,
-                display: 'flex',
-                alignItems: 'center',
-                bgcolor: 'background.paper',
-              }}
-            >
-              <Avatar 
-                src={buyer.avatar} 
-                sx={{ mr: 2, bgcolor: 'primary.main', width: 56, height: 56 }}
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: { xs: 2, sm: 3 },
+                  borderRadius: 2,
+                  bgcolor: 'background.paper',
+                }}
               >
-                {buyer.fullName?.charAt(0) || 'B'}
-              </Avatar>
-              <Box>
-                <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 0.5 }}>
-                  {buyer.fullName || t('detail.buyerInfo.noName')}
+                <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
+                  {propertyTitle}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {i18n.language === 'vi' ? 'Email' : 'Email'}: {buyer.email || t('detail.buyerInfo.noEmail')}
-                </Typography>
-                {buyer.phone && (
-                  <Typography variant="body2" color="text.secondary">
-                    {t('detail.buyerInfo.phone')}: {buyer.phone}
+
+                {propertyAddress && (
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                    📍 {propertyAddress}
                   </Typography>
                 )}
-              </Box>
-            </Paper>
-          ) : (
-            <Typography color="text.secondary">{t('detail.buyerInfo.noBuyerInfo')}</Typography>
+
+                <Typography variant="body1" color="primary.main" fontWeight="bold">
+                  {t('detail.propertyInfo.listedPrice')}: {formatCurrency(property.price, 'VND')}
+                </Typography>
+              </Paper>
+            </Box>
           )}
-        </Box>
 
-        {userRole === 'agent' && seller && (
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-              {t('detail.sellerInfo.title') || 'Seller Information'}
-            </Typography>
-            <Paper
-              variant="outlined"
+          <Box sx={{ mb: 6 }}>
+            <Box
               sx={{
-                p: 3,
-                borderRadius: 2,
-                display: 'flex',
-                alignItems: 'center',
-                bgcolor: 'background.paper',
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' },
+                gap: { xs: 2, sm: 3 },
               }}
             >
-              <Avatar 
-                src={seller.avatar} 
-                sx={{ mr: 2, bgcolor: 'success.main', width: 56, height: 56 }}
-              >
-                {seller.fullName?.charAt(0) || 'S'}
-              </Avatar>
               <Box>
-                <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 0.5 }}>
-                  {seller.fullName}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Email: {seller.email}
-                </Typography>
-                {seller.phone && (
-                  <Typography variant="body2" color="text.secondary">
-                    {t('detail.buyerInfo.phone')}: {seller.phone}
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <PersonIcon sx={{ mr: 1, color: 'primary.main' }} />
+                  <Typography variant="h6" fontWeight="bold">
+                    {t('detail.buyerInfo.title')}
+                  </Typography>
+                </Box>
+
+                {buyer ? (
+                  <Paper
+                    variant="outlined"
+                    sx={{
+                      p: { xs: 2, sm: 2.5 },
+                      borderRadius: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      bgcolor: 'background.paper',
+                    }}
+                  >
+                    <Avatar
+                      src={buyer.avatar}
+                      sx={{ mr: 2, bgcolor: 'primary.main', width: 48, height: 48 }}
+                    >
+                      {buyer.fullName?.charAt(0) || 'B'}
+                    </Avatar>
+
+                    <Box sx={{ minWidth: 0, flex: 1 }}>
+                      <Typography variant="subtitle1" fontWeight="bold" noWrap>
+                        {buyer.fullName}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" noWrap>
+                        {buyer.email}
+                      </Typography>
+                      {buyer.phone && (
+                        <Typography variant="body2" color="text.secondary" noWrap>
+                          {buyer.phone}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Paper>
+                ) : (
+                  <Typography color="text.secondary">
+                    {t('detail.buyerInfo.noBuyerInfo')}
                   </Typography>
                 )}
               </Box>
-            </Paper>
-          </Box>
-        )}
 
-        {userRole === 'seller' && agent && (
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-              {t('detail.agentInfo.title') || 'Agent Information'}
-            </Typography>
-            <Paper
-              variant="outlined"
-              sx={{
-                p: 3,
-                borderRadius: 2,
-                display: 'flex',
-                alignItems: 'center',
-                bgcolor: 'background.paper',
-              }}
-            >
-              <Avatar 
-                src={agent.avatar} 
-                sx={{ mr: 2, bgcolor: 'info.main', width: 56, height: 56 }}
-              >
-                {agent.fullName?.charAt(0) || 'A'}
-              </Avatar>
-              <Box>
-                <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 0.5 }}>
-                  {agent.fullName}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Email: {agent.email}
-                </Typography>
-                {agent.phone && (
-                  <Typography variant="body2" color="text.secondary">
-                    {t('detail.buyerInfo.phone')}: {agent.phone}
+              {userRole === 'agent' && seller && (
+                <Box>
+                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+                    {t('detail.sellerInfo.title')}
                   </Typography>
-                )}
-              </Box>
-            </Paper>
-          </Box>
-        )}
 
-        <Box sx={{ mb: 4 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <AttachMoneyIcon sx={{ mr: 1, color: 'primary.main' }} />
-            <Typography variant="h6" fontWeight="bold">
-              {t('detail.amount.title')}
-            </Typography>
-          </Box>
-          <Paper
-            sx={{
-              bgcolor: '#FFF9E6',
-              p: 4,
-              borderRadius: 2,
-              textAlign: 'center',
-              boxShadow: 2,
-            }}
-          >
-            <Typography
-              variant="h2"
-              sx={{
-                color: '#B8860B',
-                fontWeight: 'bold',
-                fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
-              }}
-            >
-              {formatCurrency(offer.amount, offer.currency || 'VND')}
-            </Typography>
-          </Paper>
-        </Box>
+                  <Paper
+                    variant="outlined"
+                    sx={{
+                      p: { xs: 2, sm: 2.5 },
+                      borderRadius: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      bgcolor: 'background.paper',
+                    }}
+                  >
+                    <Avatar
+                      src={seller.avatar}
+                      sx={{ mr: 2, bgcolor: 'success.main', width: 48, height: 48 }}
+                    >
+                      {seller.fullName?.charAt(0) || 'S'}
+                    </Avatar>
 
-        <Box sx={{ mb: 4 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <ScheduleIcon sx={{ mr: 1, color: 'primary.main' }} />
-            <Typography variant="h6" fontWeight="bold">
-              {t('detail.deadline.title')}
-            </Typography>
-          </Box>
-          <Paper
-            variant="outlined"
-            sx={{
-              p: 3,
-              borderRadius: 2,
-              bgcolor: 'background.paper',
-            }}
-          >
-            {offer.expires_at ? (
-              <>
-                <Typography variant="body1" fontWeight="medium" sx={{ mb: 0.5 }}>
-                  {formatDateForDisplay(offer.expires_at).date}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {i18n.language === 'vi' 
-                    ? `Hạn chót lúc ${formatDateForDisplay(offer.expires_at).time}`
-                    : `Deadline at ${formatDateForDisplay(offer.expires_at).time}`
-                  }
-                </Typography>
-              </>
-            ) : (
-              <Typography variant="body1" color="text.secondary">
-                {t('detail.deadline.noDeadline')}
-              </Typography>
-            )}
-          </Paper>
-        </Box>
+                    <Box sx={{ minWidth: 0, flex: 1 }}>
+                      <Typography variant="subtitle1" fontWeight="bold" noWrap>
+                        {seller.fullName}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" noWrap>
+                        {seller.email}
+                      </Typography>
+                      {seller.phone && (
+                        <Typography variant="body2" color="text.secondary" noWrap>
+                          {seller.phone}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Paper>
+                </Box>
+              )}
 
-        <Box sx={{ mb: 4 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <NoteIcon sx={{ mr: 1, color: 'primary.main' }} />
-            <Typography variant="h6" fontWeight="bold">
-              {t('detail.note.title')}
-            </Typography>
-          </Box>
-          <Paper
-            variant="outlined"
-            sx={{
-              p: 3,
-              bgcolor: 'grey.50',
-              minHeight: '100px',
-              borderRadius: 2,
-            }}
-          >
-            <Typography variant="body1" whiteSpace="pre-wrap">
-              {offer.note || t('detail.note.noNote')}
-            </Typography>
-          </Paper>
-        </Box>
+              {userRole === 'seller' && agent && (
+                <Box>
+                  <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+                    {t('detail.agentInfo.title')}
+                  </Typography>
 
-        {offer.status === 'rejected' && offer.rejection_reason && (
+                  <Paper
+                    variant="outlined"
+                    sx={{
+                      p: { xs: 2, sm: 2.5 },
+                      borderRadius: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      bgcolor: 'background.paper',
+                    }}
+                  >
+                    <Avatar
+                      src={agent.avatar}
+                      sx={{ mr: 2, bgcolor: 'info.main', width: 48, height: 48 }}
+                    >
+                      {agent.fullName?.charAt(0) || 'A'}
+                    </Avatar>
+
+                    <Box sx={{ minWidth: 0, flex: 1 }}>
+                      <Typography variant="subtitle1" fontWeight="bold" noWrap>
+                        {agent.fullName}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" noWrap>
+                        {agent.email}
+                      </Typography>
+                      {agent.phone && (
+                        <Typography variant="body2" color="text.secondary" noWrap>
+                          {agent.phone}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Paper>
+                </Box>
+              )}
+            </Box>
+          </Box>
+
           <Box sx={{ mb: 4 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <CancelIcon sx={{ mr: 1, color: 'error.main' }} />
-              <Typography variant="h6" fontWeight="bold" color="error.main">
-                {t('detail.rejectionReason.title') || 'Rejection Reason'}
+              <AttachMoneyIcon sx={{ mr: 1, color: 'primary.main' }} />
+              <Typography variant="h6" fontWeight="bold">
+                {t('detail.amount.title')}
               </Typography>
             </Box>
+
             <Paper
-              variant="outlined"
               sx={{
-                p: 3,
-                bgcolor: '#ffebee',
+                bgcolor: '#FFF9E6',
+                p: { xs: 3, sm: 4 },
                 borderRadius: 2,
-                borderColor: 'error.light',
+                textAlign: 'center',
+                boxShadow: 2,
               }}
             >
-              <Typography variant="body1" whiteSpace="pre-wrap" color="error.dark">
-                {offer.rejection_reason}
+              <Typography
+                variant="h2"
+                sx={{
+                  color: '#B8860B',
+                  fontWeight: 'bold',
+                  fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+                }}
+              >
+                {formatCurrency(offer.amount, offer.currency || 'VND')}
               </Typography>
             </Paper>
           </Box>
-        )}
 
-        <Box sx={{ pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-            {t('detail.additional.createdAt')}: {formatDate(offer.createdAt)}
-          </Typography>
-          {offer.updatedAt && offer.updatedAt !== offer.createdAt && (
-            <Typography variant="body2" color="text.secondary">
-              {t('detail.additional.updatedAt')}: {formatDate(offer.updatedAt)}
-            </Typography>
+          <Box sx={{ mb: 4 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <ScheduleIcon sx={{ mr: 1, color: 'primary.main' }} />
+              <Typography variant="h6" fontWeight="bold">
+                {t('detail.deadline.title')}
+              </Typography>
+            </Box>
+
+            <Paper
+              variant="outlined"
+              sx={{
+                p: { xs: 2, sm: 3 },
+                borderRadius: 2,
+                bgcolor: 'background.paper',
+              }}
+            >
+              {offer.expires_at ? (
+                <>
+                  <Typography variant="body1" fontWeight="medium" sx={{ mb: 0.5 }}>
+                    {formatDateForDisplay(offer.expires_at).date}
+                  </Typography>
+
+                  <Typography variant="body2" color="text.secondary">
+                    {i18n.language === 'vi'
+                      ? `Hạn chót lúc ${formatDateForDisplay(offer.expires_at).time}`
+                      : `Deadline at ${formatDateForDisplay(offer.expires_at).time}`}
+                  </Typography>
+                </>
+              ) : (
+                <Typography variant="body1" color="text.secondary">
+                  {t('detail.deadline.noDeadline')}
+                </Typography>
+              )}
+            </Paper>
+          </Box>
+
+          <Box sx={{ mb: 4 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <NoteIcon sx={{ mr: 1, color: 'primary.main' }} />
+              <Typography variant="h6" fontWeight="bold">
+                {t('detail.note.title')}
+              </Typography>
+            </Box>
+
+            <Paper
+              variant="outlined"
+              sx={{
+                p: { xs: 2, sm: 3 },
+                bgcolor: 'grey.50',
+                minHeight: '100px',
+                borderRadius: 2,
+              }}
+            >
+              <Typography variant="body1" whiteSpace="pre-wrap">
+                {offer.note || t('detail.note.noNote')}
+              </Typography>
+            </Paper>
+          </Box>
+
+          {offer.status === 'rejected' && offer.rejection_reason && (
+            <Box sx={{ mb: 4 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <CancelIcon sx={{ mr: 1, color: 'error.main' }} />
+                <Typography variant="h6" fontWeight="bold" color="error.main">
+                  {t('detail.rejectionReason.title') || 'Rejection Reason'}
+                </Typography>
+              </Box>
+
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: { xs: 2, sm: 3 },
+                  bgcolor: '#ffebee',
+                  borderRadius: 2,
+                  borderColor: 'error.light',
+                }}
+              >
+                <Typography variant="body1" whiteSpace="pre-wrap" color="error.dark">
+                  {offer.rejection_reason}
+                </Typography>
+              </Paper>
+            </Box>
           )}
-          {offer.reviewed_at && (
-            <Typography variant="body2" color="text.secondary">
-              {t('detail.additional.reviewedAt') || 'Reviewed at'}: {formatDate(offer.reviewed_at)}
+
+          <Box sx={{ pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              {t('detail.additional.createdAt')}: {formatDate(offer.createdAt)}
             </Typography>
-          )}
-        </Box>
+
+            {offer.updatedAt && offer.updatedAt !== offer.createdAt && (
+              <Typography variant="body2" color="text.secondary">
+                {t('detail.additional.updatedAt')}: {formatDate(offer.updatedAt)}
+              </Typography>
+            )}
+
+            {offer.reviewed_at && (
+              <Typography variant="body2" color="text.secondary">
+                {t('detail.additional.reviewedAt')}: {formatDate(offer.reviewed_at)}
+              </Typography>
+            )}
+          </Box>
+
         </Box>
       </Paper>
     </Container>
@@ -458,4 +502,3 @@ const OfferDetailPage: React.FC = () => {
 };
 
 export default OfferDetailPage;
-

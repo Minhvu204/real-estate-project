@@ -25,6 +25,8 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -50,13 +52,20 @@ const SellerOfferManagementPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { state } = useContext(AuthContext);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
   const [offers, setOffers] = useState<Offer[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState<OfferStatus | undefined>();
-  const [propertyFilter, setPropertyFilter] = useState<string | undefined>();
   const [expandedProperties, setExpandedProperties] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<'table' | 'list'>('table');
+  useEffect(() => {
+    if (isMobile && viewMode !== 'list') {
+      setViewMode('list');
+    }
+  }, [isMobile, viewMode]);
+
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [acceptDialogOpen, setAcceptDialogOpen] = useState(false);
   const [selectedOfferId, setSelectedOfferId] = useState<string>('');
@@ -77,20 +86,17 @@ const SellerOfferManagementPage: React.FC = () => {
       try {
         setIsLoading(true);
         const statusParam = searchParams.get('status') as OfferStatus | null;
-        const propertyIdParam = searchParams.get('property_id');
         
-        const filters: { status?: OfferStatus; property_id?: string } = {};
+        const filters: { status?: OfferStatus } = {};
         if (statusParam) filters.status = statusParam;
-        if (propertyIdParam) filters.property_id = propertyIdParam;
         
         const data = await OfferService.getSellerOffers(filters);
         setOffers(Array.isArray(data) ? data : []);
         setStatusFilter(filters.status);
-        setPropertyFilter(filters.property_id);
       } catch (error: any) {
         console.error('Load offers error:', error);
         toast.error(error?.message || t('error.loadFailed'));
-        setOffers([]); // Set empty array on error
+        setOffers([]);
       } finally {
         setIsLoading(false);
       }
@@ -136,10 +142,8 @@ const SellerOfferManagementPage: React.FC = () => {
       }, 1000);
       
       const statusParam = searchParams.get('status') as OfferStatus | null;
-      const propertyIdParam = searchParams.get('property_id');
-      const filters: { status?: OfferStatus; property_id?: string } = {};
+      const filters: { status?: OfferStatus } = {};
       if (statusParam) filters.status = statusParam;
-      if (propertyIdParam) filters.property_id = propertyIdParam;
       
       const updatedOffers = await OfferService.getSellerOffers(filters);
       setOffers(Array.isArray(updatedOffers) ? updatedOffers : []);
@@ -176,10 +180,8 @@ const SellerOfferManagementPage: React.FC = () => {
       toast.success(t('sellerList.rejectSuccess'));
       
       const statusParam = searchParams.get('status') as OfferStatus | null;
-      const propertyIdParam = searchParams.get('property_id');
-      const filters: { status?: OfferStatus; property_id?: string } = {};
+      const filters: { status?: OfferStatus } = {};
       if (statusParam) filters.status = statusParam;
-      if (propertyIdParam) filters.property_id = propertyIdParam;
       
       const updatedOffers = await OfferService.getSellerOffers(filters);
       setOffers(Array.isArray(updatedOffers) ? updatedOffers : []);
@@ -198,10 +200,8 @@ const SellerOfferManagementPage: React.FC = () => {
       toast.success(t('sellerList.acceptSuccess'));
       
       const statusParam = searchParams.get('status') as OfferStatus | null;
-      const propertyIdParam = searchParams.get('property_id');
-      const filters: { status?: OfferStatus; property_id?: string } = {};
+      const filters: { status?: OfferStatus } = {};
       if (statusParam) filters.status = statusParam;
-      if (propertyIdParam) filters.property_id = propertyIdParam;
       
       const updatedOffers = await OfferService.getSellerOffers(filters);
       setOffers(Array.isArray(updatedOffers) ? updatedOffers : []);
@@ -217,10 +217,8 @@ const SellerOfferManagementPage: React.FC = () => {
       toast.success(t('sellerList.rejectSuccess'));
       
       const statusParam = searchParams.get('status') as OfferStatus | null;
-      const propertyIdParam = searchParams.get('property_id');
-      const filters: { status?: OfferStatus; property_id?: string } = {};
+      const filters: { status?: OfferStatus } = {};
       if (statusParam) filters.status = statusParam;
-      if (propertyIdParam) filters.property_id = propertyIdParam;
       
       const updatedOffers = await OfferService.getSellerOffers(filters);
       setOffers(Array.isArray(updatedOffers) ? updatedOffers : []);
@@ -237,17 +235,6 @@ const SellerOfferManagementPage: React.FC = () => {
       params.set('status', status);
     } else {
       params.delete('status');
-    }
-    setSearchParams(params);
-  };
-
-  const handlePropertyFilterChange = (propertyId?: string) => {
-    setPropertyFilter(propertyId);
-    const params = new URLSearchParams(searchParams);
-    if (propertyId) {
-      params.set('property_id', propertyId);
-    } else {
-      params.delete('property_id');
     }
     setSearchParams(params);
   };
@@ -288,32 +275,22 @@ const SellerOfferManagementPage: React.FC = () => {
     return acc;
   }, [] as PropertyGroup[]);
 
-  const uniqueProperties = Array.from(
-    new Map(
-      offers
-        .map(offer => {
-          const property = typeof offer.property_id === 'object' ? offer.property_id : null;
-          if (!property) return null;
-          return {
-            id: property._id,
-            title: typeof property.title === 'object' ? property.title[lang] : property.title,
-          };
-        })
-        .filter((p): p is { id: string; title: string } => p !== null)
-        .map(p => [p.id, p])
-    ).values()
-  );
-
   const handleViewDetail = (offerId: string) => {
     navigate(`/seller/offers/${offerId}`);
   };
 
   return (
-    <Container sx={{ mt: 4, mb: 4 }}>
+    <Container
+      sx={{
+        mt: isMobile ? 2 : 4,
+        mb: isMobile ? 3 : 4,
+        px: isMobile ? 2 : 0,
+      }}
+    >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
         <Box>
           <Typography 
-            variant="h4" 
+            variant={isMobile ? 'h5' : 'h4'} 
             fontWeight="bold"
             sx={{ 
               color: '#1976D2',
@@ -333,31 +310,53 @@ const SellerOfferManagementPage: React.FC = () => {
             {t('sellerList.subtitle')}
           </Typography>
         </Box>
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button
-            variant={viewMode === 'table' ? 'contained' : 'outlined'}
-            onClick={() => setViewMode('table')}
-            size="small"
-          >
-            {t('sellerList.tableView')}
-          </Button>
-          <Button
-            variant={viewMode === 'list' ? 'contained' : 'outlined'}
-            onClick={() => setViewMode('list')}
-            size="small"
-          >
-            {t('sellerList.listView')}
-          </Button>
-        </Box>
       </Box>
 
-      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
-        <FormControl sx={{ minWidth: 200 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: isMobile ? 'flex-start' : 'flex-end',
+          gap: 2,
+          mb: isMobile ? 2 : 3,
+          flexDirection: isMobile ? 'column' : 'row',
+        }}
+      >
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, alignItems: isMobile ? 'stretch' : 'flex-start' }}>
+          {!isMobile && (
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button
+                variant={viewMode === 'table' ? 'contained' : 'outlined'}
+                onClick={() => setViewMode('table')}
+                size="small"
+              >
+                {t('sellerList.tableView')}
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'contained' : 'outlined'}
+                onClick={() => setViewMode('list')}
+                size="small"
+              >
+                {t('sellerList.listView')}
+              </Button>
+            </Box>
+          )}
+        </Box>
+        
+        <FormControl
+          sx={{ minWidth: isMobile ? '100%' : 200 }}
+          size={isMobile ? 'small' : 'medium'}
+        >
           <InputLabel>{t('list.filter.filterByStatus')}</InputLabel>
           <Select
             value={statusFilter || 'all'}
             label={t('list.filter.filterByStatus')}
             onChange={(e) => handleFilterChange(e.target.value === 'all' ? undefined : (e.target.value as OfferStatus))}
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 360 },
+              },
+            }}
           >
             <MenuItem value="all">{t('list.filter.all')}</MenuItem>
             <MenuItem value="pending">{t('list.status.pending')}</MenuItem>
@@ -368,25 +367,17 @@ const SellerOfferManagementPage: React.FC = () => {
             <MenuItem value="cancelled">{t('list.status.cancelled')}</MenuItem>
           </Select>
         </FormControl>
-        <FormControl sx={{ minWidth: 200 }}>
-          <InputLabel>{t('sellerList.filterByProperty')}</InputLabel>
-          <Select
-            value={propertyFilter || 'all'}
-            label={t('sellerList.filterByProperty')}
-            onChange={(e) => handlePropertyFilterChange(e.target.value === 'all' ? undefined : e.target.value)}
-          >
-            <MenuItem value="all">{t('list.filter.all')}</MenuItem>
-            {uniqueProperties.map(prop => (
-              <MenuItem key={prop.id} value={prop.id}>
-                {prop.title}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
       </Box>
 
       {viewMode === 'table' ? (
-        <TableContainer component={Paper} elevation={3}>
+        <TableContainer
+          component={Paper}
+          elevation={3}
+          sx={{
+            borderRadius: 2,
+            overflowX: 'auto',
+          }}
+        >
           <Table sx={{ borderCollapse: 'separate', borderSpacing: 0 }}>
             <TableHead>
               <TableRow>

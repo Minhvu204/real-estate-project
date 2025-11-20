@@ -1,5 +1,6 @@
 // src/models/deal.model.ts
 import mongoose, { Document, Schema } from "mongoose";
+import "./offer.model";
 
 export type DealStatus =
   | "active"
@@ -76,13 +77,25 @@ const ComplianceSchema = new Schema<IDealCompliance>(
 const DealSchema = new Schema<IDeal>(
   {
     property_id: { type: Schema.Types.ObjectId, ref: "Property", required: true },
-    offer_id: { type: Schema.Types.ObjectId, ref: "Offer", required: true, unique: true },
+    offer_id: {
+      type: Schema.Types.ObjectId,
+      ref: "Offer",
+      required: true,
+      unique: true,
+    },
     buyer_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
     seller_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
     agent_id: { type: Schema.Types.ObjectId, ref: "User", required: true },
     status: {
       type: String,
-      enum: ["active", "awaiting_contract", "contract_under_review", "escrow_funded", "completed", "cancelled"],
+      enum: [
+        "active",
+        "awaiting_contract",
+        "contract_under_review",
+        "escrow_funded",
+        "completed",
+        "cancelled",
+      ],
       default: "awaiting_contract",
     },
     amounts: { type: AmountsSchema, required: true },

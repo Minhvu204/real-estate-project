@@ -1,11 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+export const verifyToken = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const token =
     req.cookies?.access_token ||
     (req.headers.authorization && req.headers.authorization.split(" ")[1]);
-
 
   if (!token) {
     return res.status(401).json({ message: "Chưa đăng nhập" });
@@ -16,6 +19,8 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
     (req as any).user = decoded;
     next();
   } catch (error) {
-    return res.status(401).json({ message: "Token không hợp lệ hoặc đã hết hạn" });
+    return res
+      .status(401)
+      .json({ message: "Token không hợp lệ hoặc đã hết hạn" });
   }
 };

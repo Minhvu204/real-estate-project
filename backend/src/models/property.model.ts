@@ -19,6 +19,9 @@ export interface IProperty extends Document {
   unit: "m2" | "ft2";
   yearBuilt?: number;
   floors: number;
+  floor_number?: string;     // Số tầng (ví dụ: "Tầng 15")
+  building_block?: string; // Tên tòa nhà/block (ví dụ: "Tháp A", "Block S2")
+  apartment_number?: string; // Số căn hộ (ví dụ: "A-1502")
   coordinates?: { type: "Point"; coordinates: [number, number] }; // [lng, lat]
   city_id: mongoose.Types.ObjectId;
   district_id: mongoose.Types.ObjectId;
@@ -69,6 +72,10 @@ const PropertySchema = new Schema<IProperty>(
     unit: { type: String, enum: ["m2", "ft2"], default: "m2" },
     yearBuilt: { type: Number },
     floors: { type: Number, default: 1, min: 0 },
+
+    floor_number: { type: String, trim: true },
+    building_block: { type: String, trim: true },
+    apartment_number: { type: String, trim: true },
 
     coordinates: {
       type: {

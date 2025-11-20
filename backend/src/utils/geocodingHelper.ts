@@ -14,7 +14,6 @@ const OPENCAGE_API_KEY = process.env.OPENCAGE_API_KEY;
 export async function geocodeAddress(
   address: string
 ): Promise<{ lat: number; lng: number } | null> {
-  // 1. Kiểm tra xem có API key không
   if (!OPENCAGE_API_KEY) {
     console.warn(
       "OPENCAGE_API_KEY is not set. Geocoding will be skipped."
@@ -23,7 +22,6 @@ export async function geocodeAddress(
   }
 
   try {
-    // 2. Gọi API của OpenCage
     const response = await axios.get(
       "https://api.opencagedata.com/geocode/v1/json",
       {
@@ -38,7 +36,6 @@ export async function geocodeAddress(
 
     const data = response.data;
 
-    // 3. Kiểm tra và trích xuất kết quả
     if (data.status.code === 200 && data.results[0]) {
       const location = data.results[0].geometry;
       // OpenCage trả về { lat, lng } trực tiếp trong 'geometry'

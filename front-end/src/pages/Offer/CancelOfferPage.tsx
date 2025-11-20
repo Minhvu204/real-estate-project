@@ -5,6 +5,8 @@ import {
   Typography,
   CircularProgress,
   Box,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { toast, ToastContainer } from 'react-toastify';
@@ -17,6 +19,8 @@ const CancelOfferPage: React.FC = () => {
   const navigate = useNavigate();
   const { state } = useContext(AuthContext);
   const hasCancelled = useRef(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     if (hasCancelled.current) return;
@@ -69,10 +73,20 @@ const CancelOfferPage: React.FC = () => {
   }, [offerId, state.user, state.token, navigate, t]);
 
   return (
-    <Container sx={{ mt: 4, mb: 4, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
-      <Box sx={{ textAlign: 'center' }}>
+    <Container
+      sx={{
+        mt: isMobile ? 2 : 4,
+        mb: isMobile ? 2 : 4,
+        px: isMobile ? 2 : 0,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: isMobile ? '40vh' : '50vh',
+      }}
+    >
+      <Box sx={{ textAlign: 'center', maxWidth: 420 }}>
         <CircularProgress />
-        <Typography variant="h6" mt={2}>
+        <Typography variant={isMobile ? 'subtitle1' : 'h6'} mt={2} px={isMobile ? 1 : 0}>
           {t('list.cancelOffer')}...
         </Typography>
       </Box>

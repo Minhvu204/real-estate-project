@@ -39,7 +39,7 @@ const OfferManagement: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { state } = useContext(AuthContext);
-  
+
   const [activeTab, setActiveTab] = useState(0);
   const [property, setProperty] = useState<Property | null>(null);
   const [offers, setOffers] = useState<Offer[]>([]);
@@ -126,7 +126,7 @@ const OfferManagement: React.FC = () => {
       }, 1500);
       return;
     }
-    
+
     if (state.user.role?.toLowerCase() !== 'buyer') {
       toast.error(t('error.onlyBuyerCanCreate'));
       setTimeout(() => {
@@ -139,9 +139,9 @@ const OfferManagement: React.FC = () => {
       setIsSubmitting(true);
       await OfferService.createOffer(data);
       toast.success(t('success.offerCreated'));
-      
+
       await loadOffers();
-      
+
       setActiveTab(1);
       setSearchParams({ tab: 'list' });
     } catch (error: any) {
@@ -155,7 +155,7 @@ const OfferManagement: React.FC = () => {
     try {
       await OfferService.cancelOffer(offerId);
       toast.success(t('list.cancelSuccess'));
-      
+
       await loadOffers();
     } catch (error: any) {
       toast.error(error?.message || t('list.cancelError'));
@@ -195,11 +195,11 @@ const OfferManagement: React.FC = () => {
 
   return (
     <Container sx={{ mt: 4, mb: 4 }}>
-      <Typography 
-        variant="h4" 
-        fontWeight="bold" 
+      <Typography
+        variant="h4"
+        fontWeight="bold"
         mb={1}
-        sx={{ 
+        sx={{
           color: '#1976D2',
           letterSpacing: '-0.02em',
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -207,10 +207,10 @@ const OfferManagement: React.FC = () => {
       >
         {t('title')}
       </Typography>
-      <Typography 
-        variant="body1" 
+      <Typography
+        variant="body1"
         mb={4}
-        sx={{ 
+        sx={{
           color: '#424242',
           fontSize: '0.95rem',
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -273,4 +273,3 @@ const OfferManagement: React.FC = () => {
 };
 
 export default OfferManagement;
-

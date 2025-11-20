@@ -297,7 +297,7 @@ export const propertyService = {
 
   async getPropertiesByUser(userId: string, filters: any = {}) {
     const { status, keyword } = filters;
-    
+
     // Lấy properties mà user là owner HOẶC agent
     const query: any = {
       $or: [
@@ -319,6 +319,8 @@ export const propertyService = {
 
     const list = await Property.find(query)
       .populate("city_id", "city_name")
+      .populate("district_id", "district_name")
+      .populate("ward_id", "ward_name")
       .populate("category_id", "category_name")
       .populate("type_id", "type_name")
       .populate("owner_id", "fullName email phone avatar")
@@ -342,10 +344,10 @@ export const propertyService = {
       title,
       description,
       address,
+      coordinates,
       ...rest
     } = data;
 
-    // Validate taxonomy IDs (Code của bạn đã đúng)
     const [city, district, ward, category, type] = await Promise.all([
       City.findById(city_id).lean(),
       District.findById(district_id).lean(),
@@ -357,7 +359,6 @@ export const propertyService = {
       throw Object.assign(new Error("Dữ liệu taxonomy không hợp lệ"), { status: 400 });
     }
 
-    // Validate features (Code của bạn đã đúng)
     if (features.length > 0) {
       const count = await Feature.countDocuments({ _id: { $in: features } });
       if (count !== features.length) {
@@ -365,7 +366,6 @@ export const propertyService = {
       }
     }
 
-    // Convert đa ngôn ngữ (Code của bạn đã đúng)
     const [titleMultilang, descriptionMultilang, addressMultilang] = await Promise.all([
       createMultilangText(title || ""),
       description ? createMultilangText(description) : Promise.resolve({ vi: "", en: "" }),
@@ -373,31 +373,51 @@ export const propertyService = {
     ]);
 
 
-    // <<< PHẦN SỬA LỖI BẮT ĐẦU TỪ ĐÂY >>>
 
-    // 1. Đổi tên biến để rõ ràng
     let finalCoordinates: { type: 'Point', coordinates: number[] } | undefined = undefined;
 
-    try {
-      // 2. Build chuỗi địa chỉ đầy đủ (Code của bạn đã đúng)
-      const fullAddressString = `${address}, ${ward.ward_name.vi}, ${district.district_name.vi}, ${city.city_name.vi}`;
-      console.log(`[Geocoding] Đang tìm: ${fullAddressString}`);
+    //Nếu FE có gửi tọa độ xuống
+    if (coordinates) {
+      let lat: number | undefined;
+      let lng: number | undefined;
 
-      // 3. Gọi helper (Code của bạn đã đúng)
-      const location = await geocodeAddress(fullAddressString); // (trả về { lat, lng })
-
-      // 4. Chuyển đổi sang format GeoJSON [lng, lat]
-      if (location) {
-        finalCoordinates = {
-          type: 'Point',
-          coordinates: [location.lng, location.lat] // [lng, lat]
-        };
-      } else {
-        console.warn(`Không tìm thấy tọa độ cho: ${fullAddressString}. Tọa độ sẽ là null.`);
+      if (typeof coordinates === 'object' && !Array.isArray(coordinates)) {
+        lat = Number(coordinates.lat || coordinates.latitude);
+        lng = Number(coordinates.lng || coordinates.longitude);
+      } else if (Array.isArray(coordinates) && coordinates.length === 2) {
+        // Format: [lng, lat] (Chuẩn GeoJSON)
+        lng = Number(coordinates[0]);
+        lat = Number(coordinates[1]);
       }
 
-    } catch (geoError) {
-      console.warn(`Geocoding failed for address: ${address}`, geoError);
+      if (!isNaN(lat!) && !isNaN(lng!)) {
+        console.log(`[Property] Sử dụng tọa độ từ FE: [${lng}, ${lat}]`);
+        finalCoordinates = {
+          type: 'Point',
+          coordinates: [lng!, lat!] // MongoDB bắt buộc thứ tự: [Longitude, Latitude]
+        };
+      }
+    }
+
+    // còn không gửi thì tự geocoding
+    if (!finalCoordinates) {
+      try {
+        const fullAddressString = `${address}, ${ward.ward_name.vi}, ${district.district_name.vi}, ${city.city_name.vi}`;
+        console.log(`[Geocoding] Đang tìm tọa độ từ địa chỉ: ${fullAddressString}`);
+
+        const location = await geocodeAddress(fullAddressString); // (trả về { lat, lng })
+
+        if (location) {
+          finalCoordinates = {
+            type: 'Point',
+            coordinates: [location.lng, location.lat] // [lng, lat]
+          };
+        } else {
+          console.warn(`Không tìm thấy tọa độ cho: ${fullAddressString}. Tọa độ sẽ là null.`);
+        }
+      } catch (geoError) {
+        console.warn(`Geocoding failed for address: ${address}`, geoError);
+      }
     }
 
     // Tạo property mới
@@ -415,12 +435,9 @@ export const propertyService = {
       owner_id: new mongoose.Types.ObjectId(ownerId),
       status: "pending",
       deleted: false,
-      coordinates: finalCoordinates, // 5. Gán object đã format (hoặc undefined)
+      coordinates: finalCoordinates,
     });
 
-    // <<< KẾT THÚC PHẦN SỬA LỖI >>>
-
-    // Nếu có agent_id => tạo request gán agent (Code của bạn đã đúng)
     if (agent_id) {
       await assignmentService.createRequest((property._id as mongoose.Types.ObjectId).toString(), agent_id, ownerId);
     }
