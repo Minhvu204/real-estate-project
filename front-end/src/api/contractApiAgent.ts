@@ -1,9 +1,8 @@
 import api from "./api";
 
-export const contractApi = {
-    getContracts: (dealId: string, history = false) =>
+export const contractApiAgent = {
+    getContracts: (dealId: string) =>
         api.get(`/api/client/agent/contracts/deals/${dealId}/list`, {
-            params: { history: history ? "true" : undefined },
         }),
 
     uploadOrReplaceContract: (dealId: string, data: FormData, hasExisting: boolean, token: string) =>

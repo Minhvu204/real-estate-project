@@ -662,3 +662,39 @@ export async function notifyPaymentUpdate(params: {
     meta: { dealId: deal._id, paymentId: payment._id, amount: payment.amount, status: payment.status },
   });
 }
+
+// Notification khi Buyer chấp nhận hoặc từ chối hợp đồng
+export async function notifyBuyerContractDecision(params: {
+  deal: any; // Object deal đã populate seller_id, agent_id, property_id
+  buyerName: string;
+  contractId: string;
+  decision: "approved" | "rejected";
+  notes?: string;
+}) {
+  const { deal, buyerName, contractId, decision, notes } = params;
+
+  const propertyTitle = deal.property_id?.title?.vi || deal.property_id?.title || "Bất động sản";
+  const actionText = decision === "approved" ? "đã chấp nhận" : "đã từ chối";
+  const title = decision === "approved" ? "Hợp đồng được chấp nhận" : "Hợp đồng bị từ chối";
+
+  const message = `${buyerName} (Người mua) ${actionText} hợp đồng cho "${propertyTitle}".${decision === "rejected" && notes ? ` Lý do: ${notes}` : ""}`;
+
+  // Gửi cho Seller và Agent
+  const recipientIds = [
+    deal.seller_id?._id?.toString() || deal.seller_id?.toString(),
+    deal.agent_id?._id?.toString() || deal.agent_id?.toString()
+  ].filter(Boolean);
+
+  const actionUrl = `/deals/${deal._id}`; // Hoặc URL chi tiết hợp đồng
+
+  await createNotificationsForUsers(recipientIds, title, message, {
+    type: "contract",
+    relatedId: contractId,
+    actionUrl,
+    meta: {
+      dealId: deal._id,
+      contractId,
+      decision,
+    },
+  });
+}

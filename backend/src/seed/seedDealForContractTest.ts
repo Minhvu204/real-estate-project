@@ -68,8 +68,8 @@ async function run() {
     const seller = await ensureUser("seller1.contract.test@example.com", "Seller Contract Test", "seller");
     const agent = await ensureUser("agent1.contract.test@example.com", "Agent Contract Test", "agent");
 
-    // Ensure property (with seller/agent)
-    const property = await ensureProperty("Contract Test Property", seller._id as mongoose.Types.ObjectId, agent._id as mongoose.Types.ObjectId);
+        // Ensure property (with seller/agent)
+        const property = await ensureProperty("Contract Test Property", seller._id as mongoose.Types.ObjectId, agent._id as mongoose.Types.ObjectId);
 
     // Create an accepted offer (for linkage)
     const offer = await Offer.create({

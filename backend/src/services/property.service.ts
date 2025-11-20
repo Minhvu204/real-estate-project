@@ -17,28 +17,18 @@ import { SearchCriteria } from "../types/searchCriteria";
 
 export const propertyService = {
   async getAllProperties(filters: any) {
-    const {
-      page = 1,
-      limit = 10,
-      city,
-      district,
-      ward,
-      type,
-      category,
-      minPrice,
-      maxPrice,
-      keyword,
-      status,
-    } = filters;
+    const { city, district, ward, type, category, minPrice, maxPrice, keyword } = filters;
 
-    const query: any = { deleted: false };
+    const query: any = {
+      deleted: false,
+      status: { $in: ["approved", "available"] },
+    };
 
     if (city) query.city_id = city;
     if (district) query.district_id = district;
     if (ward) query.ward_id = ward;
     if (type) query.type_id = type;
     if (category) query.category_id = category;
-    if (status) query.status = status;
     if (minPrice != null || maxPrice != null) {
       query.price = {
         ...(minPrice != null ? { $gte: Number(minPrice) } : {}),
@@ -47,45 +37,28 @@ export const propertyService = {
     }
     if (keyword) query["title.vi"] = { $regex: keyword, $options: "i" };
 
-    const pageNum = Number(page) || 1;
-    const limitNum = Number(limit) || 10;
-    const skip = (pageNum - 1) * limitNum;
+    const propertyList = await Property.find(query)
+      .populate("city_id", "city_name")
+      .populate("district_id", "district_name")
+      .populate("ward_id", "ward_name")
+      .populate("category_id", "category_name")
+      .populate("type_id", "type_name")
+      .populate("owner_id", "fullName email phone avatar")
+      .populate("agent_id", "fullName email phone avatar")
+      .populate("features", "feature_name")
+      .populate("assignmentHistory.agent_id", "fullName email")
+      .populate("assignmentHistory.assignedBy", "fullName email")
+      .sort({ createdAt: -1 })
+      .lean();
 
-    const [propertyList, totalCount] = await Promise.all([
-      Property.find(query)
-        .populate("city_id", "city_name")
-        .populate("district_id", "district_name")
-        .populate("ward_id", "ward_name")
-        .populate("category_id", "category_name")
-        .populate("type_id", "type_name")
-        .populate("owner_id", "fullName email phone avatar")
-        .populate("agent_id", "fullName email phone avatar")
-        .populate("features", "feature_name")
-        .populate("assignmentHistory.agent_id", "fullName email")
-        .populate("assignmentHistory.assignedBy", "fullName email")
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limitNum)
-        .lean(),
-
-      Property.countDocuments(query),
-    ]);
-
-    // Thêm fullAddress
     const dataWithAddress = propertyList.map((p) => ({
       ...p,
       fullAddress: getFullAddress(p, "vi"),
     }));
 
-    return {
-      pagination: {
-        currentPage: pageNum,
-        totalPages: Math.ceil(totalCount / limitNum),
-        totalItems: totalCount,
-      },
-      data: dataWithAddress,
-    };
+    return { data: dataWithAddress };
   },
+
 
   // Lấy property theo owner hoặc agent
   async getPropertiesByOwnerOrAgent(
@@ -295,6 +268,41 @@ export const propertyService = {
     return list;
   },
 
+  async getPropertiesByUser(userId: string, filters: any = {}) {
+    const { status, keyword } = filters;
+
+    // Lấy properties mà user là owner HOẶC agent
+    const query: any = {
+      $or: [
+        { owner_id: userId },
+        { agent_id: userId }
+      ],
+      deleted: false,
+    };
+
+    if (status) query.status = status;
+    if (keyword) {
+      query.$or = [
+        { "title.vi": { $regex: keyword, $options: "i" } },
+        { "title.en": { $regex: keyword, $options: "i" } },
+        { "address.vi": { $regex: keyword, $options: "i" } },
+        { "address.en": { $regex: keyword, $options: "i" } },
+      ];
+    }
+
+    const list = await Property.find(query)
+      .populate("city_id", "city_name")
+      .populate("category_id", "category_name")
+      .populate("type_id", "type_name")
+      .populate("owner_id", "fullName email phone avatar")
+      .populate("agent_id", "fullName email phone avatar")
+      .populate("features", "feature_name")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return list;
+  },
+
   async createProperty(data: any, ownerId: string) {
     const {
       city_id,
@@ -307,6 +315,7 @@ export const propertyService = {
       title,
       description,
       address,
+      coordinates,
       ...rest
     } = data;
 
@@ -338,24 +347,48 @@ export const propertyService = {
 
     let finalCoordinates: { type: 'Point', coordinates: number[] } | undefined = undefined;
 
-    try {
-      const fullAddressString = `${address}, ${ward.ward_name.vi}, ${district.district_name.vi}, ${city.city_name.vi}`;
-      console.log(`[Geocoding] Đang tìm: ${fullAddressString}`);
+    //Nếu FE có gửi tọa độ xuống
+    if (coordinates) {
+      let lat: number | undefined;
+      let lng: number | undefined;
 
-      const location = await geocodeAddress(fullAddressString); // (trả về { lat, lng })
-
-      // Chuyển đổi sang format GeoJSON [lng, lat]
-      if (location) {
-        finalCoordinates = {
-          type: 'Point',
-          coordinates: [location.lng, location.lat] // [lng, lat]
-        };
-      } else {
-        console.warn(`Không tìm thấy tọa độ cho: ${fullAddressString}. Tọa độ sẽ là null.`);
+      if (typeof coordinates === 'object' && !Array.isArray(coordinates)) {
+        lat = Number(coordinates.lat || coordinates.latitude);
+        lng = Number(coordinates.lng || coordinates.longitude);
+      } else if (Array.isArray(coordinates) && coordinates.length === 2) {
+        // Format: [lng, lat] (Chuẩn GeoJSON)
+        lng = Number(coordinates[0]);
+        lat = Number(coordinates[1]);
       }
 
-    } catch (geoError) {
-      console.warn(`Geocoding failed for address: ${address}`, geoError);
+      if (!isNaN(lat!) && !isNaN(lng!)) {
+        console.log(`[Property] Sử dụng tọa độ từ FE: [${lng}, ${lat}]`);
+        finalCoordinates = {
+          type: 'Point',
+          coordinates: [lng!, lat!] // MongoDB bắt buộc thứ tự: [Longitude, Latitude]
+        };
+      }
+    }
+
+    // còn không gửi thì tự geocoding
+    if (!finalCoordinates) {
+      try {
+        const fullAddressString = `${address}, ${ward.ward_name.vi}, ${district.district_name.vi}, ${city.city_name.vi}`;
+        console.log(`[Geocoding] Đang tìm tọa độ từ địa chỉ: ${fullAddressString}`);
+
+        const location = await geocodeAddress(fullAddressString); // (trả về { lat, lng })
+
+        if (location) {
+          finalCoordinates = {
+            type: 'Point',
+            coordinates: [location.lng, location.lat] // [lng, lat]
+          };
+        } else {
+          console.warn(`Không tìm thấy tọa độ cho: ${fullAddressString}. Tọa độ sẽ là null.`);
+        }
+      } catch (geoError) {
+        console.warn(`Geocoding failed for address: ${address}`, geoError);
+      }
     }
 
     // Tạo property mới

@@ -6,6 +6,8 @@ import { ProfileLayout } from "../pages/Profile/ProfileLayout";
 import { PersonalInfo } from "../pages/Profile/PersonalInfo";
 import { ChangePassword } from "../pages/Profile/ChangePassword";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
+import DealListPageBuyer from "../pages/DealListPageBuyer";
+import DealContractPageBuyer from "../pages/DealContractPageBuyer";
 
 export const BuyerRoute = [
     {
@@ -23,6 +25,14 @@ export const BuyerRoute = [
     {
         path: "/property/detail/:id",
         element: <PropertyDetail />
+    },
+    {
+        path: "/buyer/deals/list",
+        element: <DealListPageBuyer />
+    },
+    {
+        path: "/buyer/contracts/deals/:dealId",
+        element: <DealContractPageBuyer />
     },
     {
         path: "/profile",

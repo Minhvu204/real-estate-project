@@ -1,8 +1,8 @@
-import { ContractList } from "../components/agent/upload/ContractList";
+import { ContractListAgent } from "../components/agent/upload/ContractListAgent";
 import React from "react";
 import { useParams } from "react-router-dom";
 
-const DealContractPage: React.FC = () => {
+const DealContractPageAgent: React.FC = () => {
     const { dealId } = useParams<{ dealId: string }>();
 
 
@@ -12,9 +12,9 @@ const DealContractPage: React.FC = () => {
 
     return (
         <div>
-            <ContractList dealId={dealId} token={token} />
+            <ContractListAgent dealId={dealId} token={token} />
         </div>
     );
 };
 
-export default DealContractPage;
+export default DealContractPageAgent;

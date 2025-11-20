@@ -1,36 +1,22 @@
 import React, { useEffect, useState } from "react";
-import {
-    Box,
-    Button,
-    Typography,
-    Card,
-    CardContent,
-    Stack,
-    Chip,
-    Avatar,
-    IconButton
-} from "@mui/material";
+import { Box, Button, Typography, Card, CardContent, Stack, Chip, Avatar, } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import DownloadIcon from "@mui/icons-material/Download";
-import DeleteIcon from "@mui/icons-material/Delete";
 import DescriptionIcon from "@mui/icons-material/Description";
-import { ContractUploaderModal } from "./ContractUploaderModal";
-import { contractApi } from "../../../api/contractApi";
+import { contractApiBuyer } from "../../../api/contractApiBuyer";
 import type { Contract } from "../../../types/Contract";
 
 interface Props {
     dealId: string;
-    token: string;
 }
 
-export const ContractList: React.FC<Props> = ({ dealId, token }) => {
+export const ContractListBuyer: React.FC<Props> = ({ dealId }) => {
     const [contracts, setContracts] = useState<Contract[]>([]);
-    const [modalOpen, setModalOpen] = useState(false);
 
     const fetchContracts = async () => {
         try {
-            const res = await contractApi.getContracts(dealId, true);
-            setContracts(res.data.data);
+            const res = await contractApiBuyer.getContracts(dealId);
+            setContracts([res.data.data]);
         } catch (err) {
             console.error(err);
         }
@@ -39,16 +25,6 @@ export const ContractList: React.FC<Props> = ({ dealId, token }) => {
     useEffect(() => {
         fetchContracts();
     }, [dealId]);
-
-    const handleDelete = async (contractId: string) => {
-        if (!confirm("Bạn có chắc muốn xóa hợp đồng này?")) return;
-        try {
-            await contractApi.deleteContract(dealId, token, contractId);
-            fetchContracts();
-        } catch (err) {
-            console.error(err);
-        }
-    };
 
     const handleDownload = async (url: string, filename: string) => {
         try {
@@ -63,6 +39,25 @@ export const ContractList: React.FC<Props> = ({ dealId, token }) => {
             console.error("Download failed", err);
         }
     };
+
+    const handleAcceptReject = async (contractId: string, action: "accept" | "reject") => {
+        try {
+            if (action === "accept") {
+                await contractApiBuyer.acceptContract(dealId, contractId);
+            } else {
+                // Yêu cầu lý do từ chối
+                const reason = window.prompt("Nhập lý do từ chối hợp đồng:");
+                if (!reason) return alert("Vui lòng nhập lý do từ chối");
+                await contractApiBuyer.rejectContract(dealId, contractId, { reason });
+                fetchContracts();
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert("Cập nhật trạng thái thất bại");
+        }
+    };
+
 
     // Hàm xác định màu sắc và style theo trạng thái
     const getStatusConfig = (status: string) => {
@@ -105,24 +100,9 @@ export const ContractList: React.FC<Props> = ({ dealId, token }) => {
                         📄Hợp Đồng
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ marginLeft: "15%" }} >
-                        Quản lý tất cả hợp đồng của giao dịch
+                        Bạn có thể từ chối hoặc chấp nhận
                     </Typography>
                 </Box>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={() => setModalOpen(true)}
-                    sx={{
-                        px: 3,
-                        py: 1.5,
-                        borderRadius: 2,
-                        textTransform: "none",
-                        fontWeight: 600,
-                        boxShadow: 2
-                    }}
-                >
-                    + Upload Hợp Đồng
-                </Button>
             </Stack>
 
             {contracts.length === 0 && (
@@ -138,9 +118,6 @@ export const ContractList: React.FC<Props> = ({ dealId, token }) => {
                     <DescriptionIcon sx={{ fontSize: 64, color: "text.disabled", mb: 2 }} />
                     <Typography variant="h6" color="text.secondary" gutterBottom>
                         Chưa có hợp đồng nào
-                    </Typography>
-                    <Typography variant="body2" color="text.disabled">
-                        Nhấn vào nút "Upload Hợp Đồng" để thêm hợp đồng mới
                     </Typography>
                 </Card>
             )}
@@ -262,22 +239,32 @@ export const ContractList: React.FC<Props> = ({ dealId, token }) => {
                                                 >
                                                     Tải về
                                                 </Button>
+
                                             </>
                                         )}
-                                        <Button
-                                            variant="outlined"
-                                            size="small"
-                                            color="error"
-                                            startIcon={<DeleteIcon />}
-                                            onClick={() => handleDelete(c._id)}
-                                            sx={{
-                                                textTransform: "none",
-                                                borderRadius: 1.5,
-                                                px: 2
-                                            }}
-                                        >
-                                            Xóa
-                                        </Button>
+                                        {/* Nút Chấp nhận / Từ chối */}
+                                        {c.status !== "approved" && c.status !== "rejected" && (
+                                            <>
+                                                <Button
+                                                    color="success"
+                                                    variant="contained"
+                                                    size="small"
+                                                    onClick={() => handleAcceptReject(c._id, "accept")}
+                                                    sx={{ textTransform: "none", borderRadius: 1.5 }}
+                                                >
+                                                    Chấp nhận
+                                                </Button>
+                                                <Button
+                                                    color="error"
+                                                    variant="outlined"
+                                                    size="small"
+                                                    onClick={() => handleAcceptReject(c._id, "reject")}
+                                                    sx={{ textTransform: "none", borderRadius: 1.5 }}
+                                                >
+                                                    Từ chối
+                                                </Button>
+                                            </>
+                                        )}
                                     </Stack>
                                 </Stack>
                             </CardContent>
@@ -286,14 +273,6 @@ export const ContractList: React.FC<Props> = ({ dealId, token }) => {
                 })}
             </Stack>
 
-            <ContractUploaderModal
-                open={modalOpen}
-                onClose={() => setModalOpen(false)}
-                dealId={dealId}
-                token={token}
-                onUploaded={fetchContracts}
-                existingContracts={contracts}
-            />
         </Box>
     );
 };

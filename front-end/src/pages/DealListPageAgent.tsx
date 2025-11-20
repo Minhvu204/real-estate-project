@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { dealApi } from "../api/dealApi";
+import { dealApiAgent } from "../api/dealApiAgent";
 import type { Deal } from "../types/Deal";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, Typography, Button, Box, Chip, Grid, Container, Divider, IconButton } from "@mui/material";
@@ -23,7 +23,7 @@ const statusLabels: Record<string, string> = {
     cancelled: "Cancelled",
 };
 
-const DealListPage: React.FC = () => {
+const DealListPageAgent: React.FC = () => {
     const [deals, setDeals] = useState<Deal[]>([]);
     const navigate = useNavigate();
 
@@ -50,7 +50,7 @@ const DealListPage: React.FC = () => {
     };
 
     useEffect(() => {
-        dealApi.getDeals().then(setDeals).catch(console.error);
+        dealApiAgent.getDeals().then(setDeals).catch(console.error);
     }, []);
 
     return (
@@ -308,4 +308,4 @@ const DealListPage: React.FC = () => {
     );
 };
 
-export default DealListPage;
+export default DealListPageAgent;

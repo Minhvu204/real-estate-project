@@ -401,19 +401,19 @@ export const appointmentService = {
   async completeAppointment(appointmentId: string, agentId: string) {
     ensureValidObjectId(appointmentId, "Appointment ID không hợp lệ");
     ensureValidObjectId(agentId, "Agent ID không hợp lệ");
-
+  
     const appointment = await Appointment.findOne({
       _id: appointmentId,
       agent_id: agentId,
     });
-
+  
     if (!appointment) {
       throw Object.assign(
         new Error("Không tìm thấy lịch hẹn hoặc không thuộc quyền quản lý của bạn"),
         { status: 404 }
       );
     }
-
+  
     if (appointment.status !== "accepted") {
       throw Object.assign(
         new Error("Chỉ có thể hoàn tất lịch hẹn ở trạng thái 'accepted'"),
@@ -428,20 +428,20 @@ export const appointmentService = {
     }
     appointment.status = "completed";
     await appointment.save();
-
+   
     const [agent, property] = await Promise.all([
       User.findById(agentId).select("fullName").lean(),
       Property.findById(appointment.property_id).select("title").lean(),
     ]);
-
+  
     const agentName = agent?.fullName || "Agent";
-
+  
     const propertyTitle =
       (property?.title as any)?.vi ||
       (property?.title as any)?.en ||
       "bất động sản";
-
-
+  
+    
     try {
       await notifyAppointmentCompleted(
         appointment.buyer_id.toString(),
@@ -453,7 +453,7 @@ export const appointmentService = {
     } catch (error) {
       console.error("Failed to notify appointment completion:", error);
     }
-
+  
     return appointment;
   },
 };

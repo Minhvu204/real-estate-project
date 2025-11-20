@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Box, Button, TextField, Typography, MenuItem } from "@mui/material";
-import { contractApi } from "../../../api/contractApi";
+import { contractApiAgent } from "../../../api/contractApiAgent";
 import type { Contract } from "../../../types/Contract";
 
 interface Props {
@@ -18,7 +18,7 @@ const FILE_TYPES = [
     "application/pdf",
 ];
 
-export const ContractUploaderModal: React.FC<Props> = ({
+export const ContractUploaderModalAgent: React.FC<Props> = ({
     open,
     onClose,
     dealId,
@@ -71,7 +71,7 @@ export const ContractUploaderModal: React.FC<Props> = ({
         formData.append("notes", notes);
 
         try {
-            await contractApi.uploadOrReplaceContract(dealId, formData, hasExisting, token);
+            await contractApiAgent.uploadOrReplaceContract(dealId, formData, hasExisting, token);
             onUploaded?.();
             onClose();
         } catch (err: any) {
