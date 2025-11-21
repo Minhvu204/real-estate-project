@@ -14,6 +14,7 @@ import ContractsList from "../components/admin/manageContracts/ContractsList";
 import DealsList from "../components/admin/manageDeals/DealsList";
 import PaymentsList from "../components/admin/managePayments/PaymentsList";
 import HomeList from "../components/admin/HomeList";
+import DealDetail from "../components/admin/manageDeals/DealDetail";
 // import ViewContract from "../components/admin/manageContracts/ViewContract";
 
 const AdminProtectedRoute = () => {
@@ -69,6 +70,18 @@ export const AdminRoute = [
           {
             path: "deals",
             element: <DealsList />,
+          },
+          {
+            path: "deals/:id",
+            element: <DealDetail />,
+          },
+          {
+            path: "deals/:id",
+            element: <DealDetail />,
+          },
+          {
+            path: "deals/:id/property/:id",
+            element: <ViewDetailProperties />,
           },
           {
             path: "payments",

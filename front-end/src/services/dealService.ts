@@ -20,6 +20,11 @@ export const getAllDeal = async (page: number): Promise<DealListResponse> => {
   };
 };
 
+export const getDealById = async (id: string): Promise<Deal> => {
+  const res = await httpAdmin.get(`${RESOURCE}/${id}`);
+  return res.data.data;
+};
+
 export const approveOrRejectDeal = async (
   id: string,
   status: string

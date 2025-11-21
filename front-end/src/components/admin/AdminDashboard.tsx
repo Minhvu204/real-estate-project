@@ -15,18 +15,18 @@ import {
   Collapse,
 } from "@mui/material";
 import {
-    Dashboard as DashboardIcon,
-    Person as PersonIcon,
-    Home as HomeIcon,
-    Logout as LogoutIcon,
-    Menu as MenuIcon,
-    ExpandLess,
-    ExpandMore,
-    SupervisorAccount as SupervisorAccountIcon,
-    ShoppingBag as ShoppingBagIcon,
-    Hail as HailIcon,
-    RealEstateAgent as RealEstateAgentIcon,
-    CategoryOutlined as CategoryOutlinedIcon,
+  Dashboard as DashboardIcon,
+  Person as PersonIcon,
+  Home as HomeIcon,
+  Logout as LogoutIcon,
+  Menu as MenuIcon,
+  ExpandLess,
+  ExpandMore,
+  SupervisorAccount as SupervisorAccountIcon,
+  ShoppingBag as ShoppingBagIcon,
+  Hail as HailIcon,
+  RealEstateAgent as RealEstateAgentIcon,
+  CategoryOutlined as CategoryOutlinedIcon,
 } from "@mui/icons-material";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
@@ -50,7 +50,9 @@ export default function AdminDashboard() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [userListOpen, setUserListOpen] = useState(false);
-  const [userPropertyOpen, setUserPropertyOpen] = useState(false);
+  const [PropertyOpen, setUserPropertyOpen] = useState(false);
+  const [contractOpen, setContractOpen] = useState(false);
+  const [dealOpen, setDealOpen] = useState(false);
 
   const handleDrawerClose = () => {
     setIsClosing(true);
@@ -59,7 +61,9 @@ export default function AdminDashboard() {
   const handleDrawerTransitionEnd = () => setIsClosing(false);
   const handleDrawerToggle = () => !isClosing && setMobileOpen(!mobileOpen);
   const handleUserListToggle = () => setUserListOpen(!userListOpen);
-  const handlePropertyListToggle = () => setUserPropertyOpen(!userPropertyOpen);
+  const handlePropertyListToggle = () => setUserPropertyOpen(!PropertyOpen);
+  const handleContractListToggle = () => setContractOpen(!contractOpen);
+  const handleDealListToggle = () => setDealOpen(!dealOpen);
 
   const menuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
@@ -75,7 +79,6 @@ export default function AdminDashboard() {
       path: "/admin/contracts",
     },
     { text: "Deals", icon: <LocalOfferIcon />, path: "/admin/deals" },
-    { text: "Payments", icon: <PaymentsIcon />, path: "/admin/payments" },
   ];
 
   const listUserItem = [
@@ -117,6 +120,57 @@ export default function AdminDashboard() {
       text: "Rejected",
       icon: <BackspaceRoundedIcon />,
       path: "/admin/properties?status=rejected",
+    },
+  ];
+
+  const listContractItem = [
+    {
+      text: "Approved",
+      icon: <ShoppingBagIcon />,
+      path: "/admin/contracts?status=approved",
+    },
+    {
+      text: "Superseded",
+      icon: <HailIcon />,
+      path: "/admin/contracts?status=superseded",
+    },
+    {
+      text: "Rejected",
+      icon: <BackspaceRoundedIcon />,
+      path: "/admin/contracts?status=rejected",
+    },
+  ];
+
+  const listDealsItem = [
+    {
+      text: "Awaiting",
+      icon: <ShoppingBagIcon />,
+      path: "/admin/deals?status=awaiting_contract",
+    },
+    {
+      text: "UnderReview",
+      icon: <HailIcon />,
+      path: "/admin/deals?status=contract_under_review",
+    },
+    {
+      text: "EscrowPayment",
+      icon: <BackspaceRoundedIcon />,
+      path: "/admin/deals?status=awaiting_escrow_payment",
+    },
+    {
+      text: "EscrowFunded",
+      icon: <ShoppingBagIcon />,
+      path: "/admin/deals?status=escrow_funded",
+    },
+    {
+      text: "Completed",
+      icon: <HailIcon />,
+      path: "/admin/deals?status=completed",
+    },
+    {
+      text: "Cancelled",
+      icon: <BackspaceRoundedIcon />,
+      path: "/admin/deals?status=cancelled",
     },
   ];
 
@@ -165,6 +219,10 @@ export default function AdminDashboard() {
                     ? handleUserListToggle
                     : item.text === "Properties"
                     ? handlePropertyListToggle
+                    : item.text === "Contracts"
+                    ? handleContractListToggle
+                    : item.text === "Deals"
+                    ? handleDealListToggle
                     : undefined
                 }
                 sx={{
@@ -187,7 +245,11 @@ export default function AdminDashboard() {
                 {item.text === "User" &&
                   (userListOpen ? <ExpandLess /> : <ExpandMore />)}
                 {item.text === "Properties" &&
-                  (userListOpen ? <ExpandLess /> : <ExpandMore />)}
+                  (PropertyOpen ? <ExpandLess /> : <ExpandMore />)}
+                {item.text === "Contracts" &&
+                  (contractOpen ? <ExpandLess /> : <ExpandMore />)}
+                {item.text === "Deals" &&
+                  (contractOpen ? <ExpandLess /> : <ExpandMore />)}
               </ListItemButton>
             </ListItem>
 
@@ -223,9 +285,71 @@ export default function AdminDashboard() {
               </Collapse>
             )}
             {item.text === "Properties" && (
-              <Collapse in={userPropertyOpen} timeout="auto" unmountOnExit>
+              <Collapse in={PropertyOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                   {listPropertyItem.map((sub) => (
+                    <ListItemButton
+                      key={sub.text}
+                      component={Link}
+                      to={sub.path}
+                      sx={{
+                        pl: 6,
+                        borderRadius: "12px",
+                        mx: 1,
+                        mt: 0.5,
+                        color: "#1e293b",
+                        bgcolor: isActive(sub.path) ? "#e0f2fe" : "inherit",
+                        "&:hover": {
+                          bgcolor: "#bae6fd",
+                          transform: "scale(1.02)",
+                          transition: "all 0.2s ease",
+                        },
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: "#0284c7" }}>
+                        {sub.icon}
+                      </ListItemIcon>
+                      <ListItemText primary={sub.text} />
+                    </ListItemButton>
+                  ))}
+                </List>
+              </Collapse>
+            )}
+            {item.text === "Contracts" && (
+              <Collapse in={contractOpen} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {listContractItem.map((sub) => (
+                    <ListItemButton
+                      key={sub.text}
+                      component={Link}
+                      to={sub.path}
+                      sx={{
+                        pl: 6,
+                        borderRadius: "12px",
+                        mx: 1,
+                        mt: 0.5,
+                        color: "#1e293b",
+                        bgcolor: isActive(sub.path) ? "#e0f2fe" : "inherit",
+                        "&:hover": {
+                          bgcolor: "#bae6fd",
+                          transform: "scale(1.02)",
+                          transition: "all 0.2s ease",
+                        },
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: "#0284c7" }}>
+                        {sub.icon}
+                      </ListItemIcon>
+                      <ListItemText primary={sub.text} />
+                    </ListItemButton>
+                  ))}
+                </List>
+              </Collapse>
+            )}
+            {item.text === "Deals" && (
+              <Collapse in={dealOpen} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {listDealsItem.map((sub) => (
                     <ListItemButton
                       key={sub.text}
                       component={Link}
@@ -280,34 +404,34 @@ export default function AdminDashboard() {
     </div>
   );
 
-    return (
-        <Box sx={{ display: "flex" }}>
-            <CssBaseline />
-            <AppBar
-                position="fixed"
-                sx={{
-                    background: "linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%)",
-                    width: { sm: `calc(100% - ${drawerWidth}px)` },
-                    ml: { sm: `${drawerWidth}px` },
-                    boxShadow: 2,
-                }}
-            >
-                <Toolbar>
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        edge="start"
-                        onClick={handleDrawerToggle}
-                        sx={{ mr: 2, display: { sm: "none" } }}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-                        Hello, <strong>{user.fullName}</strong>
-                    </Typography>
-                    <ButtonLanguage />
-                </Toolbar>
-            </AppBar>
+  return (
+    <Box sx={{ display: "flex" }}>
+      <CssBaseline />
+      <AppBar
+        position="fixed"
+        sx={{
+          background: "linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%)",
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          ml: { sm: `${drawerWidth}px` },
+          boxShadow: 2,
+        }}
+      >
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, display: { sm: "none" } }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+            Hello, <strong>{user.fullName}</strong>
+          </Typography>
+          <ButtonLanguage />
+        </Toolbar>
+      </AppBar>
 
       {/* Drawer */}
       <Box

@@ -1,28 +1,36 @@
-import { approveOrRejectDeal, getAllDeal } from "../../../services/dealService";
+import { getAllDeal } from "../../../services/dealService";
 import type { Deal } from "../../../types/Deal";
 import type { pagination } from "../../../types/Contract";
-import { Button, Pagination } from "@mui/material";
+import { Button, Pagination, Tooltip } from "@mui/material";
 import { useEffect, useState } from "react";
-import { toast, ToastContainer } from "react-toastify";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 
 const DealsList = () => {
   const [deal, setDeal] = useState<Deal[]>([]);
   const [pagination, setPagination] = useState<pagination | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const status = searchParams.get("status");
 
   useEffect(() => {
     const fetchDeal = async () => {
       try {
         const res = await getAllDeal(currentPage);
         console.log(res);
-        setDeal(res.deals);
+        if (status) {
+          setDeal(res.deals.filter((deals) => deals.status === status));
+        } else {
+          setDeal(res.deals);
+        }
         setPagination(res.pagination);
       } catch (error) {
         console.log(error);
       }
     };
     fetchDeal();
-  }, [currentPage]);
+  }, [currentPage, status]);
 
   const handlePageChange = (page: number) => {
     console.log(page);
@@ -30,24 +38,6 @@ const DealsList = () => {
 
     if (page >= 1 && page <= pagination.totalPages) {
       setCurrentPage(page);
-    }
-  };
-
-  const handleUpdateStatus = async (id: string, status: string) => {
-    try {
-      await approveOrRejectDeal(id, status);
-      const res = await getAllDeal(currentPage);
-      setDeal(res.deals);
-      setPagination(res.pagination);
-
-      toast.success(
-        status === "completed"
-          ? "Duyệt deal thành công"
-          : "Từ chối deal thành công"
-      );
-    } catch (error) {
-      console.log(error);
-      toast.error("Cập nhật trạng thái thất bại");
     }
   };
 
@@ -102,35 +92,15 @@ const DealsList = () => {
 
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap items-center justify-left gap-2">
-                        <Button size="small" variant="outlined">
-                          view
-                        </Button>
-
-                        {data.status === "awaiting_contract" && (
-                          <>
-                            <Button
-                              size="small"
-                              variant="contained"
-                              color="success"
-                              onClick={() =>
-                                handleUpdateStatus(data._id, "completed")
-                              }
-                            >
-                              complete
-                            </Button>
-
-                            <Button
-                              size="small"
-                              variant="contained"
-                              color="error"
-                              onClick={() =>
-                                handleUpdateStatus(data._id, "cancelled")
-                              }
-                            >
-                              cancel
-                            </Button>
-                          </>
-                        )}
+                        <Tooltip title="view">
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={() => navigate(`${data._id}`)}
+                          >
+                            <VisibilityOutlinedIcon fontSize="small" />
+                          </Button>
+                        </Tooltip>
                       </div>
                     </td>
                   </tr>
@@ -152,19 +122,6 @@ const DealsList = () => {
           />
         </div>
       )}
-
-      <ToastContainer
-        position="top-right"
-        autoClose={2000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
     </>
   );
 };

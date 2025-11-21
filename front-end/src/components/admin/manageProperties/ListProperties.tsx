@@ -81,7 +81,7 @@ const ListProperties = () => {
       item.address?.[currentLanguage]
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase());
-const matchStatus = filterStatus === "" || item.status === filterStatus;
+    const matchStatus = filterStatus === "" || item.status === filterStatus;
     return matchSearch && matchStatus;
   });
 
@@ -167,7 +167,6 @@ const matchStatus = filterStatus === "" || item.status === filterStatus;
                   key={item._id}
                   className="transition-colors hover:bg-gray-50"
                 >
-                  {/* Avatar */}
                   <td className="px-4 py-3">
                     <div className="flex items-center">
                       <img
@@ -178,21 +177,18 @@ const matchStatus = filterStatus === "" || item.status === filterStatus;
                     </div>
                   </td>
 
-                  {/* Name */}
                   <td className="px-4 py-3 max-w-[260px] text-sm font-medium text-gray-900">
                     <span className="line-clamp-2">
                       {item.title?.[currentLanguage]}
                     </span>
                   </td>
 
-                  {/* Address */}
                   <td className="px-4 py-3 max-w-[280px] text-sm text-gray-700">
                     <span className="line-clamp-2">
                       {item.address?.[currentLanguage]}
                     </span>
                   </td>
 
-                  {/* Status */}
                   <td className="px-4 py-3 text-sm">
                     <span
                       className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium
@@ -221,7 +217,6 @@ const matchStatus = filterStatus === "" || item.status === filterStatus;
                     </span>
                   </td>
 
-                  {/* Actions */}
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap items-center justify-left gap-2">
                       <Tooltip title={t("view")}>
@@ -239,7 +234,7 @@ const matchStatus = filterStatus === "" || item.status === filterStatus;
                             onClick={() =>
                               handleUpdateStatus(item._id, "approved")
                             }
-                            className="cursor-pointer px-3 h-9 flex items-center justify-center rounded-md text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm hover:shadow-md transition-all duration-200 text-xs font-medium"
+                            className="cursor-pointer px-3 h-9 flex items-center justify-center rounded-md text-white bg-green-500 hover:bg-green-700 shadow-sm hover:shadow-md transition-all duration-200 text-xs font-medium"
                           >
                             {t("approve")}
                           </button>
@@ -247,7 +242,7 @@ const matchStatus = filterStatus === "" || item.status === filterStatus;
                             onClick={() =>
                               handleUpdateStatus(item._id, "rejected")
                             }
-                            className="cursor-pointer px-3 h-9 flex items-center justify-center rounded-md text-white bg-rose-600 hover:bg-rose-700 shadow-sm hover:shadow-md transition-all duration-200 text-xs font-medium"
+                            className="cursor-pointer px-3 h-9 flex items-center justify-center rounded-md text-white bg-red-500 hover:bg-red-700 shadow-sm hover:shadow-md transition-all duration-200 text-xs font-medium"
                           >
                             {t("reject")}
                           </button>

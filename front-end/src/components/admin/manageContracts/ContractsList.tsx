@@ -12,11 +12,12 @@ import {
   DialogTitle,
   Pagination,
   TextField,
+  Tooltip,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 const ContractsList = () => {
   const [contract, setContract] = useState<Contract[]>([]);
   const [pagination, setPagination] = useState<pagination | null>(null);
@@ -26,22 +27,31 @@ const ContractsList = () => {
   const [selectedContractId, setSelectedContractId] = useState<string | null>(
     null
   );
+  const [searchParams] = useSearchParams();
+  const status = searchParams.get("status");
   const navigate = useNavigate();
+
   useEffect(() => {
-    const fetchContrat = async () => {
+    const fetchContract = async () => {
       try {
         const res = await getAllContract(currentPage);
         console.log("Data return is ", res);
         console.log("Data return is ", res.contracts);
         console.log("Data return is ", res.pagination);
-        setContract(res.contracts);
+        if (status) {
+          setContract(
+            res.contracts.filter((contract) => contract.status === status)
+          );
+        } else {
+          setContract(res.contracts);
+        }
         setPagination(res.pagination);
       } catch (error) {
         console.log("error: ", error);
       }
     };
-    fetchContrat();
-  }, [currentPage]);
+    fetchContract();
+  }, [currentPage, status]);
 
   const handlePageChange = (page: number) => {
     if (pagination) {
@@ -107,15 +117,12 @@ const ContractsList = () => {
                   Upload by
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Email
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Type
+                  Property
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                   Status
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                   Action
                 </th>
               </tr>
@@ -138,12 +145,6 @@ const ContractsList = () => {
                       </span>
                     </td>
 
-                    <td className="px-4 py-3 text-sm text-gray-700">
-                      <span className="inline-flex items-center rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700 ring-1 ring-sky-100">
-                        {data.contract_type}
-                      </span>
-                    </td>
-
                     <td className="px-4 py-3 text-sm">
                       <span
                         className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
@@ -160,33 +161,38 @@ const ContractsList = () => {
 
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap items-center justify-left gap-2">
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          onClick={() => navigate(`${data.file_url}`)}
-                        >
-                          <VisibilityOutlinedIcon fontSize="small" />
-                        </Button>
+                        <Tooltip title="view">
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={() => navigate(`${data.file_url}`)}
+                          >
+                            <VisibilityOutlinedIcon fontSize="small" />
+                          </Button>
+                        </Tooltip>
 
                         {data.status === "superseded" && (
                           <>
-                            <Button
-                              variant="contained"
-                              color="success"
-                              size="small"
-                              onClick={() => handleApproveContract(data._id)}
-                            >
-                              approve
-                            </Button>
-
-                            <Button
-                              variant="contained"
-                              color="error"
-                              size="small"
-                              onClick={() => handleOpen(data._id)}
-                            >
-                              reject
-                            </Button>
+                            <Tooltip title="approve">
+                              <Button
+                                variant="outlined"
+                                color="success"
+                                size="small"
+                                onClick={() => handleApproveContract(data._id)}
+                              >
+                                approve
+                              </Button>
+                            </Tooltip>
+                            <Tooltip title="reject">
+                              <Button
+                                variant="outlined"
+                                color="error"
+                                size="small"
+                                onClick={() => handleOpen(data._id)}
+                              >
+                                reject
+                              </Button>
+                            </Tooltip>
                           </>
                         )}
                       </div>
