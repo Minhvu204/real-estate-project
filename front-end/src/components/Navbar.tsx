@@ -39,7 +39,7 @@ const Navbar: React.FC = () => {
     buyer: [
       { label: "My Properties", path: "/dwello/myProperties" },
       { label: "My Agent", path: "/dwello/myAgent" },
-      { label: "My appointments", path: 'dwello/appoinments' },
+      { label: "My appointments", path: "/dwello/appointments" },
       { label: "My Offer", path: "/buyer/offer" },
     ],
     seller: [
@@ -53,7 +53,6 @@ const Navbar: React.FC = () => {
       { label: "Assignments", path: "/agent/assignments" },
       { label: "My Offers", path: "/agent/offers" },
     ],
-
   };
 
   const handleLogout = () => {

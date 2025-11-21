@@ -5,6 +5,9 @@ import Contract, {
   ContractUploaderRole,
 } from "../models/contract.model";
 import Deal, { DealStatus } from "../models/deal.model";
+import { notifyBuyerContractDecision } from "../utils/notificationHelper";
+import User from "../models/user.model";
+
 
 const toObjectId = (id: string) => new mongoose.Types.ObjectId(id);
 
@@ -276,6 +279,7 @@ export const contractService = {
       .populate("property_id")
       .populate("agent_id")
       .populate("seller_id")
+      .sort({ createdAt: -1 })
       .lean();
 
     if (!deals.length) return [];
@@ -319,6 +323,78 @@ export const contractService = {
       contract,
       deal: dealMap.get(_id.toString()),
     }));
+  },
+
+  async reviewContract(params: {
+    contractId: string;
+    dealId: string;
+    buyerId: string;
+    decision: "approved" | "rejected";
+    notes?: string;
+  }) {
+    const { contractId, dealId, buyerId, decision, notes } = params;
+
+    if (!mongoose.Types.ObjectId.isValid(contractId) || !mongoose.Types.ObjectId.isValid(dealId)) {
+      throw Object.assign(new Error("ID không hợp lệ"), { status: 400 });
+    }
+
+    const contract = await Contract.findOne({
+      _id: toObjectId(contractId),
+      deal_id: toObjectId(dealId),
+      deleted: { $ne: true },
+    });
+
+    if (!contract) {
+      throw Object.assign(new Error("Hợp đồng không tồn tại"), { status: 404 });
+    }
+
+    if (!["submitted", "under_review"].includes(contract.status)) {
+      throw Object.assign(new Error("Hợp đồng không ở trạng thái chờ duyệt"), { status: 400 });
+    }
+
+    const deal = await Deal.findOne({
+      _id: toObjectId(dealId),
+      buyer_id: toObjectId(buyerId),
+    })
+      .populate("seller_id", "fullName")
+      .populate("agent_id", "fullName")
+      .populate("property_id", "title");
+
+    if (!deal) {
+      throw Object.assign(new Error("Bạn không có quyền thao tác trên giao dịch này"), { status: 403 });
+    }
+
+    if (decision === "approved") {
+      contract.status = "approved";
+      contract.approved_by = new mongoose.Types.ObjectId(buyerId);
+      contract.approved_at = new Date();
+      // update contract_type thành "buyer_signed"
+      contract.contract_type = "buyer_signed";
+      deal.status = "escrow_funded";
+      await deal.save();
+    } else {
+      contract.status = "rejected";
+      contract.notes = notes; // Lưu lý do từ chối vào notes
+    }
+
+    await contract.save();
+
+    try {
+      const buyer = await User.findById(buyerId).select("fullName").lean();
+      if (buyer) {
+        await notifyBuyerContractDecision({
+          deal,
+          buyerName: buyer.fullName,
+          contractId: String(contract._id),
+          decision,
+          notes
+        });
+      }
+    } catch (err) {
+      console.error("Failed to send contract decision notification", err);
+    }
+
+    return contract;
   },
 
   async acceptContractByBuyer(dealId: string, buyerId: string, notes?: string) {

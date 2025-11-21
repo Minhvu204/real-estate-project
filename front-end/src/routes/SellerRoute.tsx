@@ -10,31 +10,31 @@ import SellerOfferManagementPage from "../pages/Offer/SellerOfferManagementPage"
 
 export const SellerRoute = [
 
-    {
-        path: "/seller/properties", element: <SellerProperties />
-    },
-    {
-        path: "/seller/properties/:id/agents", element: <ListAgent />
-    },
-    {
-        path: "/seller/properties/:id", element: <PropertyDetails />
-    },
-    {
-        path: "/seller/create", element: <CreatePropertyPage />
-    },
-    {
-        path: "/seller/my-properties", element: <MyPropertiesPage />
-    },
-    {
-        path: "/seller/my-properties/:id", element: <MyPropertiesPage />
-    },
-    {
-        path: "notifications/seller/properties/:id", element: <PropertyDetails />,
-    },
-    {
-        path: "/seller/offers", element: <SellerOfferManagementPage />
-    },
-    {
-        path: "/seller/offers/:id", element: <OfferDetailPage />
-    }
+  {
+    path: "/seller/properties", element: <SellerProperties />
+  },
+  {
+    path: "/seller/properties/:id/agents", element: <ListAgent />
+  },
+  {
+    path: "/seller/properties/:id", element: <PropertyDetails />
+  },
+  {
+    path: "/seller/create", element: <CreatePropertyPage />
+  },
+  {
+    path: "/seller/my-properties", element: <MyPropertiesPage />
+  },
+  {
+    path: "/seller/my-properties/:id", element: <MyPropertiesPage />
+  },
+  {
+    path: "notifications/seller/properties/:id", element: <PropertyDetails />,
+  },
+  {
+    path: "/seller/offers", element: <SellerOfferManagementPage />
+  },
+  {
+    path: "/seller/offers/:id", element: <OfferDetailPage />
+  }
 ];

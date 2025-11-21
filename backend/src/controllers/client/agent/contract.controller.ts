@@ -123,6 +123,12 @@ export const uploadContract = async (req: Request, res: Response) => {
       allowReplace: false,
     });
 
+    await dealService.updateDealStatus(
+      dealId,
+      "contract_under_review",
+      agentId
+    );
+
     await sendContractNotification(deal, String(contract._id), "uploaded");
 
     return successResponse(req, res, "Upload hợp đồng thành công", contract);
@@ -212,15 +218,15 @@ export const getContractByDeal = async (req: Request, res: Response) => {
 export const deleteContract = async (req: Request, res: Response) => {
   try {
     const agentId = getUserIdFromRequest(req);
-    
+
     const { dealId, contractId } = req.params;
 
     if (!agentId) {
       return errorResponse(req, res, "Không xác định người dùng", 401);
     }
-    
+
     if (!contractId) {
-        return errorResponse(req, res, "Thiếu ID hợp đồng", 400);
+      return errorResponse(req, res, "Thiếu ID hợp đồng", 400);
     }
 
     await ensureDealForAgent(dealId, agentId);
