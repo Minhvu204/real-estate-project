@@ -2,8 +2,7 @@
     "createProperty": {
         "steps": {
             "1": "Property Info",
-            "2": "Features",
-            "3": "Images"
+            "2": "Images"
         },
         "alerts": {
             "missingRequired": "Please fill in all required information (City, Category, Transaction Type)!",

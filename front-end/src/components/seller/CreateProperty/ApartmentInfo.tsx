@@ -5,11 +5,11 @@ import type { PropertyData } from "@/types/PropertyData";
 interface ApartmentInfoProps {
     formData: PropertyData;
     setFormData: React.Dispatch<React.SetStateAction<PropertyData>>;
+    apartmentTypeId?: string;
 }
 
-const APARTMENT_TYPE_ID = "PHONG_TRO";
 
-const ApartmentInfo: React.FC<ApartmentInfoProps> = ({ formData, setFormData }) => {
+const ApartmentInfo: React.FC<ApartmentInfoProps> = ({ formData, setFormData, apartmentTypeId }) => {
     const { t } = useTranslation("createPropertyPage");
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -17,7 +17,7 @@ const ApartmentInfo: React.FC<ApartmentInfoProps> = ({ formData, setFormData }) 
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    if (formData.type_id !== APARTMENT_TYPE_ID) return null;
+    if (!apartmentTypeId || formData.category_id !== apartmentTypeId) return null;
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
@@ -32,6 +32,7 @@ const ApartmentInfo: React.FC<ApartmentInfoProps> = ({ formData, setFormData }) 
                     onChange={handleChange}
                     placeholder={t("formProperty.apartmentInfo.placeholder.floorNumber")}
                     className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                    required
                 />
             </div>
 
@@ -46,6 +47,7 @@ const ApartmentInfo: React.FC<ApartmentInfoProps> = ({ formData, setFormData }) 
                     onChange={handleChange}
                     placeholder={t("formProperty.apartmentInfo.placeholder.buildingBlock")}
                     className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                    required
                 />
             </div>
 
@@ -60,6 +62,7 @@ const ApartmentInfo: React.FC<ApartmentInfoProps> = ({ formData, setFormData }) 
                     onChange={handleChange}
                     placeholder={t("formProperty.apartmentInfo.placeholder.apartmentNumber")}
                     className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                    required
                 />
             </div>
         </div>

@@ -7,6 +7,8 @@ import { ChangePassword } from "../pages/Profile/ChangePassword";
 import ChatPage from "@/pages/Chat/ChatPage";
 import PropertyDetailUser from "../pages/PropertyDetail";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
+import { Favorite } from "@mui/icons-material";
+import FavoritePage from "@/pages/Favorite/FavoritePage";
 import CreateOfferPage from "../pages/Offer/CreateOfferPage";
 import OfferHistoryPage from "../pages/Offer/OfferHistoryPage";
 import CancelOfferPage from "../pages/Offer/CancelOfferPage";
@@ -79,5 +81,9 @@ export const BuyerRoute = [
     {
         path: "dwello/appoinments",
         element: <ListAppointment />
+    },
+    {
+        path: "/favorites",
+        element: <FavoritePage />
     },
 ];

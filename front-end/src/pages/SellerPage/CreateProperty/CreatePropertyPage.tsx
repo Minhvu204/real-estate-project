@@ -1,13 +1,13 @@
-import SelectFeatures from '@/components/seller/CreateProperty/SelectFeatures';
-import FormProperty from '@/components/seller/CreateProperty/FormProperty';
 import React, { useRef, useState } from 'react';
-import SelectImages from '@/components/seller/CreateProperty/SelectImages';
-import { createProperty } from '@/services/propertyService';
-import { useTranslation } from 'react-i18next';
-import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from 'react-toastify';
 import { IconButton } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useTranslation } from 'react-i18next';
+
+import FormProperty from '@/components/seller/CreateProperty/FormProperty';
+import SelectImages from '@/components/seller/CreateProperty/SelectImages';
+import { createProperty } from '@/services/propertyService';
 import type { PropertyData } from '@/types/PropertyData';
 import useTitle from '@/hooks/useTitle';
 
@@ -16,6 +16,7 @@ interface ImageItem {
     url: string;
     file: File;
 }
+
 const initialFormData: PropertyData = {
     title: '',
     price: '',
@@ -32,28 +33,28 @@ const initialFormData: PropertyData = {
     ward_id: '',
     category_id: '',
     type_id: '',
+    features: [],
     coordinates: undefined,
 };
+
 const CreatePropertyPage = () => {
     const [currentStep, setCurrentStep] = useState(1);
     const [propertyData, setPropertyData] = useState<PropertyData>(initialFormData);
-    const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
     const [images, setImages] = useState<ImageItem[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { t } = useTranslation('createPropertyPage');
-    const totalSteps = 3;
+    const navigate = useNavigate();
     const isSubmittingRef = useRef(false);
-    useTitle(t('createProperty.pageTitle'))
+    const totalSteps = 2;
+
+    useTitle(t('createProperty.pageTitle'));
+
     const handleNextStep = () => {
-        if (currentStep < totalSteps) {
-            setCurrentStep(currentStep + 1);
-        }
+        if (currentStep < totalSteps) setCurrentStep(currentStep + 1);
     };
 
     const handlePreviousStep = () => {
-        if (currentStep > 1) {
-            setCurrentStep(currentStep - 1);
-        }
+        if (currentStep > 1) setCurrentStep(currentStep - 1);
     };
 
     const handleFormSubmit = (data: PropertyData) => {
@@ -61,21 +62,16 @@ const CreatePropertyPage = () => {
         handleNextStep();
     };
 
-    const handleFeaturesSubmit = (features: string[]) => {
-        setSelectedFeatures(features);
-        handleNextStep();
-    };
-
     const handleImagesSubmit = async (imageList: ImageItem[]) => {
-        console.log('image from set images', imageList);
         setImages(imageList);
         await handleFinalSubmit(imageList);
     };
-    const navigate = useNavigate();
+
     const handleFinalSubmit = async (submittedImages: ImageItem[] = images) => {
         if (isSubmittingRef.current) return;
         isSubmittingRef.current = true;
         setIsSubmitting(true);
+
         try {
             if (!propertyData.city_id || !propertyData.category_id || !propertyData.type_id) {
                 toast.error(t('createProperty.alerts.missingRequired'));
@@ -83,20 +79,13 @@ const CreatePropertyPage = () => {
                 return;
             }
 
-            const imageFiles = submittedImages.map((img) => img.file);
-            const dataToSend = {
-                ...propertyData,
-                features: selectedFeatures,
-            };
-
-            console.log('Sending property data:', dataToSend);
-            console.log('Images count:', imageFiles.length);
+            const imageFiles = submittedImages.map(img => img.file);
+            const dataToSend = { ...propertyData };
 
             const response = await createProperty(dataToSend, imageFiles);
             console.log('Created property:', response);
 
             setPropertyData(initialFormData);
-            setSelectedFeatures([]);
             setImages([]);
             setCurrentStep(1);
             setIsSubmitting(false);
@@ -106,9 +95,7 @@ const CreatePropertyPage = () => {
                     <p className="font-medium">{t('createProperty.alerts.createSuccess')}</p>
                     <div className="flex gap-3 mt-2">
                         <button
-                            onClick={() => {
-                                toast.dismiss(toastId);
-                            }}
+                            onClick={() => toast.dismiss(toastId)}
                             className="px-3 py-1 rounded-md bg-blue-600 text-white text-sm hover:bg-blue-700 transition"
                         >
                             {t('createProperty.buttons.createNew')}
@@ -124,12 +111,9 @@ const CreatePropertyPage = () => {
                         </button>
                     </div>
                 </div>,
-                {
-                    autoClose: 6000,
-                    closeOnClick: false,
-                    pauseOnHover: true,
-                }
+                { autoClose: 6000, closeOnClick: false, pauseOnHover: true }
             );
+
         } catch (error: any) {
             console.error('Error creating property:', error);
             const errorMessage = error.response?.data?.message || error.message || 'Có lỗi xảy ra';
@@ -144,7 +128,6 @@ const CreatePropertyPage = () => {
     const steps = [
         { number: 1, title: t('createProperty.steps.1') },
         { number: 2, title: t('createProperty.steps.2') },
-        { number: 3, title: t('createProperty.steps.3') },
     ];
 
     return (
@@ -153,63 +136,35 @@ const CreatePropertyPage = () => {
                 <div className="mb-4 md:hidden">
                     <IconButton
                         onClick={() => navigate('/seller/properties')}
-                        sx={{
-                            backgroundColor: 'white',
-                            boxShadow: 1,
-                            '&:hover': {
-                                backgroundColor: 'grey.100',
-                            },
-                        }}
+                        sx={{ backgroundColor: 'white', boxShadow: 1, '&:hover': { backgroundColor: 'grey.100' } }}
                     >
                         <ArrowBackIcon />
                     </IconButton>
                 </div>
-
-                <div className="mb-8">
-                    <div className="flex items-center justify-between">
-                        {steps.map((step, index) => (
-                            <React.Fragment key={step.number}>
-                                <div className="flex flex-col items-center flex-1">
-                                    <div
-                                        className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold text-lg transition-all ${currentStep >= step.number
-                                            ? 'bg-blue-600 text-white'
-                                            : 'bg-gray-300 text-gray-600'
-                                            }`}
-                                    >
-                                        {currentStep > step.number
-                                            ? t('createProperty.stepsHeader.completed')
-                                            : step.number}
-                                    </div>
-                                    <p
-                                        className={`mt-2 text-sm font-medium ${currentStep >= step.number ? 'text-blue-600' : 'text-gray-500'
-                                            }`}
-                                    >
-                                        {step.title}
-                                    </p>
+                <div className="mb-8 flex items-center justify-between">
+                    {steps.map((step, index) => (
+                        <React.Fragment key={step.number}>
+                            <div className="flex flex-col items-center flex-1">
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold text-lg transition-all ${currentStep >= step.number ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'}`}>
+                                    {currentStep > step.number ? t('createProperty.stepsHeader.completed') : step.number}
                                 </div>
-                                {index < steps.length - 1 && (
-                                    <div
-                                        className={`flex-1 h-1 mx-2 transition-all ${currentStep > step.number ? 'bg-blue-600' : 'bg-gray-300'
-                                            }`}
-                                    />
-                                )}
-                            </React.Fragment>
-                        ))}
-                    </div>
+                                <p className={`mt-2 text-sm font-medium ${currentStep >= step.number ? 'text-blue-600' : 'text-gray-500'}`}>
+                                    {step.title}
+                                </p>
+                            </div>
+                            {index < steps.length - 1 && <div className={`flex-1 h-1 mx-2 transition-all ${currentStep > step.number ? 'bg-blue-600' : 'bg-gray-300'}`} />}
+                        </React.Fragment>
+                    ))}
                 </div>
 
                 <div className="mb-6">
                     {currentStep === 1 && (
-                        <FormProperty initialData={propertyData} onSubmit={handleFormSubmit} />
-                    )}
-                    {currentStep === 2 && (
-                        <SelectFeatures
-                            selectedFeatures={selectedFeatures}
-                            onSubmit={handleFeaturesSubmit}
-                            onBack={handlePreviousStep}
+                        <FormProperty
+                            initialData={propertyData}
+                            onSubmit={handleFormSubmit}
                         />
                     )}
-                    {currentStep === 3 && (
+                    {currentStep === 2 && (
                         <SelectImages
                             images={images}
                             onSubmit={handleImagesSubmit}

@@ -95,23 +95,8 @@ const SellerProperties = () => {
                 <Typography variant="h5" fontWeight="bold" color="text.primary">
                     {t('listProperties:text-listProperties')}
                 </Typography>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    startIcon={<AddIcon />}
-                    component={Link}
-                    to="/seller/create"
-                    sx={{
-                        borderRadius: 2,
-                        textTransform: 'none',
-                        fontWeight: 'bold',
-                        px: 3,
-                    }}
-                >
-                    {t('listProperties:createProperty')}
-                </Button>
 
-                <Box className="flex gap-3">
+                <Box className="flex gap-3 items-center">
                     <TextField
                         label={t('listProperties:search')}
                         variant="outlined"
@@ -134,6 +119,7 @@ const SellerProperties = () => {
                         <MenuItem value="available">{t('listProperties:Available')}</MenuItem>
                         <MenuItem value="approved">{t('listProperties:Approved')}</MenuItem>
                     </TextField>
+                    
                     <Button
                         variant="contained"
                         color="primary"
@@ -147,7 +133,7 @@ const SellerProperties = () => {
                             px: 3,
                         }}
                     >
-                        Tạo mới
+                        {t('listProperties:createProperty')}
                     </Button>
                 </Box>
 

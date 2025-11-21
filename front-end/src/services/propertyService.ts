@@ -10,6 +10,7 @@ import type { Taxonomy } from "@/types/Taxonomy";
 import type { City } from "@/types/City";
 import type { District } from "@/types/District";
 import type { Ward } from "@/types/Ward";
+import type { Description, PropertyFormData } from "@/types/PropertyData";
 const RESOURCE = "/properties";
 const SELLER_RESOURCE = "/seller";
 const TAXONOMY_RESOURCE = "/taxonomy";
@@ -84,7 +85,6 @@ export const deleteProperty = async (id: string): Promise<void> => {
   await api.delete(RESOURCE);
 };
 
-
 export const getDetailPropertiesById = async (
   id: string
 ): Promise<Property> => {
@@ -131,8 +131,6 @@ export const updateStatus = async (
     );
   }
 };
-
-
 
 export const getAllFeatures = async (): Promise<Feature[]> => {
   const response = await httpClient.get(`${SELLER_RESOURCE}/taxonomies`);
@@ -197,6 +195,11 @@ export const createProperty = async (
       formData.append('images', file);
     }
   });
-  const response = await httpClient.post(`${SELLER_RESOURCE}/properties/create`, formData,);
+  const response = await httpClient.post(`${SELLER_RESOURCE}/properties/create`, formData);
   return response.data.data;
 };
+
+export const generatePropertyDescription = async (formData: PropertyFormData): Promise<Description> => {
+  const response = await httpClient.post(`${SELLER_RESOURCE}/properties/generate-description`, formData)
+  return response.data.data
+}

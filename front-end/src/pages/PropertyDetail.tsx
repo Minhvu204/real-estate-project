@@ -10,6 +10,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import { getLanguage, getUser } from "../utils/storage";
 import { OfferService } from "@/services/offerService";
 import BuyerAppointment from "@/components/buyer/Appointment/BuyerAppointment";
+import { getDetailPropertiesById } from "@/services/propertyService";
 const PropertyDetailUser = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -38,13 +39,19 @@ const PropertyDetailUser = () => {
     };
 
     useEffect(() => {
-        fetch(`http://localhost:3000/api/public/properties/${id}`)
-            .then(res => res.json())
-            .then(data => setProperty(data.data.data))
-            .catch(err => console.error(err));
-    }, [id]);
-    const [openTourModal, setOpenTourModal] = useState(false);
+        const fetchProperty = async () => {
+            try {
+                const data: Property = await getDetailPropertiesById(id!);
+                setProperty(data);
+            } catch (error) {
+                console.error("Error fetching property:", error);
+            }
+        };
 
+        fetchProperty();
+    }, [id]);
+    
+    const [openTourModal, setOpenTourModal] = useState(false);
 
     const handleOpenTour = () => setOpenTourModal(true);
     const handleCloseTour = () => setOpenTourModal(false);
@@ -59,7 +66,6 @@ const PropertyDetailUser = () => {
 
     return (
         <Container sx={{ mt: 1, mb: 1 }}>
-            {/* CAROUSEL */}
             {/* CAROUSEL */}
             {property.images && property.images.length > 0 && (
                 <Box
