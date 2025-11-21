@@ -5,11 +5,14 @@ import { ProfileLayout } from "../pages/Profile/ProfileLayout";
 import { PersonalInfo } from "../pages/Profile/PersonalInfo";
 import { ChangePassword } from "../pages/Profile/ChangePassword";
 import ChatPage from "@/pages/Chat/ChatPage";
-import PropertyDetailUser from "../pages/PropertyDetail"; 
+import PropertyDetailUser from "../pages/PropertyDetail";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
 import CreateOfferPage from "../pages/Offer/CreateOfferPage";
 import OfferHistoryPage from "../pages/Offer/OfferHistoryPage";
 import CancelOfferPage from "../pages/Offer/CancelOfferPage";
+import BuyerAppointment from "@/components/buyer/Appointment/BuyerAppointment";
+import ListAppointment from "@/components/buyer/Appointment/ListAppointment";
+
 
 export const BuyerRoute = [
     {
@@ -47,9 +50,9 @@ export const BuyerRoute = [
         ],
     },
     {
-        path: "/my-properties",
+        path: "dwello/my-properties",
         element: <MyPropertiesPage />,
-    },    {
+    }, {
         path: "/chat",
         element: <ChatPage />,
         children: [
@@ -72,5 +75,9 @@ export const BuyerRoute = [
     {
         path: "/buyer/offer/:id/cancel",
         element: <CancelOfferPage />,
+    },
+    {
+        path: "dwello/appoinments",
+        element: <ListAppointment />
     },
 ];

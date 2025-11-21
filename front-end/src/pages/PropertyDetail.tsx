@@ -8,9 +8,8 @@ import type { Property } from "../types/Property";
 import { useTranslation } from "react-i18next";
 import { toast, ToastContainer } from 'react-toastify';
 import { getLanguage, getUser } from "../utils/storage";
-import { getDetailPropertiesById } from "@/services/propertyService";
 import { OfferService } from "@/services/offerService";
-
+import BuyerAppointment from "@/components/buyer/Appointment/BuyerAppointment";
 const PropertyDetailUser = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -19,6 +18,7 @@ const PropertyDetailUser = () => {
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const isMobile = useMediaQuery("(max-width:900px)");
+    const isMobileSmall = useMediaQuery("(max-width:600px)");
 
     const { t } = useTranslation("propertyDetail");
     const lang = getLanguage();
@@ -38,17 +38,16 @@ const PropertyDetailUser = () => {
     };
 
     useEffect(() => {
-        const fetchProperty = async () => {
-          try {
-            const data: Property = await getDetailPropertiesById(id!);
-            setProperty(data);
-          } catch (error) {
-            console.error("Error fetching property:", error);
-          }
-        };
-    
-        fetchProperty();
-      }, [id]);
+        fetch(`http://localhost:3000/api/public/properties/${id}`)
+            .then(res => res.json())
+            .then(data => setProperty(data.data.data))
+            .catch(err => console.error(err));
+    }, [id]);
+    const [openTourModal, setOpenTourModal] = useState(false);
+
+
+    const handleOpenTour = () => setOpenTourModal(true);
+    const handleCloseTour = () => setOpenTourModal(false);
 
     if (!property) {
         return <Typography textAlign="center" mt={3}>Loading...</Typography>;
@@ -60,6 +59,7 @@ const PropertyDetailUser = () => {
 
     return (
         <Container sx={{ mt: 1, mb: 1 }}>
+            {/* CAROUSEL */}
             {/* CAROUSEL */}
             {property.images && property.images.length > 0 && (
                 <Box
@@ -161,8 +161,41 @@ const PropertyDetailUser = () => {
 
             <Grid>
 
-                <Box display="flex" justifyContent="flex-end" gap={2} mt={2} mb={2}>
-                    <Button 
+                <Box
+                    display="flex"
+                    justifyContent="flex-end"
+                    gap={2}
+                    mt={2}
+                    mb={2}
+                    flexWrap={isMobileSmall ? 'wrap' : 'nowrap'}
+                >
+                    <Button
+                        variant="contained"
+                        onClick={handleOpenTour}
+                        sx={{
+                            minWidth: 180,
+                            background: 'linear-gradient(135deg, #1976D2 0%, #1565C0 100%)',
+                            color: 'white',
+                            fontWeight: 700,
+                            textTransform: 'none',
+                            fontSize: '1rem',
+                            py: 1.5,
+                            px: 4,
+                            boxShadow: '0 4px 15px rgba(25, 118, 210, 0.4)',
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                                background: 'linear-gradient(135deg, #1565C0 0%, #0D47A1 100%)',
+                                boxShadow: '0 6px 20px rgba(25, 118, 210, 0.6)',
+                                transform: 'translateY(-2px)',
+                            },
+                            '&:active': {
+                                transform: 'translateY(0px)',
+                            },
+                        }}
+                    >
+                        {lang === 'vi' ? 'Đặt lịch tham quan' : 'Request a tour'}
+                    </Button>
+                    <Button
                         variant="contained"
                         onClick={async () => {
                             const user = getUser();
@@ -177,22 +210,22 @@ const PropertyDetailUser = () => {
                                 setRestrictionDialogOpen(true);
                                 return;
                             }
-                            
+
                             try {
                                 const offers = await OfferService.getMyOffers({ property_id: id });
                                 const activeOffer = offers.find(
                                     offer => offer.status !== 'rejected' && offer.status !== 'cancelled'
                                 );
-                                
+
                                 if (activeOffer) {
                                     toast.error(
-                                        lang === 'vi' 
+                                        lang === 'vi'
                                             ? 'Offer của bất động sản này bạn đã gửi để xử lý. Không thể gửi tiếp. (Chỉ có thể gửi lại khi offer trước đó bị từ chối)'
                                             : 'You have already sent an offer for this property that is being processed. Cannot send another. (You can only resend if the previous offer was rejected)'
                                     );
                                     return;
                                 }
-                                
+
                                 navigate(`/buyer/offer/create/${id}`);
                             } catch (error: any) {
                                 console.error("Error checking offer:", error);
@@ -200,6 +233,7 @@ const PropertyDetailUser = () => {
                             }
                         }}
                         sx={{
+                            minWidth: 180,
                             background: 'linear-gradient(135deg, #1976D2 0%, #1565C0 100%)',
                             color: 'white',
                             fontWeight: 700,
@@ -383,6 +417,19 @@ const PropertyDetailUser = () => {
                 pauseOnHover
                 theme="light"
             />
+            <Dialog
+                open={openTourModal}
+                onClose={handleCloseTour}
+                fullScreen={isMobileSmall}
+                fullWidth
+
+
+            >
+                <BuyerAppointment
+                    property={property}
+                    onClose={handleCloseTour}
+                />
+            </Dialog>
         </Container >
     );
 };

@@ -9,7 +9,6 @@ import { useTranslation } from "react-i18next";
 import { getLanguage } from "../../utils/storage";
 import axios from "axios";
 import { getDetailPropertiesById } from "../../services/propertyService";
-import type { Property } from "@/types/Property";
 
 const PropertyDetails = () => {
     const { id } = useParams();
@@ -19,7 +18,7 @@ const PropertyDetails = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const isMobile = useMediaQuery("(max-width:900px)");
 
-    const { t } = useTranslation("propertyDetail");
+    const { t } = useTranslation(["propertyDetail", 'listProperties']);
     const lang = getLanguage();
 
     const nextSlide = () => {
@@ -37,19 +36,22 @@ const PropertyDetails = () => {
     };
 
     useEffect(() => {
-    const fetchProperty = async () => {
-      try {
-        const data: Property = await getDetailPropertiesById(id!);
-        setProperty(data);
-      } catch (error) {
-        console.error("Error fetching property:", error);
-      }
-    };
-    fetchProperty();
-  }, [id]);
+        const fetchProperty = async () => {
+            try {
+                const data: Property = await getDetailPropertiesById(id!);
+                setProperty(data);
+            } catch (error) {
+                console.error("Error fetching property:", error);
+            }
+        };
+
+        fetchProperty();
+    }, [id]);
+
+
 
     if (!property) {
-        return <Typography textAlign="center" mt={3}>Loading...</Typography>;
+        return <Typography textAlign="center" mt={3}>{t('listProperties:loading')}</Typography>;
     }
 
     const features = property.features ?? [];
@@ -179,26 +181,83 @@ const PropertyDetails = () => {
                     <PlaceIcon sx={{ fontSize: 20, mr: 1 }} />
                     {property.address[lang]}
                 </Typography>
+                <Box className="flex ml-auto w-fit border-blue-400 border-2 rounded-md mt-1 p-2">
+                    {property.agent_id ? (
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            disabled
+                            sx={{
+                                borderRadius: 2,
+                                textTransform: 'none',
+                                width: 'fit-content',
+                                px: 3,
+                                py: 1,
+                                '&.Mui-disabled': {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.12)',
+                                    color: 'rgba(0, 0, 0, 0.26)'
+                                }
+                            }}
+                            title={`${t('listProperties:haveAgent')} : ${property.agent_id.fullName}`}
+                        >
+                            {t('listProperties:haveAgent')}
+                        </Button>
+                    ) : property.status !== 'approved' ? (
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            disabled
+                            sx={{
+                                borderRadius: 2,
+                                textTransform: 'none',
+                                width: 'fit-content',
+                                px: 3,
+                                py: 1,
+                                '&.Mui-disabled': {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.12)',
+                                    color: 'rgba(0, 0, 0, 0.26)'
+                                }
+                            }}
+                            title="Chỉ có thể assign agent khi property đã được approved"
+                        >
+                            {t('listProperties:assignAgent')}
+                        </Button>
+                    ) : (
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            component={Link}
+                            to={`agents`}
+                            sx={{
+                                borderRadius: 2,
+                                textTransform: 'none',
+                                width: 'fit-content',
+                                px: 3,
+                                py: 1
+                            }}
+                        >
+                            {t('listProperties:assignAgent')}
+                        </Button>
+                    )}
+                </Box>
 
                 <Typography variant="h5" color="primary" fontWeight="bold" mt={1}>
                     ${property.price.toLocaleString()}
                 </Typography>
 
-                {/* TAGS */}
-                <Stack direction="row" spacing={1} mt={1}>
+                <Stack direction="row" spacing={1} mt={1} className="text-wrap">
                     <Chip label={property.city_id?.city_name[lang]} />
                     <Chip label={property.category_id?.category_name[lang]} />
                     <Chip label={property.type_id?.type_name[lang]} />
                     <Chip label={property.status} color="success" />
                 </Stack>
 
-                {/* BED - BATH */}
                 <Stack direction="row" spacing={2} mt={1}>
                     <Chip icon={<BedIcon />} label={`${property.bedrooms} ${t("bedrooms")}`} />
                     <Chip icon={<BathtubIcon />} label={`${property.bathrooms} ${t("bathrooms")}`} />
                 </Stack>
 
-                {/* DESCRIPTION */}
+
                 <Typography variant="h6" fontWeight="bold" mt={2}>{t("description")}</Typography>
                 <Typography color="text.secondary">
                     {property.description[lang]}

@@ -35,24 +35,26 @@ const Navbar: React.FC = () => {
   const role = state.user?.role || "guest";
   const isAdminRoute = location.pathname.startsWith("/admin");
 
-    const roleMenus = {
-        buyer: [
-            { label: "My Properties", path: "/dwello/myProperties" },
-            { label: "My Agent", path: "/dwello/myAgent" },
-            { label: "My Offer", path: "/buyer/offer" },
-        ],
-        seller: [
-            { label: "My Properties", path: "/seller/properties" },
-            { label: "Manage Listings", path: "/seller/my-properties" },
-            { label: "My Offers", path: "/seller/offers" },
-        ],
-        agent: [
-            { label: "My Properties", path: "/agent/properties" },
-            { label: "Manage Listings", path: "/agent/my-properties" },
-            { label: "My Offers", path: "/agent/offers" },
-        ],
+  const roleMenus = {
+    buyer: [
+      { label: "My Properties", path: "/dwello/myProperties" },
+      { label: "My Agent", path: "/dwello/myAgent" },
+      { label: "My appointments", path: 'dwello/appoinments' },
+      { label: "My Offer", path: "/buyer/offer" },
+    ],
+    seller: [
+      { label: "My Properties", path: "/seller/properties" },
+      { label: "Manage Listings", path: "/seller/my-properties" },
+      { label: "My Offers", path: "/seller/offers" },
+    ],
+    agent: [
+      { label: "My Properties", path: "/agent/properties" },
+      { label: "Manage Listings", path: "/agent/my-properties" },
+      { label: "Assignments", path: "/agent/assignments" },
+      { label: "My Offers", path: "/agent/offers" },
+    ],
 
-    };
+  };
 
   const handleLogout = () => {
     signOut();
