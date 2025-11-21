@@ -2,7 +2,7 @@ import express from "express";
 import multer from "multer";
 import { verifyToken } from "../../../middlewares/auth.middleware";
 import { roleCheck } from "../../../middlewares/roleCheck.middleware";
-import { upload as uploadToCloudinary } from "../../../middlewares/uploadCloundinary.middleware";
+import { upload as uploadToCloudinary } from "../../../middlewares/uploadContact.middlewares";
 import {
   uploadContract,
   replaceContract,
