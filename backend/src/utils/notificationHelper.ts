@@ -84,9 +84,8 @@ export async function notifyAssignmentRejected(
   assignmentId: string,
   reason?: string
 ) {
-  const message = `${agentName} đã từ chối yêu cầu quản lý cho property "${propertyTitle}"${
-    reason ? `: ${reason}` : ""
-  }`;
+  const message = `${agentName} đã từ chối yêu cầu quản lý cho property "${propertyTitle}"${reason ? `: ${reason}` : ""
+    }`;
   return createNotification(sellerId, "Yêu cầu quản lý bị từ chối", message, {
     type: "property",
     relatedId: assignmentId,
@@ -227,7 +226,7 @@ export async function notifyAppointmentStatusToBuyerAndSeller(
     status === "accepted"
       ? `${agentName} đã chấp nhận lịch hẹn xem ${propertyTitle}`
       : `${agentName} đã từ chối lịch hẹn xem ${propertyTitle}`;
-  
+
   const sellerMessage =
     status === "accepted"
       ? `${agentName} đã chấp nhận lịch hẹn xem ${propertyTitle} của bạn`
@@ -487,7 +486,7 @@ export async function notifyDealCreated(
   dealId: string
 ) {
   const message = `Deal mới đã được tạo cho ${propertyTitle}`;
-  
+
   await Promise.all([
     createNotification(buyerId, "Deal mới", message, {
       type: "system",
@@ -522,7 +521,7 @@ export async function notifyContractUploaded(params: {
   const isUpdate = action === "updated";
   const title = isUpdate ? "Hợp đồng được cập nhật" : "Hợp đồng mới";
   const actionVerb = isUpdate ? "đã cập nhật" : "đã tải lên";
-  
+
   const message = `${actorName} (${actorRole}) ${actionVerb} hợp đồng cho giao dịch "${propertyTitle}"`;
   const actionUrl = `/deals/${dealId}/contract`;
 
@@ -563,15 +562,15 @@ export async function notifyContractReviewResult(params: {
 
   const isApproved = result === "approved";
   const title = isApproved ? "Hợp đồng đã được phê duyệt" : "Hợp đồng bị từ chối";
-  
+
   const message = `${adminName} (${isApproved ? "đã phê duyệt" : "đã từ chối"}) hợp đồng cho property "${propertyTitle}".${!isApproved && notes ? ` Lý do: ${notes}` : ""}`;
-  
+
   const actionUrl = `/deals/${deal._id}/contract`;
-  
+
   // Lấy ID của các bên liên quan
   const recipientIds = [
-    deal.buyer_id._id || deal.buyer_id, 
-    deal.seller_id._id || deal.seller_id, 
+    deal.buyer_id._id || deal.buyer_id,
+    deal.seller_id._id || deal.seller_id,
     deal.agent_id._id || deal.agent_id
   ].map(id => id.toString()).filter(Boolean);
 
@@ -584,40 +583,6 @@ export async function notifyContractReviewResult(params: {
       contractId: contract._id,
       result,
       notes,
-    },
-  });
-}
-
-export async function notifyBuyerContractDecision(params: {
-  sellerId?: string;
-  agentId?: string;
-  buyerName: string;
-  propertyTitle?: string;
-  dealId: string;
-  decision: "accepted" | "rejected";
-  notes?: string;
-}) {
-  const { sellerId, agentId, buyerName, propertyTitle, dealId, decision, notes } = params;
-
-  const recipientIds = [sellerId, agentId].filter((id): id is string => Boolean(id));
-  if (!recipientIds.length) return;
-
-  const isAccepted = decision === "accepted";
-  const title = isAccepted ? "Buyer đã đồng ý hợp đồng" : "Buyer đã từ chối hợp đồng";
-
-  const detail = !isAccepted && notes ? ` Lý do: ${notes}` : "";
-  const message = isAccepted
-    ? `${buyerName} đã đồng ý với hợp đồng cho "${propertyTitle || "bất động sản"}".`
-    : `${buyerName} đã từ chối hợp đồng cho "${propertyTitle || "bất động sản"}".${detail}`;
-
-  await createNotificationsForUsers(recipientIds, title, message, {
-    type: "contract",
-    relatedId: dealId,
-    actionUrl: `/deals/${dealId}/contract`,
-    meta: {
-      decision,
-      buyerName,
-      dealId,
     },
   });
 }
@@ -638,15 +603,15 @@ export async function notifyDealStatusChange(params: {
   }
 
   const propertyTitle = deal.property_id?.title?.vi || deal.property_id?.title || "Bất động sản";
-  
+
   const title = `Trạng thái Deal được cập nhật: ${newStatus.toUpperCase()}`;
   const message = `${adminName} đã cập nhật trạng thái Deal cho property "${propertyTitle}" thành **${newStatus}**`;
-  
+
   const actionUrl = `/deals/${deal._id}`;
-  
+
   const recipientIds = [
-    deal.buyer_id._id || deal.buyer_id, 
-    deal.seller_id._id || deal.seller_id, 
+    deal.buyer_id._id || deal.buyer_id,
+    deal.seller_id._id || deal.seller_id,
     deal.agent_id._id || deal.agent_id
   ].map(id => id.toString()).filter(Boolean);
 
@@ -679,14 +644,14 @@ export async function notifyPaymentUpdate(params: {
   const isCreated = action === "created";
   const title = isCreated ? "Thanh toán mới được ghi nhận" : "Cập nhật Thanh toán";
   const statusMessage = payment.status ? ` (Trạng thái: ${payment.status})` : "";
-  
+
   const message = `${adminName} ${isCreated ? "đã ghi nhận" : "đã cập nhật"} thanh toán ${payment.amount?.toLocaleString() || "N/A"} VNĐ cho ${propertyTitle}${statusMessage}`;
-  
+
   const actionUrl = `/deals/${deal._id}/payments`;
 
   // Gửi cho người thực hiện thanh toán và Agent
   const recipientIds = [
-    payment.initiated_by._id || payment.initiated_by, 
+    payment.initiated_by._id || payment.initiated_by,
     deal.agent_id?._id || deal.agent_id
   ].map(id => id?.toString()).filter(Boolean);
 
@@ -695,5 +660,41 @@ export async function notifyPaymentUpdate(params: {
     relatedId: payment._id,
     actionUrl,
     meta: { dealId: deal._id, paymentId: payment._id, amount: payment.amount, status: payment.status },
+  });
+}
+
+// Notification khi Buyer chấp nhận hoặc từ chối hợp đồng
+export async function notifyBuyerContractDecision(params: {
+  deal: any; // Object deal đã populate seller_id, agent_id, property_id
+  buyerName: string;
+  contractId: string;
+  decision: "approved" | "rejected";
+  notes?: string;
+}) {
+  const { deal, buyerName, contractId, decision, notes } = params;
+
+  const propertyTitle = deal.property_id?.title?.vi || deal.property_id?.title || "Bất động sản";
+  const actionText = decision === "approved" ? "đã chấp nhận" : "đã từ chối";
+  const title = decision === "approved" ? "Hợp đồng được chấp nhận" : "Hợp đồng bị từ chối";
+
+  const message = `${buyerName} (Người mua) ${actionText} hợp đồng cho "${propertyTitle}".${decision === "rejected" && notes ? ` Lý do: ${notes}` : ""}`;
+
+  // Gửi cho Seller và Agent
+  const recipientIds = [
+    deal.seller_id?._id?.toString() || deal.seller_id?.toString(),
+    deal.agent_id?._id?.toString() || deal.agent_id?.toString()
+  ].filter(Boolean);
+
+  const actionUrl = `/deals/${deal._id}`; // Hoặc URL chi tiết hợp đồng
+
+  await createNotificationsForUsers(recipientIds, title, message, {
+    type: "contract",
+    relatedId: contractId,
+    actionUrl,
+    meta: {
+      dealId: deal._id,
+      contractId,
+      decision,
+    },
   });
 }
