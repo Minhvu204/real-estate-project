@@ -1,5 +1,5 @@
+// src/services/admin/review.service.ts
 import Review from "../../models/review.model";
-import mongoose from "mongoose";
 
 export const adminReviewService = {
   async getReviews(filters: any) {

@@ -21,7 +21,13 @@ interface ReviewListFilters {
   rating?: number;
 }
 
-const normalizePagination = ({ page, limit }: { page?: number; limit?: number }) => {
+const normalizePagination = ({
+  page,
+  limit,
+}: {
+  page?: number;
+  limit?: number;
+}) => {
   const pageNum = Math.max(Number(page) || 1, 1);
   const limitNum = Math.max(Math.min(Number(limit) || 10, 50), 1);
   return { pageNum, limitNum, skip: (pageNum - 1) * limitNum };
@@ -35,7 +41,7 @@ const normalizePagination = ({ page, limit }: { page?: number; limit?: number })
 const checkBuyerInteraction = async (
   buyerId: string,
   targetId: string,
-  targetType: "agent" | "property"
+  targetType: "agent" | "property" | "project"
 ): Promise<boolean> => {
   if (targetType === "property") {
     // Kiểm tra appointment accepted hoặc completed với property
@@ -156,7 +162,11 @@ export const reviewService = {
     }
 
     // Kiểm tra buyer có tương tác thực với target (nếu khả thi)
-    const hasInteraction = await checkBuyerInteraction(buyerId, target_id, target_type);
+    const hasInteraction = await checkBuyerInteraction(
+      buyerId,
+      target_id,
+      target_type
+    );
     if (!hasInteraction) {
       const err: any = new Error(
         "Bạn chỉ có thể review khi đã có tương tác thực (appointment accepted hoặc deal completed)"
@@ -181,7 +191,10 @@ export const reviewService = {
       { path: "user_id", select: "fullName email avatar" },
       {
         path: "target_id",
-        select: target_type === "property" ? "title address" : "fullName email avatar",
+        select:
+          target_type === "property"
+            ? "title address"
+            : "fullName email avatar",
       },
     ]);
 
@@ -261,7 +274,11 @@ export const reviewService = {
   /**
    * Cập nhật review (chỉ owner)
    */
-  async updateReview(reviewId: string, userId: string, payload: { rating?: number; comment?: string }) {
+  async updateReview(
+    reviewId: string,
+    userId: string,
+    payload: { rating?: number; comment?: string }
+  ) {
     if (!mongoose.isValidObjectId(reviewId)) {
       const err: any = new Error("Review ID không hợp lệ");
       err.status = 400;
@@ -280,14 +297,20 @@ export const reviewService = {
     });
 
     if (!review) {
-      const err: any = new Error("Review không tồn tại hoặc không thuộc quyền quản lý của bạn");
+      const err: any = new Error(
+        "Review không tồn tại hoặc không thuộc quyền quản lý của bạn"
+      );
       err.status = 404;
       throw err;
     }
 
     // Validate rating nếu có
     if (payload.rating !== undefined) {
-      if (!Number.isInteger(payload.rating) || payload.rating < 1 || payload.rating > 5) {
+      if (
+        !Number.isInteger(payload.rating) ||
+        payload.rating < 1 ||
+        payload.rating > 5
+      ) {
         const err: any = new Error("Rating phải là số nguyên từ 1 đến 5");
         err.status = 400;
         throw err;
@@ -306,7 +329,10 @@ export const reviewService = {
       { path: "user_id", select: "fullName email avatar" },
       {
         path: "target_id",
-        select: review.target_type === "property" ? "title address" : "fullName email avatar",
+        select:
+          review.target_type === "property"
+            ? "title address"
+            : "fullName email avatar",
       },
     ]);
 
@@ -335,7 +361,9 @@ export const reviewService = {
     });
 
     if (!review) {
-      const err: any = new Error("Review không tồn tại hoặc không thuộc quyền quản lý của bạn");
+      const err: any = new Error(
+        "Review không tồn tại hoặc không thuộc quyền quản lý của bạn"
+      );
       err.status = 404;
       throw err;
     }
@@ -343,4 +371,3 @@ export const reviewService = {
     return review;
   },
 };
-
