@@ -6,8 +6,8 @@ import { ProfileLayout } from "../pages/Profile/ProfileLayout";
 import { PersonalInfo } from "../pages/Profile/PersonalInfo";
 import { ChangePassword } from "../pages/Profile/ChangePassword";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
-import DealListPageBuyer from "../pages/DealListPageBuyer";
-import DealContractPageBuyer from "../pages/DealContractPageBuyer";
+import DealListPageBuyer from "../pages/DealContract/DealListPageBuyer";
+import DealContractPageBuyer from "../pages/DealContract/DealContractPageBuyer";
 
 export const BuyerRoute = [
     {

@@ -1,4 +1,4 @@
-import { ContractListBuyer } from "../components/agent/upload/ContractListBuyer";
+import { ContractListBuyer } from "../../components/upload/ContractListBuyer";
 import React from "react";
 import { useParams } from "react-router-dom";
 

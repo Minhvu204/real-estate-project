@@ -15,8 +15,8 @@ import DownloadIcon from "@mui/icons-material/Download";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { ContractUploaderModalAgent } from "./ContractUploaderModalAgent";
-import { contractApiAgent } from "../../../api/contractApiAgent";
-import type { Contract } from "../../../types/Contract";
+import { contractApiAgent } from "../../api/contractApiAgent";
+import type { Contract } from "../../types/Contract";
 
 interface Props {
     dealId: string;
@@ -29,7 +29,7 @@ export const ContractListAgent: React.FC<Props> = ({ dealId, token }) => {
 
     const fetchContracts = async () => {
         try {
-            const res = await contractApiAgent.getContracts(dealId, true);
+            const res = await contractApiAgent.getContracts(dealId);
             setContracts(res.data.data);
         } catch (err) {
             console.error(err);

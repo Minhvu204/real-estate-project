@@ -1,21 +1,7 @@
 import React, { useEffect, useState } from "react";
-import {
-    Container,
-    Box,
-    Typography,
-    CircularProgress,
-    Alert,
-    Card,
-    CardContent,
-    CardActions,
-    Button,
-    Chip,
-    Stack,
-    Avatar,
-    Divider,
-} from "@mui/material";
-import { dealApiBuyer } from "../api/dealApiBuyer";
-import type { Deal } from "../types/Deal";
+import { Container, Box, Typography, CircularProgress, Alert, Card, CardContent, CardActions, Button, Chip, Stack, Avatar, Divider, } from "@mui/material";
+import { dealApiBuyer } from "../../api/dealApiBuyer";
+import type { Deal } from "../../types/Deal";
 import { useNavigate } from "react-router-dom";
 
 const BuyerDealsPage: React.FC = () => {

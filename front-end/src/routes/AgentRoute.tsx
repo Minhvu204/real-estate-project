@@ -1,5 +1,5 @@
-import DealListPageAgent from "../pages/DealListPageAgent";
-import DealContractPageAgent from "../pages/DealContractPageAgent";
+import DealListPageAgent from "../pages/DealContract/DealListPageAgent";
+import DealContractPageAgent from "../pages/DealContract/DealContractPageAgent";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
 
 export const AgentRoute = [
