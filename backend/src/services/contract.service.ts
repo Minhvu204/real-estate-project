@@ -29,6 +29,7 @@ const BUYER_CONTRACT_ALLOWED_STATUSES: DealStatus[] = [
   "active",
   "awaiting_contract",
   "contract_under_review",
+  "awaiting_escrow_payment",  
   "escrow_funded",
   "completed",
 ];
@@ -36,6 +37,7 @@ const BUYER_CONTRACT_ALLOWED_STATUSES: DealStatus[] = [
 const BUYER_CONTRACT_UPLOADABLE_STATUSES: DealStatus[] = [
   "awaiting_contract",
   "contract_under_review",
+  "awaiting_escrow_payment",
 ];
 
 interface BuyerContractUploadParams {
@@ -370,7 +372,7 @@ export const contractService = {
       contract.approved_at = new Date();
       // update contract_type thành "buyer_signed"
       contract.contract_type = "buyer_signed";
-      deal.status = "escrow_funded";
+      deal.status = "awaiting_escrow_payment";
       await deal.save();
 
       try {
@@ -380,8 +382,8 @@ export const contractService = {
             : "bất động sản";
 
         const agreedPrice = deal.amounts?.agreed_price ?? 0;
-        const platformFeeRate = Number(process.env.DEFAULT_PLATFORM_FEE_RATE ?? 0.05);
-        const agentFeeRate = Number(process.env.DEFAULT_AGENT_FEE_RATE ?? 0.02);
+        const platformFeeRate = Number(process.env.DEFAULT_PLATFORM_FEE_RATE ?? 4) / 100;
+        const agentFeeRate = Number(process.env.DEFAULT_AGENT_FEE_RATE ?? 2) / 100;
 
         const platformFee = Math.round(agreedPrice * platformFeeRate);
         const agentFee = Math.round(agreedPrice * agentFeeRate);

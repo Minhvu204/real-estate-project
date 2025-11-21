@@ -718,3 +718,28 @@ Vui lòng tiến hành thanh toán escrow:
     actionUrl: `/deals/${dealId}/payment` // link tới trang thanh toán
   });
 }
+
+export async function notifyPaymentSuccessBuyer(buyerId: string, deal: any) {
+  return createNotification(
+    buyerId,
+    "Thanh toán thành công",
+    `Bạn đã thanh toán escrow cho bất động sản "${deal.property_id.title}".`
+  );
+}
+
+export async function notifyPaymentSuccessSellerAgent(deal: any) {
+  const seller = String(deal.seller_id);
+  const agent = String(deal.agent_id);
+
+  await createNotification(
+    seller,
+    "Bạn đã nhận được tiền BĐS",
+    "Hệ thống đã chuyển tiền cho bạn."
+  );
+
+  await createNotification(
+    agent,
+    "Bạn đã nhận tiền hoa hồng",
+    "Hệ thống đã gửi phí agent cho bạn."
+  );
+}
