@@ -1,6 +1,5 @@
 import React, { useState, useContext } from "react";
 import { Paper, Typography, Box, TextField, Button, Checkbox, FormControlLabel, Divider, Stack, InputAdornment, IconButton, Fade, Zoom } from "@mui/material";
-import GoogleIcon from "@mui/icons-material/Google";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
@@ -9,6 +8,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import AuthContext from "../context/AuthContext";
 import { loginRequest } from "../services/authService";
 import { useNavigate } from "react-router-dom";
+import GoogleLoginButton from "../components/auth/GoogleLoginButton";
 
 const LoginPage: React.FC = () => {
     const [email, setEmail] = useState("");
@@ -458,33 +458,9 @@ const LoginPage: React.FC = () => {
                             </Divider>
 
                             <Stack direction="row" spacing={2} sx={{ mb: 3.5 }}>
-                                <Button
-                                    fullWidth
-                                    variant="outlined"
-                                    startIcon={<GoogleIcon />}
-                                    sx={{
-                                        py: 1.5,
-                                        textTransform: "none",
-                                        borderRadius: 3,
-                                        fontWeight: 600,
-                                        fontSize: "0.95rem",
-                                        color: "#db4437",
-                                        borderColor: "#e0e0e0",
-                                        backgroundColor: "white",
-                                        borderWidth: 2,
-                                        transition: "all 0.3s ease",
-                                        "&:hover": {
-                                            backgroundColor: "#db4437",
-                                            color: "white",
-                                            borderColor: "#db4437",
-                                            transform: "translateY(-2px)",
-                                            boxShadow: "0 8px 20px rgba(219,68,55,0.3)",
-                                        },
-                                    }}
-                                    onClick={() => alert("Google OAuth not implemented")}
-                                >
-                                    Google
-                                </Button>
+                                <Box sx={{ mt: 2 }}>
+                                    <GoogleLoginButton />
+                                </Box>
                             </Stack>
 
                             <Box
