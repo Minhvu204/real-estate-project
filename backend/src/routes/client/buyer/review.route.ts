@@ -1,5 +1,5 @@
 import express from "express";
-import { verifyToken } from "../../../middlewares/auth.middleware";
+import { verifyToken, verifyTokenOptional } from "../../../middlewares/auth.middleware";
 import { roleCheck } from "../../../middlewares/roleCheck.middleware";
 import {
   createReview,
@@ -12,9 +12,9 @@ import {
 
 const router = express.Router();
 
-// Public routes - không cần authentication
-router.get("/property/:propertyId", getReviewsByProperty);
-router.get("/agent/:agentId", getReviewsByAgent);
+// Public routes - token optional (nếu có token thì check canReview và isCommented)
+router.get("/property/:propertyId", verifyTokenOptional, getReviewsByProperty);
+router.get("/agent/:agentId", verifyTokenOptional, getReviewsByAgent);
 
 // Protected routes - cần authentication
 router.post("/", verifyToken, roleCheck("buyer"), createReview);

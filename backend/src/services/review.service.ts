@@ -19,6 +19,7 @@ interface ReviewListFilters {
   limit?: number;
   target_type?: "agent" | "property";
   rating?: number;
+  buyerId?: string; // Optional: để check canReview và isCommented
 }
 
 const normalizePagination = ({ page, limit }: { page?: number; limit?: number }) => {
@@ -407,8 +408,29 @@ export const reviewService = {
 
     const total = await Review.countDocuments(query);
 
+    // Kiểm tra buyer có thể review và đã comment chưa
+    let canReview = false;
+    let isCommented = false;
+
+    if (filters.buyerId && mongoose.isValidObjectId(filters.buyerId)) {
+      // Check buyer đã mua/thuê chưa
+      canReview = await checkBuyerInteraction(filters.buyerId, propertyId, "property");
+
+      // Check buyer đã comment chưa
+      if (canReview) {
+        const existingReview = await Review.findOne({
+          user_id: toObjectId(filters.buyerId),
+          target_id: toObjectId(propertyId),
+          target_type: "property",
+        }).lean();
+        isCommented = !!existingReview;
+      }
+    }
+
     return {
       data: transformedReviews,
+      canReview, // Buyer đã mua/thuê chưa (có thể comment)
+      isCommented, // Buyer đã comment chưa
       pagination: {
         page: pageNum,
         limit: limitNum,
@@ -482,8 +504,29 @@ export const reviewService = {
 
     const total = await Review.countDocuments(query);
 
+    // Kiểm tra buyer có thể review và đã comment chưa
+    let canReview = false;
+    let isCommented = false;
+
+    if (filters.buyerId && mongoose.isValidObjectId(filters.buyerId)) {
+      // Check buyer đã mua/thuê chưa
+      canReview = await checkBuyerInteraction(filters.buyerId, agentId, "agent");
+
+      // Check buyer đã comment chưa
+      if (canReview) {
+        const existingReview = await Review.findOne({
+          user_id: toObjectId(filters.buyerId),
+          target_id: toObjectId(agentId),
+          target_type: "agent",
+        }).lean();
+        isCommented = !!existingReview;
+      }
+    }
+
     return {
       data: transformedReviews,
+      canReview, // Buyer đã mua/thuê chưa (có thể comment)
+      isCommented, // Buyer đã comment chưa
       pagination: {
         page: pageNum,
         limit: limitNum,
