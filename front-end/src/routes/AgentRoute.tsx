@@ -1,3 +1,5 @@
+import DealListPageAgent from "../pages/DealListPageAgent";
+import DealContractPageAgent from "../pages/DealContractPageAgent";
 import AsssignAgent from "@/components/agent/AsssignAgent";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
 import OfferDetailPage from "../pages/Offer/OfferDetailPage";
@@ -10,7 +12,9 @@ export const AgentRoute = [
             { path: "my-properties/:id", element: <MyPropertiesPage /> },
             { path: "assignments", element: <AsssignAgent /> },
             { path: "offers", element: <AgentOfferManagementPage /> },
-            { path: "offers/:id", element: <OfferDetailPage /> }
+            { path: "offers/:id", element: <OfferDetailPage /> },
+            { path: "contracts/deals/:dealId", element: <DealContractPageAgent /> },
+            { path: "deals/list", element: <DealListPageAgent /> }
         ],
     },
 ];

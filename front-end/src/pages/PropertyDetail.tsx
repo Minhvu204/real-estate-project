@@ -47,10 +47,9 @@ const PropertyDetailUser = () => {
                 console.error("Error fetching property:", error);
             }
         };
-
         fetchProperty();
     }, [id]);
-    
+
     const [openTourModal, setOpenTourModal] = useState(false);
 
     const handleOpenTour = () => setOpenTourModal(true);
@@ -61,8 +60,6 @@ const PropertyDetailUser = () => {
     }
 
     const features = property.features ?? [];
-
-
 
     return (
         <Container sx={{ mt: 1, mb: 1 }}>
@@ -199,14 +196,14 @@ const PropertyDetailUser = () => {
                             },
                         }}
                     >
-                        {lang === 'vi' ? 'Đặt lịch tham quan' : 'Request a tour'}
+                        {t("requestTour")}
                     </Button>
                     <Button
                         variant="contained"
                         onClick={async () => {
                             const user = getUser();
                             if (!user) {
-                                toast.error(lang === 'vi' ? 'Vui lòng đăng nhập để tạo offer' : 'Please login to create an offer');
+                                toast.error(t("pleaseLoginToCreateOffer"));
                                 setTimeout(() => {
                                     navigate('/login');
                                 }, 1500);
@@ -224,11 +221,7 @@ const PropertyDetailUser = () => {
                                 );
 
                                 if (activeOffer) {
-                                    toast.error(
-                                        lang === 'vi'
-                                            ? 'Offer của bất động sản này bạn đã gửi để xử lý. Không thể gửi tiếp. (Chỉ có thể gửi lại khi offer trước đó bị từ chối)'
-                                            : 'You have already sent an offer for this property that is being processed. Cannot send another. (You can only resend if the previous offer was rejected)'
-                                    );
+                                    toast.error(t("offerAlreadySent"));
                                     return;
                                 }
 
@@ -259,7 +252,7 @@ const PropertyDetailUser = () => {
                             },
                         }}
                     >
-                        {lang === 'vi' ? 'Tạo Offer' : 'Create Offer'}
+                        {t("createOffer")}
                     </Button>
                 </Box>
                 {/* TITLE + PRICE */}
@@ -397,16 +390,16 @@ const PropertyDetailUser = () => {
                 aria-describedby="restriction-dialog-description"
             >
                 <DialogTitle id="restriction-dialog-title">
-                    {lang === 'vi' ? 'Không thể tạo Offer' : 'Cannot Create Offer'}
+                    {t("cannotCreateOffer")}
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="restriction-dialog-description">
-                        {lang === 'vi' ? 'Chỉ buyer mới có thể tạo offer cho bất động sản.' : 'Only buyers can create offers for properties.'}
+                        {t("onlyBuyersCanCreateOffers")}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setRestrictionDialogOpen(false)} color="primary" variant="contained">
-                        {lang === 'vi' ? 'Đóng' : 'Close'}
+                        {t("close")}
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -427,10 +420,7 @@ const PropertyDetailUser = () => {
                 open={openTourModal}
                 onClose={handleCloseTour}
                 fullScreen={isMobileSmall}
-                fullWidth
-
-
-            >
+                fullWidth>
                 <BuyerAppointment
                     property={property}
                     onClose={handleCloseTour}

@@ -41,6 +41,7 @@ const Navbar: React.FC = () => {
       { label: "My Agent", path: "/dwello/myAgent" },
       { label: "My appointments", path: "/dwello/appointments" },
       { label: "My Offer", path: "/buyer/offer" },
+      { label: "Deals - Contract", path: "/buyer/deals/list" },
     ],
     seller: [
       { label: "My Properties", path: "/seller/properties" },
@@ -52,6 +53,7 @@ const Navbar: React.FC = () => {
       { label: "Manage Listings", path: "/agent/my-properties" },
       { label: "Assignments", path: "/agent/assignments" },
       { label: "My Offers", path: "/agent/offers" },
+      { label: "Deals - Contract", path: "/agent/deals/list" },
     ],
   };
 

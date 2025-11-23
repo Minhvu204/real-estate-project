@@ -14,7 +14,8 @@ import OfferHistoryPage from "../pages/Offer/OfferHistoryPage";
 import CancelOfferPage from "../pages/Offer/CancelOfferPage";
 import BuyerAppointment from "@/components/buyer/Appointment/BuyerAppointment";
 import ListAppointment from "@/components/buyer/Appointment/ListAppointment";
-
+import DealListPageBuyer from "../pages/DealListPageBuyer";
+import DealContractPageBuyer from "../pages/DealContractPageBuyer";
 
 export const BuyerRoute = [
     {
@@ -32,6 +33,14 @@ export const BuyerRoute = [
     {
         path: "/property/detail/:id",
         element: <PropertyDetailUser />
+    },
+    {
+        path: "/buyer/deals/list",
+        element: <DealListPageBuyer />
+    },
+    {
+        path: "/buyer/contracts/deals/:dealId",
+        element: <DealContractPageBuyer />
     },
     {
         path: "/profile",
