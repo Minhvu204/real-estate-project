@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { dealApiAgent } from "../api/dealApiAgent";
-import type { Deal } from "../types/Deal";
+import { dealApiAgent } from "../../api/dealApiAgent";
+import type { Deal } from "../../types/Deal";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, Typography, Button, Box, Chip, Grid, Container, Divider, IconButton } from "@mui/material";
 import LocationOnIcon from '@mui/icons-material/LocationOn';

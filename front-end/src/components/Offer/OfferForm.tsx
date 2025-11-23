@@ -350,7 +350,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                   fontSize: '0.875rem',
                 }}
               >
-                {property.bedrooms} {currentLang === 'vi' ? 'Phòng ngủ' : 'Bedrooms'}
+                {property.bedrooms} {t('propertyInfo.bedrooms')}
               </Typography>
             </Box>
           )}
@@ -404,7 +404,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                   fontSize: '0.875rem',
                 }}
               >
-                {property.bathrooms} {currentLang === 'vi' ? 'Phòng tắm' : 'Bathrooms'}
+                {property.bathrooms} {t('propertyInfo.bathrooms')}
               </Typography>
             </Box>
           )}
@@ -431,7 +431,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
                   fontSize: '0.875rem',
                 }}
               >
-                {property.floors} {currentLang === 'vi' ? 'Tầng' : 'Floors'}
+                {property.floors} {t('propertyInfo.floors')}
               </Typography>
             </Box>
           )}
@@ -451,13 +451,10 @@ export const OfferForm: React.FC<OfferFormProps> = ({
           }}
         >
           <Typography variant="body2" fontWeight="bold" mb={1}>
-            {currentLang === 'vi' ? '⚠️ Không thể tạo offer' : '⚠️ Cannot create offer'}
+            {t('propertyInfo.cannotCreateOffer')}
           </Typography>
           <Typography variant="body2">
-            {currentLang === 'vi' 
-              ? 'Bất động sản này chưa có agent phụ trách. Vui lòng liên hệ với chúng tôi hoặc chọn bất động sản khác có agent để tạo offer.'
-              : 'This property does not have an assigned agent. Please contact us or choose another property with an agent to create an offer.'
-            }
+            {t('propertyInfo.cannotCreateOfferMessage')}
           </Typography>
         </Alert>
       )}
@@ -474,13 +471,13 @@ export const OfferForm: React.FC<OfferFormProps> = ({
         }}
       >
         <Typography variant="body2" fontWeight="bold" mb={1}>
-          {currentLang === 'vi' ? 'Lưu ý quan trọng:' : 'Important note:'}
+          {t('propertyInfo.importantNote')}
         </Typography>
         <Typography variant="body2" component="div">
           <Box component="ul" sx={{ m: 0, pl: 2 }}>
             <li>{t('propertyInfo.tip')}</li>
-            <li>{currentLang === 'vi' ? 'Agent sẽ xem xét và chuyển đến chủ nhà' : 'Agent will review and forward to the owner'}</li>
-            <li>{currentLang === 'vi' ? 'Có thể hủy offer khi đang chờ xử lý' : 'Offer can be canceled while pending'}</li>
+            <li>{t('propertyInfo.agentReviewTip')}</li>
+            <li>{t('propertyInfo.cancelOfferTip')}</li>
           </Box>
         </Typography>
       </Alert>
@@ -531,7 +528,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
               </Typography>
               <TextField
                 name="amount"
-                placeholder={currentLang === 'vi' ? 'Nhập giá đề xuất (VNĐ)' : 'Enter proposed price (VND)'}
+                placeholder={t('form.enterProposedPricePlaceholder')}
                 value={formData.amount || ''}
                 onChange={handleAmountChange}
                 error={!!errors.amount}
@@ -692,8 +689,8 @@ export const OfferForm: React.FC<OfferFormProps> = ({
               {isLoading 
                 ? t('form.sending') 
                 : !hasAgent
-                  ? (currentLang === 'vi' ? 'Không thể gửi (Thiếu Agent)' : 'Cannot send (No Agent)')
-                  : (currentLang === 'vi' ? 'Gửi đề xuất ngay ✨✨' : 'Send proposal now ✨✨')
+                  ? t('form.cannotSendNoAgent')
+                  : t('form.sendProposalNow')
               }
             </Button>
           </Box>

@@ -1,5 +1,5 @@
-import DealListPageAgent from "../pages/DealListPageAgent";
-import DealContractPageAgent from "../pages/DealContractPageAgent";
+import DealListPageAgent from "../pages/DealContract/DealListPageAgent";
+import DealContractPageAgent from "../pages/DealContract/DealContractPageAgent";
 import AsssignAgent from "@/components/agent/AsssignAgent";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
 import OfferDetailPage from "../pages/Offer/OfferDetailPage";

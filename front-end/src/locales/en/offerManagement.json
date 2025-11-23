@@ -11,6 +11,9 @@
     "title": "Offer Information",
     "proposedPrice": "Proposed Price *",
     "enterProposedPrice": "Enter proposed price",
+    "enterProposedPricePlaceholder": "Enter proposed price (VND)",
+    "cannotSendNoAgent": "Cannot send (No Agent)",
+    "sendProposalNow": "Send proposal now ✨✨",
     "validityPeriod": "Validity Period *",
     "validityPeriodHelper": "Offer will automatically expire after this date",
     "notes": "Notes (Optional)",
@@ -31,7 +34,13 @@
     "bedrooms": "Bedrooms:",
     "bathrooms": "Bathrooms:",
     "yearBuilt": "Year built:",
-    "tip": "Suggest a reasonable price (80-95% of listed price) to increase the likelihood of acceptance"
+    "floors": "Floors",
+    "tip": "Suggest a reasonable price (80-95% of listed price) to increase the likelihood of acceptance",
+    "cannotCreateOffer": "⚠️ Cannot create offer",
+    "cannotCreateOfferMessage": "This property does not have an assigned agent. Please contact us or choose another property with an agent to create an offer.",
+    "importantNote": "Important note:",
+    "agentReviewTip": "Agent will review and forward to the owner",
+    "cancelOfferTip": "Offer can be canceled while pending"
   },
   "list": {
     "noOffers": "No offers found",
@@ -55,7 +64,11 @@
     "cancelConfirm": "Are you sure you want to cancel this offer?",
     "cancelSuccess": "Offer cancelled successfully",
     "cancelError": "Failed to cancel offer",
-    "cancelNotAllowed": "Only pending offers can be cancelled"
+    "cancelNotAllowed": "Only pending offers can be cancelled",
+    "rejectionReasonLabel": "Rejection reason:",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "processing": "Processing..."
   },
   "success": {
     "offerCreated": "Offer created successfully!",

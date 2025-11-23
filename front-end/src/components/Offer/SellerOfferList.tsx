@@ -416,7 +416,7 @@ export const SellerOfferList: React.FC<SellerOfferListProps> = ({
             onClick={() => setAcceptDialogOpen(false)}
             disabled={processing}
           >
-            {lang === 'vi' ? 'Hủy' : 'Cancel'}
+            {t('list.cancel')}
           </Button>
           <Button
             onClick={handleAcceptConfirm}
@@ -424,7 +424,7 @@ export const SellerOfferList: React.FC<SellerOfferListProps> = ({
             variant="contained"
             disabled={processing}
           >
-            {processing ? (lang === 'vi' ? 'Đang xử lý...' : 'Processing...') : (lang === 'vi' ? 'Xác nhận' : 'Confirm')}
+            {processing ? t('list.processing') : t('list.confirm')}
           </Button>
         </DialogActions>
       </Dialog>
@@ -458,7 +458,7 @@ export const SellerOfferList: React.FC<SellerOfferListProps> = ({
             onClick={() => setRejectDialogOpen(false)}
             disabled={processing}
           >
-            {lang === 'vi' ? 'Hủy' : 'Cancel'}
+            {t('list.cancel')}
           </Button>
           <Button
             onClick={handleRejectConfirm}
@@ -466,7 +466,7 @@ export const SellerOfferList: React.FC<SellerOfferListProps> = ({
             variant="contained"
             disabled={processing || !rejectionReason.trim()}
           >
-            {processing ? (lang === 'vi' ? 'Đang xử lý...' : 'Processing...') : (lang === 'vi' ? 'Xác nhận' : 'Confirm')}
+            {processing ? t('list.processing') : t('list.confirm')}
           </Button>
         </DialogActions>
       </Dialog>

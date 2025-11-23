@@ -8,6 +8,8 @@ import MyPropertiesPage from "../pages/MyPropertiesPage";
 import OfferDetailPage from "../pages/Offer/OfferDetailPage";
 import SellerOfferManagementPage from "../pages/Offer/SellerOfferManagementPage";
 
+import DealListPageSeller from "../pages/DealContract/DealListPageSeller";
+import DealContractPageSeller from "../pages/DealContract/DealContractPageSeller";
 export const SellerRoute = [
 
   {
@@ -36,5 +38,11 @@ export const SellerRoute = [
   },
   {
     path: "/seller/offers/:id", element: <OfferDetailPage />
+  },
+  {
+    path: "/seller/deals/list", element: <DealListPageSeller />
+  },
+  {
+    path: "/seller/contracts/deals/:dealId", element: <DealContractPageSeller />
   }
 ];

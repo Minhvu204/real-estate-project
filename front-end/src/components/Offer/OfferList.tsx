@@ -301,7 +301,7 @@ export const OfferList: React.FC<OfferListProps> = ({
               {offer.rejection_reason && (
                 <Box mb={2}>
                   <Typography variant="body2" color="error" mb={0.5}>
-                    Lý do từ chối:
+                    {t('list.rejectionReasonLabel')}
                   </Typography>
                   <Typography variant="body2" color="error">
                     {offer.rejection_reason}
@@ -351,7 +351,7 @@ export const OfferList: React.FC<OfferListProps> = ({
             onClick={() => setCancelDialogOpen(false)}
             disabled={cancelling}
           >
-            {lang === 'vi' ? 'Hủy' : 'Cancel'}
+            {t('list.cancel')}
           </Button>
           <Button
             onClick={handleCancelConfirm}
@@ -359,7 +359,7 @@ export const OfferList: React.FC<OfferListProps> = ({
             variant="contained"
             disabled={cancelling}
           >
-            {cancelling ? (lang === 'vi' ? 'Đang xử lý...' : 'Processing...') : (lang === 'vi' ? 'Xác nhận' : 'Confirm')}
+            {cancelling ? t('list.processing') : t('list.confirm')}
           </Button>
         </DialogActions>
       </Dialog>

@@ -366,7 +366,7 @@ export const AgentOfferList: React.FC<AgentOfferListProps> = ({
             onClick={() => setForwardDialogOpen(false)}
             disabled={processing}
           >
-            {lang === 'vi' ? 'Hủy' : 'Cancel'}
+            {t('list.cancel')}
           </Button>
           <Button
             onClick={handleForwardConfirm}
@@ -374,7 +374,7 @@ export const AgentOfferList: React.FC<AgentOfferListProps> = ({
             variant="contained"
             disabled={processing}
           >
-            {processing ? (lang === 'vi' ? 'Đang xử lý...' : 'Processing...') : (lang === 'vi' ? 'Xác nhận' : 'Confirm')}
+            {processing ? t('list.processing') : t('list.confirm')}
           </Button>
         </DialogActions>
       </Dialog>

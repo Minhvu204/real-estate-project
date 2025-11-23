@@ -115,7 +115,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
             const cityId = property.city_id?._id || (property as any).city_id || "";
             const districtId = (property as any).district_id?._id || (property as any).district_id || "";
             const wardId = (property as any).ward_id?._id || (property as any).ward_id || "";
-            
+
             setFormData({
                 title: getText(property.title as any, currentLang) || "",
                 description: getText(property.description as any, currentLang) || "",
@@ -141,8 +141,6 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
             });
             setExistingImages(property.images || []);
             setImageFiles([]);
-            
-            // Load districts and wards if property has city_id and district_id
             if (cityId) {
                 loadDistricts(cityId).then(() => {
                     if (districtId) {
@@ -196,7 +194,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
     };
 
     const currentLanguage: Lang = getLanguage();
-    
+
     const cityOptions = cities.map(city => ({
         value: city._id,
         label: city.city_name[currentLanguage]
@@ -271,8 +269,6 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
     const handleSubmit = async () => {
         if (!property) return;
-
-        // Validation
         if (!formData.title || !formData.price || !formData.address) {
             toast.error(t("validationRequiredFields"));
             return;
@@ -292,7 +288,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
             data.append("city_id", formData.city_id);
             data.append("district_id", formData.district_id);
             data.append("ward_id", formData.ward_id);
-            
+
             if (formData.city_name) {
                 data.append("city_name", formData.city_name);
             }
@@ -302,9 +298,9 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
             if (formData.type_name) {
                 data.append("type_name", formData.type_name);
             }
-            
+
             data.append("address", formData.address || "");
-            
+
             if (formData.coordinates && formData.coordinates.lat !== undefined && formData.coordinates.lng !== undefined) {
                 data.append("coordinates[lat]", formData.coordinates.lat.toString());
                 data.append("coordinates[lng]", formData.coordinates.lng.toString());
@@ -344,9 +340,9 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
             <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <Typography variant="h6" sx={{color: "primary.main",fontWeight: "bold",}}>
-                {t("editProperty")}
-             </Typography>
+                <Typography variant="h6" sx={{ color: "primary.main", fontWeight: "bold", }}>
+                    {t("editProperty")}
+                </Typography>
                 <IconButton onClick={onClose}>
                     <CloseIcon />
                 </IconButton>
@@ -354,21 +350,21 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
             <DialogContent dividers>
                 <Stack spacing={3}>
-                        <TextField
-                            label={t("titleLabel")}
-                            fullWidth
-                            required
-                            value={formData.title}
-                            onChange={(e) => handleChange("title", e.target.value)}
-                        />
+                    <TextField
+                        label={t("titleLabel")}
+                        fullWidth
+                        required
+                        value={formData.title}
+                        onChange={(e) => handleChange("title", e.target.value)}
+                    />
 
                     <TextField
                         label={t("description")}
-                            fullWidth
-                            multiline
-                            rows={4}
-                            value={formData.description}
-                            onChange={(e) => handleChange("description", e.target.value)}
+                        fullWidth
+                        multiline
+                        rows={4}
+                        value={formData.description}
+                        onChange={(e) => handleChange("description", e.target.value)}
                     />
 
                     <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
@@ -457,33 +453,33 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
                     <FormControl fullWidth>
                         <InputLabel>{t("features")}</InputLabel>
-                            <Select
-                                multiple
-                                value={formData.features}
-                                onChange={(e) => handleChange("features", e.target.value)}
-                                input={<OutlinedInput label={t("features")} />}
-                                renderValue={(selected) => (
-                                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                                        {selected.map((value) => {
-                                            const feature = features.find((f) => f._id === value);
-                                            return (
-                                                <Chip 
-                                                    key={value} 
-                                                    label={feature?.feature_name ? getText(feature.feature_name as any, currentLang) : value} 
-                                                    size="small" 
-                                                />
-                                            );
-                                        })}
-                                    </Box>
-                                )}
-                            >
-                                {features.map((feature) => (
-                                    <MenuItem key={feature._id} value={feature._id}>
-                                        {getText(feature.feature_name as any, currentLang)}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                        <Select
+                            multiple
+                            value={formData.features}
+                            onChange={(e) => handleChange("features", e.target.value)}
+                            input={<OutlinedInput label={t("features")} />}
+                            renderValue={(selected) => (
+                                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                                    {selected.map((value) => {
+                                        const feature = features.find((f) => f._id === value);
+                                        return (
+                                            <Chip
+                                                key={value}
+                                                label={feature?.feature_name ? getText(feature.feature_name as any, currentLang) : value}
+                                                size="small"
+                                            />
+                                        );
+                                    })}
+                                </Box>
+                            )}
+                        >
+                            {features.map((feature) => (
+                                <MenuItem key={feature._id} value={feature._id}>
+                                    {getText(feature.feature_name as any, currentLang)}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
 
                     <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
                         <TextField
@@ -528,10 +524,10 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
                     <TextField
                         label={t("yearBuilt")}
-                            fullWidth
-                            type="number"
-                            value={formData.yearBuilt}
-                            onChange={(e) => handleChange("yearBuilt", parseInt(e.target.value))}
+                        fullWidth
+                        type="number"
+                        value={formData.yearBuilt}
+                        onChange={(e) => handleChange("yearBuilt", parseInt(e.target.value))}
                     />
 
                     <Box>

@@ -11,6 +11,9 @@
     "title": "Thông tin Offer",
     "proposedPrice": "Giá đề xuất *",
     "enterProposedPrice": "Nhập giá đề xuất",
+    "enterProposedPricePlaceholder": "Nhập giá đề xuất (VNĐ)",
+    "cannotSendNoAgent": "Không thể gửi (Thiếu Agent)",
+    "sendProposalNow": "Gửi đề xuất ngay ✨✨",
     "validityPeriod": "Thời gian hiệu lực *",
     "validityPeriodHelper": "Offer sẽ tự động hết hiệu lực sau ngày này",
     "notes": "Ghi chú (Tùy chọn)",
@@ -31,7 +34,13 @@
     "bedrooms": "Phòng ngủ:",
     "bathrooms": "Phòng tắm:",
     "yearBuilt": "Năm xây:",
-    "tip": "Đề xuất giá hợp lý (80-95% giá niêm yết) để tăng khả năng được chấp nhận"
+    "floors": "Tầng",
+    "tip": "Đề xuất giá hợp lý (80-95% giá niêm yết) để tăng khả năng được chấp nhận",
+    "cannotCreateOffer": "⚠️ Không thể tạo offer",
+    "cannotCreateOfferMessage": "Bất động sản này chưa có agent phụ trách. Vui lòng liên hệ với chúng tôi hoặc chọn bất động sản khác có agent để tạo offer.",
+    "importantNote": "Lưu ý quan trọng:",
+    "agentReviewTip": "Agent sẽ xem xét và chuyển đến chủ nhà",
+    "cancelOfferTip": "Có thể hủy offer khi đang chờ xử lý"
   },
   "list": {
     "noOffers": "Không tìm thấy offer nào",
@@ -55,7 +64,11 @@
     "cancelConfirm": "Bạn có chắc chắn muốn hủy offer này không?",
     "cancelSuccess": "Hủy offer thành công",
     "cancelError": "Hủy offer thất bại",
-    "cancelNotAllowed": "Chỉ có thể hủy offer đang chờ xử lý"
+    "cancelNotAllowed": "Chỉ có thể hủy offer đang chờ xử lý",
+    "rejectionReasonLabel": "Lý do từ chối:",
+    "cancel": "Hủy",
+    "confirm": "Xác nhận",
+    "processing": "Đang xử lý..."
   },
   "success": {
     "offerCreated": "Tạo offer thành công!",

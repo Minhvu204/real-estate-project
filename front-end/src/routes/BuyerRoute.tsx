@@ -14,8 +14,8 @@ import OfferHistoryPage from "../pages/Offer/OfferHistoryPage";
 import CancelOfferPage from "../pages/Offer/CancelOfferPage";
 import BuyerAppointment from "@/components/buyer/Appointment/BuyerAppointment";
 import ListAppointment from "@/components/buyer/Appointment/ListAppointment";
-import DealListPageBuyer from "../pages/DealListPageBuyer";
-import DealContractPageBuyer from "../pages/DealContractPageBuyer";
+import DealListPageBuyer from "../pages/DealContract/DealListPageBuyer";
+import DealContractPageBuyer from "../pages/DealContract/DealContractPageBuyer";
 
 export const BuyerRoute = [
     {
