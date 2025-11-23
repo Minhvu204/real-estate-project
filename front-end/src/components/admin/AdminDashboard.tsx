@@ -79,6 +79,7 @@ export default function AdminDashboard() {
       path: "/admin/contracts",
     },
     { text: "Deals", icon: <LocalOfferIcon />, path: "/admin/deals" },
+    { text: "Payments", icon: <LocalOfferIcon />, path: "/admin/payments" },
   ];
 
   const listUserItem = [

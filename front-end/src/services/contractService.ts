@@ -22,6 +22,13 @@ export const getAllContract = async (
   };
 };
 
+export const getAllContractStatistic = async (): Promise<Contract[]> => {
+  const res = await httpAdmin.get(RESOURCE, {
+    params: { limit: 100 },
+  });
+  return res.data.data.data;
+};
+
 export const approveContract = async (id: string): Promise<Contract> => {
   const res = await httpAdmin.patch(`${RESOURCE}/${id}/approve`);
   return res.data;

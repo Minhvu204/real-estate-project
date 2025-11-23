@@ -114,5 +114,5 @@ export type Deal = {
   offer_id: Offer;
   status: string;
   createdAt: string;
-  updateAt: string;
+  updatedAt: string;
 };

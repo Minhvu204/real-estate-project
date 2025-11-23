@@ -20,6 +20,13 @@ export const getAllDeal = async (page: number): Promise<DealListResponse> => {
   };
 };
 
+export const getAllDealStatistic = async (): Promise<Deal[]> => {
+  const res = await httpAdmin.get(RESOURCE, {
+    params: { limit: 100 },
+  });
+  return res.data.data.data;
+};
+
 export const getDealById = async (id: string): Promise<Deal> => {
   const res = await httpAdmin.get(`${RESOURCE}/${id}`);
   return res.data.data;

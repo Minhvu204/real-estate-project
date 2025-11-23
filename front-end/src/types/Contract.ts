@@ -17,6 +17,7 @@ export type Contract = {
   role_of_uploader: string;
   status: string;
   updatedAt: string;
+  createdAt: string;
   uploaded_by: {
     email: string;
     fullName: string;
