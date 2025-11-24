@@ -8,6 +8,7 @@ import {
   updatePayment,
   deletePayment,
 } from "../../controllers/admin/payment.controller";
+import { releaseEscrowController } from "../../controllers/client/buyer/payment.controller";
 
 const router = express.Router();
 
@@ -27,5 +28,8 @@ router.patch("/:id", updatePayment);
 
 // DELETE /api/admin/payments/:id
 router.delete("/:id", deletePayment);
+
+// admin release
+router.post("/:dealId/release", verifyToken, roleCheck("admin"), releaseEscrowController);
 
 export default router;

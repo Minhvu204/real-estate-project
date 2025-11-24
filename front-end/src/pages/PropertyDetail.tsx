@@ -8,6 +8,7 @@ import type { Property } from "../types/Property";
 import { useTranslation } from "react-i18next";
 import { getLanguage } from "../utils/storage";
 import { getDetailPropertiesById } from "@/services/propertyService";
+import PropertyReview from "../components/buyer/PropertyReview";
 
 const PropertyDetailUser = () => {
     const { id } = useParams();
@@ -297,6 +298,7 @@ const PropertyDetailUser = () => {
                     {t("updatedOn")}: {new Date(property.updatedAt).toLocaleDateString()}
                 </Typography>
             </Grid >
+            <PropertyReview propertyId = {property._id}/>
         </Container >
     );
 };

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { successResponse, errorResponse } from "../../../utils/responseHandler";
 import { contractService } from "../../../services/contract.service";
-import { notifyBuyerContractDecision } from "../../../utils/notificationHelper";
+import { notifyBuyerContractDecision, notifyBuyerToPayEscrow } from "../../../utils/notificationHelper";
 import { dealService } from "../../../services/deal.service";
 
 const BUYER_UPLOAD_ENABLED = process.env.ALLOW_BUYER_CONTRACT_UPLOAD === "true";

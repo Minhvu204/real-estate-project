@@ -14,6 +14,7 @@ import { getFullAddress } from "../utils/addressHelper";
 import { notifyAgentRemoved } from "../utils/notificationHelper";
 import { geocodeAddress } from "../utils/geocodingHelper";
 import { SearchCriteria } from "../types/searchCriteria";
+import Deal from "../models/deal.model";
 
 export const propertyService = {
   async getAllProperties(filters: any) {
@@ -21,7 +22,7 @@ export const propertyService = {
 
     const query: any = {
       deleted: false,
-      status: { $in: ["approved", "available"] },
+      status: { $in: ["approved", "available", "rented"] },
     };
 
     if (city) query.city_id = city;
@@ -566,5 +567,14 @@ export const propertyService = {
       .lean();
 
     return properties;
+  },
+
+  async getBuyerPurchasedProperties(buyerId: string) {
+    const deals = await Deal.find({
+      buyer_id: buyerId,       
+      status: "completed", 
+    }).populate("property_id");
+
+    return deals.map((d) => d.property_id);
   },
 };
