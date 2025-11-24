@@ -698,3 +698,48 @@ export async function notifyBuyerContractDecision(params: {
     },
   });
 }
+
+export async function notifyBuyerToPayEscrow(
+  buyerId: string,
+  dealId: string,
+  propertyTitle: string,
+  platformFee: number,
+  agentFee: number
+) {
+  const title = "Thanh toán Escrow";
+  const message = `Hợp đồng bất động sản "${propertyTitle}" đã được chấp nhận.
+Vui lòng tiến hành thanh toán escrow: 
+- Giá trị: ${platformFee + agentFee} VND (bao gồm phí nền tảng ${platformFee} VND, phí agent ${agentFee} VND)
+- Hoặc thanh toán trực tiếp với chủ nhà bằng tiền mặt.`;
+
+  return createNotification(buyerId, title, message, {
+    type: "system",
+    relatedId: dealId,
+    actionUrl: `/deals/${dealId}/payment` // link tới trang thanh toán
+  });
+}
+
+export async function notifyPaymentSuccessBuyer(buyerId: string, deal: any) {
+  return createNotification(
+    buyerId,
+    "Thanh toán thành công",
+    `Bạn đã thanh toán escrow cho bất động sản "${deal.property_id.title}".`
+  );
+}
+
+export async function notifyPaymentSuccessSellerAgent(deal: any) {
+  const seller = String(deal.seller_id);
+  const agent = String(deal.agent_id);
+
+  await createNotification(
+    seller,
+    "Bạn đã nhận được tiền BĐS",
+    "Hệ thống đã chuyển tiền cho bạn."
+  );
+
+  await createNotification(
+    agent,
+    "Bạn đã nhận tiền hoa hồng",
+    "Hệ thống đã gửi phí agent cho bạn."
+  );
+}
