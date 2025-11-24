@@ -240,14 +240,22 @@ export async function releaseEscrow(adminId: string, dealId: string) {
     (deal.audit as any).completed_at = new Date();
     await deal.save({ session });
 
-    // **set property status = sold**
-    if (deal.property_id) {
-      await Property.findByIdAndUpdate(
-        deal.property_id,
-        { status: "sold" },
-        { session }
-      );
-    }
+    const property = await Property.findById(deal.property_id)
+      .populate("type_id")
+      .session(session);
+
+    if (!property) throw new Error("Property không tồn tại");
+
+    const typeNameVi = (property.type_id as any)?.type_name?.vi?.trim();
+
+    let newStatus = "sold";
+    if (typeNameVi === "Cho thuê") newStatus = "rented";
+
+    await Property.findByIdAndUpdate(
+      property._id,
+      { status: newStatus },
+      { session }
+    );
 
     await session.commitTransaction();
     session.endSession();
