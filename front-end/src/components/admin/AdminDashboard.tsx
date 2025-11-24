@@ -15,18 +15,18 @@ import {
   Collapse,
 } from "@mui/material";
 import {
-    Dashboard as DashboardIcon,
-    Person as PersonIcon,
-    Home as HomeIcon,
-    Logout as LogoutIcon,
-    Menu as MenuIcon,
-    ExpandLess,
-    ExpandMore,
-    SupervisorAccount as SupervisorAccountIcon,
-    ShoppingBag as ShoppingBagIcon,
-    Hail as HailIcon,
-    RealEstateAgent as RealEstateAgentIcon,
-    CategoryOutlined as CategoryOutlinedIcon,
+  Dashboard as DashboardIcon,
+  Person as PersonIcon,
+  Home as HomeIcon,
+  Logout as LogoutIcon,
+  Menu as MenuIcon,
+  ExpandLess,
+  ExpandMore,
+  SupervisorAccount as SupervisorAccountIcon,
+  ShoppingBag as ShoppingBagIcon,
+  Hail as HailIcon,
+  RealEstateAgent as RealEstateAgentIcon,
+  CategoryOutlined as CategoryOutlinedIcon,
 } from "@mui/icons-material";
 import { useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
@@ -55,12 +55,17 @@ export default function AdminDashboard() {
   const handleUserListToggle = () => setUserListOpen(!userListOpen);
   const handlePropertyListToggle = () => setUserPropertyOpen(!userPropertyOpen);
 
-    const menuItems = [
-        { text: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
-        { text: "List User", icon: <PersonIcon />, path: "/admin/users" },
-        { text: "List Properties", icon: <HomeIcon />, path: "/admin/properties" },
-        { text: "Taxonomies", icon: <CategoryOutlinedIcon />, path: "/admin/taxonomies" },
-    ];
+  const menuItems = [
+    { text: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
+    { text: "List User", icon: <PersonIcon />, path: "/admin/users" },
+    { text: "List Properties", icon: <HomeIcon />, path: "/admin/properties" },
+    { text: "Reviews", icon: <HomeIcon />, path: "/admin/reviews" },
+    {
+      text: "Taxonomies",
+      icon: <CategoryOutlinedIcon />,
+      path: "/admin/taxonomies",
+    },
+  ];
 
   const listUserItem = [
     {
@@ -264,34 +269,34 @@ export default function AdminDashboard() {
     </div>
   );
 
-    return (
-        <Box sx={{ display: "flex" }}>
-            <CssBaseline />
-            <AppBar
-                position="fixed"
-                sx={{
-                    background: "linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%)",
-                    width: { sm: `calc(100% - ${drawerWidth}px)` },
-                    ml: { sm: `${drawerWidth}px` },
-                    boxShadow: 2,
-                }}
-            >
-                <Toolbar>
-                    <IconButton
-                        color="inherit"
-                        aria-label="open drawer"
-                        edge="start"
-                        onClick={handleDrawerToggle}
-                        sx={{ mr: 2, display: { sm: "none" } }}
-                    >
-                        <MenuIcon />
-                    </IconButton>
-                    <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-                        Hello, <strong>{user.fullName}</strong>
-                    </Typography>
-                    <ButtonLanguage />
-                </Toolbar>
-            </AppBar>
+  return (
+    <Box sx={{ display: "flex" }}>
+      <CssBaseline />
+      <AppBar
+        position="fixed"
+        sx={{
+          background: "linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%)",
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          ml: { sm: `${drawerWidth}px` },
+          boxShadow: 2,
+        }}
+      >
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, display: { sm: "none" } }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+            Hello, <strong>{user.fullName}</strong>
+          </Typography>
+          <ButtonLanguage />
+        </Toolbar>
+      </AppBar>
 
       {/* Drawer */}
       <Box

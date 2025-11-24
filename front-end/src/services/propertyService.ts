@@ -74,7 +74,7 @@ export const updateProperty = async (id: string, data: FormData): Promise<Proper
     const res = await api.patch(RESOURCE, data, {
         headers: { "Content-Type": "multipart/form-data" },
     });
-    return res.data?.data; 
+    return res.data?.data;
 };
 
 export const deleteProperty = async (id: string): Promise<void> => {

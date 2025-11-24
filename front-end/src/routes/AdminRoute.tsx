@@ -11,6 +11,7 @@ import ListProperties from "../components/admin/manageProperties/ListProperties"
 import ViewDetailProperties from "../components/admin/manageProperties/ViewDetailProperties";
 import HideProperties from "../components/admin/manageProperties/HideProperties";
 import HomeList from "../components/admin/HomeList";
+import ReviewList from "../components/admin/manageReviews/ReviewList";
 
 const AdminProtectedRoute = () => {
   const user = getUser();
@@ -53,6 +54,10 @@ export const AdminRoute = [
           {
             path: "manageProperties/:id",
             element: <ViewDetailProperties />,
+          },
+          {
+            path: "reviews",
+            element: <ReviewList />,
           },
         ],
       },

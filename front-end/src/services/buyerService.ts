@@ -1,6 +1,5 @@
 import type { Review } from "../types/Review";
 import { httpClient } from "../utils/httpClient";
-import { httpAdmin } from "../utils/httpAdmin";
 const RESOURCE = "/buyer/reviews";
 
 export const getAllReviewPropertyById = async (

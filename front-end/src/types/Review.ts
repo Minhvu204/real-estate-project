@@ -13,6 +13,13 @@ export type Review = {
   rating: number;
   comment: string;
   isComment: boolean;
+  status: string;
   createdAt: Date;
   updatedAt: Date;
+};
+
+export type ReviewPagination = {
+  limit: number;
+  totalPages: number;
+  page: number;
 };
