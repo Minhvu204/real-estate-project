@@ -57,13 +57,21 @@ export const getMyFavorites = async (
         favorite_id: fav._id,
         property_id: p._id,
 
-        title: p.title,
-        description: p.description,
+        title: {
+          vi: p.title?.vi || "",
+          en: p.title?.en || "",
+        },
+        description: {
+          vi: p.description?.vi || "",
+          en: p.description?.en || "",
+        },
         price: p.price,
-        images: p.images,
+        images: p.images || [],
 
-        address_vi: p.address?.vi,
-        address_en: p.address?.en,
+        address: {
+          vi: p.address?.vi || "",
+          en: p.address?.en || "",
+        },
 
         city_vi: p.city_id?.city_name?.vi || null,
         city_en: p.city_id?.city_name?.en || null,
@@ -84,8 +92,13 @@ export const getMyFavorites = async (
         floors: p.floors,
         yearBuilt: p.yearBuilt,
 
-        lat: p.coordinates?.lat,
-        lng: p.coordinates?.lng,
+        coordinates:
+          p.coordinates?.lat != null && p.coordinates?.lng != null
+            ? {
+                type: "Point",
+                coordinates: [p.coordinates.lng, p.coordinates.lat],
+              }
+            : undefined,
 
         features_vi:
           p.features?.map((f: any) => f.feature_name?.vi).filter(Boolean) || [],
@@ -95,7 +108,7 @@ export const getMyFavorites = async (
 
         owner: p.owner_id
           ? {
-              id: p.owner_id._id,
+              _id: p.owner_id._id,
               fullName: p.owner_id.fullName,
               email: p.owner_id.email,
               phone: p.owner_id.phone,
@@ -105,7 +118,7 @@ export const getMyFavorites = async (
 
         agent: p.agent_id
           ? {
-              id: p.agent_id._id,
+              _id: p.agent_id._id,
               fullName: p.agent_id.fullName,
               email: p.agent_id.email,
               phone: p.agent_id.phone,

@@ -19,6 +19,7 @@ interface ReviewListFilters {
   limit?: number;
   target_type?: "agent" | "property";
   rating?: number;
+  buyerId?: string; // Optional: để check canReview và isCommented
 }
 
 const normalizePagination = ({
@@ -369,5 +370,197 @@ export const reviewService = {
     }
 
     return review;
+  },
+
+  /**
+   * Lấy danh sách reviews theo property
+   * Chỉ lấy reviews của property còn cho thuê được (status: "available" hoặc "approved", deleted: false)
+   */
+  async getReviewsByProperty(propertyId: string, filters: ReviewListFilters = {}) {
+    if (!mongoose.isValidObjectId(propertyId)) {
+      const err: any = new Error("Property ID không hợp lệ");
+      err.status = 400;
+      throw err;
+    }
+
+    // Kiểm tra property tồn tại và còn cho thuê được
+    const property = await Property.findOne({
+      _id: toObjectId(propertyId),
+      deleted: false,
+      status: { $in: ["available", "approved"] },
+    }).lean();
+
+    if (!property) {
+      const err: any = new Error("Property không tồn tại hoặc không còn cho thuê");
+      err.status = 404;
+      throw err;
+    }
+
+    const { pageNum, limitNum, skip } = normalizePagination({
+      page: filters.page,
+      limit: filters.limit,
+    });
+
+    const query: any = {
+      target_id: toObjectId(propertyId),
+      target_type: "property",
+    };
+
+    if (filters.rating !== undefined) {
+      query.rating = Number(filters.rating);
+    }
+
+    const reviews = await Review.find(query)
+      .populate("user_id", "fullName email avatar")
+      .populate({
+        path: "target_id",
+        select: "title address",
+      })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum)
+      .lean();
+
+    // Transform reviews to select appropriate fields
+    const transformedReviews = reviews.map((review: any) => {
+      const reviewObj = { ...review };
+      if (review.target_id) {
+        reviewObj.target_id = {
+          _id: review.target_id._id,
+          title: review.target_id.title,
+          address: review.target_id.address,
+        };
+      }
+      return reviewObj;
+    });
+
+    const total = await Review.countDocuments(query);
+
+    // Kiểm tra buyer có thể review và đã comment chưa
+    let canReview = false;
+    let isCommented = false;
+
+    if (filters.buyerId && mongoose.isValidObjectId(filters.buyerId)) {
+      // Check buyer đã mua/thuê chưa
+      canReview = await checkBuyerInteraction(filters.buyerId, propertyId, "property");
+
+      // Check buyer đã comment chưa
+      if (canReview) {
+        const existingReview = await Review.findOne({
+          user_id: toObjectId(filters.buyerId),
+          target_id: toObjectId(propertyId),
+          target_type: "property",
+        }).lean();
+        isCommented = !!existingReview;
+      }
+    }
+
+    return {
+      data: transformedReviews,
+      canReview, // Buyer đã mua/thuê chưa (có thể comment)
+      isCommented, // Buyer đã comment chưa
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    };
+  },
+
+  /**
+   * Lấy danh sách reviews theo agent
+   */
+  async getReviewsByAgent(agentId: string, filters: ReviewListFilters = {}) {
+    if (!mongoose.isValidObjectId(agentId)) {
+      const err: any = new Error("Agent ID không hợp lệ");
+      err.status = 400;
+      throw err;
+    }
+
+    // Kiểm tra agent tồn tại và active
+    const agent = await User.findOne({
+      _id: toObjectId(agentId),
+      role: "agent",
+      isActive: true,
+    }).lean();
+
+    if (!agent) {
+      const err: any = new Error("Agent không tồn tại hoặc không hoạt động");
+      err.status = 404;
+      throw err;
+    }
+
+    const { pageNum, limitNum, skip } = normalizePagination({
+      page: filters.page,
+      limit: filters.limit,
+    });
+
+    const query: any = {
+      target_id: toObjectId(agentId),
+      target_type: "agent",
+    };
+
+    if (filters.rating !== undefined) {
+      query.rating = Number(filters.rating);
+    }
+
+    const reviews = await Review.find(query)
+      .populate("user_id", "fullName email avatar")
+      .populate({
+        path: "target_id",
+        select: "fullName email avatar",
+      })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum)
+      .lean();
+
+    // Transform reviews to select appropriate fields
+    const transformedReviews = reviews.map((review: any) => {
+      const reviewObj = { ...review };
+      if (review.target_id) {
+        reviewObj.target_id = {
+          _id: review.target_id._id,
+          fullName: review.target_id.fullName,
+          email: review.target_id.email,
+          avatar: review.target_id.avatar,
+        };
+      }
+      return reviewObj;
+    });
+
+    const total = await Review.countDocuments(query);
+
+    // Kiểm tra buyer có thể review và đã comment chưa
+    let canReview = false;
+    let isCommented = false;
+
+    if (filters.buyerId && mongoose.isValidObjectId(filters.buyerId)) {
+      // Check buyer đã mua/thuê chưa
+      canReview = await checkBuyerInteraction(filters.buyerId, agentId, "agent");
+
+      // Check buyer đã comment chưa
+      if (canReview) {
+        const existingReview = await Review.findOne({
+          user_id: toObjectId(filters.buyerId),
+          target_id: toObjectId(agentId),
+          target_type: "agent",
+        }).lean();
+        isCommented = !!existingReview;
+      }
+    }
+
+    return {
+      data: transformedReviews,
+      canReview, // Buyer đã mua/thuê chưa (có thể comment)
+      isCommented, // Buyer đã comment chưa
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    };
   },
 };
