@@ -11,6 +11,16 @@ export const listReviews = async (req: Request, res: Response) => {
   }
 };
 
+export const getReviewDetail = async (req: Request, res: Response) => {
+  try {
+    const result = await adminReviewService.getReviewDetail(req.params.id);
+    return successResponse(req, res, "Lấy chi tiết review thành công", result);
+  } catch (err: any) {
+    return errorResponse(req, res, err.message, err.status || 500);
+  }
+};
+
+
 export const hideReview = async (req: Request, res: Response) => {
   try {
     const review = await adminReviewService.hide(req.params.id);

@@ -49,6 +49,30 @@ export const adminReviewService = {
     };
   },
 
+  async getReviewDetail(id: string) {
+    if (!mongoose.isValidObjectId(id)) {
+      const err: any = new Error("Review ID không hợp lệ");
+      err.status = 400;
+      throw err;
+    }
+
+    const review = await Review.findById(id)
+      .populate("user_id", "fullName email avatar")
+      .populate({
+        path: "target_id",
+        select: "title address fullName email avatar",
+      });
+
+    if (!review) {
+      const err: any = new Error("Review không tồn tại");
+      err.status = 404;
+      throw err;
+    }
+
+    return review;
+  },
+
+
   async hide(id: string) {
     return Review.findByIdAndUpdate(id, { is_hidden: true }, { new: true });
   },
