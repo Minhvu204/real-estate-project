@@ -145,6 +145,9 @@ const HomePage: React.FC = () => {
                     ))}
                 </Box>
             </Box>
+
+
+
             {/*List property*/}
             <Box paddingY={10}>
                 <Grid container spacing={3}>

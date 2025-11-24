@@ -483,7 +483,7 @@ const LoginPage: React.FC = () => {
                                 </Typography>
                                 <Button
                                     variant="text"
-                                    onClick={() => navigate("/signup")}
+                                    onClick={() => navigate("/register")}
                                     sx={{
                                         textTransform: "none",
                                         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
