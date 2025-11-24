@@ -1,15 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-    Box,
-    Button,
-    Typography,
-    Card,
-    CardContent,
-    Stack,
-    Chip,
-    Avatar,
-    IconButton
-} from "@mui/material";
+import { Box, Button, Typography, Card, CardContent, Stack, Chip, Avatar } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import DownloadIcon from "@mui/icons-material/Download";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -17,6 +7,11 @@ import DescriptionIcon from "@mui/icons-material/Description";
 import { ContractUploaderModalAgent } from "./ContractUploaderModalAgent";
 import { contractApiAgent } from "../../api/contractApiAgent";
 import type { Contract } from "../../types/Contract";
+import { toastSuccess, toastError } from "../../utils/toast";
+import { ToastContainer } from "react-toastify";
+import { useTranslation } from "react-i18next";
+import { getLanguage } from "../../utils/storage";
+
 
 interface Props {
     dealId: string;
@@ -24,6 +19,8 @@ interface Props {
 }
 
 export const ContractListAgent: React.FC<Props> = ({ dealId, token }) => {
+    const { t } = useTranslation("dealContact");
+    const lang = getLanguage();
     const [contracts, setContracts] = useState<Contract[]>([]);
     const [modalOpen, setModalOpen] = useState(false);
 
@@ -41,12 +38,14 @@ export const ContractListAgent: React.FC<Props> = ({ dealId, token }) => {
     }, [dealId]);
 
     const handleDelete = async (contractId: string) => {
-        if (!confirm("Bạn có chắc muốn xóa hợp đồng này?")) return;
+        if (!confirm(t("areYouSureYouWantToDeleteThisContract"))) return;
         try {
             await contractApiAgent.deleteContract(dealId, token, contractId);
+            toastSuccess(t("deleteContractSuccessfully"));
             fetchContracts();
         } catch (err) {
             console.error(err);
+            toastError(t("deleteContractFailed"));
         }
     };
 
@@ -59,8 +58,10 @@ export const ContractListAgent: React.FC<Props> = ({ dealId, token }) => {
             link.download = filename;
             link.click();
             window.URL.revokeObjectURL(link.href);
+            toastSuccess(t("deleteContractSuccessfully"));
         } catch (err) {
-            console.error("Download failed", err);
+            console.error(t("downloadFailed"), err);
+            toastError(t("downloadFailed"));
         }
     };
 
@@ -102,10 +103,10 @@ export const ContractListAgent: React.FC<Props> = ({ dealId, token }) => {
             >
                 <Box>
                     <Typography variant="h3" fontWeight={500} gutterBottom>
-                        📄Hợp Đồng
+                        📄{t("contracts")}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ marginLeft: "15%" }} >
-                        Quản lý tất cả hợp đồng của giao dịch
+                        {t("manageAllContractsOfTheTransaction")}
                     </Typography>
                 </Box>
                 <Button
@@ -121,7 +122,7 @@ export const ContractListAgent: React.FC<Props> = ({ dealId, token }) => {
                         boxShadow: 2
                     }}
                 >
-                    + Upload Hợp Đồng
+                    + {t("addContract")}
                 </Button>
             </Stack>
 
@@ -137,10 +138,10 @@ export const ContractListAgent: React.FC<Props> = ({ dealId, token }) => {
                 >
                     <DescriptionIcon sx={{ fontSize: 64, color: "text.disabled", mb: 2 }} />
                     <Typography variant="h6" color="text.secondary" gutterBottom>
-                        Chưa có hợp đồng nào
+                        {t("noContractsYet")}
                     </Typography>
                     <Typography variant="body2" color="text.disabled">
-                        Nhấn vào nút "Upload Hợp Đồng" để thêm hợp đồng mới
+                        {t("clickTheUploadContractButtonToAddANewContract")}
                     </Typography>
                 </Card>
             )}
@@ -215,7 +216,7 @@ export const ContractListAgent: React.FC<Props> = ({ dealId, token }) => {
                                                 mt={1}
                                                 sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
                                             >
-                                                📅 {new Date(c.createdAt).toLocaleDateString("vi-VN", {
+                                                📅 {new Date(c.createdAt).toLocaleDateString(lang, {
                                                     year: "numeric",
                                                     month: "long",
                                                     day: "numeric",
@@ -247,7 +248,7 @@ export const ContractListAgent: React.FC<Props> = ({ dealId, token }) => {
                                                         px: 2
                                                     }}
                                                 >
-                                                    Xem
+                                                    {t("view")}
                                                 </Button>
                                                 <Button
                                                     variant="outlined"
@@ -260,7 +261,7 @@ export const ContractListAgent: React.FC<Props> = ({ dealId, token }) => {
                                                         px: 2
                                                     }}
                                                 >
-                                                    Tải về
+                                                    {t("download")}
                                                 </Button>
                                             </>
                                         )}
@@ -276,7 +277,7 @@ export const ContractListAgent: React.FC<Props> = ({ dealId, token }) => {
                                                 px: 2
                                             }}
                                         >
-                                            Xóa
+                                            {t("delete")}
                                         </Button>
                                     </Stack>
                                 </Stack>
@@ -294,6 +295,7 @@ export const ContractListAgent: React.FC<Props> = ({ dealId, token }) => {
                 onUploaded={fetchContracts}
                 existingContracts={contracts}
             />
+            <ToastContainer position="top-right" autoClose={2000} theme="colored" />
         </Box>
     );
 };

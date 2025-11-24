@@ -3,8 +3,12 @@ import { Container, Box, Typography, CircularProgress, Alert, Card, CardContent,
 import { dealApiBuyer } from "../../api/dealApiBuyer";
 import type { Deal } from "../../types/Deal";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { getLanguage } from "../../utils/storage";
 
 const BuyerDealsPage: React.FC = () => {
+    const { t } = useTranslation("dealContact");
+    const lang = getLanguage();
     const [deals, setDeals] = useState<Deal[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -45,15 +49,19 @@ const BuyerDealsPage: React.FC = () => {
         <Container sx={{ mt: 4, mb: 4 }}>
             <Box sx={{ mb: 4 }}>
                 <Typography variant="h4" gutterBottom fontWeight="bold">
-                    List my deals
+                    {t("listDeal")}
                 </Typography>
                 <Typography variant="body1" color="text.secondary">
-                    Theo dõi tất cả các deal
+                    {t("manageAndTrackAllRealEstateTransactions")}
                 </Typography>
             </Box>
 
             {deals.length === 0 ? (
-                <Typography textAlign="center">Chưa có deal nào.</Typography>
+                <Card sx={{ p: 4, textAlign: "center", borderRadius: 3 }}>
+                    <Typography variant="h6" color="text.secondary">
+                        {t("noDealsAvailable")}
+                    </Typography>
+                </Card>
             ) : (
                 <Box
                     display="flex"
@@ -82,22 +90,25 @@ const BuyerDealsPage: React.FC = () => {
                                 }}
                             >
                                 <CardContent sx={{ flexGrow: 1 }}>
-                                    {/* Header */}
-                                    <Box display="flex" justifyContent="space-between" height="25%" alignItems="center" mb={2}>
+                                    <Box display="flex" justifyContent="space-between" height="35%" alignItems="center" mb={2}>
                                         <Stack direction="row" spacing={2} alignItems="center">
                                             <Avatar sx={{ bgcolor: "#1976d2" }}>
-                                                {deal.property_id.title.vi.charAt(0)}
+                                                {deal.property_id.title[lang].charAt(0)}
                                             </Avatar>
-                                            <Typography variant="h6">{deal.property_id.title.vi}</Typography>
+                                            <Typography variant="h6">{deal.property_id.title[lang]}</Typography>
                                         </Stack>
                                         <Chip
                                             label={deal.status}
                                             color={
                                                 deal.status === "completed"
                                                     ? "success"
-                                                    : deal.status === "awaiting_contract"
-                                                        ? "warning"
-                                                        : "default"
+                                                    : deal.status === "cancelled"
+                                                        ? "error"
+                                                        : deal.status === "contract_under_review"
+                                                            ? "warning"
+                                                            : deal.status === "escrow_funded"
+                                                                ? "secondary"
+                                                                : "default"
                                             }
                                             size="small"
                                         />
@@ -108,33 +119,33 @@ const BuyerDealsPage: React.FC = () => {
                                         {/* Property Info */}
                                         <Box>
                                             <Typography variant="body2" color="text.secondary">
-                                                <strong>Địa chỉ</strong> {deal.property_id.address.vi}
+                                                <strong>{t("address")}:</strong> {deal.property_id.address[lang]}
                                             </Typography>
                                             <Typography variant="body2" color="text.secondary">
-                                                <strong>Giá chốt:</strong> {deal.amounts.agreed_price.toLocaleString()} {deal.amounts.currency}
+                                                <strong>{t("finalPrice")}:</strong> {deal.amounts.agreed_price.toLocaleString()} {deal.amounts.currency}
                                             </Typography>
                                         </Box>
 
                                         {/* Participants */}
                                         <Box>
                                             <Typography variant="body2" color="text.secondary">
-                                                <strong>Seller:</strong> {deal.seller_id.fullName} ({deal.seller_id.phone})
+                                                <strong>{t("seller")}:</strong> {deal.seller_id.fullName} ({deal.seller_id.phone})
                                             </Typography>
                                             <Typography variant="body2" color="text.secondary">
-                                                <strong>Agent:</strong> {deal.agent_id.fullName} ({deal.agent_id.phone})
+                                                <strong>{t("agent")}:</strong> {deal.agent_id.fullName} ({deal.agent_id.phone})
                                             </Typography>
                                         </Box>
 
                                         {/* Amount Details */}
                                         <Box>
                                             <Typography variant="body2" color="text.secondary">
-                                                <strong>Platform Fee:</strong> {deal.amounts.platform_fee.toLocaleString()} VND
+                                                <strong>{t("platformFee")}:</strong> {deal.amounts.platform_fee.toLocaleString()} VND
                                             </Typography>
                                             <Typography variant="body2" color="text.secondary">
-                                                <strong>Agent Fee:</strong> {deal.amounts.agent_fee.toLocaleString()} VND
+                                                <strong>{t("agentFee")}:</strong> {deal.amounts.agent_fee.toLocaleString()} VND
                                             </Typography>
                                             <Typography variant="body2" color="text.secondary">
-                                                <strong>Seller Payout:</strong> {deal.amounts.seller_payout.toLocaleString()} VND
+                                                <strong>{t("sellerPayout")}:</strong> {deal.amounts.seller_payout.toLocaleString()} VND
                                             </Typography>
                                         </Box>
                                     </Stack>
@@ -146,7 +157,7 @@ const BuyerDealsPage: React.FC = () => {
                                         color="primary"
                                         onClick={() => navigate(`/buyer/contracts/deals/${deal._id}`)}
                                     >
-                                        Xem hợp đồng
+                                        {t("viewContractDetails")}
                                     </Button>
                                 </CardActions>
                             </Card>
