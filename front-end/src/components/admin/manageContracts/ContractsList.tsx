@@ -53,6 +53,10 @@ const ContractsList = () => {
     fetchContract();
   }, [currentPage, status]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [status]);
+
   const handlePageChange = (page: number) => {
     if (pagination) {
       if (pagination.page >= 1 && page <= pagination.totalPages) {

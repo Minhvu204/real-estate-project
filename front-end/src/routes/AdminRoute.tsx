@@ -15,7 +15,7 @@ import DealsList from "../components/admin/manageDeals/DealsList";
 import PaymentsList from "../components/admin/managePayments/PaymentsList";
 import HomeList from "../components/admin/HomeList";
 import DealDetail from "../components/admin/manageDeals/DealDetail";
-// import ViewContract from "../components/admin/manageContracts/ViewContract";
+import PaymentDetail from "../components/admin/managePayments/PaymentDetail";
 
 const AdminProtectedRoute = () => {
   const user = getUser();
@@ -63,10 +63,6 @@ export const AdminRoute = [
             path: "contracts",
             element: <ContractsList />,
           },
-          // {
-          //   path: "contracts/:id",
-          //   element: <ViewContract pdfUrl="" />,
-          // },
           {
             path: "deals",
             element: <DealsList />,
@@ -86,6 +82,10 @@ export const AdminRoute = [
           {
             path: "payments",
             element: <PaymentsList />,
+          },
+          {
+            path: "payments/:id",
+            element: <PaymentDetail/>,
           },
         ],
       },

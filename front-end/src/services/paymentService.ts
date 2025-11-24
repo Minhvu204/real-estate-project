@@ -17,3 +17,8 @@ export const getAllPayment = async (
     pagination: pagination,
   };
 };
+
+export const getPaymentDetail = async (id: string): Promise<Payment> => {
+  const res = await httpAdmin.get(`${RESOURCE}/${id}`);
+  return res.data.data;
+};

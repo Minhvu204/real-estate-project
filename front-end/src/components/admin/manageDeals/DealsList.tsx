@@ -32,6 +32,10 @@ const DealsList = () => {
     fetchDeal();
   }, [currentPage, status]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [status]);
+
   const handlePageChange = (page: number) => {
     console.log(page);
     if (!pagination) return;

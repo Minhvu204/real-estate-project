@@ -53,6 +53,7 @@ export default function AdminDashboard() {
   const [PropertyOpen, setUserPropertyOpen] = useState(false);
   const [contractOpen, setContractOpen] = useState(false);
   const [dealOpen, setDealOpen] = useState(false);
+  const [paymentOpen, setPaymentOpen] = useState(false);
 
   const handleDrawerClose = () => {
     setIsClosing(true);
@@ -64,6 +65,7 @@ export default function AdminDashboard() {
   const handlePropertyListToggle = () => setUserPropertyOpen(!PropertyOpen);
   const handleContractListToggle = () => setContractOpen(!contractOpen);
   const handleDealListToggle = () => setDealOpen(!dealOpen);
+  const handlePaymentListToggle = () => setPaymentOpen(!paymentOpen);
 
   const menuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
@@ -175,6 +177,34 @@ export default function AdminDashboard() {
     },
   ];
 
+  const listPaymentItem = [
+    {
+      text: "Completed",
+      icon: <ShoppingBagIcon />,
+      path: "/admin/payments?status=completed",
+    },
+    {
+      text: "Pending",
+      icon: <HailIcon />,
+      path: "/admin/payments?status=pending",
+    },
+    {
+      text: "Canceled",
+      icon: <BackspaceRoundedIcon />,
+      path: "/admin/payments?status=canceled",
+    },
+    {
+      text: "Failed",
+      icon: <BackspaceRoundedIcon />,
+      path: "/admin/payments?status=failed",
+    },
+    {
+      text: "Processing",
+      icon: <HailIcon />,
+      path: "/admin/payments?status=processing",
+    },
+  ];
+
   const bottomItems = [
     { text: "Logout", icon: <LogoutIcon />, path: "/login" },
   ];
@@ -224,6 +254,8 @@ export default function AdminDashboard() {
                     ? handleContractListToggle
                     : item.text === "Deals"
                     ? handleDealListToggle
+                    : item.text === "Payments"
+                    ? handlePaymentListToggle
                     : undefined
                 }
                 sx={{
@@ -250,6 +282,8 @@ export default function AdminDashboard() {
                 {item.text === "Contracts" &&
                   (contractOpen ? <ExpandLess /> : <ExpandMore />)}
                 {item.text === "Deals" &&
+                  (contractOpen ? <ExpandLess /> : <ExpandMore />)}
+                {item.text === "Payments" &&
                   (contractOpen ? <ExpandLess /> : <ExpandMore />)}
               </ListItemButton>
             </ListItem>
@@ -351,6 +385,37 @@ export default function AdminDashboard() {
               <Collapse in={dealOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                   {listDealsItem.map((sub) => (
+                    <ListItemButton
+                      key={sub.text}
+                      component={Link}
+                      to={sub.path}
+                      sx={{
+                        pl: 6,
+                        borderRadius: "12px",
+                        mx: 1,
+                        mt: 0.5,
+                        color: "#1e293b",
+                        bgcolor: isActive(sub.path) ? "#e0f2fe" : "inherit",
+                        "&:hover": {
+                          bgcolor: "#bae6fd",
+                          transform: "scale(1.02)",
+                          transition: "all 0.2s ease",
+                        },
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: "#0284c7" }}>
+                        {sub.icon}
+                      </ListItemIcon>
+                      <ListItemText primary={sub.text} />
+                    </ListItemButton>
+                  ))}
+                </List>
+              </Collapse>
+            )}
+            {item.text === "Payments" && (
+              <Collapse in={paymentOpen} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {listPaymentItem.map((sub) => (
                     <ListItemButton
                       key={sub.text}
                       component={Link}

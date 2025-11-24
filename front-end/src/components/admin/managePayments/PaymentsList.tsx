@@ -3,27 +3,40 @@ import type { Payment } from "../../../types/Payment";
 import { Button, Pagination } from "@mui/material";
 import { useEffect, useState } from "react";
 import type { pagination } from "../../../types/Contract";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const PaymentsList = () => {
   const [payment, setPayment] = useState<Payment[]>([]);
   const [pagination, setPagination] = useState<pagination | null>(null);
-  const [page, setPage] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const status = searchParams.get("status");
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getAllPayment(page);
+      const data = await getAllPayment(currentPage);
       console.log(data);
-      setPayment(data.payments);
+      if (status) {
+        setPayment(
+          data.payments.filter((payment) => payment.status === status)
+        );
+      } else {
+        setPayment(data.payments);
+      }
       setPagination(data.pagination);
     };
     fetchData();
-  }, []);
+  }, [status, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [status]);
 
   const handlePageChange = (page: number) => {
-    console.log(page);
     if (!pagination) return;
 
     if (page >= 1 && page <= pagination.totalPages) {
-      setPage(page);
+      setCurrentPage(page);
     }
   };
 
@@ -61,7 +74,7 @@ const PaymentsList = () => {
                     {data.initiated_by?.fullName}
                   </td>
                   <td className="px-4 py-3 text-sm font-medium text-gray-800">
-                    {data.amount} {data.currency}
+                    {data.amount.toLocaleString()} {data.currency}
                   </td>
                   <td className="px-4 py-3 text-sm font-medium text-gray-800">
                     {data.method}
@@ -83,7 +96,9 @@ const PaymentsList = () => {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <Button>View</Button>
+                    <Button onClick={() => navigate(`${data._id}`)}>
+                      View
+                    </Button>
                   </td>
                 </tr>
               ))}
@@ -95,7 +110,7 @@ const PaymentsList = () => {
         <div className="flex justify-center items-center mt-6">
           <Pagination
             count={pagination.totalPages}
-            page={page}
+            page={currentPage}
             onChange={(_, value) => handlePageChange(value)}
             variant="outlined"
             shape="rounded"
