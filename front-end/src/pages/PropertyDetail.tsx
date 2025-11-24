@@ -8,6 +8,8 @@ import type { Property } from "../types/Property";
 import { useTranslation } from "react-i18next";
 import { getLanguage } from "../utils/storage";
 import { getDetailPropertiesById } from "@/services/propertyService";
+import PropertyReview from "../components/buyer/PropertyReview";
+import { ToastContainer } from "react-toastify";
 
 const PropertyDetailUser = () => {
     const { id } = useParams();
@@ -55,6 +57,7 @@ const PropertyDetailUser = () => {
 
 
     return (
+        <>
         <Container sx={{ mt: 1, mb: 1 }}>
             {/* CAROUSEL */}r
             {property.images && property.images.length > 0 && (
@@ -297,7 +300,21 @@ const PropertyDetailUser = () => {
                     {t("updatedOn")}: {new Date(property.updatedAt).toLocaleDateString()}
                 </Typography>
             </Grid >
+            <PropertyReview propertyId = {property._id}/>
         </Container >
+        <ToastContainer
+                position="top-right"
+                autoClose={2000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+              />
+        </>
     );
 };
 
