@@ -1,21 +1,23 @@
 import FavoriteList from '@/components/Buyer/Favorite/FavoriteList';
 import NavFavorite from '@/components/Buyer/Favorite/NavFavorite';
+import useTitle from '@/hooks/useTitle';
 import { getAllFavoriteProperties } from '@/services/buyerService';
-import type { Property } from '@/types/Property';
-import React, { useEffect, useState } from 'react'
+import type { PropertyFavorite } from '@/types/FavoriteType';
+import { useEffect, useState } from 'react'
 
 const FavoritePage = () => {
-
-    const [properties, setProperties] = useState<Property[]>([]);
+    const [properties, setProperties] = useState<PropertyFavorite[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
+    const [propertiesFiltered, setPropertiesFiltered] = useState<PropertyFavorite[]>([]);
+    useTitle('Dwello | My Favorite Homes');
     useEffect(() => {
         const fetchProperties = async () => {
             setLoading(true);
             try {
                 const data = await getAllFavoriteProperties();
                 setProperties(data);
+                setPropertiesFiltered(data);
             } catch (error: any) {
                 setError(error.message || 'Error fetching properties');
             } finally {
@@ -24,9 +26,6 @@ const FavoritePage = () => {
         };
         fetchProperties();
     }, []);
-
-
-
     return (
         <div>
             {error && (
@@ -41,9 +40,9 @@ const FavoritePage = () => {
                 </div>
             ) : (
                 <div>
-                    Saved homes
-                    <NavFavorite />
-                    <FavoriteList properties={properties} />
+                    <p className='text-4xl font-bold m-5 text-blue-500'>Save Homes</p>
+                    <NavFavorite properties={properties} propertiesFiltered={propertiesFiltered} setPropertiesFiltered={setPropertiesFiltered} />
+                    <FavoriteList properties={propertiesFiltered} />
                 </div>
             )}
         </div>

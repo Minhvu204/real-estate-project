@@ -1,10 +1,9 @@
-import type { checkFavoriteType, Favorite, } from "@/types/FavoriteType";
-import type { Property } from "@/types/Property";
+import type { checkFavoriteType, Favorite, PropertyFavorite, } from "@/types/FavoriteType";
 import { httpClient } from "@/utils/httpClient";
 
 const BUYER_RESOURCE = "/buyer";
 
-export const getAllFavoriteProperties = async (): Promise<Property[]> => {
+export const getAllFavoriteProperties = async (): Promise<PropertyFavorite[]> => {
     const response = await httpClient.get(`${BUYER_RESOURCE}/favorites`);
     return response.data.data.data;
 }

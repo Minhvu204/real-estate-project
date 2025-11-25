@@ -27,7 +27,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
                         {property.type_id.type_name[currentLanguage]}
                     </div>
                 )}
-                <Favorite property_id={property._id} />
+                <div className="absolute top-1 right-2 z-10">
+                    <Favorite property_id={property._id} mode="normal" />
+                </div>
                 <Carousel autoSlide={true} autoSlideInterval={5000}>
                     {property.images.map((imageUrl, index) => (
                         <ImageWithFallback

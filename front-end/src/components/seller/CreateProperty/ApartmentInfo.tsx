@@ -8,15 +8,12 @@ interface ApartmentInfoProps {
     apartmentTypeId?: string;
 }
 
-
 const ApartmentInfo: React.FC<ApartmentInfoProps> = ({ formData, setFormData, apartmentTypeId }) => {
     const { t } = useTranslation("createPropertyPage");
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
-
     if (!apartmentTypeId || formData.category_id !== apartmentTypeId) return null;
 
     return (

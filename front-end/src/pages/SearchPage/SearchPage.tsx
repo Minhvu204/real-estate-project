@@ -15,11 +15,12 @@ import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material';
 import { getLanguage, type Lang } from '../../utils/storage';
 import { useTranslation } from 'react-i18next';
+import useTitle from '@/hooks/useTitle';
 const SearchPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const { t } = useTranslation('propertyPage');
     const currentLanguage: Lang = getLanguage();
-
+    useTitle("Dwello | Find Homes");
     const query = searchParams.get('q') || '';
     const minPrice = searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : '';
     const maxPrice = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : '';
@@ -126,7 +127,6 @@ const SearchPage = () => {
     const handleSearch = async (searchValue: string) => {
         if (!searchValue.trim()) return;
         updateSearchParams({ q: searchValue.trim() });
-
         try {
             const openCaseApiKey = import.meta.env.VITE_OPENCASE_API_KEY;
             const res = await fetch(
@@ -143,7 +143,6 @@ const SearchPage = () => {
             console.log(t("propertyPage.errorGeocoding"), error);
         }
     }
-
     useEffect(() => {
         if (query) {
             handleSearch(query);
@@ -182,7 +181,7 @@ const SearchPage = () => {
 
     return (
         <>
-            <div className="fixed inset-x-0 top-[80px] md:top-[85px] bottom-0 overflow-hidden flex flex-col">
+            <div className="fixed inset-x-0 top-20 md:top-[85px] bottom-0 overflow-hidden flex flex-col">
                 <div className="w-full flex flex-col md:flex-row md:items-center md:justify-center gap-3 p-3 bg-white shadow-sm sticky top-0 z-10">
                     <div className="flex items-center border rounded-lg px-3 py-2 bg-white transition focus-within:ring-2 focus-within:ring-gray-300 w-full md:w-[53%]">
                         <input
