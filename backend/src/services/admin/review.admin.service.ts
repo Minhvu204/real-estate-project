@@ -1,4 +1,6 @@
 import Review from "../../models/review.model";
+import Property from "../../models/property.model";
+import User from "../../models/user.model";
 import mongoose from "mongoose";
 
 export const adminReviewService = {
@@ -48,6 +50,48 @@ export const adminReviewService = {
       data,
     };
   },
+
+  async getReviewDetail(id: string) {
+    if (!mongoose.isValidObjectId(id)) {
+      const err: any = new Error("Review ID không hợp lệ");
+      err.status = 400;
+      throw err;
+    }
+
+    const review = await Review.findById(id)
+      .populate("user_id", "fullName email avatar")
+      .populate({
+        path: "target_id",
+        select: "title address fullName email avatar",
+      });
+
+    if (!review) {
+      const err: any = new Error("Review không tồn tại");
+      err.status = 404;
+      throw err;
+    }
+
+    let populatedTarget = null;
+
+    if (review.target_type === "property") {
+      populatedTarget = await Property.findById(review.target_id)
+        .select("title address price images bedrooms bathrooms area city_id district_id ward_id")
+        .populate("city_id", "name")
+        .populate("district_id", "name")
+        .populate("ward_id", "name");
+    }
+
+    if (review.target_type === "agent") {
+      populatedTarget = await User.findById(review.target_id)
+        .select("fullName email avatar phone");
+    }
+
+    return {
+      ...review.toObject(),
+      target: populatedTarget
+    };
+  },
+
 
   async hide(id: string) {
     return Review.findByIdAndUpdate(id, { is_hidden: true }, { new: true });

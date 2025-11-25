@@ -4,6 +4,7 @@ import {
   hideReview,
   unhideReview,
   deleteReview,
+  getReviewDetail,
 } from "../../controllers/admin/review.controller";
 
 import { verifyToken } from "../../middlewares/auth.middleware";
@@ -12,6 +13,8 @@ import { roleCheck } from "../../middlewares/roleCheck.middleware";
 const router = express.Router();
 
 router.get("/", verifyToken, roleCheck("admin"), listReviews);
+
+router.get("/:id", verifyToken, roleCheck("admin"), getReviewDetail);
 
 router.patch("/:id/hide", verifyToken, roleCheck("admin"), hideReview);
 
