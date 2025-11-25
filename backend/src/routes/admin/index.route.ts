@@ -12,10 +12,7 @@ import reviewRoutes from "./review.route";
 
 const router = express.Router();
 
-
 router.use("/", userRoutes);
-router.use("/properties", propertyRoutes);
-
 router.use("/cities", cityRoutes);
 router.use("/types", typeRoutes);
 router.use("/categories", categoryRoutes);
