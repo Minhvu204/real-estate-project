@@ -5,16 +5,22 @@ import cityRoutes from "./city.route";
 import typeRoutes from "./type.route";
 import categoryRoutes from "./category.route";
 import featureRoutes from "./feature.route";
+import dealRoutes from "./deal.route";
+import contractRoutes from "./contract.route";
+import paymentRoutes from "./payment.route";
+import reviewRoutes from "./review.route";
 
 const router = express.Router();
 
-
 router.use("/", userRoutes);
-router.use("/properties", propertyRoutes);
-
 router.use("/cities", cityRoutes);
 router.use("/types", typeRoutes);
 router.use("/categories", categoryRoutes);
 router.use("/features", featureRoutes);
 router.use("/properties", propertyRoutes);
+router.use("/deals", dealRoutes);
+router.use("/contracts", contractRoutes);
+router.use("/payments", paymentRoutes);
+router.use("/reviews", reviewRoutes);
+
 export default router;

@@ -8,6 +8,7 @@ import { getMyProperties, updateProperty, deleteProperty } from "../../../contro
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
+// GET /api/client/properties - Lấy danh sách bất động sản của user
 router.get("", verifyToken, roleCheck("seller","agent"), getMyProperties);
 
 // PATCH /api/client/properties/:id (multipart nếu chỉnh ảnh)
