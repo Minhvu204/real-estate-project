@@ -7,12 +7,11 @@ import { ChangePassword } from "../pages/Profile/ChangePassword";
 import ChatPage from "@/pages/Chat/ChatPage";
 import PropertyDetailUser from "../pages/PropertyDetail";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
-import { Favorite } from "@mui/icons-material";
+import BuyerMyPropertiesPage from "../pages/Buyer/BuyerMyPropertiesPage";
 import FavoritePage from "@/pages/Favorite/FavoritePage";
 import CreateOfferPage from "../pages/Offer/CreateOfferPage";
 import OfferHistoryPage from "../pages/Offer/OfferHistoryPage";
 import CancelOfferPage from "../pages/Offer/CancelOfferPage";
-import BuyerAppointment from "@/components/buyer/Appointment/BuyerAppointment";
 import ListAppointment from "@/components/buyer/Appointment/ListAppointment";
 import DealListPageBuyer from "../pages/DealContract/DealListPageBuyer";
 import DealContractPageBuyer from "../pages/DealContract/DealContractPageBuyer";
@@ -61,9 +60,10 @@ export const BuyerRoute = [
         ],
     },
     {
-        path: "dwello/my-properties",
-        element: <MyPropertiesPage />,
-    }, {
+        path: "/dwello/myProperties",
+        element: <BuyerMyPropertiesPage />,
+    },
+    {
         path: "/chat",
         element: <ChatPage />,
         children: [

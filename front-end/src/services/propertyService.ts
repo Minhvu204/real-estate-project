@@ -70,6 +70,15 @@ export const getMyProperties = async (): Promise<Property[]> => {
   }
 };
 
+export const getBuyerPurchasedProperties = async (): Promise<Property[]> => {
+  const response = await httpClient.get("/buyer/properties");
+  const payload = response.data?.data;
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+  return [];
+};
+
 export const updateProperty = async (id: string, data: FormData): Promise<Property> => {
   const api = createAxiosInstance();
   const RESOURCE = `/api/client/properties/${id}`;

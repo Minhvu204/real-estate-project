@@ -13,8 +13,6 @@ import PhoneIphoneIcon from "@mui/icons-material/PhoneIphone";
 
 import { useNavigate } from "react-router-dom";
 import GoogleLoginButton from "../../components/auth/GoogleLoginButton";
-import { register } from "../../services/auth";
-import type { RegisterPayload } from "../../services/auth";
 
 const RegisterPage: React.FC = () => {
 	const navigate = useNavigate();
@@ -28,57 +26,31 @@ const RegisterPage: React.FC = () => {
 	const [agree, setAgree] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-	const validateForm = () => {
-		if (!fullName.trim()) return "Vui lòng nhập họ tên";
-		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) return "Email không hợp lệ";
-		if (password.length < 6) return "Mật khẩu phải ít nhất 6 ký tự";
-		if (password !== confirmPassword) return "Mật khẩu nhập lại không khớp";
-		if (!agree) return "You must agree to the terms";
-		return null;
-	};
-
-	const handleSubmit = async (e: React.FormEvent) => {
+	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		setError(null);
-		setSuccessMessage(null);
 
 		if (!fullName || !email || !phone || !password || !confirmPassword) {
 			setError("Please fill in all fields");
 			return;
 		}
 
-		const validationMessage = validateForm();
-		if (validationMessage) {
-			setError(validationMessage);
+		if (password !== confirmPassword) {
+			setError("Passwords do not match");
 			return;
 		}
 
-		const numericPhone = Number(phone.replace(/[^\d]/g, ""));
-		if (!numericPhone || Number.isNaN(numericPhone)) {
-			setError("Phone number must be numeric");
+		if (!agree) {
+			setError("You must agree to the terms");
 			return;
 		}
 
-		const payload: RegisterPayload = {
-			fullName: fullName.trim(),
-			email: email.trim(),
-			phone: numericPhone,
-			password,
-		};
-
-		try {
-			setLoading(true);
-			await register(payload);
-			setSuccessMessage("Account created successfully. Redirecting to login...");
-			setTimeout(() => navigate("/login"), 1500);
-		} catch (err) {
-			const message = err instanceof Error ? err.message : "Registration failed";
-			setError(message);
-		} finally {
+		setLoading(true);
+		setTimeout(() => {
 			setLoading(false);
-		}
+			navigate("/login");
+		}, 1200);
 	};
 
 	return (
@@ -197,12 +169,10 @@ const RegisterPage: React.FC = () => {
 				</Box>
 			</Zoom>
 
-
 			{/* RIGHT SIDE — FORM */}
 			<Box
 				sx={{
 					flex: { xs: 1, md: "0 0 40%" },
-					py: 6,
 					px: { xs: 4, md: 6 },
 					background: "white",
 					display: "flex",
@@ -332,20 +302,6 @@ const RegisterPage: React.FC = () => {
 									}}
 								>
 									{error}
-								</Box>
-							)}
-
-							{successMessage && (
-								<Box
-									sx={{
-										mb: 2,
-										p: 2,
-										borderRadius: 2,
-										background: "linear-gradient(135deg,#56ab2f,#a8e063)",
-										color: "white",
-									}}
-								>
-									{successMessage}
 								</Box>
 							)}
 
