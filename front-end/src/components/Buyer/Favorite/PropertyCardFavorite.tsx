@@ -1,9 +1,10 @@
 import React, { } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import type { PropertyFavorite } from "@/types/FavoriteType";
 import { getLanguage, type Lang } from "@/utils/storage";
 import Favorite from "@/components/Property/FavoriteIconProps";
+import type { Property } from "@/types/Property";
+import type { PropertyFavorite } from "@/types/FavoriteType";
 
 type PropertyCardProps = {
     property: PropertyFavorite;
@@ -34,9 +35,9 @@ const PropertyCardFavorite: React.FC<PropertyCardProps> = ({ property, onRemoveF
 
             </div>
             <div className="aspect-4/3 w-full relative">
-                {property.type[currentLanguage] && (
+                {property.type?.type_name[currentLanguage] && (
                     <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">
-                        {property.type[currentLanguage]}
+                        {property.type?.type_name[currentLanguage]}
                     </div>
                 )}
                 <div className="absolute right-2 top-1">

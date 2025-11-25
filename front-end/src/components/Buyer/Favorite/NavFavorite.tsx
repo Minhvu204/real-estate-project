@@ -1,10 +1,11 @@
 import { FaSortAmountUpAlt } from "react-icons/fa";
 import { FaSortAmountDown } from "react-icons/fa";
 import Select from 'react-select'
-import type { PropertyFavorite } from '@/types/FavoriteType'
 import type React from "react";
 import { useEffect, useState } from "react";
 import { getSessionItem, getSessionSortOrder } from "@/utils/sessionUtils";
+
+import type { PropertyFavorite } from "@/types/FavoriteType";
 
 type FavoriteProps = {
     properties: PropertyFavorite[],
@@ -13,8 +14,8 @@ type FavoriteProps = {
 }
 
 const NavFavorite: React.FC<FavoriteProps> = ({ properties, propertiesFiltered, setPropertiesFiltered }) => {
-    const forSale = propertiesFiltered.filter((p) => p.type.en === "For Sale");
-    const forRent = propertiesFiltered.filter((p) => p.type.en === "For Rent");
+    const forSale = propertiesFiltered.filter((p) => p.type?.type_name.en === "For Sale");
+    const forRent = propertiesFiltered.filter((p) => p.type?.type_name.en === "For Rent");
     const [filterType, setFilterType] = useState(
         getSessionItem("fav_filter_type", "for-all")
     );
@@ -39,9 +40,9 @@ const NavFavorite: React.FC<FavoriteProps> = ({ properties, propertiesFiltered, 
         let result = [...properties];
 
         if (filterType === "for-sale")
-            result = result.filter(p => p.type.en === "For Sale");
+            result = result.filter(p => p.type?.type_name.en === "For Sale");
         if (filterType === "for-rent")
-            result = result.filter(p => p.type.en === "For Rent");
+            result = result.filter(p => p.type?.type_name.en === "For Rent");
 
         const dir = sortOrder === "asc" ? 1 : -1;
 

@@ -3,6 +3,7 @@ import PropertyCardFavorite from './PropertyCardFavorite'
 import { useEffect, useState } from 'react'
 import { deletePropertyFavorite } from '@/services/buyerService'
 import CompareBar from './CompareBar'
+import type { Property } from '@/types/Property'
 
 type Properties = {
     properties: PropertyFavorite[]

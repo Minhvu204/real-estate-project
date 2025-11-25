@@ -1,11 +1,11 @@
-import type { checkFavoriteType, Favorite, PropertyFavorite, } from "@/types/FavoriteType";
+import type { checkFavoriteType, PropertyFavorite, } from "@/types/FavoriteType";
 import { httpClient } from "@/utils/httpClient";
 
 const BUYER_RESOURCE = "/buyer";
 
 export const getAllFavoriteProperties = async (): Promise<PropertyFavorite[]> => {
     const response = await httpClient.get(`${BUYER_RESOURCE}/favorites`);
-    return response.data.data.data;
+    return response.data.data.data.data;
 }
 
 export const checkPropertyFavorite = async (id: string): Promise<checkFavoriteType> => {

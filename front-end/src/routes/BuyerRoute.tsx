@@ -10,6 +10,7 @@ import PropertyDetailUser from "../pages/PropertyDetail";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
 import { Favorite } from "@mui/icons-material";
 import FavoritePage from "@/pages/Favorite/FavoritePage";
+import PropertiesComparePage from "@/pages/Compare/PropertiesComparePage";
 
 export const BuyerRoute = [
     {
@@ -60,5 +61,8 @@ export const BuyerRoute = [
         path: "/favorites",
         element: <FavoritePage />
     },
-
+    {
+        path: "/compare",
+        element: <PropertiesComparePage />
+    },
 ];
