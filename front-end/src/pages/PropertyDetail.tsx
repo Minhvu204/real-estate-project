@@ -159,7 +159,7 @@ const PropertyDetailUser = () => {
             <Grid>
 
 
-                {/* TITLE + PRICE */}
+
                 <Typography variant="h4" fontWeight="bold" mt={1}>
                     {property.title[lang]}
                 </Typography>

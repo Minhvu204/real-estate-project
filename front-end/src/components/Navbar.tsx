@@ -35,23 +35,24 @@ const Navbar: React.FC = () => {
   const role = state.user?.role || "guest";
   const isAdminRoute = location.pathname.startsWith("/admin");
 
-    const roleMenus = {
-        buyer: [
-            { label: "My Properties", path: "/dwello/myProperties" },
-            { label: "My Agent", path: "/dwello/myAgent" },
-            { label: "My appointments", path: 'dwello/appoinments' },
-        ],
-        seller: [
-            { label: "My Properties", path: "/seller/properties" },
-            { label: "Manage Listings", path: "/seller/my-properties" },
-        ],
-        agent: [
-            { label: "My Properties", path: "/agent/properties" },
-            { label: "Manage Listings", path: "/agent/my-properties" },
-            {label: "Assignments", path: "/agent/assignments" }
-        ],
+  const roleMenus = {
+    buyer: [
+      { label: "My Properties", path: "/dwello/myProperties" },
+      { label: "My Agent", path: "/dwello/myAgent" },
+      { label: "My appointments", path: 'dwello/appoinments' },
+    ],
+    seller: [
+      { label: "My Properties", path: "/seller/properties" },
+      { label: "Manage Listings", path: "/seller/my-properties" },
+    ],
+    agent: [
+      { label: "My Properties", path: "/agent/properties" },
+      { label: "Manage Listings", path: "/agent/my-properties" },
+      { label: "Assignments", path: "/agent/assignments" },
+      { label: "Appointments", path: "/agent/appointments" },
+    ],
 
-    };
+  };
 
   const handleLogout = () => {
     signOut();
@@ -348,81 +349,81 @@ const Navbar: React.FC = () => {
             </Box>
           )}
 
-                    {/* Desktop Menu */}
-                    {!isAdminRoute && (
-                        <Box
-                            sx={{
-                                display: { xs: "none", md: "flex" },
-                                gap: 1,
-                                alignItems: "center",
-                            }}
-                        >
-                            {menuItems.map((item) => (
-                                <Button
-                                    key={item.label}
-                                    onClick={() => navigate(item.path)}
-                                    sx={{
-                                        color: "rgba(0,0,0,0.7)",
-                                        fontWeight: 600,
-                                        textTransform: "none",
-                                        px: 2.5,
-                                        py: 1,
-                                        borderRadius: 3,
-                                        fontSize: "0.95rem",
-                                        position: "relative",
-                                        transition: "all 0.3s ease",
-                                        "&::before": {
-                                            content: '""',
-                                            position: "absolute",
-                                            bottom: 8,
-                                            left: "50%",
-                                            transform: "translateX(-50%)",
-                                            width: "0%",
-                                            height: "3px",
-                                            borderRadius: "3px",
-                                            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                            transition: "width 0.3s ease",
-                                        },
-                                        "&:hover": {
-                                            color: "#667eea",
-                                            backgroundColor: "rgba(102,126,234,0.08)",
-                                            "&::before": {
-                                                width: "60%",
-                                            },
-                                        },
-                                    }}
-                                >
-                                    {item.label}
-                                </Button>
-                            ))}
-                        </Box>
-                    )}
-                    {/* <ButtonLanguage /> */}
-                    {/* Right Side */}
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                        {!state.token ? (
-                            <>
-                                {/* Desktop Sign In/Up */}
-                                <Box sx={{ display: { xs: "none", md: "flex" }, gap: 1.5 }}>
-                                    <Button
-                                        onClick={() => navigate("/login")}
-                                        startIcon={<PersonOutlineIcon />}
-                                        sx={{
-                                            textTransform: "none",
-                                            fontWeight: 700,
-                                            px: 2.5,
-                                            py: 1,
-                                            borderRadius: 3,
-                                            color: "#667eea",
-                                            transition: "all 0.3s ease",
-                                            "&:hover": {
-                                                backgroundColor: "rgba(102,126,234,0.1)",
-                                                transform: "translateY(-2px)",
-                                            },
-                                        }}
-                                    >
-                                        Sign In
-                                    </Button>
+          {/* Desktop Menu */}
+          {!isAdminRoute && (
+            <Box
+              sx={{
+                display: { xs: "none", md: "flex" },
+                gap: 1,
+                alignItems: "center",
+              }}
+            >
+              {menuItems.map((item) => (
+                <Button
+                  key={item.label}
+                  onClick={() => navigate(item.path)}
+                  sx={{
+                    color: "rgba(0,0,0,0.7)",
+                    fontWeight: 600,
+                    textTransform: "none",
+                    px: 2.5,
+                    py: 1,
+                    borderRadius: 3,
+                    fontSize: "0.95rem",
+                    position: "relative",
+                    transition: "all 0.3s ease",
+                    "&::before": {
+                      content: '""',
+                      position: "absolute",
+                      bottom: 8,
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      width: "0%",
+                      height: "3px",
+                      borderRadius: "3px",
+                      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      transition: "width 0.3s ease",
+                    },
+                    "&:hover": {
+                      color: "#667eea",
+                      backgroundColor: "rgba(102,126,234,0.08)",
+                      "&::before": {
+                        width: "60%",
+                      },
+                    },
+                  }}
+                >
+                  {item.label}
+                </Button>
+              ))}
+            </Box>
+          )}
+          {/* <ButtonLanguage /> */}
+          {/* Right Side */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            {!state.token ? (
+              <>
+                {/* Desktop Sign In/Up */}
+                <Box sx={{ display: { xs: "none", md: "flex" }, gap: 1.5 }}>
+                  <Button
+                    onClick={() => navigate("/login")}
+                    startIcon={<PersonOutlineIcon />}
+                    sx={{
+                      textTransform: "none",
+                      fontWeight: 700,
+                      px: 2.5,
+                      py: 1,
+                      borderRadius: 3,
+                      color: "#667eea",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        backgroundColor: "rgba(102,126,234,0.1)",
+                        transform: "translateY(-2px)",
+                      },
+                    }}
+                  >
+                    Sign In
+                  </Button>
 
                   <Button
                     variant="contained"

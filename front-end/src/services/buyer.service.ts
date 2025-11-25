@@ -8,9 +8,12 @@ export const getAllAppoinments = async (): Promise<Appointment[]> => {
     const response = await httpClient.get(`${RESOURCES}/appointments`);
     return response.data.data.data;
 }
-export const postAppointments = async (time: AppoinmentDate): Promise<String> => {
+export const postAppointments = async (timeAp: AppoinmentDate): Promise<String> => {
+    console.log("Posting appointment with data:", timeAp);
     const response = await httpClient.post(`${RESOURCES}/appointments`, {
-        time
+        propertyId: timeAp.propertyId,
+        location: timeAp.location,
+        times: timeAp.times,
     });
     return response.data;
 }

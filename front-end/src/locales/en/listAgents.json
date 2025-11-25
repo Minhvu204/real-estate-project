@@ -14,5 +14,10 @@
     "confirmAssign": "Are you sure you want to assign this agent to the property?",
     "cancel": "Cancel",
     "confirm": "Confirm",
-    "titileConfirmAssign": "Confirm Assign Agent"
+    "titileConfirmAssign": "Confirm Assign Agent",
+    "Agent Assignment": "Agent Assignment",
+    "searchPlaceholder": "Search by agent name or email",
+    "noAgentAssigned": "No agent assigned to this property.",
+    "noAgentFound": "No agents found matching your criteria."
+ 
 }

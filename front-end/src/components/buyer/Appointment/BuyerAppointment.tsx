@@ -1,17 +1,18 @@
-import { getPropertiesById } from '@/services/propertyService';
+
 import type { Property } from '@/types/Property';
-import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom';
-import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
+import { use, useState } from 'react'
+
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 import ArrowForwardIosOutlinedIcon from '@mui/icons-material/ArrowForwardIosOutlined';
 import TipsAndUpdatesOutlinedIcon from '@mui/icons-material/TipsAndUpdatesOutlined';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import { Button } from '@mui/material';
+
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import { Bounce, toast, ToastContainer } from 'react-toastify';
-import { Today } from '@mui/icons-material';
+
 import { postAppointments } from '@/services/buyer.service';
+import { getLanguage } from '@/utils/storage';
+import { useTranslation } from 'react-i18next';
 
 
 interface BuyerAppointmentProps {
@@ -20,32 +21,36 @@ interface BuyerAppointmentProps {
 }
 export type AppoinmentDate = {
     propertyId: string;
-    time: {
-        date: Date,
+    location?: string;
+    times: {
+        time: string,
         note?: string
     }[];
-    location?: string;
+
 }
 
-const homnay = new Date();
-console.group(homnay.toISOString());
+const language = getLanguage();
 const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
 
     const today = new Date();
-
-
+    const [timeSl, setTimeSL] = useState<string>("");
     const [slots, setSlots] = useState<
         { baseDate: Date; date: Date | null; time: string | null; note: string | null }[]
     >([
         { baseDate: new Date(), date: null, time: null, note: null },
     ]);
+    const { t } = useTranslation(['bookAppointment', 'myProperties']);
 
-    const [selectedTimes, setSelectedTimes] = useState<{
-        time: {
-            date: Date,
-            note?: string
-        }
-    }>({ time: { date: new Date(), note: "" } });
+    const formatTime = (date: Date, time: string) => {
+        const [hourMinute, period] = time.split(" ");
+        let [hour, minute] = hourMinute.split(":").map(Number);
+        if (period === "PM" && hour !== 12) hour += 12;
+        if (period === "AM" && hour === 12) hour = 0;
+        const result = new Date(date);
+        result.setHours(hour, minute, 0, 0);
+
+        return result.toISOString();
+    }
 
 
     const formatDate = (date: Date) => {
@@ -118,10 +123,12 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
     };
 
     const handleSelectTime = (index: number, time: string) => {
+        console.log("Selected time:", time);
+        setTimeSL(time);
+
         setSlots((prev) => {
             const updated = [...prev];
             updated[index].time = time;
-            console.log(updated[index].date);
             return updated;
         });
     };
@@ -130,11 +137,16 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
         const sendAppointment = async () => {
             try {
                 const response = await postAppointments(time);
-                toast.success("Đặt lịch hẹn thành công!");
-                onClose();
+                toast.success(t('appointment.successMessage'));
+                setTimeout(() => {
+                    onClose();
+                }, 3000);
+                console.log(
+                    "Appointment sent successfully:", response
+                )
             } catch (error) {
                 console.error("Failed to send appointment:", error);
-                toast.error("Đặt lịch hẹn thất bại. Vui lòng thử lại.");
+                toast.error(t('appointment.errorMessage'));
             }
         }
         sendAppointment();
@@ -150,14 +162,30 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
             { baseDate: new Date(), date: null, time: null, note: null }
         ]);
     };
+    const getTakenTimesForDate = (date: Date) => {
+        return slots
+            .filter(s => s.date && s.time && s.date.toDateString() === date.toDateString())
+            .map(s => s.time);
+    };
+    const buildAppointmentRequest = (): AppoinmentDate => {
+        const validSlots = slots.filter(s => s.date && s.time);
 
+        return {
+            propertyId: property._id,
+            location: property.address[language],
+            times: validSlots.map(s => ({
+                time: formatTime(s.date!, s.time!),
+                note: s.note ?? ""
+            })),
+        };
+    };
 
     return (
         <div className="w-full h-full overflow-y-auto overflow-x-hidden p-4">
 
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-center flex-1">
-                    Request a tour
+                    {t('appointment.bookAppointment')}
                 </h2>
                 <button className="p-2" onClick={onClose}>
                     <CloseOutlinedIcon />
@@ -173,16 +201,16 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
                 />
 
                 <div className="text-sm my-auto leading-tight">
-                    <p className="font-semibold">{property.title.vi}</p>
-                    <p>{property.address.vi}</p>
-                    <p>{property.area} | {property.floors} | {property.price}</p>
+                    <p className="font-semibold">{property.title[language]}</p>
+                    <p>{property.address[language]}</p>
+                    <p>{t('myProperties:bathrooms')}: {property.bathrooms} | {t('myProperties:bedrooms')}: {property.bedrooms} | {t('myProperties:floors')}: {property.floors}</p>
                 </div>
             </div>
 
             <div className="flex gap-3 items-start bg-blue-50 p-4 rounded-xl mb-6">
                 <TipsAndUpdatesOutlinedIcon className="text-blue-400" />
                 <p className="text-sm">
-                    Selecting multiple times helps schedule your tour faster
+                    {t('appointment.tips')}
                 </p>
             </div>
 
@@ -201,12 +229,12 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
 
                         {index === 0 ? (
                             <h4 className="font-bold mb-6">
-                                Select up to 3 times
+                                {t('appointment.select3times')}
                             </h4>
                         ) : (
                             <div className="flex justify-between items-center mb-6 px-1">
                                 <span className="font-semibold text-gray-800 text-lg">
-                                    Alternative time
+                                    {t('appointment.alternativeTimes')}
                                 </span>
 
                                 <button
@@ -231,12 +259,9 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
                                 {days.map((d, dIndex) => (
                                     <div
                                         key={dIndex}
-                                        className={`
-            border-2 rounded-xl py-3 text-sm text-center
-            ${isPastOrToday(d)
-                                                ? "opacity-40 cursor-not-allowed"
-                                                : "cursor-pointer"}
-            ${slot.date?.toDateString() === d.toDateString()
+                                        className={` border-2 rounded-xl py-3 text-sm text-center ${isPastOrToday(d)
+                                            ? "opacity-40 cursor-not-allowed"
+                                            : "cursor-pointer"} ${slot.date?.toDateString() === d.toDateString()
                                                 ? "border-blue-500 text-blue-600 bg-blue-50"
                                                 : "border-gray-300"}
         `}
@@ -252,11 +277,9 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
 
                             <ArrowForwardIosOutlinedIcon
                                 className={`
-                                                ${!canGoNext(slot.baseDate)
+                                         ${!canGoNext(slot.baseDate)
                                         ? "opacity-30 cursor-not-allowed"
-                                        : "cursor-pointer"
-                                    }
-    `}
+                                        : "cursor-pointer"} `}
                                 onClick={() => {
                                     if (!canGoNext(slot.baseDate)) return;
                                     handleNextDays(index)
@@ -271,15 +294,19 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
                                 value={slot.time ?? ""}
                                 onChange={(e) => handleSelectTime(index, e.target.value)}
                             >
-                                <option value="">Select a time</option>
-                                {timeSlots.map((t) => (
-                                    <option key={t}>{t}</option>
+                                {timeSlots.filter((t) => {
+                                    const takenTimes = slot.date ? getTakenTimesForDate(slot.date) : [];
+                                    return t === slot.time || !takenTimes.includes(t);;
+                                }).map((t, index) => (
+                                    console.log("Slot time:", slot.time),
+                                    console.log("options", t),
+                                    <option key={index} value={t}>{t}</option>
                                 ))}
                             </select>
                             <div className="w-full max-w-xs mx-auto mt-3">
                                 <textarea
                                     className="w-full border rounded-lg p-3 text-sm"
-                                    placeholder="Ghi chú (không bắt buộc tối đa 100 chữ) "
+                                    placeholder={`${t('appointment.placeholderNote')}`}
                                     maxLength={100}
                                     value={slot.note ?? ""}
                                     onChange={(e) =>
@@ -303,14 +330,14 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
                     onClick={handleAddSlot}
                     className="flex items-center gap-2 text-blue-600 mt-2 text-sm"
                 >
-                    <span className="text-xl">＋</span> Add a time
+                    <span className="text-xl">＋</span> {t('appointment.addTime')}
                 </button>
             )}
             <button
-                onClick={() => handlePostAppointment}
+                onClick={() => handlePostAppointment(buildAppointmentRequest())}
                 className="w-full bg-blue-600 text-white py-3 rounded-lg mt-6 hover:bg-blue-700 transition-colors"
             >
-                Next
+                {t('appointment.send')}
             </button>
 
             <ToastContainer
