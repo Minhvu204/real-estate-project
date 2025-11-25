@@ -42,12 +42,10 @@ export const favoriteService = {
       throw err;
     }
 
-    const favorite = await Favorite.create({
+    return Favorite.create({
       user_id: userId,
       property_id: propertyId,
     });
-
-    return favorite;
   },
 
   async removeFavorite(userId: string, propertyId: string) {
@@ -63,9 +61,7 @@ export const favoriteService = {
     });
 
     if (!favorite) {
-      const err: any = new Error(
-        "Bất động sản không có trong danh sách yêu thích"
-      );
+      const err: any = new Error("Bất động sản không tồn tại trong yêu thích");
       err.status = 404;
       throw err;
     }
@@ -75,56 +71,45 @@ export const favoriteService = {
 
   async getFavorites(userId: string, filters: FavoriteFilters) {
     const sort = filters.sort || "-createdAt";
-    const query = { user_id: userId };
 
-    const favorites = await Favorite.find(query)
+    const favorites = await Favorite.find({ user_id: userId })
       .populate({
         path: "property_id",
         model: "Property",
-
         populate: [
-          { path: "city_id", select: "name" },
-          { path: "district_id", select: "name" },
-          { path: "ward_id", select: "name" },
-          { path: "type_id", select: "name" },
-          { path: "category_id", select: "name" },
-          { path: "owner_id", select: "fullName email phone avatar" },
-          { path: "agent_id", select: "fullName email phone avatar" },
-          { path: "features", select: "name icon" },
+          { path: "city_id", select: "city_name" },
+          { path: "district_id", select: "district_name" },
+          { path: "ward_id", select: "ward_name" },
+          { path: "type_id", select: "type_name" },
+          { path: "category_id", select: "category_name" },
+          { path: "features", select: "feature_name" },
+          {
+            path: "owner_id",
+            select: "fullName email phone avatar",
+          },
+          {
+            path: "agent_id",
+            select: "fullName email phone avatar",
+          },
         ],
       })
       .sort(sort);
 
-    const total = favorites.length;
-
-    return {
-      total,
-      data: favorites,
-    };
+    return favorites;
   },
 
   async isFavorite(userId: string, propertyId: string) {
-    if (!mongoose.isValidObjectId(propertyId)) {
-      return null;
-    }
+    if (!mongoose.isValidObjectId(propertyId)) return null;
 
-    const favorite = await Favorite.findOne({
+    return Favorite.findOne({
       user_id: userId,
       property_id: propertyId,
     });
-
-    return favorite;
   },
 
   async getFavoriteCount(propertyId: string) {
-    if (!mongoose.isValidObjectId(propertyId)) {
-      return 0;
-    }
+    if (!mongoose.isValidObjectId(propertyId)) return 0;
 
-    const count = await Favorite.countDocuments({
-      property_id: propertyId,
-    });
-
-    return count;
+    return Favorite.countDocuments({ property_id: propertyId });
   },
 };
