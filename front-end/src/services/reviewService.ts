@@ -21,3 +21,8 @@ export const deleteReview = async (id: string): Promise<Review> => {
   const res = await httpAdmin.delete(`${RESOURCE}/${id}`);
   return res.data.data;
 };
+
+export const getReviewDetail = async (id: string): Promise<Review> => {
+  const res = await httpAdmin.get(`${RESOURCE}/${id}`);
+  return res.data.data;
+};
