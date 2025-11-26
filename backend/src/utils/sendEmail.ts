@@ -20,7 +20,7 @@ export const sendEmail = async (to: string, subject: string, html: string) => {
     });
 
     await transporter.sendMail({
-      from: `"My App" <${process.env.MAIL_USER}>`,
+      from: `"Dwello App" <${process.env.MAIL_USER}>`,
       to,
       subject,
       html,
