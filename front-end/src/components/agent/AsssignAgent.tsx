@@ -6,6 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { acceptAssignAgent } from '../../services/agent.service';
 import { rejectAssignAgent } from '../../services/agent.service';
 import { Pagination, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Typography } from '@mui/material';
+import { getLanguage } from '@/utils/storage';
+import ButtonLanguage from '../common/ButtonLanguage';
 
 type FilterStatus = "all" | "pending" | "accepted" | "rejected";
 
@@ -18,7 +20,8 @@ const AssignAgentPage = () => {
     const [rejectModalOpen, setRejectModalOpen] = useState(false);
     const [rejectNote, setRejectNote] = useState("");
     const [selectedRejectId, setSelectedRejectId] = useState<string | null>(null);
-    const { t } = useTranslation('listAgents');
+    const { t } = useTranslation(['listAgents', 'assignAgent']);
+    const language = getLanguage();
     useEffect(() => {
         const fetchAllAssign = async () => {
             try {
@@ -37,8 +40,8 @@ const AssignAgentPage = () => {
     const handleAccept = async (id: string) => {
         try {
             const data = await acceptAssignAgent(id);
-            toast.success(data)
-            toast.success("Accepted assignment successfully");
+
+            toast.success(t('assignAgent:toastAcceptSuccess'));
             setAssignments(prev =>
                 prev.map(a =>
                     a._id === id
@@ -49,7 +52,7 @@ const AssignAgentPage = () => {
         } catch (error: any) {
             console.error("Error accepting assignment:", error);
             const errorMessage = error?.response?.data?.message || error?.message || "Error accepting assignment";
-            toast.error(errorMessage);
+            toast.error('' + errorMessage);
         }
     };
     const handleOpenRejectModal = (id: string) => {
@@ -68,18 +71,18 @@ const AssignAgentPage = () => {
         if (!selectedRejectId) return;
 
         if (!rejectNote.trim()) {
-            toast.error("Vui lòng nhập lý do từ chối");
+            toast.error(t('assignAgent:toastMissingReason'));
             return;
         }
 
         try {
             const response = await rejectAssignAgent(selectedRejectId, rejectNote.trim());
             console.log("Response data:", response);
-            toast.success("Rejected assignment successfully");
+            toast.success(t('assignAgent:toastRejectSuccess'));
             setAssignments(prev =>
                 prev.map(a =>
                     a._id === selectedRejectId
-                        ? { ...a, status: "rejected" as const }
+                        ? { ...a, status: "rejected" }
                         : a
                 )
             );
@@ -126,15 +129,16 @@ const AssignAgentPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
             <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                 <div className="mb-8">
-                    <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">{t('assignAgent')}</h1>
-                    <p className="text-slate-600 text-sm sm:text-base">Quản lý các yêu cầu phân công bất động sản</p>
+                    <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">{t('assignAgent:assignAgent')}</h1>
+                    <p className="text-slate-600 text-sm sm:text-base">{t('assignAgent:manageRequests')}</p>
+
                 </div>
 
                 {!loading && assignments.length > 0 && (
                     <div className="mb-6 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 p-6 text-white shadow-xl">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
                             <div>
-                                <p className="text-sm uppercase tracking-wide text-slate-300 mb-1">Bộ lọc trạng thái</p>
+                                <p className="text-sm uppercase tracking-wide text-slate-300 mb-1">{t('assignAgent:filterStatus')}</p>
                                 <div className="flex flex-wrap gap-2 mt-3">
                                     {(["all", "pending", "accepted", "rejected"] as FilterStatus[]).map((item) => (
                                         <button
@@ -145,7 +149,7 @@ const AssignAgentPage = () => {
                                                 : "bg-white/10 text-white/70 hover:bg-white/20"
                                                 }`}
                                         >
-                                            {item === "all" ? "Tất cả" : item === "pending" ? "Chờ duyệt" : item === "accepted" ? "Đã chấp nhận" : "Đã từ chối"}
+                                            {item === "all" ? t('assignAgent:all') : item === "pending" ? t('assignAgent:pending') : item === "accepted" ? t('assignAgent:accepted') : t('assignAgent:rejected')}
                                         </button>
                                     ))}
                                 </div>
@@ -153,19 +157,19 @@ const AssignAgentPage = () => {
                         </div>
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             <div className="rounded-xl bg-white/10 p-4 backdrop-blur border border-white/20">
-                                <p className="text-xs text-slate-300 mb-1">Tổng số</p>
+                                <p className="text-xs text-slate-300 mb-1">{t('assignAgent:total')}</p>
                                 <p className="text-2xl font-bold">{stats.total}</p>
                             </div>
                             <div className="rounded-xl bg-white/10 p-4 backdrop-blur border border-white/20">
-                                <p className="text-xs text-slate-300 mb-1">Chờ duyệt</p>
+                                <p className="text-xs text-slate-300 mb-1">{t('assignAgent:totalPending')}</p>
                                 <p className="text-2xl font-bold text-amber-200">{stats.totalPending}</p>
                             </div>
                             <div className="rounded-xl bg-white/10 p-4 backdrop-blur border border-white/20">
-                                <p className="text-xs text-slate-300 mb-1">Đã chấp nhận</p>
+                                <p className="text-xs text-slate-300 mb-1">{t('assignAgent:totalAccepted')}</p>
                                 <p className="text-2xl font-bold text-emerald-200">{stats.totalAccepted}</p>
                             </div>
                             <div className="rounded-xl bg-white/10 p-4 backdrop-blur border border-white/20">
-                                <p className="text-xs text-slate-300 mb-1">Đã từ chối</p>
+                                <p className="text-xs text-slate-300 mb-1">{t('assignAgent:totalRejected')}</p>
                                 <p className="text-2xl font-bold text-rose-200">{stats.totalRejected}</p>
                             </div>
                         </div>
@@ -185,7 +189,7 @@ const AssignAgentPage = () => {
                 ) : filteredAssignments.length === 0 ? (
                     <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white p-12 text-center shadow-sm">
                         <p className="text-lg font-medium text-slate-600">
-                            Không tìm thấy yêu cầu nào với trạng thái "{filter === "all" ? "Tất cả" : filter === "pending" ? "Chờ duyệt" : filter === "accepted" ? "Đã chấp nhận" : "Đã từ chối"}"
+                            {`${t('assignAgent:notFoundWithStatus')} ${`filter === "all" ?  : filter ${t('assignAgent:all')}=== "pending" ? ${t('assignAgent:pending')} : filter === "accepted" ? ${t('assignAgent:accepted')} : ${t('assignAgent:rejected')}`}`}
                         </p>
                     </div>
                 ) : (
@@ -200,16 +204,16 @@ const AssignAgentPage = () => {
                                         <div className="flex-1 space-y-3">
                                             <div>
                                                 <p className="text-xl font-bold text-slate-900 mb-1 line-clamp-2">
-                                                    {item.property_id?.title.en}
+                                                    {item.property_id?.title[language]}
                                                 </p>
                                                 <p className="text-slate-500 text-sm flex items-center gap-1">
-                                                    <span>📍</span>
-                                                    <span className="line-clamp-1">{item.property_id?.address.en}</span>
+
+                                                    <span className="line-clamp-1">{item.property_id?.address[language]}</span>
                                                 </p>
                                             </div>
 
                                             <div className="rounded-xl bg-slate-50 p-3 border border-slate-100">
-                                                <p className="text-xs text-slate-500 mb-1">Chủ sở hữu</p>
+                                                <p className="text-xs text-slate-500 mb-1">{t('assignAgent:owner')}</p>
                                                 <p className="text-sm font-semibold text-slate-800">
                                                     {item.owner_id.fullName}
                                                 </p>
@@ -237,13 +241,13 @@ const AssignAgentPage = () => {
                                                     onClick={() => handleAccept(item._id)}
                                                     className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-semibold text-sm shadow-sm transition-all duration-200 hover:from-emerald-700 hover:to-emerald-800 hover:shadow-md active:scale-95"
                                                 >
-                                                    Chấp nhận
+                                                    {t('assignAgent:btnAccept')}
                                                 </button>
                                                 <button
                                                     onClick={() => handleOpenRejectModal(item._id)}
                                                     className="px-5 py-2.5 bg-gradient-to-r from-rose-600 to-rose-700 text-white rounded-xl font-semibold text-sm shadow-sm transition-all duration-200 hover:from-rose-700 hover:to-rose-800 hover:shadow-md active:scale-95"
                                                 >
-                                                    Từ chối
+                                                    {t('assignAgent:btnReject')}
                                                 </button>
                                             </div>
                                         )}
@@ -294,19 +298,19 @@ const AssignAgentPage = () => {
                     fontWeight: "bold",
                     fontSize: "1.25rem"
                 }}>
-                    Từ chối yêu cầu phân công
+                    {t('assignAgent:modalRejectTitle')}
                 </DialogTitle>
                 <DialogContent sx={{ mt: 2 }}>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                        Vui lòng nhập lý do từ chối yêu cầu phân công này.
+                        {t('assignAgent:modalRejectSubtitle')}
                     </Typography>
                     <TextField
                         autoFocus
                         fullWidth
                         multiline
                         rows={4}
-                        label="Lý do từ chối"
-                        placeholder="Nhập lý do từ chối..."
+                        label={t('assignAgent:rejectReasonLabel')}
+                        placeholder={t('assignAgent:rejectReasonPlaceholder')}
                         value={rejectNote}
                         onChange={(e) => setRejectNote(e.target.value)}
                         variant="outlined"
@@ -323,7 +327,7 @@ const AssignAgentPage = () => {
                         variant="outlined"
                         sx={{ borderRadius: 2 }}
                     >
-                        Hủy
+                        {t('assignAgent:btnCancel')}
                     </Button>
                     <Button
                         onClick={handleReject}
@@ -332,7 +336,7 @@ const AssignAgentPage = () => {
                         disabled={!rejectNote.trim()}
                         sx={{ borderRadius: 2 }}
                     >
-                        Xác nhận từ chối
+                        {t('assignAgent:btnConfirmReject')}
                     </Button>
                 </DialogActions>
             </Dialog>

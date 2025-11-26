@@ -78,7 +78,6 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
             if (updated[index].baseDate <= today) return updated;
             updated[index].baseDate = addDays(updated[index].baseDate, -1);
             return updated;
-
         });
     };
 

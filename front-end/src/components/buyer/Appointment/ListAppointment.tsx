@@ -13,6 +13,7 @@ const ListAppointment = () => {
     const [statusFilter, setStatusFilter] = useState<FilterStatus>("all");
     const [page, setPage] = useState(1);
     const itemsPerPage = 6;
+    const statusOptions: FilterStatus[] = ["all", "pending", "accepted", "rejected"];
     const language = getLanguage();
     const { t } = useTranslation('bookAppointment');
 
@@ -62,15 +63,24 @@ const ListAppointment = () => {
         setPage(1);
     }, [statusFilter]);
 
+    const statusLabels = useMemo<Record<FilterStatus, string>>(() => ({
+        all: t('appointment.filterAll') || "All",
+        pending: t('appointment.pending') || "Pending",
+        accepted: t('appointment.accepted') || "Accepted",
+        rejected: t('appointment.rejected') || "Rejected",
+    }), [t]);
+
+    const getStatusLabel = (status: FilterStatus) => statusLabels[status];
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
             <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                 <div className="mb-8">
                     <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">
-                        {t('appointment.title') || 'Lịch hẹn của tôi'}
+                        {t('appointment.myAppointmentsTitle') || t('appointment.title') || 'Lịch hẹn của tôi'}
                     </h1>
                     <p className="text-slate-600 text-sm sm:text-base">
-                        Quản lý và theo dõi các lịch hẹn xem bất động sản
+                        {t('appointment.subtitle') || 'Quản lý và theo dõi các lịch hẹn xem bất động sản'}
                     </p>
                 </div>
 
@@ -78,9 +88,11 @@ const ListAppointment = () => {
                     <div className="mb-6 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 p-6 text-white shadow-xl">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
                             <div>
-                                <p className="text-sm uppercase tracking-wide text-slate-300 mb-1">Bộ lọc trạng thái</p>
+                                <p className="text-sm uppercase tracking-wide text-slate-300 mb-1">
+                                    {t('appointment.statusFilterLabel') || 'Bộ lọc trạng thái'}
+                                </p>
                                 <div className="flex flex-wrap gap-2 mt-3">
-                                    {(["all", "pending", "accepted", "rejected"] as FilterStatus[]).map((item) => (
+                                    {statusOptions.map((item) => (
                                         <button
                                             key={item}
                                             onClick={() => setStatusFilter(item)}
@@ -89,7 +101,7 @@ const ListAppointment = () => {
                                                 : "bg-white/10 text-white/70 hover:bg-white/20"
                                                 }`}
                                         >
-                                            {item === "all" ? "Tất cả" : item === "pending" ? t('appointment.pending') || "Chờ duyệt" : item === "accepted" ? t('appointment.accepted') || "Đã chấp nhận" : t('appointment.rejected') || "Đã từ chối"}
+                                            {getStatusLabel(item)}
                                         </button>
                                     ))}
                                 </div>
@@ -97,7 +109,9 @@ const ListAppointment = () => {
                         </div>
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             <div className="rounded-xl bg-white/10 p-4 backdrop-blur border border-white/20">
-                                <p className="text-xs text-slate-300 mb-1">Tổng số</p>
+                                <p className="text-xs text-slate-300 mb-1">
+                                    {t('appointment.totalAppointments') || 'Tổng số'}
+                                </p>
                                 <p className="text-2xl font-bold">{stats.total}</p>
                             </div>
                             <div className="rounded-xl bg-white/10 p-4 backdrop-blur border border-white/20">
@@ -131,7 +145,8 @@ const ListAppointment = () => {
                 ) : filteredAppointments.length === 0 ? (
                     <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white p-12 text-center shadow-sm">
                         <p className="text-lg font-medium text-slate-600">
-                            Không tìm thấy lịch hẹn nào với trạng thái "{statusFilter === "all" ? "Tất cả" : statusFilter === "pending" ? t('appointment.pending') || "Chờ duyệt" : statusFilter === "accepted" ? t('appointment.accepted') || "Đã chấp nhận" : t('appointment.rejected') || "Đã từ chối"}"
+                            {t('appointment.noStatusMatch', { status: getStatusLabel(statusFilter) }) ||
+                                `Không tìm thấy lịch hẹn nào với trạng thái "${getStatusLabel(statusFilter)}"`}
                         </p>
                     </div>
                 ) : (
@@ -151,7 +166,7 @@ const ListAppointment = () => {
                                                 {appointment.property_id?.title[language] || appointment.property_id?.title.en}
                                             </h2>
                                             <p className="text-sm text-slate-500 flex items-center gap-1">
-                                                <span>📍</span>
+
                                                 <span className="line-clamp-1">
                                                     {appointment.property_id?.address[language] || appointment.property_id?.address.en}
                                                 </span>
@@ -180,10 +195,14 @@ const ListAppointment = () => {
 
                                     <div className="space-y-3">
                                         <div className="rounded-xl bg-slate-50 p-4 border border-slate-100">
-                                            <p className="text-xs text-slate-500 mb-2">Thông tin lịch hẹn</p>
+                                            <p className="text-xs text-slate-500 mb-2">
+                                                {t('appointment.appointmentInfo') || 'Thông tin lịch hẹn'}
+                                            </p>
                                             <div className="space-y-2">
                                                 <div>
-                                                    <p className="text-xs text-slate-500">Thời gian</p>
+                                                    <p className="text-xs text-slate-500">
+                                                        {t('appointment.time') || 'Thời gian'}
+                                                    </p>
                                                     <p className="text-sm font-semibold text-slate-800">
                                                         {new Date(appointment.time).toLocaleString('vi-VN', {
                                                             weekday: 'long',
@@ -197,15 +216,19 @@ const ListAppointment = () => {
                                                 </div>
                                                 {appointment.location && (
                                                     <div>
-                                                        <p className="text-xs text-slate-500">Địa điểm</p>
+                                                        <p className="text-xs text-slate-500">
+                                                            {t('appointment.locationLabel') || 'Địa điểm'}
+                                                        </p>
                                                         <p className="text-sm font-medium text-slate-800">
-                                                            📍 {appointment.location}
+                                                            {appointment.location}
                                                         </p>
                                                     </div>
                                                 )}
                                                 {appointment.note && (
                                                     <div>
-                                                        <p className="text-xs text-slate-500">Ghi chú</p>
+                                                        <p className="text-xs text-slate-500">
+                                                            {t('appointment.noteLabel') || 'Ghi chú'}
+                                                        </p>
                                                         <p className="text-sm text-slate-700">{appointment.note}</p>
                                                     </div>
                                                 )}
@@ -213,9 +236,11 @@ const ListAppointment = () => {
                                         </div>
 
                                         <div className="rounded-xl bg-blue-50 p-4 border border-blue-100">
-                                            <p className="text-xs text-slate-500 mb-2">Môi giới</p>
+                                            <p className="text-xs text-slate-500 mb-2">
+                                                {t('appointment.agentLabel') || 'Môi giới'}
+                                            </p>
                                             <p className="text-sm font-semibold text-slate-800">
-                                                {appointment.agent_id?.fullName || "Chưa có môi giới"}
+                                                {appointment.agent_id?.fullName || t('appointment.noAgent') || "Chưa có môi giới"}
                                             </p>
                                             {appointment.agent_id?.email && (
                                                 <p className="text-xs text-slate-500 mt-1">{appointment.agent_id.email}</p>
@@ -224,7 +249,9 @@ const ListAppointment = () => {
 
                                         {appointment.seller_id && (
                                             <div className="rounded-xl bg-purple-50 p-4 border border-purple-100">
-                                                <p className="text-xs text-slate-500 mb-2">Chủ sở hữu</p>
+                                                <p className="text-xs text-slate-500 mb-2">
+                                                    {t('appointment.sellerLabel') || 'Chủ sở hữu'}
+                                                </p>
                                                 <p className="text-sm font-semibold text-slate-800">
                                                     {appointment.seller_id.fullName}
                                                 </p>
@@ -240,10 +267,10 @@ const ListAppointment = () => {
                                         {appointment.status === "accepted" && (
                                             <div className="rounded-xl bg-emerald-50 p-4 border border-emerald-200">
                                                 <p className="text-xs font-semibold text-emerald-700 mb-1">
-                                                    ✓ Lịch hẹn đã được chấp nhận
+                                                    {t('appointment.acceptedTitle') || '✓ Lịch hẹn đã được chấp nhận'}
                                                 </p>
                                                 <p className="text-xs text-emerald-600">
-                                                    Vui lòng đến đúng giờ và địa điểm đã hẹn
+                                                    {t('appointment.acceptedDescription') || 'Vui lòng đến đúng giờ và địa điểm đã hẹn'}
                                                 </p>
                                             </div>
                                         )}
@@ -251,10 +278,10 @@ const ListAppointment = () => {
                                         {appointment.status === "rejected" && (
                                             <div className="rounded-xl bg-rose-50 p-4 border border-rose-200">
                                                 <p className="text-xs font-semibold text-rose-700 mb-1">
-                                                    ✗ Lịch hẹn đã bị từ chối
+                                                    {t('appointment.rejectedTitle') || '✗ Lịch hẹn đã bị từ chối'}
                                                 </p>
                                                 <p className="text-xs text-rose-600">
-                                                    Lịch hẹn này đã bị từ chối. Vui lòng đặt lịch hẹn mới nếu cần.
+                                                    {t('appointment.rejectedDescription') || 'Lịch hẹn này đã bị từ chối. Vui lòng đặt lịch hẹn mới nếu cần.'}
                                                 </p>
                                             </div>
                                         )}

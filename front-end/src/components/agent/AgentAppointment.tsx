@@ -170,7 +170,7 @@ const AgentListAppointment = () => {
                                             <div>
                                                 <p className="text-xs uppercase tracking-wide text-slate-400">{t('appointment.Real Estate')}</p>
                                                 <h2 className="text-xl font-semibold text-slate-900">{appointment.property_id.title[language]}</h2>
-                                                <p className="text-sm text-slate-500">📍 {appointment.property_id.address[language]}</p>
+                                                <p className="text-sm text-slate-500"> {appointment.property_id.address[language]}</p>
                                             </div>
                                             <span
                                                 className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${appointment.status === "pending"
