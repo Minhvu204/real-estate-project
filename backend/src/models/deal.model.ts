@@ -6,6 +6,7 @@ export type DealStatus =
   | "active"
   | "awaiting_contract"
   | "contract_under_review"
+  | "awaiting_escrow_payment"
   | "escrow_funded"
   | "completed"
   | "cancelled";
@@ -92,6 +93,7 @@ const DealSchema = new Schema<IDeal>(
         "active",
         "awaiting_contract",
         "contract_under_review",
+        "awaiting_escrow_payment",
         "escrow_funded",
         "completed",
         "cancelled",

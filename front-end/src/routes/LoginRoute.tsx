@@ -1,6 +1,6 @@
 import LoginPage from "../pages/Login";
 import HomePage from "../pages/Home";
-import RegisterPage from "../pages/SearchPage/registerPage";
+import RegisterPage from "../pages/registerPage";
 import { Navigate } from "react-router-dom";
 
 export const LoginRoute = [

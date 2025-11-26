@@ -1,22 +1,5 @@
 import React, { useContext, useState } from "react";
-import {
-    AppBar,
-    Toolbar,
-    Typography,
-    Box,
-    Button,
-    IconButton,
-    Avatar,
-    Menu,
-    MenuItem,
-    Drawer,
-    List,
-    ListItem,
-    ListItemButton,
-    ListItemText,
-    Divider,
-    Fade,
-} from "@mui/material";
+import { AppBar, Toolbar, Typography, Box, Button, IconButton, Avatar, Menu, MenuItem, Drawer, List, ListItem, ListItemButton, ListItemText, Divider, Fade, } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import HomeIcon from "@mui/icons-material/Home";
@@ -25,6 +8,7 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import AuthContext from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import ButtonLanguage from "./common/ButtonLanguage";
+import { useTranslation } from "react-i18next";
 
 const Navbar: React.FC = () => {
     const { state, signOut } = useContext(AuthContext);
@@ -34,6 +18,7 @@ const Navbar: React.FC = () => {
     const location = useLocation();
     const role = state.user?.role || 'guest';
     const isAdminRoute = location.pathname.startsWith('/admin');
+    const { t } = useTranslation("auth");
 
     const roleMenus = {
         buyer: [
@@ -415,7 +400,7 @@ const Navbar: React.FC = () => {
                                             },
                                         }}
                                     >
-                                        Sign In
+                                        {t("narbar.signIn")}
                                     </Button>
 
                                     <Button
@@ -436,7 +421,7 @@ const Navbar: React.FC = () => {
                                             },
                                         }}
                                     >
-                                        Sign up
+                                        {t("narbar.signUp")}
                                     </Button>
                                 </Box>
                                 {/* Mobile Menu Icon for non-logged users */}
