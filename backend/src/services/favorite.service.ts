@@ -83,6 +83,8 @@ export const favoriteService = {
           { path: "owner_id", model: "User" },
           { path: "agent_id", model: "User" },
           { path: "features", model: "Feature" },
+          { path: "owner_id", model: "User", select: "-password" },
+          { path: "agent_id", model: "User", select: "-password" },
         ],
       })
       .sort({ createdAt: -1 });
