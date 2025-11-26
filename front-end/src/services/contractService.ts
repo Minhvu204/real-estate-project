@@ -5,17 +5,26 @@ const RESOURCE = "/contracts";
 
 export interface ContractListResponse {
   contracts: Contract[];
-  pagination: any; // nên định nghĩa type cụ thể
+  pagination: any;
 }
 
 export const getAllContract = async (
-  page: number
+  page: number,
+  status?: string
 ): Promise<ContractListResponse> => {
+  const params: { page: number; status?: string } = { page };
+  
+  if (status) {
+    params.status = status;
+  }
+  
   const res = await httpAdmin.get(RESOURCE, {
-    params: { page },
+    params: params,
   });
+  
   const data = res.data.data.data;
   const pagination = res.data.data.pagination;
+  
   return {
     contracts: data,
     pagination: pagination,

@@ -17,7 +17,8 @@ import {
 import { useEffect, useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 const ContractsList = () => {
   const [contract, setContract] = useState<Contract[]>([]);
   const [pagination, setPagination] = useState<pagination | null>(null);
@@ -29,22 +30,16 @@ const ContractsList = () => {
   );
   const [searchParams] = useSearchParams();
   const status = searchParams.get("status");
-  const navigate = useNavigate();
+  const { t } = useTranslation("contract");
 
   useEffect(() => {
     const fetchContract = async () => {
       try {
-        const res = await getAllContract(currentPage);
-        console.log("Data return is ", res);
-        console.log("Data return is ", res.contracts);
-        console.log("Data return is ", res.pagination);
-        if (status) {
-          setContract(
-            res.contracts.filter((contract) => contract.status === status)
-          );
-        } else {
-          setContract(res.contracts);
-        }
+        const res = await getAllContract(currentPage, status || undefined);
+        console.log("fetchContract return is: ", res);
+        console.log("Contracts return is: ", res.contracts);
+        console.log("Pagination return is: ", res.pagination);
+        setContract(res.contracts);
         setPagination(res.pagination);
       } catch (error) {
         console.log("error: ", error);
@@ -67,7 +62,7 @@ const ContractsList = () => {
 
   const handleApproveContract = async (id: string) => {
     if (!id) {
-      toast.error("Không tìm thấy ID người dùng!");
+      toast.error(t("toast_id"));
       return;
     }
     try {
@@ -75,16 +70,16 @@ const ContractsList = () => {
       const res = await getAllContract(currentPage);
       setContract(res.contracts);
       setPagination(res.pagination);
-      toast.success("đồng ý thành công!");
+      toast.success(t("toast_approve_success"));
     } catch (error) {
       console.log("error: ", error);
-      toast.error("đồng ý thất bại");
+      toast.error(t("toast_approve_fail"));
     }
   };
 
   const handleRejectContract = async (id: string) => {
     if (!id) {
-      toast.error("Không tìm thấy ID người dùng!");
+      toast.error(t("toast_id"));
       return;
     }
     try {
@@ -93,10 +88,10 @@ const ContractsList = () => {
       setContract(res.contracts);
       setPagination(res.pagination);
       setOpen(false);
-      toast.success("từ chối thành công!");
+      toast.success(t("toast_reject_success"));
     } catch (error) {
       console.log("error: ", error);
-      toast.error("từ chối thất bại");
+      toast.error(t("toast_reject_fail"));
     }
   };
 
@@ -118,16 +113,16 @@ const ContractsList = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Upload by
+                  {t("Uploader")}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Property
+                  {t("Property")}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Status
+                  {t("Status")}
                 </th>
                 <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Action
+                  {t("Action")}
                 </th>
               </tr>
             </thead>
@@ -153,23 +148,29 @@ const ContractsList = () => {
                       <span
                         className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${
                           data.status === "approved"
-                            ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
+                            ? "bg-emerald-50 text-green-700 ring-1 ring-emerald-100"
                             : data.status === "rejected"
-                            ? "bg-rose-50 text-rose-700 ring-1 ring-rose-100"
-                            : "bg-amber-50 text-amber-700 ring-1 ring-amber-100"
+                            ? "bg-rose-50 text-red-700 ring-1 ring-rose-100"
+                            : "bg-amber-50 text-orange-700 ring-1 ring-amber-100"
                         }`}
                       >
-                        {data.status}
+                        {data.status === "approved"
+                          ? t("Approved_status")
+                          : data.status === "rejected"
+                          ? t("Rejected_status")
+                          : t("Superseded_status")}
                       </span>
                     </td>
 
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap items-center justify-left gap-2">
-                        <Tooltip title="view">
+                        <Tooltip title={t("View_btn")}>
                           <Button
                             variant="outlined"
                             size="small"
-                            onClick={() => navigate(`${data.file_url}`)}
+                            onClick={() =>
+                              window.open(`${data.file_url}`, "_blank")
+                            }
                           >
                             <VisibilityOutlinedIcon fontSize="small" />
                           </Button>
@@ -177,24 +178,24 @@ const ContractsList = () => {
 
                         {data.status === "superseded" && (
                           <>
-                            <Tooltip title="approve">
+                            <Tooltip title={t("Approve_btn")}>
                               <Button
                                 variant="outlined"
                                 color="success"
                                 size="small"
                                 onClick={() => handleApproveContract(data._id)}
                               >
-                                approve
+                                {t("Approve_btn")}
                               </Button>
                             </Tooltip>
-                            <Tooltip title="reject">
+                            <Tooltip title={t("Reject_btn")}>
                               <Button
                                 variant="outlined"
                                 color="error"
                                 size="small"
                                 onClick={() => handleOpen(data._id)}
                               >
-                                reject
+                                {t("Reject_btn")}
                               </Button>
                             </Tooltip>
                           </>
@@ -222,12 +223,12 @@ const ContractsList = () => {
       )}
 
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-        <DialogTitle>Lý do từ chối hợp đồng</DialogTitle>
+        <DialogTitle>{t("Reason_reject_title")}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
-            label="Nhập lý do từ chối"
+            label={t("Enter_reason")}
             type="text"
             fullWidth
             multiline
@@ -237,7 +238,9 @@ const ContractsList = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Hủy</Button>
+          <Button variant="outlined" onClick={handleClose}>
+            {t("Cancel_btn")}
+          </Button>
           <Button
             color="error"
             variant="contained"
@@ -245,7 +248,7 @@ const ContractsList = () => {
               selectedContractId && handleRejectContract(selectedContractId)
             }
           >
-            Xác nhận từ chối
+            {t("Accept_btn")}
           </Button>
         </DialogActions>
       </Dialog>
