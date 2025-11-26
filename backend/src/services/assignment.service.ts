@@ -302,9 +302,23 @@ export const assignmentService = {
 
     return doc;
   },
-
   async getRequestsForSeller(sellerId: string, filters: any = {}) {
-    const query: any = { owner_id: sellerId };
+    // 1. Tìm tất cả properties thuộc về seller
+    const sellerProperties = await Property.find({
+      owner_id: sellerId, 
+      deleted: { $ne: true },
+    }).select("_id");
+
+    const propertyIds = sellerProperties.map((p) => p._id);
+
+    if (propertyIds.length === 0) return [];
+
+    // 2. Query assignments của những properties này
+    const query: any = {
+      property_id: { $in: propertyIds },
+      deleted: { $ne: true },
+    };
+
     if (filters.status) query.status = filters.status;
 
     return Assignment.find(query)
@@ -313,6 +327,7 @@ export const assignmentService = {
       .sort({ createdAt: -1 })
       .lean();
   },
+
 
   async sellerAcceptRequest(assignmentId: string, sellerId: string) {
     const assignment = await Assignment.findById(assignmentId);
