@@ -35,16 +35,16 @@ const PropertyDetailUser = () => {
 
     useEffect(() => {
         const fetchProperty = async () => {
-          try {
-            const data: Property = await getDetailPropertiesById(id!);
-            setProperty(data);
-          } catch (error) {
-            console.error("Error fetching property:", error);
-          }
+            try {
+                const data: Property = await getDetailPropertiesById(id!);
+                setProperty(data);
+            } catch (error) {
+                console.error("Error fetching property:", error);
+            }
         };
-    
+
         fetchProperty();
-      }, [id]);
+    }, [id]);
 
     if (!property) {
         return <Typography textAlign="center" mt={3}>Loading...</Typography>;
@@ -52,11 +52,9 @@ const PropertyDetailUser = () => {
 
     const features = property.features ?? [];
 
-
-
     return (
         <Container sx={{ mt: 1, mb: 1 }}>
-            {/* CAROUSEL */}r
+            {/* CAROUSEL */}
             {property.images && property.images.length > 0 && (
                 <Box
                     sx={{

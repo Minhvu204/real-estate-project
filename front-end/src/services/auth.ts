@@ -1,4 +1,5 @@
 import { http } from './api';
+import api from '../api/api';
 
 export interface RegisterPayload {
   fullName: string;
@@ -15,6 +16,7 @@ export interface ApiResponse<T> {
 }
 
 export interface RegisterResult {
+  userId: string;
   user: {
     id: string;
     fullName: string;
@@ -29,4 +31,15 @@ export async function register(payload: RegisterPayload) {
     method: 'POST',
     body: JSON.stringify(payload)
   });
+}
+
+export async function verifyEmail(payload: { userId: string; otp: string }) {
+  const res = await api.post('/api/client/auth/verify-email', payload);
+  return res.data;
+}
+
+
+export async function resendOtp(payload: { userId: string; email: string }) {
+  const res = await api.post('/api/client/auth/resend-verification', payload);
+  return res.data;
 }

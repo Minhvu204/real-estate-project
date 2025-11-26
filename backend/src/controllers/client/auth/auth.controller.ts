@@ -51,6 +51,14 @@ export const loginController = async (req: Request, res: Response) => {
       user: result.user,
     });
   } catch (error: any) {
+    if (error.requiresVerification) {
+      return res.status(403).json({
+        success: false,
+        message: error.message,
+        requiresVerification: true,
+        userId: error.userId,
+      });
+    }
     return errorResponse(req, res, error.message);
   }
 };
