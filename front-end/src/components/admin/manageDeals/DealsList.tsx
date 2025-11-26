@@ -5,6 +5,8 @@ import { Button, Pagination, Tooltip } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import { useTranslation } from "react-i18next";
+import { getLanguage, type Lang } from "../../../utils/storage";
 
 const DealsList = () => {
   const [deal, setDeal] = useState<Deal[]>([]);
@@ -13,17 +15,15 @@ const DealsList = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const status = searchParams.get("status");
+  const { t } = useTranslation("deal");
+  const currentLanguage: Lang = getLanguage();
 
   useEffect(() => {
     const fetchDeal = async () => {
       try {
-        const res = await getAllDeal(currentPage);
-        console.log(res);
-        if (status) {
-          setDeal(res.deals.filter((deals) => deals.status === status));
-        } else {
-          setDeal(res.deals);
-        }
+        const res = await getAllDeal(currentPage, status || undefined);
+        console.log("All deals return is: ", res);
+        setDeal(res.deals);
         setPagination(res.pagination);
       } catch (error) {
         console.log(error);
@@ -53,13 +53,13 @@ const DealsList = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="w-1/3 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Property
+                  {t("Property")}
                 </th>
                 <th className="w-1/3 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Status
+                  {t("Status")}
                 </th>
                 <th className="w-1/3 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Action
+                  {t("Action")}
                 </th>
               </tr>
             </thead>
@@ -73,7 +73,7 @@ const DealsList = () => {
                   >
                     <td className="px-4 py-3 text-sm font-medium text-gray-800">
                       <span className="line-clamp-2">
-                        {data?.property_id?.title?.vi}
+                        {data?.property_id?.title?.[currentLanguage]}
                       </span>
                     </td>
 
@@ -83,20 +83,41 @@ const DealsList = () => {
                     inline-flex items-center rounded-full px-3 py-1 text-xs font-medium
                     ${
                       data.status === "completed"
-                        ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
+                        ? "bg-green-50 text-green-700 ring-1 ring-green-100"
                         : data.status === "cancelled"
-                        ? "bg-rose-50 text-rose-700 ring-1 ring-rose-100"
-                        : "bg-amber-50 text-amber-700 ring-1 ring-amber-100"
+                        ? "bg-red-50 text-red-700 ring-1 ring-red-100"
+                        : data.status === "awaiting_contract"
+                        ? "bg-yellow-50 text-yellow-700 ring-1 ring-yellow-100"
+                        : data.status === "contract_under_review"
+                        ? "bg-blue-50 text-blue-700 ring-1 ring-blue-100"
+                        : data.status === "awaiting_escrow_payment"
+                        ? "bg-purple-50 text-purple-700 ring-1 ring-purple-100"
+                        : data.status === "escrow_funded"
+                        ? "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-100"
+                        : "bg-orange-50 text-orange-700 ring-1 ring-orange-100"
                     }
+
                   `}
                       >
-                        {data.status}
+                        {data.status === "completed"
+                          ? t("Completed")
+                          : data.status === "cancelled"
+                          ? t("Cancelled")
+                          : data.status === "awaiting_contract"
+                          ? t("Awaiting")
+                          : data.status === "contract_under_review"
+                          ? t("UnderReview")
+                          : data.status === "awaiting_escrow_payment"
+                          ? t("EscrowPayment")
+                          : data.status === "escrow_funded"
+                          ? t("EscrowFunded")
+                          : data.status}
                       </span>
                     </td>
 
                     <td className="px-4 py-3">
                       <div className="flex flex-wrap items-center justify-left gap-2">
-                        <Tooltip title="view">
+                        <Tooltip title={t("view_tooltip")}>
                           <Button
                             size="small"
                             variant="outlined"

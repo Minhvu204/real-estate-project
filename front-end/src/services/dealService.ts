@@ -8,12 +8,23 @@ export interface DealListResponse {
   pagination: any;
 }
 
-export const getAllDeal = async (page: number): Promise<DealListResponse> => {
+export const getAllDeal = async (
+  page: number,
+  status?: string
+): Promise<DealListResponse> => {
+  const params: { page: number; status?: string } = { page };
+
+  if (status) {
+    params.status = status;
+  }
+
   const res = await httpAdmin.get(RESOURCE, {
-    params: { page },
+    params: params,
   });
+
   const data = res.data.data.data;
   const pagination = res.data.data.pagination;
+
   return {
     deals: data,
     pagination: pagination,
