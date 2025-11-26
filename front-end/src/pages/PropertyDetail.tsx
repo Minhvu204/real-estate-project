@@ -9,6 +9,8 @@ import { useTranslation } from "react-i18next";
 import { getLanguage } from "../utils/storage";
 
 import BuyerAppointment from "@/components/buyer/Appointment/BuyerAppointment";
+import { getUser } from "../utils/storage";
+import CreateRequestProperties from "@/components/agent/CreateRequestProperties";
 
 const PropertyDetailUser = () => {
     const { id } = useParams();
@@ -17,6 +19,7 @@ const PropertyDetailUser = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const isMobile = useMediaQuery("(max-width:900px)");
     const isMobileSmall = useMediaQuery("(max-width:600px)");
+    const user = getUser();
 
     const { t } = useTranslation("propertyDetail");
     const lang = getLanguage();
@@ -35,6 +38,10 @@ const PropertyDetailUser = () => {
         );
     };
 
+
+
+
+
     useEffect(() => {
         fetch(`http://localhost:3000/api/public/properties/${id}`)
             .then(res => res.json())
@@ -42,10 +49,24 @@ const PropertyDetailUser = () => {
             .catch(err => console.error(err));
     }, [id]);
     const [openTourModal, setOpenTourModal] = useState(false);
+    const [openRequestModal, setOpenRequestModal] = useState(false);
 
 
     const handleOpenTour = () => setOpenTourModal(true);
     const handleCloseTour = () => setOpenTourModal(false);
+    const handleOpenRequesetToJoin = () => {
+        setOpenRequestModal(true);
+    }
+    const handleCloseRequesetToJoin = () => {
+        setOpenRequestModal(false);
+    }
+    const handleOnclick = () => {
+        if (user.role === 'buyer') {
+            handleOpenTour();
+        } else {
+            handleOpenRequesetToJoin();
+        }
+    }
 
     if (!property) {
         return <Typography textAlign="center" mt={3}>Loading...</Typography>;
@@ -179,7 +200,7 @@ const PropertyDetailUser = () => {
                         onClick={handleOpenTour}
                         className="flex-end"
                     >
-                        Request a tour
+                        {`${user.role === 'buyer' ? t('requestToView') : t('requestToJoinThisProperty')}`}
                     </Button>
                 </div>
 
@@ -309,6 +330,19 @@ const PropertyDetailUser = () => {
                 <BuyerAppointment
                     property={property}
                     onClose={handleCloseTour}
+                />
+            </Dialog>
+            <Dialog
+                open={openRequestModal}
+                onClose={handleCloseRequesetToJoin}
+                fullScreen={isMobileSmall}
+                fullWidth
+
+
+            >
+                <CreateRequestProperties
+                    property={property}
+                    onClose={handleCloseRequesetToJoin}
                 />
             </Dialog>
         </Container >

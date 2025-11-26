@@ -20,3 +20,11 @@ export const assignAgent = async (id: string, agentId: string) => {
     throw error;
   }
 };
+export const getAllJoinedAgentsRequest = async () => {
+  try {
+    const response = await httpClient.get(`${RESOURCE}/assignments`);
+    return response.data.data
+  } catch (error) {
+    
+  }
+}
