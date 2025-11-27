@@ -303,7 +303,6 @@ export const assignmentService = {
     return doc;
   },
   async getRequestsForSeller(sellerId: string, filters: any = {}) {
-    // 1. Tìm tất cả properties thuộc về seller
     const sellerProperties = await Property.find({
       owner_id: sellerId, 
       deleted: { $ne: true },
@@ -313,7 +312,6 @@ export const assignmentService = {
 
     if (propertyIds.length === 0) return [];
 
-    // 2. Query assignments của những properties này
     const query: any = {
       property_id: { $in: propertyIds },
       deleted: { $ne: true },

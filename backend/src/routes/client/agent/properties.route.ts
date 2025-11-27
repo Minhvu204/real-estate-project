@@ -2,6 +2,7 @@ import express from "express";
 import { verifyToken } from "../../../middlewares/auth.middleware";
 import { roleCheck } from "../../../middlewares/roleCheck.middleware";
 import { agentRequestManage } from "../../../controllers/client/buyer/properties.controller";
+import { listPropertiesWithoutAgent } from "../../../controllers/client/agent/property.controller";
 
 
 const router = express.Router();
@@ -15,6 +16,12 @@ router.post(
   agentRequestManage
 );
 
+router.get(
+  "/no-agent",
+  verifyToken,
+  roleCheck("agent"),
+  listPropertiesWithoutAgent
+);
 
 
 export default router;
