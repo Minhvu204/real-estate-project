@@ -32,7 +32,7 @@ const PropertiesCompare: React.FC<PropertiesComparePageProps> = ({ properties })
                         {properties.map((property) => (
                             <th key={property._id} className="align-top p-2  border-gray-200 border-b-2">
                                 <div className='flex flex-col text-start cursor-pointer' onClick={() => handleDetail(property)} >
-                                    <img src={property.images[0]} alt="" className='w-34 h-20 my-2' />
+                                    <img src={property.images[0]} alt="" className='w-34 h-20 my-2 rounded-sm' />
                                     <span className='text-xs font-light text-gray-500 break-keep w-34'>
                                         {property.address[currentLanguage]}
                                         , {property.district_id.district_name[currentLanguage]}
@@ -47,11 +47,11 @@ const PropertiesCompare: React.FC<PropertiesComparePageProps> = ({ properties })
                 <tbody>
                     {fields.map((field, index) => (
                         <tr key={field.label} className={index % 2 === 1 ? "bg-blue-50" : ""} >
-                            <th className='text-start 0 p-3 border-2 border-gray-200 border-l-0'>
+                            <th className='text-start p-3 border-2 border-gray-200 border-l-0'>
                                 {field.label}
                             </th>
                             {properties.map((property) => (
-                                <td key={property._id} className="align-top p-2 border-2 border-gray-200 border-l-0 border-r-0">
+                                <td key={property._id} className="align-top p-3 border-2 border-gray-200 border-l-0 border-r-0">
                                     {field.value(property)}
                                 </td>
                             ))}

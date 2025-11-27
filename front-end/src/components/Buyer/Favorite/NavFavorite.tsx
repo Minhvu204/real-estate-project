@@ -38,10 +38,9 @@ const NavFavorite: React.FC<FavoriteProps> = ({ properties, propertiesFiltered, 
     ];
     useEffect(() => {
         let result = [...properties];
-
-        if (filterType === PROPERTY_TYPES.FOR_SALE)
+        if (filterType === "for-sale")
             result = result.filter(p => p.type?.type_name.en === PROPERTY_TYPES.FOR_SALE);
-        if (filterType === PROPERTY_TYPES.FOR_RENT)
+        if (filterType === "for-rent")
             result = result.filter(p => p.type?.type_name.en === PROPERTY_TYPES.FOR_RENT);
         const dir = sortOrder === "asc" ? 1 : -1;
         result.sort((a, b) => {

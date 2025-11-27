@@ -34,6 +34,9 @@ const PropertiesComparePage: React.FC<PropertiesComparePageProps> = () => {
     }, [ids, currentLanguage]);
     return (
         <div>
+            <h1 className='text-3xl m-4 font-bold text-blue-600'>
+                Properties Compare
+            </h1>
             {error && (
                 <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
                     <p className="text-sm text-yellow-700">{error}</p>
@@ -46,9 +49,6 @@ const PropertiesComparePage: React.FC<PropertiesComparePageProps> = () => {
                 </div>
             ) : (
                 <div>
-                    <h1 className='text-3xl m-4 font-bold text-blue-600'>
-                        Properties Compare
-                    </h1>
                     <PropertiesCompare properties={properties} />
                 </div>
             )}

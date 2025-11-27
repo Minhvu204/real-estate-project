@@ -62,16 +62,18 @@ const PropertyCardFavorite: React.FC<PropertyCardProps> = ({ property, onRemoveF
                 </h3>
                 <p className="text-xs text-gray-500 line-clamp-1">{property.address[currentLanguage]}</p>
                 <p className="text-blue-600 font-bold text-sm">
-                    {property.price >= 1_000_000
-                        ? `$${(property.price / 1_000_000).toFixed(1)}M`
-                        : property.price >= 1_000 ? `$${(property.price / 1_000).toFixed(1)}K` : `$${property.price}`}
+                    {property.price >= 1_000_000_000
+                        ? `${(property.price / 1_000_000_000).toFixed(1)} Tỷ`
+                        : property.price >= 1_000_000
+                            ? `${(property.price / 1_000_000).toFixed(1)} Triệu`
+                            : property.price >= 1_000 ? `${(property.price / 1_000).toFixed(1)} Nghìn` : `${property.price}`} VNĐ
                 </p>
                 <p className="text-xs text-gray-600">
                     {property.bedrooms} {t("propertyCard.bedrooms")} · {property.bathrooms} {t("propertyCard.bathrooms")}
                 </p>
                 <button
                     onClick={handleDetail}
-                    className="mt-2 w-full py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                    className="mt-2 w-full py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition cursor-pointer"
                 >
                     {t("propertyCard.viewDetail")}
                 </button>

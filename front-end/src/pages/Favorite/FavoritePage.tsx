@@ -31,6 +31,7 @@ const FavoritePage = () => {
     }, []);
     return (
         <div>
+            <p className='text-4xl font-bold m-5 text-blue-500'>{t('saveHomes')}</p>
             {error && (
                 <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
                     <p className="text-sm text-yellow-700">{error}</p>
@@ -43,7 +44,7 @@ const FavoritePage = () => {
                 </div>
             ) : (
                 <div>
-                    <p className='text-4xl font-bold m-5 text-blue-500'>{t('saveHomes')}</p>
+
                     <NavFavorite properties={properties} propertiesFiltered={propertiesFiltered} setPropertiesFiltered={setPropertiesFiltered} />
                     <FavoriteList properties={propertiesFiltered} />
                 </div>
