@@ -7,16 +7,28 @@ export interface PaymentListResponse {
   pagination: any;
 }
 export const getAllPayment = async (
-  page: number
+  page: number,
+  status?: string
 ): Promise<PaymentListResponse> => {
-  const res = await httpAdmin.get(RESOURCE, { params: { page } });
+  const params: { page: number; status?: string } = { page };
+  
+  if (status) {
+    params.status = status;
+  }
+  
+  const res = await httpAdmin.get(RESOURCE, { 
+    params: params 
+  });
+  
   const data = res.data.data.data;
   const pagination = res.data.data.pagination;
+  
   return {
     payments: data,
     pagination: pagination,
   };
 };
+
 
 export const getPaymentDetail = async (id: string): Promise<Payment> => {
   const res = await httpAdmin.get(`${RESOURCE}/${id}`);

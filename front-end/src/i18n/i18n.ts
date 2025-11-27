@@ -27,6 +27,8 @@ import CONTRACT_ADMIN_EN from "../locales/en/contract.json";
 import CONTRACT_ADMIN_VI from "../locales/vi/contract.json";
 import DEAL_ADMIN_EN from "../locales/en/deal.json";
 import DEAL_ADMIN_VI from "../locales/vi/deal.json";
+import PAYMENT_ADMIN_EN from "../locales/en/payment.json";
+import PAYMENT_ADMIN_VI from "../locales/vi/payment.json";
 export const resources = {
     en: {
         home: HOME_EN,
@@ -41,7 +43,8 @@ export const resources = {
         listProperties: LIST_PROPERTIES_ADMIN_EN,
         detailProperty: DETAIL_PROPERTIES_ADMIN_EN,
         contract: CONTRACT_ADMIN_EN,
-        deal: DEAL_ADMIN_EN
+        deal: DEAL_ADMIN_EN,
+        payment: PAYMENT_ADMIN_EN
     },
     vi: {
         home: HOME_VI,
@@ -56,7 +59,8 @@ export const resources = {
         listProperties: LIST_PROPERTIES_ADMIN_VI,
         detailProperty: DETAIL_PROPERTIES_ADMIN_VI,
         contract: CONTRACT_ADMIN_VI,
-        deal: DEAL_ADMIN_VI
+        deal: DEAL_ADMIN_VI,
+        payment: PAYMENT_ADMIN_VI
     }
 };
 export const defaultNS = 'home';
@@ -67,7 +71,7 @@ i18n
         {
             debug: true,
             resources,
-            ns: ["home", "properties", "propertyPage", "propertyDetail", "profile", "myProperties", 'createPropertyPage', 'addressAutocomplete','contract','deal'],     //add các namespace khi viết thêm ở trên vào mảng này
+            ns: ["home", "properties", "propertyPage", "propertyDetail", "profile", "myProperties", 'createPropertyPage', 'addressAutocomplete','contract','deal','payment'],     //add các namespace khi viết thêm ở trên vào mảng này
             defaultNS,
             fallbackLng: 'en',
             detection: {

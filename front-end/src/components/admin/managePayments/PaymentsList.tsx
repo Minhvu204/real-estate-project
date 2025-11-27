@@ -1,9 +1,10 @@
 import { getAllPayment } from "@/services/paymentService";
 import type { Payment } from "../../../types/Payment";
-import { Button, Pagination } from "@mui/material";
+import { Button, Pagination, Tooltip } from "@mui/material";
 import { useEffect, useState } from "react";
 import type { pagination } from "../../../types/Contract";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const PaymentsList = () => {
   const [payment, setPayment] = useState<Payment[]>([]);
@@ -12,17 +13,13 @@ const PaymentsList = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const status = searchParams.get("status");
+  const { t } = useTranslation("payment");
+
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getAllPayment(currentPage);
-      console.log(data);
-      if (status) {
-        setPayment(
-          data.payments.filter((payment) => payment.status === status)
-        );
-      } else {
-        setPayment(data.payments);
-      }
+      const data = await getAllPayment(currentPage, status || undefined);
+      console.log("PaymentList return is: ", data);
+      setPayment(data.payments);
       setPagination(data.pagination);
     };
     fetchData();
@@ -47,19 +44,16 @@ const PaymentsList = () => {
           <thead className="bg-gray-50">
             <tr>
               <th className="w-1/4 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 border-b">
-                initiated
+                {t("initiated")}
               </th>
               <th className="w-1/4 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 border-b">
-                amount
+                {t("method")}
               </th>
               <th className="w-1/4 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 border-b">
-                method
+                {t("status")}
               </th>
               <th className="w-1/4 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 border-b">
-                status
-              </th>
-              <th className="w-1/4 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 border-b">
-                action
+                {t("action")}
               </th>
             </tr>
           </thead>
@@ -74,10 +68,11 @@ const PaymentsList = () => {
                     {data.initiated_by?.fullName}
                   </td>
                   <td className="px-4 py-3 text-sm font-medium text-gray-800">
-                    {data.amount.toLocaleString()} {data.currency}
-                  </td>
-                  <td className="px-4 py-3 text-sm font-medium text-gray-800">
-                    {data.method}
+                    {data.method === "payos_qr"
+                      ? t("payos_qr")
+                      : data.method === "internal_release"
+                      ? t("internal_release")
+                      : ""}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     <span
@@ -85,20 +80,38 @@ const PaymentsList = () => {
                     inline-flex items-center rounded-full px-3 py-1 text-xs font-medium
                     ${
                       data.status === "completed"
-                        ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
+                        ? "bg-green-50 text-green-700 ring-1 ring-green-100"
                         : data.status === "cancelled"
-                        ? "bg-rose-50 text-rose-700 ring-1 ring-rose-100"
-                        : "bg-amber-50 text-amber-700 ring-1 ring-amber-100"
+                        ? "bg-red-50 text-red-700 ring-1 ring-red-100"
+                        : data.status === "failed"
+                        ? "bg-red-50 text-red-700 ring-1 ring-red-100"
+                        : data.status === "processing"
+                        ? "bg-blue-50 text-blue-700 ring-1 ring-blue-100"
+                        : data.status === "pending"
+                        ? "bg-orange-50 text-orange-700 ring-1 ring-orange-100"
+                        : "bg-gray-50 text-gray-700 ring-1 ring-gray-100"
                     }
                   `}
                     >
-                      {data.status}
+                      {data.status === "completed"
+                        ? t("completed")
+                        : data.status === "cancelled"
+                        ? t("cancelled")
+                        : data.status === "failed"
+                        ? t("cancelled")
+                        : data.status === "processing"
+                        ? t("processing")
+                        : data.status === "pending"
+                        ? t("pending")
+                        : ""}
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <Button onClick={() => navigate(`${data._id}`)}>
-                      View
-                    </Button>
+                    <Tooltip title={t("view_tooltip")}>
+                      <Button onClick={() => navigate(`${data._id}`)}>
+                        {t("view_btn")}
+                      </Button>
+                    </Tooltip>
                   </td>
                 </tr>
               ))}

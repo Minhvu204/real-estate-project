@@ -12,12 +12,15 @@ import {
   Box,
   Divider,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 const PaymentDetail = () => {
   const { id } = useParams<string>();
   const [payment, setPayment] = useState<Payment | null>(null);
   const [open, setOpen] = useState(true);
   const navigate = useNavigate();
+  const { t } = useTranslation("payment");
+
   useEffect(() => {
     const fetchPaymentDetail = async () => {
       const res = await getPaymentDetail(id!);
@@ -35,35 +38,73 @@ const PaymentDetail = () => {
   return (
     <>
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-        <DialogTitle>Payment Details</DialogTitle>
+        <DialogTitle>{t("PaymentDetails")}</DialogTitle>
         <DialogContent sx={{ pb: 0 }}>
           {payment ? (
             <Box>
-              {/* Thông tin cơ bản */}
               {[
                 {
-                  label: "Initiated by",
+                  label: t("initiated"),
                   value: payment.initiated_by?.fullName,
                 },
                 {
-                  label: "Amount",
+                  label: t("amount"),
                   value: `${payment.amount?.toLocaleString()} ${
                     payment.currency
                   }`,
                   color: "primary.main",
                 },
-                { label: "Method", value: payment.method },
                 {
-                  label: "Status",
-                  value: payment.status,
+                  label: t("method"),
+                  value:
+                    payment.method === "payos_qr"
+                      ? t("payos_qr")
+                      : payment.method === "internal_release"
+                      ? t("internal_release")
+                      : "",
+                },
+                {
+                  label: t("status"),
+                  value:
+                    payment.status === "completed"
+                      ? t("completed")
+                      : payment.status === "cancelled"
+                      ? t("cancelled")
+                      : payment.status === "failed"
+                      ? t("cancelled")
+                      : payment.status === "processing"
+                      ? t("processing")
+                      : payment.status === "pending"
+                      ? t("pending")
+                      : "",
                   color:
                     payment.status === "completed"
                       ? "success.main"
                       : payment.status === "cancelled"
                       ? "error.main"
-                      : "warning.main",
+                      : payment.status === "failed"
+                      ? "error.main"
+                      : payment.status === "processing"
+                      ? "info.main"
+                      : payment.status === "pending"
+                      ? "warning.main"
+                      : "grey.main",
                 },
-                { label: "Type", value: payment.type },
+                {
+                  label: t("type"),
+                  value:
+                    payment.type === "escrow_fund"
+                      ? t("escrow_fund")
+                      : payment.type === "release_to_seller"
+                      ? t("release_to_seller")
+                      : payment.type === "agent_fee"
+                      ? t("agent_fee")
+                      : payment.type === "platform_fee"
+                      ? t("platform_fee")
+                      : payment.type === "refund"
+                      ? t("refund")
+                      : "",
+                },
               ].map((row, idx) => (
                 <Box
                   key={row.label}
@@ -89,9 +130,8 @@ const PaymentDetail = () => {
 
               <Divider sx={{ my: 2 }} />
 
-              {/* Notes riêng biệt */}
               <Typography color="text.secondary" gutterBottom>
-                Notes
+                {t("Notes")}
               </Typography>
               <Typography
                 variant="body2"
@@ -101,12 +141,12 @@ const PaymentDetail = () => {
               </Typography>
             </Box>
           ) : (
-            <Typography>Loading...</Typography>
+            <Typography>{t("Loading")}</Typography>
           )}
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={handleClose} variant="contained" color="primary">
-            Close
+            {t("Close_btn")}
           </Button>
         </DialogActions>
       </Dialog>
