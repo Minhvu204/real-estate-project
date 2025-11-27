@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import mongoose from "mongoose";
-import Property from "../../../models/property.model";
 import { successResponse, errorResponse } from "../../../utils/responseHandler";
+import { propertyService } from "../../../services/property.service";
 
 export const getPropertiesByIds = async (req: Request, res: Response) => {
   try {
@@ -23,18 +23,9 @@ export const getPropertiesByIds = async (req: Request, res: Response) => {
       );
     }
 
-    const properties = await Property.find({
-      _id: { $in: ids },
-      deleted: false,
-      status: "approved",
-    });
+    const properties = await propertyService.getPropertiesByIdsService(ids);
 
-    return successResponse(
-      req,
-      res,
-      "Lấy danh sách bất động sản thành công",
-      properties
-    );
+    return successResponse(req, res, "getPropertiesByIds.success", properties);
   } catch (error: any) {
     return errorResponse(req, res, error.message, 500);
   }
