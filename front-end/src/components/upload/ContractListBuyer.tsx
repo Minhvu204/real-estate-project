@@ -5,12 +5,18 @@ import DownloadIcon from "@mui/icons-material/Download";
 import DescriptionIcon from "@mui/icons-material/Description";
 import { contractApiBuyer } from "../../api/contractApiBuyer";
 import type { Contract } from "../../types/Contract";
+import { toastSuccess, toastError } from "../../utils/toast";
+import { ToastContainer } from "react-toastify";
+import { useTranslation } from "react-i18next";
+import { getLanguage } from "../../utils/storage";
 
 interface Props {
     dealId: string;
 }
 
 export const ContractListBuyer: React.FC<Props> = ({ dealId }) => {
+    const { t } = useTranslation("dealContact");
+    const lang = getLanguage();
     const [contracts, setContracts] = useState<Contract[]>([]);
 
     const fetchContracts = async () => {
@@ -35,8 +41,10 @@ export const ContractListBuyer: React.FC<Props> = ({ dealId }) => {
             link.download = filename;
             link.click();
             window.URL.revokeObjectURL(link.href);
+            toastSuccess(t("downloadSuccessfully"));
         } catch (err) {
-            console.error("Download failed", err);
+            console.error(t("downloadFailed"), err);
+            toastError(t("downloadFailed"));
         }
     };
 
@@ -44,20 +52,22 @@ export const ContractListBuyer: React.FC<Props> = ({ dealId }) => {
         try {
             if (action === "accept") {
                 await contractApiBuyer.acceptContract(dealId, contractId);
+                toastSuccess(t("contractHasBeenAccepted"));
             } else {
                 // Yêu cầu lý do từ chối
-                const reason = window.prompt("Nhập lý do từ chối hợp đồng:");
-                if (!reason) return alert("Vui lòng nhập lý do từ chối");
+                const reason = window.prompt(t("enterReasonForRejectingTheContract"));
+                if (!reason) return alert(t("pleaseEnterReasonForRejecting"));
                 await contractApiBuyer.rejectContract(dealId, contractId, { reason });
+                toastError(t("contractHasBeenRejected"));
                 fetchContracts();
             }
 
         } catch (err) {
             console.error(err);
-            alert("Cập nhật trạng thái thất bại");
+            alert(t("updateStatusFailed"));
+            toastError(t("updateStatusFailed"));
         }
     };
-
 
     // Hàm xác định màu sắc và style theo trạng thái
     const getStatusConfig = (status: string) => {
@@ -97,10 +107,10 @@ export const ContractListBuyer: React.FC<Props> = ({ dealId }) => {
             >
                 <Box>
                     <Typography variant="h3" fontWeight={500} gutterBottom>
-                        📄Hợp Đồng
+                        📄{t("contracts")}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ marginLeft: "15%" }} >
-                        Bạn có thể từ chối hoặc chấp nhận
+                        {t("youCanRejectOrAccept")}
                     </Typography>
                 </Box>
             </Stack>
@@ -117,7 +127,7 @@ export const ContractListBuyer: React.FC<Props> = ({ dealId }) => {
                 >
                     <DescriptionIcon sx={{ fontSize: 64, color: "text.disabled", mb: 2 }} />
                     <Typography variant="h6" color="text.secondary" gutterBottom>
-                        Chưa có hợp đồng nào
+                        {t("noContractsYet")}
                     </Typography>
                 </Card>
             )}
@@ -192,7 +202,7 @@ export const ContractListBuyer: React.FC<Props> = ({ dealId }) => {
                                                 mt={1}
                                                 sx={{ display: "flex", alignItems: "center", gap: 0.5 }}
                                             >
-                                                📅 {new Date(c.createdAt).toLocaleDateString("vi-VN", {
+                                                📅 {new Date(c.createdAt).toLocaleDateString(lang, {
                                                     year: "numeric",
                                                     month: "long",
                                                     day: "numeric",
@@ -224,7 +234,7 @@ export const ContractListBuyer: React.FC<Props> = ({ dealId }) => {
                                                         px: 2
                                                     }}
                                                 >
-                                                    Xem
+                                                    {t("view")}
                                                 </Button>
                                                 <Button
                                                     variant="outlined"
@@ -237,7 +247,7 @@ export const ContractListBuyer: React.FC<Props> = ({ dealId }) => {
                                                         px: 2
                                                     }}
                                                 >
-                                                    Tải về
+                                                    {t("download")}
                                                 </Button>
 
                                             </>
@@ -272,7 +282,7 @@ export const ContractListBuyer: React.FC<Props> = ({ dealId }) => {
                     );
                 })}
             </Stack>
-
+            <ToastContainer position="top-right" autoClose={2000} theme="colored" />
         </Box>
     );
 };

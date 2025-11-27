@@ -83,9 +83,7 @@ const BuyerMyPropertiesPage: React.FC = () => {
 				setLoading(false);
 			}
 		};
-
 		fetchProperties();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {

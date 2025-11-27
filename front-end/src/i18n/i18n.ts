@@ -30,6 +30,8 @@ import LIST_AGENTS_VI from "../locales/vi/listAgents.json";
 import OFFER_MANAGEMENT_EN from "../locales/en/offerManagement.json";
 import OFFER_MANAGEMENT_VI from "../locales/vi/offerManagement.json";
 
+import DEAL_CONTRACT_EN from "../locales/en/dealContract.json";
+import DEAL_CONTRACT_VI from "../locales/vi/dealContract.json";
 export const resources = {
     en: {
         home: HOME_EN,
@@ -45,7 +47,8 @@ export const resources = {
         listProperties: LIST_PROPERTIES_ADMIN_EN,
         detailProperty: DETAIL_PROPERTIES_ADMIN_EN,
         listAgents: LIST_AGENTS_EN,
-        offerManagement: OFFER_MANAGEMENT_EN
+        offerManagement: OFFER_MANAGEMENT_EN,
+        dealContact: DEAL_CONTRACT_EN
     },
     vi: {
         home: HOME_VI,
@@ -61,7 +64,8 @@ export const resources = {
         listProperties: LIST_PROPERTIES_ADMIN_VI,
         detailProperty: DETAIL_PROPERTIES_ADMIN_VI,
         listAgents: LIST_AGENTS_VI,
-        offerManagement: OFFER_MANAGEMENT_VI
+        offerManagement: OFFER_MANAGEMENT_VI,
+        dealContact: DEAL_CONTRACT_VI
     }
 };
 export const defaultNS = "home";

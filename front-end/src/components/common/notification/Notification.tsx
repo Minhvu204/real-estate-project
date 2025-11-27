@@ -160,10 +160,24 @@ const Notification = () => {
     handleClose();
     if (notification.action_url) {
       const userRole = user?.role?.toLowerCase();
-      if (userRole === 'agent') {
-        navigate(`agent${notification.action_url}`);
-      } else {
-        navigate(`seller/${notification.action_url}`);
+      const dealsMatch = notification.action_url.match(/^\/deals\/([^\/]+)/);
+      if (dealsMatch) {
+        const dealId = dealsMatch[1];
+        navigate(`/${userRole}/contracts/deals/${dealId}`);
+      } 
+      else if (userRole === 'buyer' && notification.action_url.startsWith('/offers/')) {
+        navigate('/buyer/offer'); 
+      }
+      else {
+        if (userRole === 'agent') {
+          navigate(`/agent${notification.action_url}`);
+        } else if (userRole === 'seller') {
+          navigate(`/seller${notification.action_url}`);
+        } else if (userRole === 'buyer') {
+          navigate(`/buyer${notification.action_url}`);
+        } else {
+          navigate(notification.action_url);
+        }
       }
     }
   };
@@ -348,3 +362,5 @@ const Notification = () => {
 };
 
 export default Notification;
+
+

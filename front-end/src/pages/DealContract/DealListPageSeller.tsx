@@ -9,21 +9,27 @@ import BedIcon from '@mui/icons-material/Bed';
 import BathtubIcon from '@mui/icons-material/Bathtub';
 import PersonIcon from '@mui/icons-material/Person';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import { useTranslation } from "react-i18next";
+import { getLanguage } from "../../utils/storage";
 
-const statusColors: Record<string, "default" | "success" | "warning" | "error"> = {
-    awaiting_contract: "warning",
+const statusColors: Record<string, "default" | "success" | "warning" | "error" | "secondary"> = {
+    contract_under_review: "warning",
+    escrow_funded: "secondary",
     completed: "success",
     cancelled: "error",
     default: "default",
 };
 
 const statusLabels: Record<string, string> = {
-    awaiting_contract: "Awaiting Contract",
+    contract_under_review: "Contract under review",
+    escrow_funded: "Escrow funded",
     completed: "Completed",
     cancelled: "Cancelled",
 };
 
 const DealListPageSeller: React.FC = () => {
+    const { t } = useTranslation("dealContact");
+    const lang = getLanguage();
     const [deals, setDeals] = useState<Deal[]>([]);
     const navigate = useNavigate();
 
@@ -73,7 +79,7 @@ const DealListPageSeller: React.FC = () => {
                         WebkitTextFillColor: "transparent",
                     }}
                 >
-                    Danh sách Deal
+                    {t("listDeal")}
                 </Typography>
 
                 <Typography
@@ -87,14 +93,14 @@ const DealListPageSeller: React.FC = () => {
                         marginBottom: -3,
                     }}
                 >
-                    Quản lý và theo dõi tất cả các giao dịch bất động sản
+                    {t("manageAndTrackAllRealEstateTransactions")}
                 </Typography>
             </Box>
 
             {deals.length === 0 && (
                 <Card sx={{ p: 4, textAlign: "center", borderRadius: 3 }}>
                     <Typography variant="h6" color="text.secondary">
-                        Không có deal nào.
+                        {t("noDealsAvailable")}
                     </Typography>
                 </Card>
             )}
@@ -154,7 +160,7 @@ const DealListPageSeller: React.FC = () => {
                                         // Có 1 hoặc nhiều ảnh → hiển thị
                                         <img
                                             src={property.images[currentIndex]}
-                                            alt={property.title?.vi || "Image"}
+                                            alt={property.title[lang] || "Image"}
                                             style={{
                                                 width: "100%",
                                                 height: "100%",
@@ -209,7 +215,7 @@ const DealListPageSeller: React.FC = () => {
                                     <CardContent sx={{ flex: 1, p: { xs: 2, md: 3 } }}>
                                         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2, flexDirection: { xs: "column", sm: "row" }, gap: 1 }}>
                                             <Typography variant="h5" fontWeight="700" sx={{ flex: 1, pr: { sm: 2 }, fontSize: { xs: "1.25rem", md: "1.5rem" } }}>
-                                                {property.title.vi}
+                                                {property.title[lang]}
                                             </Typography>
                                             <Chip
                                                 label={statusLabel}
@@ -236,13 +242,13 @@ const DealListPageSeller: React.FC = () => {
                                             <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                                                 <BedIcon sx={{ fontSize: 18, color: "text.secondary" }} />
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {property.bedrooms} phòng ngủ
+                                                    {property.bedrooms} {t("bedrooms")}
                                                 </Typography>
                                             </Box>
                                             <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                                                 <BathtubIcon sx={{ fontSize: 18, color: "text.secondary" }} />
                                                 <Typography variant="body2" color="text.secondary">
-                                                    {property.bathrooms} phòng tắm
+                                                    {property.bathrooms} {t("bathrooms")}
                                                 </Typography>
                                             </Box>
                                         </Box>
@@ -250,7 +256,7 @@ const DealListPageSeller: React.FC = () => {
                                         <Box sx={{ display: "flex", alignItems: "flex-start", gap: 0.5, mb: 2 }}>
                                             <LocationOnIcon sx={{ fontSize: 18, color: "text.secondary" }} />
                                             <Typography variant="body2" color="text.secondary">
-                                                {property.address.vi}
+                                                {property.address[lang]}
                                             </Typography>
                                         </Box>
 
@@ -259,21 +265,21 @@ const DealListPageSeller: React.FC = () => {
                                         {/* Buyer - Seller - Agent */}
                                         <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", flexDirection: { xs: "column", sm: "row" } }}>
                                             <Box sx={{ flex: 1 }}>
-                                                <Typography variant="caption" color="text.secondary">Người mua</Typography>
+                                                <Typography variant="caption" color="text.secondary">{t("buyer")}</Typography>
                                                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                                                     <PersonIcon sx={{ fontSize: 16, color: "primary.main" }} />
                                                     <Typography variant="body2" fontWeight="600">{buyer.fullName}</Typography>
                                                 </Box>
                                             </Box>
                                             <Box sx={{ flex: 1 }}>
-                                                <Typography variant="caption" color="text.secondary">Người bán</Typography>
+                                                <Typography variant="caption" color="text.secondary">{t("seller")}</Typography>
                                                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                                                     <PersonIcon sx={{ fontSize: 16, color: "primary.main" }} />
                                                     <Typography variant="body2" fontWeight="600">{seller.fullName}</Typography>
                                                 </Box>
                                             </Box>
                                             <Box sx={{ flex: 1 }}>
-                                                <Typography variant="caption" color="text.secondary">Môi giới</Typography>
+                                                <Typography variant="caption" color="text.secondary">{t("agent")}</Typography>
                                                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                                                     <PersonIcon sx={{ fontSize: 16, color: "primary.main" }} />
                                                     <Typography variant="body2" fontWeight="600">{agent.fullName}</Typography>
@@ -295,7 +301,7 @@ const DealListPageSeller: React.FC = () => {
                                                 fontWeight: 600
                                             }}
                                         >
-                                            Xem Chi Tiết Hợp Đồng
+                                            {t("viewContractDetails")}
                                         </Button>
                                     </Box>
                                 </Box>

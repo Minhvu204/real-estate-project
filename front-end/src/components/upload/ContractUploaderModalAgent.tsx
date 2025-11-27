@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Modal, Box, Button, TextField, Typography, MenuItem } from "@mui/material";
 import { contractApiAgent } from "../../api/contractApiAgent";
 import type { Contract } from "../../types/Contract";
+import { toastSuccess, toastError } from "../../utils/toast";
+import { useTranslation } from "react-i18next";
 
 interface Props {
     open: boolean;
@@ -28,6 +30,7 @@ export const ContractUploaderModalAgent: React.FC<Props> = ({
     initialContractType = "initial",
     initialStatus = "submitted",
 }) => {
+    const { t } = useTranslation("dealContact");
     const [file, setFile] = useState<File | null>(null);
     const [contractType, setContractType] = useState(initialContractType);
     const [status, setStatus] = useState(initialStatus);
@@ -39,12 +42,12 @@ export const ContractUploaderModalAgent: React.FC<Props> = ({
         if (!f) return;
 
         if (!FILE_TYPES.includes(f.type)) {
-            setError("Chỉ chấp nhận file PDF");
+            setError(t("onlyAcceptPDFFiles"));
             return;
         }
 
         if (f.size > 10 * 1024 * 1024) {
-            setError("File quá lớn, tối đa 10MB");
+            setError(t("fileTooLargeMaximum10MB"));
             return;
         }
 
@@ -54,13 +57,13 @@ export const ContractUploaderModalAgent: React.FC<Props> = ({
 
     const handleSubmit = async () => {
         if (!file) {
-            setError("Vui lòng chọn file");
+            setError(t("pleaseSelectFile"));
             return;
         }
 
         const hasExisting = existingContracts.length > 0;
 
-        if (hasExisting && !confirm("Hợp đồng này đã tồn tại, bạn có muốn thay thế không?")) {
+        if (hasExisting && !confirm(t("thisContractAlreadyExistsDoYouWantToReplaceIt"))) {
             return;
         }
 
@@ -72,21 +75,23 @@ export const ContractUploaderModalAgent: React.FC<Props> = ({
 
         try {
             await contractApiAgent.uploadOrReplaceContract(dealId, formData, hasExisting, token);
+            toastSuccess(t("uploadContractSuccessfully"));
             onUploaded?.();
             onClose();
         } catch (err: any) {
             console.error(err);
-            setError(err.response?.data?.message || "Upload thất bại");
+            setError(err.response?.data?.message || t("uploadContractFailed"));
+            toastError(t("uploadContractFailed"));
         }
     };
 
     return (
         <Modal open={open} onClose={onClose}>
             <Box sx={{ width: 400, margin: "100px auto", padding: 3, bgcolor: "background.paper", borderRadius: 2 }}>
-                <Typography variant="h6" mb={2}>Upload Hợp Đồng</Typography>
+                <Typography variant="h6" mb={2}>{t("upload")}</Typography>
 
                 <Button variant="contained" component="label">
-                    Chọn file
+                    {t("selectFile")}
                     <input type="file" hidden onChange={handleFileChange} />
                 </Button>
                 {file && <Typography mt={1}>{file.name}</Typography>}
@@ -94,7 +99,7 @@ export const ContractUploaderModalAgent: React.FC<Props> = ({
                 <TextField
                     select
                     fullWidth
-                    label="Loại hợp đồng"
+                    label={t("contractType")}
                     value={contractType}
                     onChange={e => setContractType(e.target.value as any)}
                     margin="normal"
@@ -107,7 +112,7 @@ export const ContractUploaderModalAgent: React.FC<Props> = ({
                 <TextField
                     select
                     fullWidth
-                    label="Trạng thái"
+                    label={t("status")}
                     value={status}
                     onChange={e => setStatus(e.target.value as any)}
                     margin="normal"
@@ -118,7 +123,7 @@ export const ContractUploaderModalAgent: React.FC<Props> = ({
 
                 <TextField
                     fullWidth
-                    label="Ghi chú"
+                    label={t("notes")}
                     value={notes}
                     onChange={e => setNotes(e.target.value)}
                     margin="normal"
@@ -127,8 +132,8 @@ export const ContractUploaderModalAgent: React.FC<Props> = ({
                 {error && <Typography color="error" mt={1}>{error}</Typography>}
 
                 <Box mt={2} display="flex" justifyContent="space-between">
-                    <Button variant="outlined" onClick={onClose}>Hủy</Button>
-                    <Button variant="contained" onClick={handleSubmit}>Upload</Button>
+                    <Button variant="outlined" onClick={onClose}>{t("cancel")}</Button>
+                    <Button variant="contained" onClick={handleSubmit}>{t("upload")}</Button>
                 </Box>
             </Box>
         </Modal>
