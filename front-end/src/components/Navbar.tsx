@@ -26,7 +26,9 @@ import AuthContext from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import ButtonLanguage from "./common/ButtonLanguage";
 import Notification from "./common/notification/Notification";
+import { useTranslation } from 'react-i18next';
 const Navbar: React.FC = () => {
+  const { t } = useTranslation('favorite');
   const { state, signOut } = useContext(AuthContext);
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -39,7 +41,7 @@ const Navbar: React.FC = () => {
     buyer: [
       { label: "My Properties", path: "/dwello/myProperties" },
       { label: "My Agent", path: "/dwello/myAgent" },
-      { label: "My Favorite", path: "/favorites" }
+      { label: t('myFavorite'), path: "/favorites" }
     ],
     seller: [
       { label: "My Properties", path: "/seller/properties" },

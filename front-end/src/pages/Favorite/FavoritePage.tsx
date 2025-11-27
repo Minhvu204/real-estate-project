@@ -3,14 +3,16 @@ import NavFavorite from '@/components/Buyer/Favorite/NavFavorite';
 import useTitle from '@/hooks/useTitle';
 import { getAllFavoriteProperties } from '@/services/buyerService';
 import type { PropertyFavorite } from '@/types/FavoriteType';
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const FavoritePage = () => {
+    const { t } = useTranslation('favorite');
     const [properties, setProperties] = useState<PropertyFavorite[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [propertiesFiltered, setPropertiesFiltered] = useState<PropertyFavorite[]>([]);
-    useTitle('Dwello | My Favorite Homes');
+    useTitle(t('pageTitle'));
     useEffect(() => {
         const fetchProperties = async () => {
             setLoading(true);
@@ -20,7 +22,7 @@ const FavoritePage = () => {
                 setPropertiesFiltered(data);
                 console.log(data);
             } catch (error: any) {
-                setError(error.message || 'Error fetching properties');
+                setError(error.message || t('errorFetchingProperties'));
             } finally {
                 setLoading(false);
             }
@@ -37,11 +39,11 @@ const FavoritePage = () => {
             {loading ? (
                 <div className="flex justify-center items-center py-20">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                    <span className="ml-3 text-gray-600">Loading...</span>
+                    <span className="ml-3 text-gray-600">{t('loading')}</span>
                 </div>
             ) : (
                 <div>
-                    <p className='text-4xl font-bold m-5 text-blue-500'>Save Homes</p>
+                    <p className='text-4xl font-bold m-5 text-blue-500'>{t('saveHomes')}</p>
                     <NavFavorite properties={properties} propertiesFiltered={propertiesFiltered} setPropertiesFiltered={setPropertiesFiltered} />
                     <FavoriteList properties={propertiesFiltered} />
                 </div>

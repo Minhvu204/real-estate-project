@@ -1,5 +1,7 @@
 import type { PropertyFavorite } from '@/types/FavoriteType'
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 type CompareBarProps = {
     compareList: PropertyFavorite[],
@@ -7,12 +9,14 @@ type CompareBarProps = {
 }
 
 const CompareBar: React.FC<CompareBarProps> = ({ compareList, removeFromCompare }) => {
-
+    const { t } = useTranslation('favorite');
+    const navigate = useNavigate();
     const handleCompare = () => {
         if (compareList.length < 2 || compareList.length > 5) {
-            alert("select at least 2 and at most 5 properties to compare");
+            alert(t('compareMinMaxAlert'));
         }
         const ids = compareList.map(p => p.property_id).join(",");
+        navigate(`/compare/${ids}`);
     }
     if (compareList.length === 0) return null;
     return (
@@ -36,7 +40,7 @@ const CompareBar: React.FC<CompareBarProps> = ({ compareList, removeFromCompare 
                 onClick={handleCompare}
                 className="ml-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
-                Compare
+                {t('compare')}
             </button>
         </div>
     )

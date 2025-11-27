@@ -127,3 +127,108 @@ export type PropertyFavorite = {
     createdAt: string;
     updatedAt: string;
 };
+
+
+export type PropertyCompare = {
+    _id: string;
+    title: { vi: string; en: string };
+    description: { vi: string; en: string };
+    price: number;
+    images: string[];
+
+    address: { vi: string; en: string };
+
+    bedrooms: number;
+    bathrooms: number;
+    area?: number;
+    unit?: string;
+    yearBuilt?: number;
+    floors?: number;
+
+    coordinates: {
+        type: "Point";
+        coordinates: [number, number];
+    };
+
+    city_id: {
+        _id: string;
+        city_name: { vi: string; en: string };
+        deleted: boolean;
+        createdAt: string;
+        updatedAt: string;
+    };
+
+    district_id: {
+        _id: string;
+        city_id: string;
+        district_name: { vi: string; en: string };
+        deleted: boolean;
+        createdAt: string;
+        updatedAt: string;
+    };
+
+    ward_id: {
+        _id: string;
+        district_id: string;
+        ward_name: { vi: string; en: string };
+        deleted: boolean;
+        createdAt: string;
+        updatedAt: string;
+    };
+
+    type_id: {
+        _id: string;
+        type_name: { vi: string; en: string };
+        deleted: boolean;
+        createdAt: string;
+        updatedAt: string;
+    };
+
+    category_id: {
+        _id: string;
+        category_name: { vi: string; en: string };
+        deleted: boolean;
+        createdAt: string;
+        updatedAt: string;
+    };
+
+    features: {
+        _id: string;
+        feature_name: { vi: string; en: string };
+        deleted: boolean;
+        createdAt: string;
+        updatedAt: string;
+    }[];
+
+    owner_id: {
+        _id: string;
+        fullName: string;
+        email: string;
+        phone?: string;
+        avatar?: string;
+    };
+
+    agent_id: {
+        _id: string;
+        fullName: string;
+        email: string;
+        phone?: string;
+        avatar?: string;
+    };
+
+    status: string;
+    reviewedBy?: string;
+    reviewedAt?: string;
+    publishedAt?: string;
+    assignmentHistory?: {
+        _id: string;
+        agent_id: string;
+        assignedBy: string;
+        action: string;
+        assignedAt: string;
+    }[];
+
+    deleted: boolean;
+    createdAt: string;
+    updatedAt: string;
+};

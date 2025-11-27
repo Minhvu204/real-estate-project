@@ -1,4 +1,4 @@
-import type { checkFavoriteType, PropertyFavorite, } from "@/types/FavoriteType";
+import type { checkFavoriteType, PropertyCompare, PropertyFavorite, } from "@/types/FavoriteType";
 import { httpClient } from "@/utils/httpClient";
 
 const BUYER_RESOURCE = "/buyer";
@@ -20,5 +20,10 @@ export const deletePropertyFavorite = async (property_id: string): Promise<void>
 
 export const addPropertyFavorite = async (property_id: string): Promise<void> => {
     const response = await httpClient.post(`${BUYER_RESOURCE}/favorites`, { property_id });
+    return response.data.data;
+}
+
+export const getPropertyByIds = async (ids: string): Promise<PropertyCompare[]> => {
+    const response = await httpClient.get(`${BUYER_RESOURCE}/properties/by-ids?ids=${ids}`);
     return response.data.data;
 }

@@ -1,0 +1,35 @@
+{
+  "pageTitle": "Dwello | My Favorite Homes",
+  "saveHomes": "Save Homes",
+  "loading": "Loading...",
+  "errorFetchingProperties": "Error fetching properties",
+  "homes": "Homes",
+  "forSale": "for sale",
+  "forRent": "for rent",
+  "filterByType": {
+    "forAll": "For All",
+    "forSale": "For Sale",
+    "forRent": "For Rent"
+  },
+  "sortBy": {
+    "price": "By Price",
+    "date": "By Date",
+    "bedrooms": "By Bedrooms",
+    "bathrooms": "By Bathrooms"
+  },
+  "removed": "Removed",
+  "undo": "Undo",
+  "compare": "Compare",
+  "maximumCompareAlert": "Maximum 5 properties for comparison.",
+  "compareMinMaxAlert": "select at least 2 and at most 5 properties to compare",
+  "myFavorite": "My Favorite",
+  "compareFields": {
+    "status": "Status",
+    "price": "Price",
+    "bedrooms": "Bedrooms",
+    "bathrooms": "Bathrooms",
+    "square": "Square (m²)",
+    "homeType": "Home Type",
+    "yearBuilt": "Year Built"
+  }
+}

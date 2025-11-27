@@ -62,7 +62,7 @@ export const BuyerRoute = [
         element: <FavoritePage />
     },
     {
-        path: "/compare",
+        path: "/compare/:ids",
         element: <PropertiesComparePage />
     },
 ];

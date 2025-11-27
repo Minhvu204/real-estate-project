@@ -1,9 +1,7 @@
-import React, { } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { getLanguage, type Lang } from "@/utils/storage";
 import Favorite from "@/components/Property/FavoriteIconProps";
-import type { Property } from "@/types/Property";
 import type { PropertyFavorite } from "@/types/FavoriteType";
 
 type PropertyCardProps = {
@@ -11,9 +9,10 @@ type PropertyCardProps = {
     onRemoveFavorite?: (property: PropertyFavorite) => void;
     onToggleCompare?: () => void;
     isCompared?: boolean;
+    disabledCompare?: boolean;
 }
 
-const PropertyCardFavorite: React.FC<PropertyCardProps> = ({ property, onRemoveFavorite, onToggleCompare, isCompared }) => {
+const PropertyCardFavorite: React.FC<PropertyCardProps> = ({ property, onRemoveFavorite, onToggleCompare, isCompared, disabledCompare }) => {
     const navigate = useNavigate();
     const currentLanguage: Lang = getLanguage();
     const { t } = useTranslation('propertyPage');
@@ -24,15 +23,20 @@ const PropertyCardFavorite: React.FC<PropertyCardProps> = ({ property, onRemoveF
     return (
         <div className="bg-white rounded-md shadow hover:shadow-lg transition-all duration-300 overflow-hidden ring-2 ring-gray-200">
             <div className="flex m-2">
-                <input
-                    type="checkbox"
-                    title="compare"
-                    checked={isCompared}
-                    onChange={onToggleCompare}
-                    className="size-6 m-2 cursor-pointer"
-                />
-                <div className="font-bold my-auto">Compare</div>
-
+                {!disabledCompare ? (
+                    <>
+                        <input
+                            type="checkbox"
+                            title="compare"
+                            checked={isCompared}
+                            onChange={onToggleCompare}
+                            className="size-6 m-2 cursor-pointer"
+                        />
+                        <div className="font-bold my-2">Compare</div>
+                    </>
+                ) : (
+                    <div className="font-bold my-2 text-gray-400">Không thể so sánh</div>
+                )}
             </div>
             <div className="aspect-4/3 w-full relative">
                 {property.type?.type_name[currentLanguage] && (

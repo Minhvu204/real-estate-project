@@ -4,8 +4,8 @@ import { getLanguage, type Lang } from "./storage";
 
 export const httpClient = axios.create({
     baseURL: API_BASE_CLIENT_URL,
-    timeout: 10000,
-    withCredentials: true, // Gửi cookie (refresh_token)
+    timeout: 100000,
+    withCredentials: true,
 });
 
 httpClient.interceptors.request.use(

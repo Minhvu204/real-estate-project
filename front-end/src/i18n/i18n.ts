@@ -23,6 +23,8 @@ import LIST_PROPERTIES_ADMIN_EN from "../locales/en/listProperties.json";
 import LIST_PROPERTIES_ADMIN_VI from "../locales/vi/listProperties.json";
 import DETAIL_PROPERTIES_ADMIN_EN from "../locales/en/detailProperty.json";
 import DETAIL_PROPERTIES_ADMIN_VI from "../locales/vi/detailProperty.json";
+import FAVORITE_EN from "../locales/en/favorite.json";
+import FAVORITE_VI from "../locales/vi/favorite.json";
 
 export const resources = {
     en: {
@@ -36,7 +38,8 @@ export const resources = {
         createPropertyPage: CREATEPROPERTYPAGE_EN,
         addressAutocomplete: ADDRESSAUTOCOMPLETE_EN,
         listProperties: LIST_PROPERTIES_ADMIN_EN,
-        detailProperty: DETAIL_PROPERTIES_ADMIN_EN
+        detailProperty: DETAIL_PROPERTIES_ADMIN_EN,
+        favorite: FAVORITE_EN
     },
     vi: {
         home: HOME_VI,
@@ -49,7 +52,8 @@ export const resources = {
         createPropertyPage: CREATEPROPERTYPAGE_VI,
         addressAutocomplete: ADDRESSAUTOCOMPLETE_VI,
         listProperties: LIST_PROPERTIES_ADMIN_VI,
-        etailProperty: DETAIL_PROPERTIES_ADMIN_VI
+        etailProperty: DETAIL_PROPERTIES_ADMIN_VI,
+        favorite: FAVORITE_VI
     }
 };
 export const defaultNS = "home";
@@ -60,7 +64,7 @@ i18n
         {
             debug: true,
             resources,
-            ns: ["home", "properties", "propertyPage", "propertyDetail", "profile", "myProperties", 'createPropertyPage', 'addressAutocomplete'],     //add các namespace khi viết thêm ở trên vào mảng này
+            ns: ["home", "properties", "propertyPage", "propertyDetail", "profile", "myProperties", 'createPropertyPage', 'addressAutocomplete', 'favorite'],     //add các namespace khi viết thêm ở trên vào mảng này
             defaultNS,
             fallbackLng: 'en',
             detection: {

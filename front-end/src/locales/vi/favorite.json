@@ -1,0 +1,35 @@
+{
+  "pageTitle": "Dwello | Ngôi Nhà Yêu Thích",
+  "saveHomes": "Nhà Đã Lưu",
+  "loading": "Đang tải...",
+  "errorFetchingProperties": "Lỗi khi tải danh sách bất động sản",
+  "homes": "Ngôi Nhà",
+  "forSale": "để bán",
+  "forRent": "cho thuê",
+  "filterByType": {
+    "forAll": "Tất Cả",
+    "forSale": "Mua",
+    "forRent": "Thuê"
+  },
+  "sortBy": {
+    "price": "Theo Giá",
+    "date": "Theo Ngày",
+    "bedrooms": "Theo Phòng Ngủ",
+    "bathrooms": "Theo Phòng Tắm"
+  },
+  "removed": "Đã xóa",
+  "undo": "Hoàn tác",
+  "compare": "So Sánh",
+  "maximumCompareAlert": "Tối đa 5 bất động sản để so sánh.",
+  "compareMinMaxAlert": "vui lòng chọn ít nhất 2 và tối đa 5 bất động sản để so sánh",
+  "myFavorite": "Yêu Thích",
+  "compareFields": {
+    "status": "Trạng Thái",
+    "price": "Giá",
+    "bedrooms": "Phòng Ngủ",
+    "bathrooms": "Phòng Tắm",
+    "square": "Diện Tích (m²)",
+    "homeType": "Loại Nhà",
+    "yearBuilt": "Năm Xây Dựng"
+  }
+}
