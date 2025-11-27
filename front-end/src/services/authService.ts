@@ -22,3 +22,9 @@ export async function loginRequest(payload: LoginPayload): Promise<AuthResponse>
   const data = res.data?.data;
   return { token: data.accessToken, user: data.user };
 }
+
+export const loginWithGoogleRequest = async (idToken: string) => {
+  const res = await api.post("/api/client/auth/google", { idToken });
+  const data = res.data?.data;
+  return { accessToken: data.accessToken, user: data.user };
+};
