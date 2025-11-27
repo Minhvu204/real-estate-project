@@ -1,5 +1,4 @@
 import type { AssignAgent } from "@/types/AsssignAgents";
-import type { Agent } from "../types/Agent";
 import { httpClient } from "../utils/httpClient";
 
 const RESOURCE = "/agent";

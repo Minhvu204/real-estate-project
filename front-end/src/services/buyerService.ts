@@ -1,4 +1,4 @@
-import type { checkFavoriteType, Favorite, } from "@/types/FavoriteType";
+import type { checkFavoriteType } from "@/types/FavoriteType";
 import type { Property } from "@/types/Property";
 import { httpClient } from "@/utils/httpClient";
 
