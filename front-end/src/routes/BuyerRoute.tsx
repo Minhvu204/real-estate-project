@@ -11,6 +11,8 @@ import MyPropertiesPage from "../pages/MyPropertiesPage";
 import { Favorite } from "@mui/icons-material";
 import FavoritePage from "@/pages/Favorite/FavoritePage";
 import PropertiesComparePage from "@/pages/Compare/PropertiesComparePage";
+import DealListPageBuyer from "../pages/DealContract/DealListPageBuyer";
+import DealContractPageBuyer from "../pages/DealContract/DealContractPageBuyer";
 
 export const BuyerRoute = [
     {
@@ -28,6 +30,14 @@ export const BuyerRoute = [
     {
         path: "/property/detail/:id",
         element: <PropertyDetail />
+    },
+    {
+        path: "/buyer/deals/list",
+        element: <DealListPageBuyer />
+    },
+    {
+        path: "/buyer/contracts/deals/:dealId",
+        element: <DealContractPageBuyer />
     },
     {
         path: "/profile",

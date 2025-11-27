@@ -626,6 +626,8 @@ export const propertyService = {
       .populate("owner_id")
       .populate("agent_id")
       .populate("features")
+      .populate("owner_id", "-password")
+      .populate("agent_id", "-password")
       .lean();
   },
 };

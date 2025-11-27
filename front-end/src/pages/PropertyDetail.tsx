@@ -52,8 +52,6 @@ const PropertyDetailUser = () => {
 
     const features = property.features ?? [];
 
-
-
     return (
         <Container sx={{ mt: 1, mb: 1 }}>
             {/* CAROUSEL */}

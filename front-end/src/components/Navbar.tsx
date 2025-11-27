@@ -1,22 +1,5 @@
 import React, { useContext, useState } from "react";
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Box,
-  Button,
-  IconButton,
-  Avatar,
-  Menu,
-  MenuItem,
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Divider,
-  Fade,
-} from "@mui/material";
+import { AppBar, Toolbar, Typography, Box, Button, IconButton, Avatar, Menu, MenuItem, Drawer, List, ListItem, ListItemButton, ListItemText, Divider, Fade, } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import HomeIcon from "@mui/icons-material/Home";
@@ -28,33 +11,34 @@ import ButtonLanguage from "./common/ButtonLanguage";
 import Notification from "./common/notification/Notification";
 import { useTranslation } from 'react-i18next';
 const Navbar: React.FC = () => {
-  const { t } = useTranslation('favorite');
+  // const { t } = useTranslation('favorite');
   const { state, signOut } = useContext(AuthContext);
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const location = useLocation();
-  const role = state.user?.role || "guest";
-  const isAdminRoute = location.pathname.startsWith("/admin");
+  const role = state.user?.role || 'guest';
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  const { t } = useTranslation("auth");
 
   const roleMenus = {
     buyer: [
       { label: "My Properties", path: "/dwello/myProperties" },
       { label: "My Agent", path: "/dwello/myAgent" },
-      { label: t('myFavorite'), path: "/favorites" }
+      { label: "Deals - Contract", path: "/buyer/deals/list" },
+      { label: "My Favorite", path: "/favorites" } // t('myFavorite')
     ],
     seller: [
       { label: "My Properties", path: "/seller/properties" },
       { label: "Manage Listings", path: "/seller/my-properties" },
-
+      { label: "Deals - Contract", path: "/seller/deals/list" },
     ],
     agent: [
       { label: "My Properties", path: "/agent/properties" },
       { label: "Manage Listings", path: "/agent/my-properties" },
+      { label: "Deals - Contract", path: "/agent/deals/list" },
     ],
-
   };
-
   const handleLogout = () => {
     signOut();
     navigate("/login");
@@ -382,8 +366,7 @@ const Navbar: React.FC = () => {
                       width: "0%",
                       height: "3px",
                       borderRadius: "3px",
-                      background:
-                        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                       transition: "width 0.3s ease",
                     },
                     "&:hover": {
@@ -401,7 +384,6 @@ const Navbar: React.FC = () => {
             </Box>
           )}
           <ButtonLanguage />
-          <Notification />
           {/* Right Side */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             {!state.token ? (
@@ -425,7 +407,7 @@ const Navbar: React.FC = () => {
                       },
                     }}
                   >
-                    Sign In
+                    {t("narbar.signIn")}
                   </Button>
 
                   <Button
@@ -436,8 +418,7 @@ const Navbar: React.FC = () => {
                       px: 3,
                       py: 1,
                       borderRadius: 3,
-                      background:
-                        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                       fontWeight: 700,
                       boxShadow: "0 6px 20px rgba(102,126,234,0.35)",
                       transition: "all 0.3s ease",
@@ -447,7 +428,7 @@ const Navbar: React.FC = () => {
                       },
                     }}
                   >
-                    Sign up
+                    {t("narbar.signUp")}
                   </Button>
                 </Box>
                 {/* Mobile Menu Icon for non-logged users */}
@@ -455,8 +436,7 @@ const Navbar: React.FC = () => {
                   onClick={handleDrawerToggle}
                   sx={{
                     display: { md: "none" },
-                    background:
-                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                     color: "white",
                     width: 42,
                     height: 42,
@@ -493,8 +473,7 @@ const Navbar: React.FC = () => {
                 >
                   <Avatar
                     sx={{
-                      background:
-                        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                       cursor: "pointer",
                       boxShadow: "0 4px 12px rgba(102,126,234,0.3)",
                       width: 38,
@@ -537,8 +516,7 @@ const Navbar: React.FC = () => {
                 <Avatar
                   sx={{
                     display: { xs: "flex", md: "none" },
-                    background:
-                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                     cursor: "pointer",
                     boxShadow: "0 4px 12px rgba(102,126,234,0.3)",
                     width: 38,

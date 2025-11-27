@@ -26,6 +26,10 @@ import DETAIL_PROPERTIES_ADMIN_VI from "../locales/vi/detailProperty.json";
 import FAVORITE_EN from "../locales/en/favorite.json";
 import FAVORITE_VI from "../locales/vi/favorite.json";
 
+import DEAL_CONTRACT_EN from "../locales/en/dealContract.json";
+import DEAL_CONTRACT_VI from "../locales/vi/dealContract.json";
+import AUTH_VI from "../locales/vi/auth.json";
+import AUTH_EN from "../locales/en/auth.json";
 export const resources = {
     en: {
         home: HOME_EN,
@@ -39,7 +43,9 @@ export const resources = {
         addressAutocomplete: ADDRESSAUTOCOMPLETE_EN,
         listProperties: LIST_PROPERTIES_ADMIN_EN,
         detailProperty: DETAIL_PROPERTIES_ADMIN_EN,
-        favorite: FAVORITE_EN
+        favorite: FAVORITE_EN,
+        dealContact: DEAL_CONTRACT_EN,
+        auth: AUTH_EN
     },
     vi: {
         home: HOME_VI,
@@ -53,7 +59,9 @@ export const resources = {
         addressAutocomplete: ADDRESSAUTOCOMPLETE_VI,
         listProperties: LIST_PROPERTIES_ADMIN_VI,
         etailProperty: DETAIL_PROPERTIES_ADMIN_VI,
-        favorite: FAVORITE_VI
+        favorite: FAVORITE_VI,
+        dealContact: DEAL_CONTRACT_VI,
+        auth: AUTH_VI
     }
 };
 export const defaultNS = "home";
