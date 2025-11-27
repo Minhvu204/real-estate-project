@@ -328,3 +328,51 @@ export async function getPaymentsByBuyer(
   };
 }
 
+
+export async function getPaymentsBySeller(
+  sellerId: string,
+  filters: {
+    dealId?: string;
+    type?: string;
+    status?: string;
+    page?: number;
+    limit?: number;
+  }
+) {
+  const { dealId, type, status, page = 1, limit = 10 } = filters;
+
+  // Tìm tất cả deal mà seller này tham gia
+  const deals = await Deal.find({ seller_id: sellerId }).select("_id");
+
+  const dealIds = deals.map((d) => d._id);
+
+  const query: any = { deal_id: { $in: dealIds } };
+
+  if (dealId && mongoose.Types.ObjectId.isValid(dealId)) {
+    query.deal_id = new mongoose.Types.ObjectId(dealId);
+  }
+
+  if (type) query.type = type;
+  if (status) query.status = status;
+
+  const skip = (page - 1) * limit;
+
+  const [items, total] = await Promise.all([
+    Payment.find(query)
+      .populate("deal_id", "property_id seller_id agent_id amounts")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    Payment.countDocuments(query),
+  ]);
+
+  return {
+    items,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
+}
+
