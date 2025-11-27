@@ -112,6 +112,25 @@ export async function notifyAssignmentCancelled(
   );
 }
 
+export async function notifyAssignmentCancelledByAgent(
+  sellerId: string,
+  agentName: string,
+  propertyTitle: string,
+  assignmentId: string
+) {
+  return createNotification(
+    sellerId,
+    "Agent đã hủy yêu cầu quản lý",
+    `${agentName} đã hủy yêu cầu quản lý property "${propertyTitle}"`,
+    {
+      type: "property",
+      relatedId: assignmentId,
+      actionUrl: `/seller/assignments`, // trang seller xem danh sách
+    }
+  );
+}
+
+
 // Notification khi seller gỡ agent khỏi property
 export async function notifyAgentRemoved(
   agentId: string,

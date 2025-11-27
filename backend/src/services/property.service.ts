@@ -626,6 +626,54 @@ export const propertyService = {
       .populate("owner_id")
       .populate("agent_id")
       .populate("features")
+      .populate("owner_id", "-password")
+      .populate("agent_id", "-password")
       .lean();
   },
+
+  async getPropertiesWithoutAgent(filters: any) {
+    const {
+      city,
+      district,
+      ward,
+      type,
+      category,
+      keyword,
+      minPrice,
+      maxPrice
+    } = filters;
+
+    const query: any = {
+      deleted: false,
+      agent_id: null, 
+      status: { $in: ["approved", "available"] },
+    };
+
+    if (city) query.city_id = city;
+    if (district) query.district_id = district;
+    if (ward) query.ward_id = ward;
+    if (type) query.type_id = type;
+    if (category) query.category_id = category;
+
+    if (keyword) query["title.vi"] = { $regex: keyword, $options: "i" };
+
+    if (minPrice || maxPrice) {
+      query.price = {
+        ...(minPrice ? { $gte: Number(minPrice) } : {}),
+        ...(maxPrice ? { $lte: Number(maxPrice) } : {})
+      };
+    }
+
+    const properties = await Property.find(query)
+      .populate("city_id", "city_name")
+      .populate("district_id", "district_name")
+      .populate("ward_id", "ward_name")
+      .populate("category_id", "category_name")
+      .populate("type_id", "type_name")
+      .populate("owner_id", "fullName phone email avatar")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return properties;
+  }
 };
