@@ -4,6 +4,7 @@ import User from "../models/user.model";
 import Property from "../models/property.model";
 import Appointment from "../models/appointment.model";
 import Deal from "../models/deal.model";
+import { createMultilangText } from "../utils/translateHelper";
 
 const toObjectId = (id: string) => new mongoose.Types.ObjectId(id);
 
@@ -182,7 +183,7 @@ export const reviewService = {
       target_id: toObjectId(target_id),
       target_type,
       rating,
-      comment: comment || "",
+      comment: await createMultilangText(comment || ""),
     });
 
     await review.save();
@@ -320,7 +321,7 @@ export const reviewService = {
     }
 
     if (payload.comment !== undefined) {
-      review.comment = payload.comment;
+      review.comment = await createMultilangText(payload.comment);
     }
 
     await review.save();
