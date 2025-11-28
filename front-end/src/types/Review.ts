@@ -40,7 +40,10 @@ export type Review = {
   };
   target_type: string;
   rating: number;
-  comment: string;
+  comment: {
+    vi: string;
+    en: string;
+  };
   isComment: boolean;
   status: string;
   createdAt: Date;

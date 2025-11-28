@@ -1,3 +1,4 @@
+import { getLanguage, type Lang } from "../../../utils/storage";
 import {
   deleteReview,
   getAllReview,
@@ -12,9 +13,11 @@ import {
   Modal,
   Pagination,
   Rating,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast, ToastContainer } from "react-toastify";
 
 const style = {
@@ -38,7 +41,8 @@ const ReviewList = () => {
   const [openModalDelete, setOpenModalDelete] = useState<boolean>(false);
   const [reviewDetail, setReviewDetail] = useState<Review | null>(null);
   const [reviewIdDelete, setReviewIdDelete] = useState<string | null>(null);
-
+  const { t } = useTranslation("review");
+  const currentLanguage: Lang = getLanguage();
   useEffect(() => {
     const fetchReview = async () => {
       const res = await getAllReview(currentPage);
@@ -61,13 +65,13 @@ const ReviewList = () => {
     if (!id) return;
     try {
       await deleteReview(id);
-      toast.success("delete thành công");
+      toast.success(t("toast_delete_success"));
       setOpenModalDelete(false);
       const res = await getAllReview(currentPage);
       setReview(res.reviews);
       setPagination(res.pagination);
     } catch (err) {
-      toast.error("delete thất bại");
+      toast.error(t("toast_delete_fail"));
       console.log("err: ", err);
     }
   };
@@ -97,13 +101,13 @@ const ReviewList = () => {
         <thead className="bg-gray-50">
           <tr>
             <th className="w-1/4 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 border-b">
-              name
+              {t("name")}
             </th>
             <th className="w-1/4 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 border-b">
-              comment
+              {t("comment")}
             </th>
             <th className="w-1/4 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 border-b">
-              action
+              {t("action")}
             </th>
           </tr>
         </thead>
@@ -115,22 +119,26 @@ const ReviewList = () => {
                   {data.user_id.fullName}
                 </td>
                 <td className="px-4 py-3 text-sm font-medium text-gray-800">
-                  {data.comment}
+                  {data.comment?.[currentLanguage]}
                 </td>
                 <td className="px-4 py-3">
-                  <Button
-                    sx={{ mr: 1 }}
-                    variant="outlined"
-                    onClick={() => handleViewDetail(data._id)}
-                  >
-                    View
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    onClick={() => handleOpenModalDelete(data._id)}
-                  >
-                    Delete
-                  </Button>
+                  <Tooltip title={t("view_btn_toolTip")}>
+                    <Button
+                      sx={{ mr: 1 }}
+                      variant="outlined"
+                      onClick={() => handleViewDetail(data._id)}
+                    >
+                      {t("view_btn")}
+                    </Button>
+                  </Tooltip>
+                  <Tooltip title={t("delete_btn_toolTip")}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => handleOpenModalDelete(data._id)}
+                    >
+                      {t("delete_btn")}
+                    </Button>
+                  </Tooltip>
                 </td>
               </tr>
             ))}
@@ -182,13 +190,15 @@ const ReviewList = () => {
                   {reviewDetail.user_id?.fullName}
                 </Typography>
                 <Rating value={reviewDetail.rating} readOnly sx={{ mt: 2 }} />
-                <Typography sx={{ mt: 2 }}>{reviewDetail.comment}</Typography>
+                <Typography sx={{ mt: 2 }}>
+                  {reviewDetail.comment?.[currentLanguage]}
+                </Typography>
               </Box>
             </Box>
             <Divider sx={{ my: 1 }} />
             <Box sx={{ px: 3, mt: 3.5, textAlign: "right" }}>
               <Button variant="outlined" onClick={handleClose}>
-                Hủy
+                {t("cancel_btn")}
               </Button>
             </Box>
           </Box>
@@ -245,13 +255,15 @@ const ReviewList = () => {
                   {reviewDetail.user_id?.fullName}
                 </Typography>
                 <Rating value={reviewDetail.rating} readOnly sx={{ mt: 2 }} />
-                <Typography sx={{ mt: 2 }}>{reviewDetail.comment}</Typography>
+                <Typography sx={{ mt: 2 }}>
+                  {reviewDetail.comment?.[currentLanguage]}
+                </Typography>
               </Box>
             </Box>
             <Divider sx={{ my: 1 }} />
             <Box sx={{ px: 3, textAlign: "right", mt: 3.5 }}>
               <Button variant="outlined" onClick={handleClose}>
-                Hủy
+                {t("cancel_btn")}
               </Button>
             </Box>
           </Box>
@@ -261,20 +273,18 @@ const ReviewList = () => {
       <Modal open={openModalDelete} onClose={handleClose}>
         <Box sx={style}>
           <Typography variant="h6" component="h2">
-            Xóa comment
+            {t("delete_comment")}
           </Typography>
-          <Typography sx={{ mt: 2 }}>
-            Bạn có muốn xóa comment này không ?
-          </Typography>
+          <Typography sx={{ mt: 2 }}>{t("delete_question")}</Typography>
           <Box sx={{ px: 3, textAlign: "right", mt: 3 }}>
             <Button variant="outlined" onClick={handleClose} sx={{ mr: 2 }}>
-              cancel
+              {t("cancel_btn")}
             </Button>
             <Button
               variant="outlined"
               onClick={() => handleDelete(reviewIdDelete!)}
             >
-              delete
+              {t("delete_btn")}
             </Button>
           </Box>
         </Box>
