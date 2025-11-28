@@ -12,6 +12,7 @@ import DealListPageSeller from "../pages/DealContract/DealListPageSeller";
 import DealContractPageSeller from "../pages/DealContract/DealContractPageSeller";
 export const SellerRoute = [
 
+
   {
     path: "/seller/properties", element: <SellerProperties />
   },

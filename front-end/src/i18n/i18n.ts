@@ -36,6 +36,8 @@ import OFFER_MANAGEMENT_VI from "../locales/vi/offerManagement.json";
 
 import DEAL_CONTRACT_EN from "../locales/en/dealContract.json";
 import DEAL_CONTRACT_VI from "../locales/vi/dealContract.json";
+import AUTH_VI from "../locales/vi/auth.json";
+import AUTH_EN from "../locales/en/auth.json";
 export const resources = {
     en: {
         home: HOME_EN,
@@ -54,7 +56,8 @@ export const resources = {
         agentList: AGENT_LIST_EN,
         agentDetail: AGENT_DETAIL_EN,
         offerManagement: OFFER_MANAGEMENT_EN,
-        dealContact: DEAL_CONTRACT_EN
+        dealContact: DEAL_CONTRACT_EN,
+        auth: AUTH_EN
     },
     vi: {
         home: HOME_VI,
@@ -73,7 +76,8 @@ export const resources = {
         agentList: AGENT_LIST_VI,
         agentDetail: AGENT_DETAIL_VI,
         offerManagement: OFFER_MANAGEMENT_VI,
-        dealContact: DEAL_CONTRACT_VI
+        dealContact: DEAL_CONTRACT_VI,
+        auth: AUTH_VI
     }
 };
 export const defaultNS = "home";

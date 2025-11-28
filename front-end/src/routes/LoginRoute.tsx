@@ -1,8 +1,8 @@
 import LoginPage from "../pages/Login";
 import HomePage from "../pages/Home";
+import RegisterPage from "../pages/registerPage";
 import { Navigate } from "react-router-dom";
 import NotificationsPage from "../components/common/notification/NotificationPage";
-import RegisterPage from "../pages/SearchPage/registerPage";
 import AgentDetailPage from "../pages/Agent/AgentDetailPage";
 
 export const LoginRoute = [

@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { Paper, Typography, Box, TextField, Button, Checkbox, FormControlLabel, Divider, Stack, InputAdornment, IconButton, Fade, Zoom } from "@mui/material";
+import { Typography, Box, TextField, Button, Checkbox, FormControlLabel, Divider, Stack, InputAdornment, IconButton, Fade, Zoom } from "@mui/material";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
@@ -7,8 +7,10 @@ import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined
 import HomeIcon from "@mui/icons-material/Home";
 import AuthContext from "../context/AuthContext";
 import { loginRequest } from "../services/authService";
+import { verifyEmail, resendOtp } from "../services/auth";
 import { useNavigate } from "react-router-dom";
 import GoogleLoginButton from "../components/auth/GoogleLoginButton";
+import { useTranslation } from "react-i18next";
 
 const LoginPage: React.FC = () => {
     const [email, setEmail] = useState("");
@@ -18,12 +20,17 @@ const LoginPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const { signIn } = useContext(AuthContext);
     const navigate = useNavigate();
+    const [otpMode, setOtpMode] = useState(false);
+    const [otp, setOtp] = useState("");
+    const [userId, setUserId] = useState("");
+    const [emailForOtp, setEmailForOtp] = useState("");
+    const { t } = useTranslation("auth");
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
         if (!email || !password) {
-            setError("Please fill in both fields");
+            setError(t("login.errorFillFields"));
             return;
         }
         try {
@@ -36,11 +43,64 @@ const LoginPage: React.FC = () => {
             }
             else if (user.role === 'admin') {
                 navigate("/admin/dashboard")
+            } else {
+                // OTP verify email
+                await verifyEmail({ userId, otp });
+                setOtpMode(false);
+                setError("Email verified! You can login now.");
             }
 
         } catch (err: any) {
             setLoading(false);
-            setError(err?.response?.data?.message || err.message || "Login failed");
+            const data = err.response?.data;
+            if (data?.requiresVerification || data?.message.includes("Vui lòng xác thực email trước khi đăng nhập")) {
+                const id = data?.userId;
+                if (!id) {
+                    setError("Lỗi hệ thống: không nhận được userId");
+                    return;
+                }
+                setUserId(id);
+                setEmailForOtp(email);
+                console.log("UserId:", id);
+                console.log("Email:", email);
+                setOtpMode(true);
+                setError(t("login.enterOtp"));
+                return;
+            }
+
+            setError(data?.message || "Đăng nhập thất bại");
+        }
+    };
+
+
+    const handleVerifyOtp = async () => {
+        if (!otp.trim() || !userId) {
+            setError(t("login.enterOtp"));
+            return;
+        }
+
+        try {
+            setLoading(true);
+            await verifyEmail({ userId, otp });
+
+            setError(t("login.verifiedSuccess"));
+            setOtpMode(false);
+
+            // Tự động đăng nhập lại sau khi verify thành công
+            const { token, user } = await loginRequest({ email, password });
+            signIn({ token, user });
+
+            // Chuyển hướng theo role
+            if (user.role === "admin") {
+                navigate("/admin/dashboard");
+            } else {
+                navigate("/home");
+            }
+
+        } catch (err: any) {
+            setError(err?.response?.data?.message || t("login.errorInvalidOtp"));
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -169,7 +229,7 @@ const LoginPage: React.FC = () => {
                                     mx: "auto",
                                 }}
                             >
-                                Your journey to finding the perfect home starts here
+                                {t("imageleft.brandSubtitle")}
                             </Typography>
                             <Box
                                 sx={{
@@ -180,7 +240,7 @@ const LoginPage: React.FC = () => {
                                     flexWrap: "wrap",
                                 }}
                             >
-                                {["10k+ Homes", "Trusted Platform", "24/7 Support"].map((item, i) => (
+                                {[t("imageleft.brandTag1"), t("imageleft.brandTag2"), t("imageleft.brandTag3")].map((item, i) => (
                                     <Box
                                         key={i}
                                         sx={{
@@ -233,7 +293,7 @@ const LoginPage: React.FC = () => {
                                 letterSpacing: "-0.02em",
                             }}
                         >
-                            Welcome Back!
+                            {otpMode ? t("login.verifyEmailTitle") : t("login.welcomeBack")}
                         </Typography>
                         <Typography
                             sx={{
@@ -243,267 +303,311 @@ const LoginPage: React.FC = () => {
                                 fontWeight: 400,
                             }}
                         >
-                            Login to access your account
+                            {otpMode ? t("login.verifyEmailSubtitle") : t("login.loginToAccess")}
                         </Typography>
 
                         <Box component="form" onSubmit={handleSubmit}>
-                            <TextField
-                                placeholder="Enter your email"
-                                fullWidth
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                sx={{
-                                    mb: 2.5,
-                                    "& .MuiOutlinedInput-root": {
-                                        borderRadius: 3,
-                                        backgroundColor: "#f8f9fa",
-                                        border: "2px solid transparent",
-                                        transition: "all 0.3s ease",
-                                        "& fieldset": {
-                                            border: "none",
-                                        },
-                                        "&:hover": {
-                                            backgroundColor: "#f1f3f5",
-                                            borderColor: "#e9ecef",
-                                        },
-                                        "&.Mui-focused": {
-                                            backgroundColor: "white",
-                                            borderColor: "#667eea",
-                                            boxShadow: "0 0 0 4px rgba(102,126,234,0.1)",
-                                        },
-                                    },
-                                }}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <EmailOutlinedIcon sx={{ color: "#667eea", fontSize: 22 }} />
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                variant="outlined"
-                            />
-                            <TextField
-                                placeholder="Enter your password"
-                                type={showPassword ? "text" : "password"}
-                                fullWidth
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                sx={{
-                                    mb: 2,
-                                    "& .MuiOutlinedInput-root": {
-                                        borderRadius: 3,
-                                        backgroundColor: "#f8f9fa",
-                                        border: "2px solid transparent",
-                                        transition: "all 0.3s ease",
-                                        "& fieldset": {
-                                            border: "none",
-                                        },
-                                        "&:hover": {
-                                            backgroundColor: "#f1f3f5",
-                                            borderColor: "#e9ecef",
-                                        },
-                                        "&.Mui-focused": {
-                                            backgroundColor: "white",
-                                            borderColor: "#667eea",
-                                            boxShadow: "0 0 0 4px rgba(102,126,234,0.1)",
-                                        },
-                                    },
-                                }}
-                                InputProps={{
-                                    startAdornment: (
-                                        <InputAdornment position="start">
-                                            <LockOutlinedIcon sx={{ color: "#667eea", fontSize: 22 }} />
-                                        </InputAdornment>
-                                    ),
-                                    endAdornment: (
-                                        <InputAdornment position="end">
-                                            <IconButton
-                                                onClick={() => setShowPassword(!showPassword)}
-                                                edge="end"
-                                                sx={{
-                                                    color: "#667eea",
-                                                    "&:hover": {
-                                                        backgroundColor: "rgba(102,126,234,0.1)",
-                                                    },
-                                                }}
-                                            >
-                                                {showPassword ? (
-                                                    <VisibilityOffOutlinedIcon />
-                                                ) : (
-                                                    <VisibilityOutlinedIcon />
-                                                )}
-                                            </IconButton>
-                                        </InputAdornment>
-                                    ),
-                                }}
-                                variant="outlined"
-                            />
+                            {otpMode ? (
+                                <>
+                                    <TextField
+                                        fullWidth
+                                        placeholder={t("login.otpPlaceholder")}
+                                        value={otp}
+                                        onChange={(e) => setOtp(e.target.value)}
+                                        sx={{ mb: 2 }}
+                                    />
+                                    <Button
+                                        fullWidth
+                                        variant="contained"
+                                        onClick={handleVerifyOtp}
+                                        disabled={loading || !otp.trim()}
+                                        sx={{ mb: 2 }}
+                                    >
+                                        {loading ? t("login.verifying") : t("login.verifyButton")}
+                                    </Button>
+                                    <Button
+                                        fullWidth
+                                        variant="text"
+                                        onClick={async () => {
+                                            if (!userId || !email) {
+                                                setError("Cannot resend OTP: missing user info.");
+                                                return;
+                                            }
+                                            try {
+                                                setLoading(true);
+                                                await resendOtp({ userId, email: emailForOtp });
+                                                setError(t("login.otpResent"));
+                                            } catch (err: any) {
+                                                setError(err?.response?.data?.message || err.message);
+                                            } finally {
+                                                setLoading(false);
+                                            }
+                                        }}
+                                    >
+                                        {t("login.resendOtp")}
+                                    </Button>
+                                </>
+                            ) : (
+                                <>
+                                    <TextField
+                                        placeholder={t("login.email")}
+                                        fullWidth
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        sx={{
+                                            mb: 2.5,
+                                            "& .MuiOutlinedInput-root": {
+                                                borderRadius: 3,
+                                                backgroundColor: "#f8f9fa",
+                                                border: "2px solid transparent",
+                                                transition: "all 0.3s ease",
+                                                "& fieldset": {
+                                                    border: "none",
+                                                },
+                                                "&:hover": {
+                                                    backgroundColor: "#f1f3f5",
+                                                    borderColor: "#e9ecef",
+                                                },
+                                                "&.Mui-focused": {
+                                                    backgroundColor: "white",
+                                                    borderColor: "#667eea",
+                                                    boxShadow: "0 0 0 4px rgba(102,126,234,0.1)",
+                                                },
+                                            },
+                                        }}
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <EmailOutlinedIcon sx={{ color: "#667eea", fontSize: 22 }} />
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                        variant="outlined"
+                                    />
+                                    <TextField
+                                        placeholder={t("login.password")}
+                                        type={showPassword ? "text" : "password"}
+                                        fullWidth
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        sx={{
+                                            mb: 2,
+                                            "& .MuiOutlinedInput-root": {
+                                                borderRadius: 3,
+                                                backgroundColor: "#f8f9fa",
+                                                border: "2px solid transparent",
+                                                transition: "all 0.3s ease",
+                                                "& fieldset": {
+                                                    border: "none",
+                                                },
+                                                "&:hover": {
+                                                    backgroundColor: "#f1f3f5",
+                                                    borderColor: "#e9ecef",
+                                                },
+                                                "&.Mui-focused": {
+                                                    backgroundColor: "white",
+                                                    borderColor: "#667eea",
+                                                    boxShadow: "0 0 0 4px rgba(102,126,234,0.1)",
+                                                },
+                                            },
+                                        }}
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <LockOutlinedIcon sx={{ color: "#667eea", fontSize: 22 }} />
+                                                </InputAdornment>
+                                            ),
+                                            endAdornment: (
+                                                <InputAdornment position="end">
+                                                    <IconButton
+                                                        onClick={() => setShowPassword(!showPassword)}
+                                                        edge="end"
+                                                        sx={{
+                                                            color: "#667eea",
+                                                            "&:hover": {
+                                                                backgroundColor: "rgba(102,126,234,0.1)",
+                                                            },
+                                                        }}
+                                                    >
+                                                        {showPassword ? (
+                                                            <VisibilityOffOutlinedIcon />
+                                                        ) : (
+                                                            <VisibilityOutlinedIcon />
+                                                        )}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                        variant="outlined"
+                                    />
 
-                            <Box
-                                sx={{
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                    mb: 3,
-                                }}
-                            >
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
+                                    <Box
+                                        sx={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            alignItems: "center",
+                                            mb: 3,
+                                        }}
+                                    >
+                                        <FormControlLabel
+                                            control={
+                                                <Checkbox
+                                                    sx={{
+                                                        color: "#667eea",
+                                                        "&.Mui-checked": {
+                                                            color: "#667eea",
+                                                        },
+                                                    }}
+                                                />
+                                            }
+                                            label={
+                                                <Typography sx={{ fontSize: "0.9rem", color: "rgba(0,0,0,0.6)" }}>
+                                                    {t("login.rememberMe")}
+                                                </Typography>
+                                            }
+                                        />
+                                        <Button
+                                            size="small"
                                             sx={{
+                                                textTransform: "none",
                                                 color: "#667eea",
-                                                "&.Mui-checked": {
-                                                    color: "#667eea",
+                                                fontWeight: 700,
+                                                fontSize: "0.9rem",
+                                                "&:hover": {
+                                                    backgroundColor: "rgba(102,126,234,0.08)",
                                                 },
                                             }}
-                                        />
-                                    }
-                                    label={
-                                        <Typography sx={{ fontSize: "0.9rem", color: "rgba(0,0,0,0.6)" }}>
-                                            Remember me
+                                            onClick={() => navigate("/forgot-password")}
+                                        >
+                                            {t("login.forgotPassword")}
+                                        </Button>
+                                    </Box>
+
+                                    {error && (
+                                        <Box
+                                            sx={{
+                                                mb: 2.5,
+                                                p: 2,
+                                                borderRadius: 3,
+                                                background: "linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)",
+                                                color: "white",
+                                                fontWeight: 500,
+                                                fontSize: "0.9rem",
+                                                boxShadow: "0 4px 12px rgba(238,90,111,0.3)",
+                                            }}
+                                        >
+                                            {error}
+                                        </Box>
+                                    )}
+
+                                    <Button
+                                        type="submit"
+                                        fullWidth
+                                        disabled={loading}
+                                        sx={{
+                                            py: 2,
+                                            borderRadius: 3,
+                                            textTransform: "none",
+                                            fontSize: "1.05rem",
+                                            fontWeight: 700,
+                                            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                            color: "#fff",
+                                            boxShadow: "0 10px 30px rgba(102,126,234,0.4)",
+                                            position: "relative",
+                                            overflow: "hidden",
+                                            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                                            "&::before": {
+                                                content: '""',
+                                                position: "absolute",
+                                                top: 0,
+                                                left: "-100%",
+                                                width: "100%",
+                                                height: "100%",
+                                                background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
+                                                transition: "left 0.6s ease",
+                                            },
+                                            "&:hover": {
+                                                boxShadow: "0 15px 40px rgba(102,126,234,0.5)",
+                                                transform: "translateY(-3px)",
+                                                "&::before": {
+                                                    left: "100%",
+                                                },
+                                            },
+                                            "&:active": {
+                                                transform: "translateY(-1px)",
+                                            },
+                                            "&:disabled": {
+                                                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                                opacity: 0.6,
+                                            },
+                                        }}
+                                    >
+                                        {loading ? t("login.signingIn") : t("login.signIn")}
+                                    </Button>
+
+                                    <Divider
+                                        sx={{
+                                            my: 3.5,
+                                            fontSize: "0.85rem",
+                                            color: "rgba(0,0,0,0.4)",
+                                            fontWeight: 500,
+                                            "&::before, &::after": {
+                                                borderColor: "rgba(0,0,0,0.1)",
+                                            },
+                                        }}
+                                    >
+                                        {t("login.or")}
+                                    </Divider>
+
+                                    <Stack sx={{ mb: 3.5 }}>
+                                        <div>
+                                            <GoogleLoginButton />
+                                        </div>
+                                    </Stack>
+
+                                    <Box
+                                        sx={{
+                                            textAlign: "center",
+                                            p: 2.5,
+                                            borderRadius: 3,
+                                            background: "linear-gradient(135deg, rgba(102,126,234,0.08) 0%, rgba(118,75,162,0.08) 100%)",
+                                        }}
+                                    >
+                                        <Typography
+                                            component="span"
+                                            sx={{
+                                                fontSize: "0.95rem",
+                                                color: "rgba(0,0,0,0.6)",
+                                                fontWeight: 500,
+                                            }}
+                                        >
+                                            {t("login.dontHaveAccount")}{" "}
                                         </Typography>
-                                    }
-                                />
-                                <Button
-                                    size="small"
-                                    sx={{
-                                        textTransform: "none",
-                                        color: "#667eea",
-                                        fontWeight: 700,
-                                        fontSize: "0.9rem",
-                                        "&:hover": {
-                                            backgroundColor: "rgba(102,126,234,0.08)",
-                                        },
-                                    }}
-                                    onClick={() => navigate("/forgot-password")}
-                                >
-                                    Forgot password?
-                                </Button>
-                            </Box>
-
-                            {error && (
-                                <Box
-                                    sx={{
-                                        mb: 2.5,
-                                        p: 2,
-                                        borderRadius: 3,
-                                        background: "linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)",
-                                        color: "white",
-                                        fontWeight: 500,
-                                        fontSize: "0.9rem",
-                                        boxShadow: "0 4px 12px rgba(238,90,111,0.3)",
-                                    }}
-                                >
-                                    {error}
-                                </Box>
+                                        <Button
+                                            variant="text"
+                                            onClick={() => navigate("/register")}
+                                            sx={{
+                                                textTransform: "none",
+                                                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                                                backgroundClip: "text",
+                                                textFillColor: "transparent",
+                                                WebkitBackgroundClip: "text",
+                                                WebkitTextFillColor: "transparent",
+                                                fontWeight: 800,
+                                                fontSize: "0.95rem",
+                                                p: 0,
+                                                minWidth: "auto",
+                                                "&:hover": {
+                                                    backgroundColor: "transparent",
+                                                    textDecoration: "underline",
+                                                },
+                                            }}
+                                        >
+                                            {t("login.signUpFree")}
+                                        </Button>
+                                    </Box>
+                                </>
                             )}
-
-                            <Button
-                                type="submit"
-                                fullWidth
-                                disabled={loading}
-                                sx={{
-                                    py: 2,
-                                    borderRadius: 3,
-                                    textTransform: "none",
-                                    fontSize: "1.05rem",
-                                    fontWeight: 700,
-                                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                    color: "#fff",
-                                    boxShadow: "0 10px 30px rgba(102,126,234,0.4)",
-                                    position: "relative",
-                                    overflow: "hidden",
-                                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                                    "&::before": {
-                                        content: '""',
-                                        position: "absolute",
-                                        top: 0,
-                                        left: "-100%",
-                                        width: "100%",
-                                        height: "100%",
-                                        background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
-                                        transition: "left 0.6s ease",
-                                    },
-                                    "&:hover": {
-                                        boxShadow: "0 15px 40px rgba(102,126,234,0.5)",
-                                        transform: "translateY(-3px)",
-                                        "&::before": {
-                                            left: "100%",
-                                        },
-                                    },
-                                    "&:active": {
-                                        transform: "translateY(-1px)",
-                                    },
-                                    "&:disabled": {
-                                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                        opacity: 0.6,
-                                    },
-                                }}
-                            >
-                                {loading ? "Signing in..." : "Sign In"}
-                            </Button>
-
-                            <Divider
-                                sx={{
-                                    my: 3.5,
-                                    fontSize: "0.85rem",
-                                    color: "rgba(0,0,0,0.4)",
-                                    fontWeight: 500,
-                                    "&::before, &::after": {
-                                        borderColor: "rgba(0,0,0,0.1)",
-                                    },
-                                }}
-                            >
-                                OR
-                            </Divider>
-
-                            <Stack direction="row" spacing={2} sx={{ mb: 3.5 }}>
-                                <Box sx={{ mt: 2 }}>
-                                    <GoogleLoginButton />
-                                </Box>
-                            </Stack>
-
-                            <Box
-                                sx={{
-                                    textAlign: "center",
-                                    p: 2.5,
-                                    borderRadius: 3,
-                                    background: "linear-gradient(135deg, rgba(102,126,234,0.08) 0%, rgba(118,75,162,0.08) 100%)",
-                                }}
-                            >
-                                <Typography
-                                    component="span"
-                                    sx={{
-                                        fontSize: "0.95rem",
-                                        color: "rgba(0,0,0,0.6)",
-                                        fontWeight: 500,
-                                    }}
-                                >
-                                    Don't have an account?{" "}
-                                </Typography>
-                                <Button
-                                    variant="text"
-                                    onClick={() => navigate("/register")}
-                                    sx={{
-                                        textTransform: "none",
-                                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                                        backgroundClip: "text",
-                                        textFillColor: "transparent",
-                                        WebkitBackgroundClip: "text",
-                                        WebkitTextFillColor: "transparent",
-                                        fontWeight: 800,
-                                        fontSize: "0.95rem",
-                                        p: 0,
-                                        minWidth: "auto",
-                                        "&:hover": {
-                                            backgroundColor: "transparent",
-                                            textDecoration: "underline",
-                                        },
-                                    }}
-                                >
-                                    Sign up free
-                                </Button>
-                            </Box>
                         </Box>
                     </Box>
                 </Zoom>

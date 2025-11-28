@@ -1,4 +1,6 @@
 import Review from "../../models/review.model";
+import Property from "../../models/property.model";
+import User from "../../models/user.model";
 import mongoose from "mongoose";
 
 export const adminReviewService = {
@@ -69,7 +71,25 @@ export const adminReviewService = {
       throw err;
     }
 
-    return review;
+    let populatedTarget = null;
+
+    if (review.target_type === "property") {
+      populatedTarget = await Property.findById(review.target_id)
+        .select("title address price images bedrooms bathrooms area city_id district_id ward_id")
+        .populate("city_id", "name")
+        .populate("district_id", "name")
+        .populate("ward_id", "name");
+    }
+
+    if (review.target_type === "agent") {
+      populatedTarget = await User.findById(review.target_id)
+        .select("fullName email avatar phone");
+    }
+
+    return {
+      ...review.toObject(),
+      target: populatedTarget
+    };
   },
 
 
