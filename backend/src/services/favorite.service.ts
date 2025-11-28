@@ -42,12 +42,10 @@ export const favoriteService = {
       throw err;
     }
 
-    const favorite = await Favorite.create({
+    return Favorite.create({
       user_id: userId,
       property_id: propertyId,
     });
-
-    return favorite;
   },
 
   async removeFavorite(userId: string, propertyId: string) {
@@ -63,9 +61,7 @@ export const favoriteService = {
     });
 
     if (!favorite) {
-      const err: any = new Error(
-        "Bất động sản không có trong danh sách yêu thích"
-      );
+      const err: any = new Error("Bất động sản không tồn tại trong yêu thích");
       err.status = 404;
       throw err;
     }
@@ -73,64 +69,90 @@ export const favoriteService = {
     return favorite;
   },
 
-  async getFavorites(userId: string, filters: FavoriteFilters) {
-    const sort = filters.sort || "-createdAt";
-
-    const query = { user_id: userId };
-
-    const favorites = await Favorite.find(query)
+  async getMyFavorites(userId: string) {
+    const favorites = await Favorite.find({ user_id: userId })
       .populate({
         path: "property_id",
         model: "Property",
-        select: [
-          "title",
-          "price",
-          "images",
-          "address",
-          "city_id",
-          "district_id",
-          "ward_id",
-          "status",
-          "deleted",
-        ].join(" "),
         populate: [
-          { path: "city_id", select: "name" },
-          { path: "district_id", select: "name" },
-          { path: "ward_id", select: "name" },
+          { path: "city_id", model: "City" },
+          { path: "district_id", model: "District" },
+          { path: "ward_id", model: "Ward" },
+          { path: "type_id", model: "PropertyType" },
+          { path: "category_id", model: "Category" },
+          { path: "owner_id", model: "User" },
+          { path: "agent_id", model: "User" },
+          { path: "features", model: "Feature" },
+          { path: "owner_id", model: "User", select: "-password" },
+          { path: "agent_id", model: "User", select: "-password" },
         ],
       })
-      .sort(sort);
+      .sort({ createdAt: -1 });
 
-    const total = favorites.length;
+    // format dữ liệu như Postman bạn gửi
+    const result = favorites.map((fav) => {
+      const property: any = fav.property_id;
+
+      return {
+        favorite_id: fav._id,
+        property_id: property?._id,
+
+        // --- PROPERTY FULL FIELDS ---
+        title: property.title,
+        description: property.description,
+        price: property.price,
+        images: property.images || [],
+
+        address: property.address,
+        bedrooms: property.bedrooms,
+        bathrooms: property.bathrooms,
+        area: property.area,
+        unit: property.unit,
+        yearBuilt: property.yearBuilt,
+        floors: property.floors,
+        coordinates: property.coordinates,
+
+        city: property.city_id,
+        district: property.district_id,
+        ward: property.ward_id,
+
+        type: property.type_id,
+        category: property.category_id,
+
+        features: property.features,
+
+        status: property.status,
+        reviewedBy: property.reviewedBy,
+        reviewedAt: property.reviewedAt,
+        publishedAt: property.publishedAt,
+
+        owner: property.owner_id,
+        agent: property.agent_id,
+
+        deleted: property.deleted,
+        createdAt: property.createdAt,
+        updatedAt: property.updatedAt,
+      };
+    });
 
     return {
-      total,
-      data: favorites,
+      total: result.length,
+      data: result,
     };
   },
 
   async isFavorite(userId: string, propertyId: string) {
-    if (!mongoose.isValidObjectId(propertyId)) {
-      return null;
-    }
+    if (!mongoose.isValidObjectId(propertyId)) return null;
 
-    const favorite = await Favorite.findOne({
+    return Favorite.findOne({
       user_id: userId,
       property_id: propertyId,
     });
-
-    return favorite;
   },
 
   async getFavoriteCount(propertyId: string) {
-    if (!mongoose.isValidObjectId(propertyId)) {
-      return 0;
-    }
+    if (!mongoose.isValidObjectId(propertyId)) return 0;
 
-    const count = await Favorite.countDocuments({
-      property_id: propertyId,
-    });
-
-    return count;
+    return Favorite.countDocuments({ property_id: propertyId });
   },
 };

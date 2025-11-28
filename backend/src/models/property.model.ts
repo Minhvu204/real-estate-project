@@ -38,7 +38,7 @@ export interface IProperty extends Document {
   }>;
   features?: mongoose.Types.ObjectId[];
   images?: string[];
-  status: "available" | "pending" | "approved" | "sold" | "rejected";
+  status: "available" | "pending" | "approved" | "sold" | "rejected" | "rented";
   reviewedBy?: mongoose.Types.ObjectId;
   reviewedAt?: Date;
   publishedAt?: Date;
@@ -114,7 +114,7 @@ const PropertySchema = new Schema<IProperty>(
 
     status: {
       type: String,
-      enum: ["available", "pending", "approved", "sold", "rejected"],
+      enum: ["available", "pending", "approved", "sold", "rented", "rejected"],
       default: "available",
     },
 

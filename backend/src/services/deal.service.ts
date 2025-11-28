@@ -27,6 +27,31 @@ interface DealListFilters {
 
 
 export const dealService = {
+  async getDealsByBuyer(
+    buyerId: string,
+    options?: { status?: string | string[]; limit?: number; sortDesc?: boolean }
+  ) {
+    if (!mongoose.Types.ObjectId.isValid(buyerId)) return [];
+
+    const query: any = { buyer_id: toObjectId(buyerId) };
+
+    if (options?.status) {
+      if (Array.isArray(options.status)) query.status = { $in: options.status };
+      else query.status = options.status;
+    }
+
+    const limit = options?.limit ?? 100; 
+    const sort: any = { createdAt: options?.sortDesc === false ? 1 : -1 };
+
+    return Deal.find(query)
+      .populate("property_id", "title address price") // populate thông tin property
+      .populate("seller_id", "fullName email phone") // seller cơ bản
+      .populate("agent_id", "fullName email phone") // agent cơ bản
+      .sort(sort)
+      .limit(limit)
+      .lean();
+  },
+
   async createDealFromOffer(offerId: string) {
     if (!mongoose.isValidObjectId(offerId)) {
       const err: any = new Error("Offer không hợp lệ");

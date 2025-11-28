@@ -2,7 +2,7 @@ import express from "express";
 import multer from "multer";
 import { verifyToken } from "../../../middlewares/auth.middleware";
 import { roleCheck } from "../../../middlewares/roleCheck.middleware";
-import { upload as uploadToCloudinary } from "../../../middlewares/uploadCloundinary.middleware";
+import { upload as uploadToCloudinary } from "../../../middlewares/uploadContact.middlewares";
 import {
   getContractByDeal,
   downloadContract,
@@ -10,10 +10,13 @@ import {
   listContracts,
   acceptContract,
   rejectContract,
+  getAllDealsForBuyer,
 } from "../../../controllers/client/buyer/contract.controller";
 
 const router = express.Router();
 const multerUpload = multer({ storage: multer.memoryStorage() });
+
+router.get("/deals", verifyToken, roleCheck("buyer"), getAllDealsForBuyer);
 
 router.get("/contracts", verifyToken, roleCheck("buyer"), listContracts);
 router.get("/deals/:dealId/contract", verifyToken, roleCheck("buyer"), getContractByDeal);

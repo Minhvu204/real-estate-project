@@ -4,10 +4,7 @@ import { favoriteService } from "../../../services/favorite.service";
 import { successResponse, errorResponse } from "../../../utils/responseHandler";
 
 interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    role: string;
-  };
+  user?: { id: string; role: string };
 }
 
 export const addFavorite = async (req: AuthenticatedRequest, res: Response) => {
@@ -20,12 +17,7 @@ export const addFavorite = async (req: AuthenticatedRequest, res: Response) => {
     }
 
     const data = await favoriteService.addFavorite(userId!, property_id);
-    return successResponse(
-      req,
-      res,
-      "Thêm vào danh sách yêu thích thành công",
-      data
-    );
+    return successResponse(req, res, "Thêm yêu thích thành công", data);
   } catch (err: any) {
     return errorResponse(req, res, err.message, err.status || 500);
   }
@@ -40,32 +32,22 @@ export const removeFavorite = async (
     const { propertyId } = req.params;
 
     const data = await favoriteService.removeFavorite(userId!, propertyId);
-    return successResponse(req, res, "Xóa yêu thích thành công", data);
+    return successResponse(req, res, "Xoá yêu thích thành công", data);
   } catch (err: any) {
     return errorResponse(req, res, err.message, err.status || 500);
   }
 };
 
-export const getMyFavorites = async (
-  req: AuthenticatedRequest,
-  res: Response
-) => {
+export const getMyFavorites = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
-    const { sort } = req.query;
 
-    const data = await favoriteService.getFavorites(userId!, {
-      sort: sort ? String(sort) : undefined,
-    });
+    const result = await favoriteService.getMyFavorites(String(userId));
 
-    return successResponse(
-      req,
-      res,
-      "Lấy danh sách yêu thích thành công",
-      data
-    );
-  } catch (err: any) {
-    return errorResponse(req, res, err.message, err.status || 500);
+    return successResponse(req, res, "favorite.list", { data: result });
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "favorite.list_failed", 500);
   }
 };
 
