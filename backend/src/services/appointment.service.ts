@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
-import Appointment, { AppointmentStatus } from "../models/appointment.model";
+import Appointment, {
+  AppointmentStatus,
+  AppointmentTimeSlot,
+} from "../models/appointment.model";
 import Property from "../models/property.model";
 import User from "../models/user.model";
 import {
@@ -10,11 +13,15 @@ import {
   notifyAppointmentCompleted,
 } from "../utils/notificationHelper";
 
+interface AppointmentTimeInput {
+  time: string | Date;
+  note?: string;
+}
+
 interface CreateAppointmentParams {
   propertyId: string;
   buyerId: string;
-  time: string | Date;
-  note?: string;
+  times: AppointmentTimeInput[];
   location?: string;
 }
 
@@ -40,23 +47,82 @@ function ensureValidObjectId(id: string, message: string) {
   }
 }
 
-export const appointmentService = {
-  async createAppointment(params: CreateAppointmentParams) {
-    const { propertyId, buyerId, time, note, location } = params;
+function formatDateTimeVi(date: Date) {
+  return date.toLocaleString("vi-VN", {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
+}
 
-    ensureValidObjectId(propertyId, "Property ID không hợp lệ");
-    ensureValidObjectId(buyerId, "Buyer ID không hợp lệ");
+function formatTimesSummary(slots: AppointmentTimeSlot[]) {
+  return slots
+    .map((slot, index) => {
+      const label = `${index + 1}. ${formatDateTimeVi(slot.time)}`;
+      return slot.note ? `${label} — ${slot.note}` : label;
+    })
+    .join("\n");
+}
 
-    const appointmentTime = new Date(time);
-    if (Number.isNaN(appointmentTime.valueOf())) {
+function normalizeTimeSlots(times: AppointmentTimeInput[]): AppointmentTimeSlot[] {
+  if (!Array.isArray(times) || times.length === 0) {
+    throw Object.assign(new Error("Vui lòng cung cấp danh sách khung giờ"), {
+      status: 400,
+    });
+  }
+
+  if (times.length > 3) {
+    throw Object.assign(new Error("Chỉ được chọn tối đa 3 khung giờ"), {
+      status: 400,
+    });
+  }
+
+  const now = new Date();
+
+  const normalized = times.map((slot) => {
+    if (!slot || !slot.time) {
+      throw Object.assign(new Error("Khung giờ thiếu thông tin thời gian"), {
+        status: 400,
+      });
+    }
+
+    const parsedTime = new Date(slot.time);
+    if (Number.isNaN(parsedTime.valueOf())) {
       throw Object.assign(new Error("Thời gian không hợp lệ"), { status: 400 });
     }
-    if (appointmentTime <= new Date()) {
+    if (parsedTime <= now) {
       throw Object.assign(
         new Error("Thời gian lịch hẹn phải ở tương lai"),
         { status: 400 }
       );
     }
+
+    return {
+      time: parsedTime,
+      note: slot.note,
+    };
+  });
+
+  const seen = new Set<number>();
+  normalized.forEach((slot) => {
+    const value = slot.time.getTime();
+    if (seen.has(value)) {
+      throw Object.assign(new Error("Các khung giờ không được trùng nhau"), {
+        status: 400,
+      });
+    }
+    seen.add(value);
+  });
+
+  return normalized.sort((a, b) => a.time.getTime() - b.time.getTime());
+}
+
+export const appointmentService = {
+  async createAppointment(params: CreateAppointmentParams) {
+    const { propertyId, buyerId, times, location } = params;
+
+    ensureValidObjectId(propertyId, "Property ID không hợp lệ");
+    ensureValidObjectId(buyerId, "Buyer ID không hợp lệ");
+    const normalizedTimes = normalizeTimeSlots(times);
 
     const property = await Property.findOne({
       _id: propertyId,
@@ -84,13 +150,26 @@ export const appointmentService = {
       );
     }
 
+    const existingActive = await Appointment.findOne({
+      property_id: new mongoose.Types.ObjectId(propertyId),
+      buyer_id: new mongoose.Types.ObjectId(buyerId),
+      status: { $in: ["pending", "accepted"] },
+    }).lean();
+
+    if (existingActive) {
+      throw Object.assign(
+        new Error("Bạn đã có lịch hẹn đang chờ xử lý cho bất động sản này"),
+        { status: 400 }
+      );
+    }
+
     const appointment = await Appointment.create({
       property_id: new mongoose.Types.ObjectId(propertyId),
       buyer_id: new mongoose.Types.ObjectId(buyerId),
       agent_id: property.agent_id,
       seller_id: new mongoose.Types.ObjectId(sellerId),
-      time: appointmentTime,
-      note,
+      times: normalizedTimes,
+      final_time: null,
       location,
       status: "pending",
     });
@@ -101,6 +180,7 @@ export const appointmentService = {
       (property.title as any)?.vi ||
       (property.title as any)?.en ||
       "Bất động sản";
+    const timesSummary = formatTimesSummary(normalizedTimes);
 
     try {
       const appointmentId = appointment.id;
@@ -108,14 +188,16 @@ export const appointmentService = {
         property.agent_id.toString(),
         buyerName,
         propertyTitle,
-        appointmentId
+        appointmentId,
+        timesSummary
       );
 
       await notifySellerNewAppointment(
         sellerId,
         buyerName,
         propertyTitle,
-        appointmentId
+        appointmentId,
+        timesSummary
       );
     } catch (error) {
       console.error("Failed to send appointment notifications:", error);
@@ -154,7 +236,7 @@ export const appointmentService = {
 
     const [items, total] = await Promise.all([
       Appointment.find(query)
-        .sort({ time: 1 })
+        .sort({ "times.0.time": 1 })
         .skip(skip)
         .limit(limitNum)
         .populate("property_id", "title images price address status")
@@ -255,18 +337,18 @@ export const appointmentService = {
     }
 
     if (startDate || endDate) {
-      query.time = {};
+      query["times.time"] = {};
       if (startDate) {
-        query.time.$gte = new Date(startDate);
+        query["times.time"].$gte = new Date(startDate);
       }
       if (endDate) {
-        query.time.$lte = new Date(endDate);
+        query["times.time"].$lte = new Date(endDate);
       }
     }
 
     const [items, total] = await Promise.all([
       Appointment.find(query)
-        .sort({ time: 1 })
+        .sort({ "times.0.time": 1 })
         .skip(skip)
         .limit(limitNum)
         .populate("property_id", "title images price address status")
@@ -287,9 +369,17 @@ export const appointmentService = {
     };
   },
 
-  async acceptAppointment(appointmentId: string, agentId: string) {
+  async acceptAppointment(
+    appointmentId: string,
+    agentId: string,
+    selectedTime: string | Date
+  ) {
     ensureValidObjectId(appointmentId, "Appointment ID không hợp lệ");
     ensureValidObjectId(agentId, "Agent ID không hợp lệ");
+
+    if (!selectedTime) {
+      throw Object.assign(new Error("Vui lòng chọn thời gian cần chốt"), { status: 400 });
+    }
 
     const appointment = await Appointment.findOne({
       _id: appointmentId,
@@ -307,6 +397,23 @@ export const appointmentService = {
       );
     }
 
+    const targetTime = new Date(selectedTime);
+    if (Number.isNaN(targetTime.valueOf())) {
+      throw Object.assign(new Error("Thời gian chốt không hợp lệ"), { status: 400 });
+    }
+
+    const matchedSlot = appointment.times?.find(
+      (slot) => slot.time && slot.time.getTime() === targetTime.getTime()
+    );
+
+    if (!matchedSlot) {
+      throw Object.assign(
+        new Error("Thời gian chốt không nằm trong danh sách đề xuất"),
+        { status: 400 }
+      );
+    }
+
+    appointment.final_time = matchedSlot.time;
     appointment.status = "accepted";
     await appointment.save();
 
@@ -326,6 +433,10 @@ export const appointmentService = {
       (property?.title as any)?.en ||
       "bất động sản";
 
+    const finalTimeText = appointment.final_time
+      ? formatDateTimeVi(appointment.final_time)
+      : undefined;
+
     try {
       const appointmentIdStr = appointment.id;
       await notifyAppointmentStatusToBuyerAndSeller(
@@ -334,7 +445,8 @@ export const appointmentService = {
         agentName,
         propertyTitle,
         "accepted",
-        appointmentIdStr
+        appointmentIdStr,
+        finalTimeText
       );
     } catch (error) {
       console.error("Failed to notify appointment acceptance:", error);
@@ -364,6 +476,7 @@ export const appointmentService = {
     }
 
     appointment.status = "rejected";
+    appointment.final_time = null;
     await appointment.save();
 
     const [populatedAppointment, agent, property] = await Promise.all([
@@ -420,7 +533,13 @@ export const appointmentService = {
         { status: 400 }
       );
     }
-    if (appointment.time > new Date()) {
+    if (!appointment.final_time) {
+      throw Object.assign(
+        new Error("Lịch hẹn chưa có thời gian chốt để hoàn tất"),
+        { status: 400 }
+      );
+    }
+    if (appointment.final_time > new Date()) {
       throw Object.assign(
         new Error("Chưa thể hoàn tất lịch hẹn trước khi diễn ra"),
         { status: 400 }
@@ -443,13 +562,15 @@ export const appointmentService = {
   
     
     try {
-      await notifyAppointmentCompleted(
-        appointment.buyer_id.toString(),
-        appointment.seller_id.toString(),
+      const finalTimeText = formatDateTimeVi(appointment.final_time);
+      await notifyAppointmentCompleted({
+        buyerId: appointment.buyer_id.toString(),
+        sellerId: appointment.seller_id.toString(),
         agentName,
         propertyTitle,
-        appointment.id
-      );
+        appointmentId: appointment.id,
+        finalTimeText,
+      });
     } catch (error) {
       console.error("Failed to notify appointment completion:", error);
     }
