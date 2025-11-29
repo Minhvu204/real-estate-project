@@ -34,6 +34,12 @@ export async function createEscrowPayment(buyerId: string, dealId: string) {
     throw err;
   }
 
+  if (deal.status === "awaiting_escrow_payment") {
+    const err: any = new Error("Đã tạo thanh toán với Deal này!. Vui lòng hoàn tất thanh toán.");
+    err.status = 400;
+    throw err;
+  }
+
   const existingCompleted = await Payment.findOne({
     deal_id: deal._id,
     type: "escrow_fund",
