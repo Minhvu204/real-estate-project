@@ -473,7 +473,7 @@ export const propertyService = {
       throw err;
     }
 
-    const { title, description, address, images, ...rest } = data || {};
+    const { title, description, address, images, city_id, district_id, ward_id, coordinates, ...rest } = data || {};
 
     // Áp dụng cập nhật các trường đơn giản
     Object.assign(property, rest);

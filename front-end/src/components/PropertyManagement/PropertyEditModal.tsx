@@ -8,7 +8,7 @@ import {
     TextField,
     FormControl,
     InputLabel,
-    Select,
+    Select as MuiSelect,
     MenuItem,
     Box,
     Typography,
@@ -31,7 +31,7 @@ import { getText } from "../../utils/multilang";
 import { getLanguage, type Lang } from "../../utils/storage";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import LocationSelect from "../common/LocationSelect";
+import Select from "react-select";
 import AddressInputOnBlur from "../common/AddressInputOnBlur";
 
 interface PropertyEditModalProps {
@@ -112,9 +112,26 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
     useEffect(() => {
         if (property && open) {
-            const cityId = property.city_id?._id || (property as any).city_id || "";
-            const districtId = (property as any).district_id?._id || (property as any).district_id || "";
-            const wardId = (property as any).ward_id?._id || (property as any).ward_id || "";
+            let cityId = "";
+            if (typeof property.city_id === "object" && property.city_id !== null) {
+                cityId = property.city_id._id || "";
+            } else if (typeof property.city_id === "string") {
+                cityId = property.city_id;
+            }
+            let districtId = "";
+            const propDistrictId = (property as any).district_id;
+            if (typeof propDistrictId === "object" && propDistrictId !== null) {
+                districtId = propDistrictId._id || "";
+            } else if (typeof propDistrictId === "string") {
+                districtId = propDistrictId;
+            }
+            let wardId = "";
+            const propWardId = (property as any).ward_id;
+            if (typeof propWardId === "object" && propWardId !== null) {
+                wardId = propWardId._id || "";
+            } else if (typeof propWardId === "string") {
+                wardId = propWardId;
+            }
 
             setFormData({
                 title: getText(property.title as any, currentLang) || "",
@@ -124,7 +141,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                 district_id: districtId,
                 ward_id: wardId,
                 type_id: property.type_id?._id || "",
-                city_name: property.city_id?.city_name ? getText(property.city_id.city_name as any, currentLang) : "",
+                city_name: property.city_id && typeof property.city_id === "object" && property.city_id.city_name ? getText(property.city_id.city_name as any, currentLang) : "",
                 type_name: property.type_id?.type_name ? getText(property.type_id.type_name as any, currentLang) : "",
                 features: property.features?.map((f) => f._id) || [],
                 address: getText(property.address as any, currentLang) || "",
@@ -285,9 +302,29 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
             data.append("title", formData.title || "");
             data.append("description", formData.description || "");
             data.append("price", (formData.price ?? 0).toString());
-            data.append("city_id", formData.city_id);
-            data.append("district_id", formData.district_id);
-            data.append("ward_id", formData.ward_id);
+            if (formData.city_id && formData.city_id.trim()) {
+                data.append("city_id", formData.city_id.trim());
+            } else {
+                toast.error("City ID is missing or invalid");
+                setLoading(false);
+                return;
+            }
+
+            if (formData.district_id && formData.district_id.trim()) {
+                data.append("district_id", formData.district_id.trim());
+            } else {
+                toast.error("District ID is missing or invalid");
+                setLoading(false);
+                return;
+            }
+
+            if (formData.ward_id && formData.ward_id.trim()) {
+                data.append("ward_id", formData.ward_id.trim());
+            } else {
+                toast.error("Ward ID is missing or invalid");
+                setLoading(false);
+                return;
+            }
 
             if (formData.city_name) {
                 data.append("city_name", formData.city_name);
@@ -324,10 +361,19 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                 data.append("images", file);
             });
 
+            console.log("Submitting property update with data:", {
+                property_id: property._id,
+                city_id: formData.city_id,
+                district_id: formData.district_id,
+                ward_id: formData.ward_id,
+            });
+
             await onSubmit(property._id, data);
             onClose();
         } catch (error: any) {
             console.error("Error updating property:", error);
+            console.error("Error response:", error?.response?.data);
+            console.error("Error status:", error?.response?.status);
             const errorMessage = error?.response?.data?.message || error?.message || t("updateFailed") || "Cập nhật thất bại";
             toast.error(errorMessage);
         } finally {
@@ -383,7 +429,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
                         <FormControl sx={{ flex: 1, minWidth: 200 }} fullWidth>
                             <InputLabel>{t("propertyType")}</InputLabel>
-                            <Select
+                            <MuiSelect
                                 label={t("propertyType")}
                                 value={formData.type_id}
                                 onChange={(e) => {
@@ -399,38 +445,83 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                                         {getText(pt.type_name as any, currentLang)}
                                     </MenuItem>
                                 ))}
-                            </Select>
+                            </MuiSelect>
                         </FormControl>
                     </Box>
 
                     <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
                         <Box sx={{ flex: 1, minWidth: 200 }}>
-                            <LocationSelect
-                                label={t("city")}
-                                value={formData.city_id}
+                            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500, fontSize: '0.875rem' }}>
+                                {t("city")} <span style={{ color: "red" }}>*</span>
+                            </Typography>
+                            <Select
                                 options={cityOptions}
-                                placeholder={t("selectCity")}
+                                value={cityOptions.find(op => op.value === formData.city_id) || null}
                                 onChange={handleCityChange}
+                                placeholder={t("selectCity")}
+                                isClearable={true}
+                                menuPortalTarget={document.body}
+                                menuPosition="fixed"
+                                styles={{
+                                    control: (base: any) => ({
+                                        ...base,
+                                        borderRadius: '0.5rem',
+                                        padding: '0.125rem',
+                                        fontSize: '0.875rem',
+                                    }),
+                                    menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
+                                    menu: (base: any) => ({ ...base, zIndex: 9999 }),
+                                }}
                             />
                         </Box>
                         <Box sx={{ flex: 1, minWidth: 200 }}>
-                            <LocationSelect
-                                label={t("district")}
-                                value={formData.district_id}
+                            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500, fontSize: '0.875rem' }}>
+                                {t("district")} <span style={{ color: "red" }}>*</span>
+                            </Typography>
+                            <Select
                                 options={districtOptions}
-                                placeholder={t("selectDistrict")}
+                                value={districtOptions.find(op => op.value === formData.district_id) || null}
                                 onChange={handleDistrictChange}
-                                disabled={!formData.city_id}
+                                placeholder={t("selectDistrict")}
+                                isClearable={true}
+                                isDisabled={!formData.city_id}
+                                menuPortalTarget={document.body}
+                                menuPosition="fixed"
+                                styles={{
+                                    control: (base: any) => ({
+                                        ...base,
+                                        borderRadius: '0.5rem',
+                                        padding: '0.125rem',
+                                        fontSize: '0.875rem',
+                                    }),
+                                    menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
+                                    menu: (base: any) => ({ ...base, zIndex: 9999 }),
+                                }}
                             />
                         </Box>
                         <Box sx={{ flex: 1, minWidth: 200 }}>
-                            <LocationSelect
-                                label={t("ward")}
-                                value={formData.ward_id}
+                            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500, fontSize: '0.875rem' }}>
+                                {t("ward")} <span style={{ color: "red" }}>*</span>
+                            </Typography>
+                            <Select
                                 options={wardOptions}
-                                placeholder={t("selectWard")}
+                                value={wardOptions.find(op => op.value === formData.ward_id) || null}
                                 onChange={handleWardChange}
-                                disabled={!formData.district_id}
+                                placeholder={t("selectWard")}
+                                isClearable={true}
+                                isDisabled={!formData.district_id}
+                                menuPortalTarget={document.body}
+                                menuPosition="fixed"
+                                styles={{
+                                    control: (base: any) => ({
+                                        ...base,
+                                        borderRadius: '0.5rem',
+                                        padding: '0.125rem',
+                                        fontSize: '0.875rem',
+                                    }),
+                                    menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
+                                    menu: (base: any) => ({ ...base, zIndex: 9999 }),
+                                }}
                             />
                         </Box>
                     </Box>
@@ -453,7 +544,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
                     <FormControl fullWidth>
                         <InputLabel>{t("features")}</InputLabel>
-                        <Select
+                        <MuiSelect
                             multiple
                             value={formData.features}
                             onChange={(e) => handleChange("features", e.target.value)}
@@ -478,7 +569,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                                     {getText(feature.feature_name as any, currentLang)}
                                 </MenuItem>
                             ))}
-                        </Select>
+                        </MuiSelect>
                     </FormControl>
 
                     <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
