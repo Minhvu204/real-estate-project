@@ -18,21 +18,30 @@ export const createAppointment = async (req: AuthenticatedRequest, res: Response
       return errorResponse(req, res, "Unauthorized", 401);
     }
 
-    const { propertyId, time, note, location } = req.body || {};
+    const { propertyId, times, location } = req.body || {};
 
     if (!propertyId) {
       return errorResponse(req, res, "Vui lòng chọn bất động sản", 400);
     }
 
-    if (!time) {
-      return errorResponse(req, res, "Vui lòng chọn thời gian lịch hẹn", 400);
+    if (!Array.isArray(times) || times.length === 0) {
+      return errorResponse(req, res, "Vui lòng cung cấp danh sách khung giờ", 400);
+    }
+
+    const invalidSlot = times.some(
+      (slot: any) =>
+        !slot ||
+        !slot.time ||
+        (slot.note !== undefined && typeof slot.note !== "string")
+    );
+    if (invalidSlot) {
+      return errorResponse(req, res, "Khung giờ không hợp lệ", 400);
     }
 
     const appointment = await appointmentService.createAppointment({
       propertyId: String(propertyId),
       buyerId: String(buyerId),
-      time,
-      note,
+      times,
       location,
     });
 
