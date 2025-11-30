@@ -11,8 +11,6 @@ import SellerOfferManagementPage from "../pages/Offer/SellerOfferManagementPage"
 import DealListPageSeller from "../pages/DealContract/DealListPageSeller";
 import DealContractPageSeller from "../pages/DealContract/DealContractPageSeller";
 export const SellerRoute = [
-
-
   {
     path: "/seller/properties", element: <SellerProperties />
   },
@@ -32,7 +30,7 @@ export const SellerRoute = [
     path: "/seller/my-properties/:id", element: <MyPropertiesPage />
   },
   {
-    path: "notifications/properties/:id", element: <PropertyDetails />,
+    path: "/notifications/properties/:id", element: <PropertyDetails />,
   },
   {
     path: "/seller/offers", element: <SellerOfferManagementPage />
