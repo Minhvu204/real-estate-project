@@ -33,14 +33,13 @@ const Notification = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const useAuth = () => useContext(AuthContext);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
   const isFetchingRef = useRef(false);
 
   const {
-    state: { token },
-  } = useAuth();
+    state: { token, user },
+  } = useContext(AuthContext);
 
   useEffect(() => {
     console.log("[DEBUG] Token FE dùng cho socket:", token);
@@ -160,7 +159,26 @@ const Notification = () => {
     }
     handleClose();
     if (notification.action_url) {
-      navigate(`seller/${notification.action_url}`);
+      const userRole = user?.role?.toLowerCase();
+      const dealsMatch = notification.action_url.match(/^\/deals\/([^\/]+)/);
+      if (dealsMatch) {
+        const dealId = dealsMatch[1];
+        navigate(`/${userRole}/contracts/deals/${dealId}`);
+      } 
+      else if (userRole === 'buyer' && notification.action_url.startsWith('/offers/')) {
+        navigate('/buyer/offer'); 
+      }
+      else {
+        if (userRole === 'agent') {
+          navigate(`/agent${notification.action_url}`);
+        } else if (userRole === 'seller') {
+          navigate(`/seller${notification.action_url}`);
+        } else if (userRole === 'buyer') {
+          navigate(`/buyer${notification.action_url}`);
+        } else {
+          navigate(notification.action_url);
+        }
+      }
     }
   };
 
@@ -344,3 +362,5 @@ const Notification = () => {
 };
 
 export default Notification;
+
+

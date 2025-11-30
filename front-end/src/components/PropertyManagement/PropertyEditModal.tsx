@@ -8,7 +8,7 @@ import {
     TextField,
     FormControl,
     InputLabel,
-    Select,
+    Select as MuiSelect,
     MenuItem,
     Box,
     Typography,
@@ -21,12 +21,18 @@ import {
 import { Close as CloseIcon, CloudUpload as UploadIcon } from "@mui/icons-material";
 import type { Property } from "../../types/Property";
 import type { Feature } from "../../types/Features";
-import type { City } from "../../types/Cities";
+import type { City } from "../../types/City";
+import type { District } from "../../types/District";
+import type { Ward } from "../../types/Ward";
 import type { PropertyType } from "../../types/PropertyTypes";
 import { taxonomyService } from "../../services/taxonomyService";
+import { getAllCities, getAllDistrictsByCityId, getAllWardsByDistrictId } from "../../services/propertyService";
 import { getText } from "../../utils/multilang";
 import { getLanguage, type Lang } from "../../utils/storage";
 import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
+import Select from "react-select";
+import AddressInputOnBlur from "../common/AddressInputOnBlur";
 
 interface PropertyEditModalProps {
     open: boolean;
@@ -44,6 +50,8 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
     const [loading, setLoading] = useState(false);
     const [features, setFeatures] = useState<Feature[]>([]);
     const [cities, setCities] = useState<City[]>([]);
+    const [districts, setDistricts] = useState<District[]>([]);
+    const [wards, setWards] = useState<Ward[]>([]);
     const [propertyTypes, setPropertyTypes] = useState<PropertyType[]>([]);
 
     const [formData, setFormData] = useState({
@@ -51,6 +59,8 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
         description: "",
         price: 0,
         city_id: "",
+        district_id: "",
+        ward_id: "",
         type_id: "",
         city_name: "",
         type_name: "",
@@ -62,6 +72,7 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
         unit: "m²",
         yearBuilt: new Date().getFullYear(),
         floors: 1,
+        coordinates: undefined as { lat: number; lng: number } | undefined,
     });
 
     const [imageFiles, setImageFiles] = useState<File[]>([]);
@@ -79,17 +90,58 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
     useEffect(() => {
         loadCategories();
+        loadCities();
     }, []);
 
     useEffect(() => {
+        if (formData.city_id) {
+            loadDistricts(formData.city_id);
+        } else {
+            setDistricts([]);
+            setWards([]);
+        }
+    }, [formData.city_id]);
+
+    useEffect(() => {
+        if (formData.district_id) {
+            loadWards(formData.district_id);
+        } else {
+            setWards([]);
+        }
+    }, [formData.district_id]);
+
+    useEffect(() => {
         if (property && open) {
+            let cityId = "";
+            if (typeof property.city_id === "object" && property.city_id !== null) {
+                cityId = property.city_id._id || "";
+            } else if (typeof property.city_id === "string") {
+                cityId = property.city_id;
+            }
+            let districtId = "";
+            const propDistrictId = (property as any).district_id;
+            if (typeof propDistrictId === "object" && propDistrictId !== null) {
+                districtId = propDistrictId._id || "";
+            } else if (typeof propDistrictId === "string") {
+                districtId = propDistrictId;
+            }
+            let wardId = "";
+            const propWardId = (property as any).ward_id;
+            if (typeof propWardId === "object" && propWardId !== null) {
+                wardId = propWardId._id || "";
+            } else if (typeof propWardId === "string") {
+                wardId = propWardId;
+            }
+
             setFormData({
                 title: getText(property.title as any, currentLang) || "",
                 description: getText(property.description as any, currentLang) || "",
                 price: property.price || 0,
-                city_id: property.city_id?._id || "",
+                city_id: cityId,
+                district_id: districtId,
+                ward_id: wardId,
                 type_id: property.type_id?._id || "",
-                city_name: property.city_id?.city_name ? getText(property.city_id.city_name as any, currentLang) : "",
+                city_name: property.city_id && typeof property.city_id === "object" && property.city_id.city_name ? getText(property.city_id.city_name as any, currentLang) : "",
                 type_name: property.type_id?.type_name ? getText(property.type_id.type_name as any, currentLang) : "",
                 features: property.features?.map((f) => f._id) || [],
                 address: getText(property.address as any, currentLang) || "",
@@ -99,24 +151,122 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                 unit: property.unit || "m2",
                 yearBuilt: property.yearBuilt || new Date().getFullYear(),
                 floors: property.floors || 1,
+                coordinates: property.coordinates ? {
+                    lat: Array.isArray(property.coordinates) ? property.coordinates[1] : property.coordinates.lat,
+                    lng: Array.isArray(property.coordinates) ? property.coordinates[0] : property.coordinates.lng,
+                } : undefined,
             });
             setExistingImages(property.images || []);
             setImageFiles([]);
+            if (cityId) {
+                loadDistricts(cityId).then(() => {
+                    if (districtId) {
+                        loadWards(districtId);
+                    }
+                });
+            }
         }
-    }, [property, open]);
+    }, [property, open, currentLang]);
 
     const loadCategories = async () => {
         try {
             const data = await taxonomyService.getAll();
             setFeatures(data.features);
-            setCities(data.cities);
             setPropertyTypes(data.propertyTypes);
         } catch (error) {
         }
     };
 
+    const loadCities = async () => {
+        try {
+            const data = await getAllCities();
+            setCities(data);
+        } catch (error) {
+            console.error("Error loading cities:", error);
+        }
+    };
+
+    const loadDistricts = async (cityId: string) => {
+        try {
+            const data = await getAllDistrictsByCityId(cityId);
+            setDistricts(data);
+        } catch (error) {
+            console.error("Error loading districts:", error);
+            setDistricts([]);
+        }
+    };
+
+    const loadWards = async (districtId: string) => {
+        try {
+            const data = await getAllWardsByDistrictId(districtId);
+            setWards(data);
+        } catch (error) {
+            console.error("Error loading wards:", error);
+            setWards([]);
+        }
+    };
+
     const handleChange = (field: string, value: any) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const currentLanguage: Lang = getLanguage();
+
+    const cityOptions = cities.map(city => ({
+        value: city._id,
+        label: city.city_name[currentLanguage]
+    }));
+
+    const districtOptions = districts.map(district => ({
+        value: district._id,
+        label: district.district_name[currentLanguage]
+    }));
+
+    const wardOptions = wards.map(ward => ({
+        value: ward._id,
+        label: ward.ward_name[currentLanguage]
+    }));
+
+    const handleCityChange = (selected: { value: string; label: string } | null) => {
+        const value = selected?.value ?? "";
+        setFormData(prev => ({
+            ...prev,
+            city_id: value,
+            district_id: "",
+            ward_id: "",
+        }));
+    };
+
+    const handleDistrictChange = (selected: { value: string; label: string } | null) => {
+        const value = selected?.value ?? "";
+        setFormData(prev => ({
+            ...prev,
+            district_id: value,
+            ward_id: "",
+        }));
+    };
+
+    const handleWardChange = (selected: { value: string; label: string } | null) => {
+        const value = selected?.value ?? "";
+        setFormData(prev => ({
+            ...prev,
+            ward_id: value,
+        }));
+    };
+
+    const getCityNameById = (cityId: string) => {
+        const city = cities.find(city => city._id === cityId);
+        return city ? city.city_name[currentLanguage] : "";
+    };
+
+    const getDistrictNameById = (districtId: string) => {
+        const district = districts.find(district => district._id === districtId);
+        return district ? district.district_name[currentLanguage] : "";
+    };
+
+    const getWardNameById = (wardId: string) => {
+        const ward = wards.find(ward => ward._id === wardId);
+        return ward ? ward.ward_name[currentLanguage] : "";
     };
 
     const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,16 +286,46 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
     const handleSubmit = async () => {
         if (!property) return;
+        if (!formData.title || !formData.price || !formData.address) {
+            toast.error(t("validationRequiredFields"));
+            return;
+        }
+
+        if (!formData.city_id || !formData.district_id || !formData.ward_id) {
+            toast.error(t("validationRequiredLocation"));
+            return;
+        }
 
         setLoading(true);
         try {
             const data = new FormData();
-            data.append("title", formData.title);
-            data.append("description", formData.description);
-            data.append("price", formData.price.toString());
-            if (formData.city_id) {
-                data.append("city_id", formData.city_id);
+            data.append("title", formData.title || "");
+            data.append("description", formData.description || "");
+            data.append("price", (formData.price ?? 0).toString());
+            if (formData.city_id && formData.city_id.trim()) {
+                data.append("city_id", formData.city_id.trim());
+            } else {
+                toast.error("City ID is missing or invalid");
+                setLoading(false);
+                return;
             }
+
+            if (formData.district_id && formData.district_id.trim()) {
+                data.append("district_id", formData.district_id.trim());
+            } else {
+                toast.error("District ID is missing or invalid");
+                setLoading(false);
+                return;
+            }
+
+            if (formData.ward_id && formData.ward_id.trim()) {
+                data.append("ward_id", formData.ward_id.trim());
+            } else {
+                toast.error("Ward ID is missing or invalid");
+                setLoading(false);
+                return;
+            }
+
             if (formData.city_name) {
                 data.append("city_name", formData.city_name);
             }
@@ -155,14 +335,19 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
             if (formData.type_name) {
                 data.append("type_name", formData.type_name);
             }
-            
-            data.append("address", formData.address);
-            data.append("bedrooms", formData.bedrooms.toString());
-            data.append("bathrooms", formData.bathrooms.toString());
-            data.append("area", formData.area.toString());
-            data.append("unit", formData.unit);
-            data.append("yearBuilt", formData.yearBuilt.toString());
-            data.append("floors", formData.floors.toString());
+
+            data.append("address", formData.address || "");
+
+            if (formData.coordinates && formData.coordinates.lat !== undefined && formData.coordinates.lng !== undefined) {
+                data.append("coordinates[lat]", formData.coordinates.lat.toString());
+                data.append("coordinates[lng]", formData.coordinates.lng.toString());
+            }
+            data.append("bedrooms", (formData.bedrooms ?? 0).toString());
+            data.append("bathrooms", (formData.bathrooms ?? 0).toString());
+            data.append("area", (formData.area ?? 0).toString());
+            data.append("unit", formData.unit || "m2");
+            data.append("yearBuilt", (formData.yearBuilt ?? new Date().getFullYear()).toString());
+            data.append("floors", (formData.floors ?? 1).toString());
 
             formData.features.forEach((featureId) => {
                 data.append("features[]", featureId);
@@ -176,9 +361,21 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                 data.append("images", file);
             });
 
+            console.log("Submitting property update with data:", {
+                property_id: property._id,
+                city_id: formData.city_id,
+                district_id: formData.district_id,
+                ward_id: formData.ward_id,
+            });
+
             await onSubmit(property._id, data);
             onClose();
-        } catch (error) {
+        } catch (error: any) {
+            console.error("Error updating property:", error);
+            console.error("Error response:", error?.response?.data);
+            console.error("Error status:", error?.response?.status);
+            const errorMessage = error?.response?.data?.message || error?.message || t("updateFailed") || "Cập nhật thất bại";
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -189,9 +386,9 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
     return (
         <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
             <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <Typography variant="h6" sx={{color: "primary.main",fontWeight: "bold",}}>
-                {t("editProperty")}
-             </Typography>
+                <Typography variant="h6" sx={{ color: "primary.main", fontWeight: "bold", }}>
+                    {t("editProperty")}
+                </Typography>
                 <IconButton onClick={onClose}>
                     <CloseIcon />
                 </IconButton>
@@ -199,21 +396,21 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
             <DialogContent dividers>
                 <Stack spacing={3}>
-                        <TextField
-                            label={t("titleLabel")}
-                            fullWidth
-                            required
-                            value={formData.title}
-                            onChange={(e) => handleChange("title", e.target.value)}
-                        />
+                    <TextField
+                        label={t("titleLabel")}
+                        fullWidth
+                        required
+                        value={formData.title}
+                        onChange={(e) => handleChange("title", e.target.value)}
+                    />
 
                     <TextField
                         label={t("description")}
-                            fullWidth
-                            multiline
-                            rows={4}
-                            value={formData.description}
-                            onChange={(e) => handleChange("description", e.target.value)}
+                        fullWidth
+                        multiline
+                        rows={4}
+                        value={formData.description}
+                        onChange={(e) => handleChange("description", e.target.value)}
                     />
 
                     <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
@@ -230,41 +427,9 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                             }}
                         />
 
-                        <TextField
-                            label={t("addressLabel")}
-                            sx={{ flex: 1, minWidth: 200 }}
-                            fullWidth
-                            required
-                            value={formData.address}
-                            onChange={(e) => handleChange("address", e.target.value)}
-                        />
-                    </Box>
-
-                    <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-                        <FormControl sx={{ flex: 1, minWidth: 200 }} fullWidth>
-                            <InputLabel>{t("city")}</InputLabel>
-                            <Select
-                                label={t("city")}
-                                value={formData.city_id}
-                                onChange={(e) => {
-                                    const id = e.target.value as string;
-                                    const selected = cities.find((c) => c._id === id);
-                                    handleChange("city_id", id);
-                                    handleChange("city_name", selected ? getText(selected.city_name as any, currentLang) : "");
-                                }}
-                                required
-                            >
-                                {cities.map((city) => (
-                                    <MenuItem key={city._id} value={city._id}>
-                                        {getText(city.city_name as any, currentLang)}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-
                         <FormControl sx={{ flex: 1, minWidth: 200 }} fullWidth>
                             <InputLabel>{t("propertyType")}</InputLabel>
-                            <Select
+                            <MuiSelect
                                 label={t("propertyType")}
                                 value={formData.type_id}
                                 onChange={(e) => {
@@ -280,39 +445,132 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
                                         {getText(pt.type_name as any, currentLang)}
                                     </MenuItem>
                                 ))}
-                            </Select>
+                            </MuiSelect>
                         </FormControl>
+                    </Box>
+
+                    <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+                        <Box sx={{ flex: 1, minWidth: 200 }}>
+                            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500, fontSize: '0.875rem' }}>
+                                {t("city")} <span style={{ color: "red" }}>*</span>
+                            </Typography>
+                            <Select
+                                options={cityOptions}
+                                value={cityOptions.find(op => op.value === formData.city_id) || null}
+                                onChange={handleCityChange}
+                                placeholder={t("selectCity")}
+                                isClearable={true}
+                                menuPortalTarget={document.body}
+                                menuPosition="fixed"
+                                styles={{
+                                    control: (base: any) => ({
+                                        ...base,
+                                        borderRadius: '0.5rem',
+                                        padding: '0.125rem',
+                                        fontSize: '0.875rem',
+                                    }),
+                                    menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
+                                    menu: (base: any) => ({ ...base, zIndex: 9999 }),
+                                }}
+                            />
+                        </Box>
+                        <Box sx={{ flex: 1, minWidth: 200 }}>
+                            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500, fontSize: '0.875rem' }}>
+                                {t("district")} <span style={{ color: "red" }}>*</span>
+                            </Typography>
+                            <Select
+                                options={districtOptions}
+                                value={districtOptions.find(op => op.value === formData.district_id) || null}
+                                onChange={handleDistrictChange}
+                                placeholder={t("selectDistrict")}
+                                isClearable={true}
+                                isDisabled={!formData.city_id}
+                                menuPortalTarget={document.body}
+                                menuPosition="fixed"
+                                styles={{
+                                    control: (base: any) => ({
+                                        ...base,
+                                        borderRadius: '0.5rem',
+                                        padding: '0.125rem',
+                                        fontSize: '0.875rem',
+                                    }),
+                                    menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
+                                    menu: (base: any) => ({ ...base, zIndex: 9999 }),
+                                }}
+                            />
+                        </Box>
+                        <Box sx={{ flex: 1, minWidth: 200 }}>
+                            <Typography variant="body2" sx={{ mb: 1, fontWeight: 500, fontSize: '0.875rem' }}>
+                                {t("ward")} <span style={{ color: "red" }}>*</span>
+                            </Typography>
+                            <Select
+                                options={wardOptions}
+                                value={wardOptions.find(op => op.value === formData.ward_id) || null}
+                                onChange={handleWardChange}
+                                placeholder={t("selectWard")}
+                                isClearable={true}
+                                isDisabled={!formData.district_id}
+                                menuPortalTarget={document.body}
+                                menuPosition="fixed"
+                                styles={{
+                                    control: (base: any) => ({
+                                        ...base,
+                                        borderRadius: '0.5rem',
+                                        padding: '0.125rem',
+                                        fontSize: '0.875rem',
+                                    }),
+                                    menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
+                                    menu: (base: any) => ({ ...base, zIndex: 9999 }),
+                                }}
+                            />
+                        </Box>
+                    </Box>
+
+                    <Box>
+                        <Typography variant="body2" sx={{ mb: 1, fontWeight: 500 }}>
+                            {t("addressLabel")} <span style={{ color: "red" }}>*</span>
+                        </Typography>
+                        <AddressInputOnBlur
+                            city={getCityNameById(formData.city_id)}
+                            district={getDistrictNameById(formData.district_id)}
+                            ward={getWardNameById(formData.ward_id)}
+                            value={formData.address}
+                            onChange={(val) => handleChange("address", val)}
+                            onSelect={(lat, lon) =>
+                                handleChange("coordinates", { lat, lng: lon })
+                            }
+                        />
                     </Box>
 
                     <FormControl fullWidth>
                         <InputLabel>{t("features")}</InputLabel>
-                            <Select
-                                multiple
-                                value={formData.features}
-                                onChange={(e) => handleChange("features", e.target.value)}
-                                input={<OutlinedInput label={t("features")} />}
-                                renderValue={(selected) => (
-                                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                                        {selected.map((value) => {
-                                            const feature = features.find((f) => f._id === value);
-                                            return (
-                                                <Chip 
-                                                    key={value} 
-                                                    label={feature?.feature_name ? getText(feature.feature_name as any, currentLang) : value} 
-                                                    size="small" 
-                                                />
-                                            );
-                                        })}
-                                    </Box>
-                                )}
-                            >
-                                {features.map((feature) => (
-                                    <MenuItem key={feature._id} value={feature._id}>
-                                        {getText(feature.feature_name as any, currentLang)}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                        <MuiSelect
+                            multiple
+                            value={formData.features}
+                            onChange={(e) => handleChange("features", e.target.value)}
+                            input={<OutlinedInput label={t("features")} />}
+                            renderValue={(selected) => (
+                                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                                    {selected.map((value) => {
+                                        const feature = features.find((f) => f._id === value);
+                                        return (
+                                            <Chip
+                                                key={value}
+                                                label={feature?.feature_name ? getText(feature.feature_name as any, currentLang) : value}
+                                                size="small"
+                                            />
+                                        );
+                                    })}
+                                </Box>
+                            )}
+                        >
+                            {features.map((feature) => (
+                                <MenuItem key={feature._id} value={feature._id}>
+                                    {getText(feature.feature_name as any, currentLang)}
+                                </MenuItem>
+                            ))}
+                        </MuiSelect>
+                    </FormControl>
 
                     <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
                         <TextField
@@ -357,10 +615,10 @@ const PropertyEditModal: React.FC<PropertyEditModalProps> = ({
 
                     <TextField
                         label={t("yearBuilt")}
-                            fullWidth
-                            type="number"
-                            value={formData.yearBuilt}
-                            onChange={(e) => handleChange("yearBuilt", parseInt(e.target.value))}
+                        fullWidth
+                        type="number"
+                        value={formData.yearBuilt}
+                        onChange={(e) => handleChange("yearBuilt", parseInt(e.target.value))}
                     />
 
                     <Box>

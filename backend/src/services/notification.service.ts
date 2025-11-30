@@ -51,7 +51,7 @@ export const notificationService = {
     } = {},
     lang: "vi" | "en" = "vi"
   ) {
-    const { page = 1, limit = 100, is_read, type } = filters;
+    const { page = 1, limit = 10, is_read, type } = filters;
     const skip = (page - 1) * limit;
 
     const query: any = { user_id: new mongoose.Types.ObjectId(userId) };
@@ -69,8 +69,8 @@ export const notificationService = {
 
     const data = notifications.map((n) => ({
       ...n,
-      title: n.title?.[lang] ?? n.title?.vi ?? "",
-      message: n.message?.[lang] ?? n.message?.vi ?? "",
+      title: n.title,
+      message: n.message,
     }));
 
     return {

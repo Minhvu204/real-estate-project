@@ -82,7 +82,7 @@ const ListProperties = () => {
       item.address?.[currentLanguage]
         ?.toLowerCase()
         .includes(searchTerm.toLowerCase());
-const matchStatus = filterStatus === "" || item.status === filterStatus;
+    const matchStatus = filterStatus === "" || item.status === filterStatus;
     return matchSearch && matchStatus;
   });
 
@@ -169,7 +169,7 @@ const matchStatus = filterStatus === "" || item.status === filterStatus;
             <tr key={item._id} className="hover:bg-gray-50">
               <td className="px-4 py-3 border-b">
                 <img
-src={item.images[0]}
+                  src={item.images[0]}
                   alt={t("avatar")}
                   className="rounded-full w-10 h-10"
                 />
@@ -214,7 +214,6 @@ src={item.images[0]}
                       <FontAwesomeIcon icon={faEye} />
                     </button>
                   </Tooltip>
-
 
                   {isManageMode ? (
                     <>

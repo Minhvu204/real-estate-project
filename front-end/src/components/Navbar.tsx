@@ -8,8 +8,8 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import AuthContext from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import ButtonLanguage from "./common/ButtonLanguage";
+import { useTranslation } from "react-i18next";
 import Notification from "./common/notification/Notification";
-import { useTranslation } from 'react-i18next';
 const Navbar: React.FC = () => {
   const { state, signOut } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -24,17 +24,22 @@ const Navbar: React.FC = () => {
     buyer: [
       { label: "My Properties", path: "/dwello/myProperties" },
       { label: "My Agent", path: "/dwello/myAgent" },
+      { label: "My appointments", path: "/dwello/appointments" },
+      { label: "My Offer", path: "/buyer/offer" },
       { label: "Deals - Contract", path: "/buyer/deals/list" },
       { label: t('favorite:myFavorite'), path: "/favorites" }
     ],
     seller: [
       { label: "My Properties", path: "/seller/properties" },
       { label: "Manage Listings", path: "/seller/my-properties" },
+      { label: "My Offers", path: "/seller/offers" },
       { label: "Deals - Contract", path: "/seller/deals/list" },
     ],
     agent: [
       { label: "My Properties", path: "/agent/properties" },
       { label: "Manage Listings", path: "/agent/my-properties" },
+      { label: "Assignments", path: "/agent/assignments" },
+      { label: "My Offers", path: "/agent/offers" },
       { label: "Deals - Contract", path: "/agent/deals/list" },
     ],
   };
@@ -383,6 +388,7 @@ const Navbar: React.FC = () => {
             </Box>
           )}
           <ButtonLanguage />
+          <Notification />
           {/* Right Side */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             {!state.token ? (

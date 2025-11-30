@@ -8,8 +8,10 @@ export interface IReview extends Document {
   target_id: mongoose.Types.ObjectId;
   target_type: "property" | "agent" | "project";
   rating: number;
-  comment: string;
-
+  comment: {
+    vi: string;
+    en: string;
+  };
   status: "pending" | "approved" | "rejected";
   is_hidden: boolean;
   rejection_reason?: string;
@@ -42,7 +44,10 @@ const ReviewSchema = new Schema<IReview>(
       },
     },
 
-    comment: { type: String, trim: true },
+    comment: {
+      vi: { type: String, trim: true },
+      en: { type: String, trim: true },
+    },
 
     status: {
       type: String,

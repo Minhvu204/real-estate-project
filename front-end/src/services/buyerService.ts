@@ -1,3 +1,5 @@
+import type { checkFavoriteType } from "@/types/FavoriteType";
+import type { Property } from "@/types/Property";
 import type { checkFavoriteType, PropertyCompare, PropertyFavorite, } from "@/types/FavoriteType";
 import { httpClient } from "@/utils/httpClient";
 
