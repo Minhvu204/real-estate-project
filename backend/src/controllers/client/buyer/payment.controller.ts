@@ -84,3 +84,20 @@ export const releaseEscrowController = async (req: Request, res: Response) => {
     return errorResponse(req, res, err.message || "Release failed", err.status || 500);
   }
 };
+
+export const getPaymentsByDealId = async (req: Request, res: Response) => {
+  try {
+    const buyerId = (req as any).user?.id;
+    const { dealId } = req.params;
+
+    if (!buyerId) return errorResponse(req, res, "Unauthorized", 401);
+    if (!dealId) return errorResponse(req, res, "Thiếu dealId", 400);
+
+    const result = await paymentService.getPaymentsByDealId(buyerId, dealId);
+
+    return successResponse(req, res, "Lấy thông tin thanh toán theo deal thành công", result);
+  } catch (err: any) {
+    console.error("getPaymentsByDealId error", err);
+    return errorResponse(req, res, err.message || "Lỗi", err.status || 500);
+  }
+};

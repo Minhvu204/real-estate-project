@@ -18,3 +18,4 @@ export const paymentSuccess = async (paymentId: string) => {
         status: "success",
     });
 }
+

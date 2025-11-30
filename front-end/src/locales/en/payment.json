@@ -1,0 +1,16 @@
+{
+    "paymentPage": {
+        "title": "Deal Payment",
+        "amountLabel": "Amount:",
+        "platformFeeLabel": "Platform Fee:",
+        "agentFeeLabel": "Agent Fee:",
+        "totalLabel": "Total:",
+        "instruction": "Press the button below to make payment",
+        "confirmButton": "Confirm Payment",
+        "processing": "Processing...",
+        "noPaymentData": "contract has been paid",
+        "createQrError": "Failed to generate QR code!",
+        "paymentSuccess": "Payment successful!",
+        "webhookError": "Webhook error!"
+    }
+}

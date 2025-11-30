@@ -1,0 +1,16 @@
+{
+    "paymentPage": {
+        "title": "Thanh toán Deal",
+        "amountLabel": "Số tiền:",
+        "platformFeeLabel": "Phí nền tảng:",
+        "agentFeeLabel": "Phí môi giới:",
+        "totalLabel": "Tổng cộng:",
+        "instruction": "Nhấn nút bên dưới để thanh toán",
+        "confirmButton": "Xác nhận thanh toán",
+        "processing": "Đang xử lý...",
+        "noPaymentData": "Hợp đồng đã được thanh toán",
+        "createQrError": "Không tạo được QR thanh toán!",
+        "paymentSuccess": "Thanh toán thành công!",
+        "webhookError": "Webhook lỗi!"
+    }
+}

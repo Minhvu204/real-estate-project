@@ -27,6 +27,8 @@ import DEAL_CONTRACT_EN from "../locales/en/dealContract.json";
 import DEAL_CONTRACT_VI from "../locales/vi/dealContract.json";
 import AUTH_VI from "../locales/vi/auth.json";
 import AUTH_EN from "../locales/en/auth.json";
+import PAYMENT_VI from "../locales/vi/payment.json";
+import PAYMENT_EN from "../locales/en/payment.json";
 export const resources = {
     en: {
         home: HOME_EN,
@@ -41,7 +43,8 @@ export const resources = {
         listProperties: LIST_PROPERTIES_ADMIN_EN,
         detailProperty: DETAIL_PROPERTIES_ADMIN_EN,
         dealContact: DEAL_CONTRACT_EN,
-        auth: AUTH_EN
+        auth: AUTH_EN,
+        payment: PAYMENT_EN,
     },
     vi: {
         home: HOME_VI,
@@ -56,7 +59,8 @@ export const resources = {
         listProperties: LIST_PROPERTIES_ADMIN_VI,
         etailProperty: DETAIL_PROPERTIES_ADMIN_VI,
         dealContact: DEAL_CONTRACT_VI,
-        auth: AUTH_VI
+        auth: AUTH_VI,
+        payment: PAYMENT_VI,
     }
 };
 export const defaultNS = 'home';
