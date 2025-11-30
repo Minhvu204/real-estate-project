@@ -1,0 +1,34 @@
+import { Request, Response } from "express";
+import * as reportService from "../../services/admin/report.service";
+import { successResponse, errorResponse } from "../../utils/responseHandler";
+
+export const getAdminSummary = async (req: Request, res: Response) => {
+  try {
+    const data = await reportService.getSummary();
+    return successResponse(req, res, "reports.summary_success", data);
+  } catch (error: any) {
+    return errorResponse(req, res, error.message || "reports.summary_error", 500);
+  }
+};
+
+export const getRevenueChart = async (req: Request, res: Response) => {
+  try {
+    const year = Number(req.query.year) || new Date().getFullYear();
+    const data = await reportService.getRevenueChart(year);
+
+    return successResponse(req, res, "reports.revenue_success", data);
+  } catch (error: any) {
+    return errorResponse(req, res, error.message || "reports.revenue_error", 500);
+  }
+};
+
+export const getTopAgents = async (req: Request, res: Response) => {
+  try {
+    const limit = Number(req.query.limit) || 10;
+    const data = await reportService.getTopAgents(limit);
+
+    return successResponse(req, res, "reports.top_agents_success", data);
+  } catch (error: any) {
+    return errorResponse(req, res, error.message || "reports.top_agents_error", 500);
+  }
+};
