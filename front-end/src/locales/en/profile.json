@@ -29,11 +29,10 @@
   "informationUpdatedSuccess": "Information updated successfully",
   "unableToUpdateInformation": "Unable to update information",
   "home": "Home",
-  "newPost": "New post",
+  "newPost": "My property",
   "manageListings": "Manage listings",
   "notification": "Notification",
   "accountBalance": "Account balance",
   "adAccount": "Ad account",
   "promotionalAccount": "Promotional Account"
 }
-

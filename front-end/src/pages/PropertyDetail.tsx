@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { toast, ToastContainer } from 'react-toastify';
 import { getLanguage, getUser } from "../utils/storage";
 import { OfferService } from "@/services/offerService";
-import BuyerAppointment from "@/components/buyer/Appointment/BuyerAppointment";
+import BuyerAppointment from "@/components/Buyer/Appointment/BuyerAppointment";
 import { getDetailPropertiesById } from "@/services/propertyService";
 const PropertyDetailUser = () => {
     const { id } = useParams();
