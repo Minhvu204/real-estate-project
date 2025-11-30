@@ -16,7 +16,7 @@ const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 
-// Seller gui yêu cầu gán agent cho property
+// Seller gui yêu cầu quan li propety cho agent
 router.post(
   "/:id/assign-agent",
   verifyToken,

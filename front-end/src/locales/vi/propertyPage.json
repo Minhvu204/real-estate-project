@@ -4,6 +4,11 @@
         "bathrooms": "Phòng tắm",
         "viewDetail": "Xem chi tiết"
     },
+    "billion": "Tỷ",
+    "million": "Triệu",
+    "thousand": "Nghìn",
+    "compare": "So sánh",
+    "cannotCompare": "Không thể so sánh",
     "propertyMap": {
         "errorMap": "Không thể tải bản đồ",
         "loading": "Đang tải bản đồ..."

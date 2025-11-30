@@ -11,7 +11,10 @@ import { getLanguage, getUser } from "../utils/storage";
 import { OfferService } from "@/services/offerService";
 import BuyerAppointment from "@/components/Buyer/Appointment/BuyerAppointment";
 import { getDetailPropertiesById } from "@/services/propertyService";
-import PropertyReview from "../components/Buyer/PropertyReview";
+import PropertyReview from "../components/buyer/PropertyReview";
+
+
+
 
 const PropertyDetailUser = () => {
     const { id } = useParams();
@@ -22,6 +25,7 @@ const PropertyDetailUser = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const isMobile = useMediaQuery("(max-width:900px)");
     const isMobileSmall = useMediaQuery("(max-width:600px)");
+    const user = getUser();
 
     const { t } = useTranslation("propertyDetail");
     const lang = getLanguage();
@@ -40,6 +44,10 @@ const PropertyDetailUser = () => {
         );
     };
 
+
+
+
+
     useEffect(() => {
         const fetchProperty = async () => {
             try {
@@ -54,8 +62,11 @@ const PropertyDetailUser = () => {
 
     const [openTourModal, setOpenTourModal] = useState(false);
 
+
     const handleOpenTour = () => setOpenTourModal(true);
     const handleCloseTour = () => setOpenTourModal(false);
+
+
 
     if (!property) {
         return <Typography textAlign="center" mt={3}>Loading...</Typography>;

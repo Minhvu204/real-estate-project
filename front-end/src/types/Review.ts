@@ -6,6 +6,38 @@ export type Review = {
     email: string;
     avatar: string;
   };
+<<<<<<< HEAD
+=======
+  target: {
+    _id: string;
+    avatar: string;
+    email: string;
+    fullName: string;
+    phone: string;
+    address: {
+      vi: string;
+      en: string;
+    };
+    area: number;
+    bathrooms: number;
+    bedrooms: number;
+    city_id: {
+      _id: string;
+    };
+    district_id: {
+      _id: string;
+    };
+    images: string[];
+    price: string;
+    title: {
+      en: string;
+      vi: string;
+    };
+    ward_id: {
+      _id: string;
+    };
+  };
+>>>>>>> develop
   target_id: {
     _id: string;
   };
@@ -16,7 +48,20 @@ export type Review = {
     en: string;
   };
   isComment: boolean;
+<<<<<<< HEAD
   canReview: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
+=======
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type ReviewPagination = {
+  limit: number;
+  totalPages: number;
+  page: number;
+};
+>>>>>>> develop

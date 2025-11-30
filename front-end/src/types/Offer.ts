@@ -14,6 +14,10 @@ export type Offer = {
       vi: string;
       en: string;
     };
+     description: {
+      vi: string;
+      en: string;
+    };
     address: {
       vi: string;
       en: string;
@@ -23,7 +27,58 @@ export type Offer = {
     bedrooms?: number;
     bathrooms?: number;
     yearBuilt?: number;
-    images?: string[];
+    city_id?: {
+      _id: string;
+      city_name: {
+        vi: string;
+        en: string;
+      };
+    };
+    type_id?: {
+      _id: string;
+      type_name: {
+        vi: string;
+        en: string;
+      };
+    };
+    category_id?: {
+      _id: string;
+      category_name: {
+        vi: string;
+        en: string;
+      };
+    };
+    owner_id?: {
+      _id: string;
+      fullName: string;
+      email: string;
+      phone?: string;
+      avatar?: string;
+    };
+    agent_id?: {
+      _id: string;
+      fullName: string;
+      email: string;
+      phone?: string;
+      avatar?: string;
+    };
+    features?: {
+      _id: string;
+      feature_name: {
+        vi: string;
+        en: string;
+      };
+    }[];
+    images: string[];
+    status: string;
+    hiddenNote: string;
+    deleted: boolean;
+    assignmentHistory: any[];
+    createdAt: string;
+    updatedAt: string;
+    publishedAt?: string;
+    reviewedAt?: string;
+    reviewedBy?: string;
   };
   buyer_id: string | {
     _id: string;
@@ -46,6 +101,20 @@ export type Offer = {
     phone?: string;
     avatar?: string;
   };
+  category_id?: {
+      _id: string;
+      category_name: {
+        vi: string;
+        en: string;
+      };
+    };
+    owner_id?: {
+      _id: string;
+      fullName: string;
+      email: string;
+      phone?: string;
+      avatar?: string;
+    };
   amount: number;
   currency?: string;
   note?: string;

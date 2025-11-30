@@ -35,7 +35,10 @@ const PropertyMap: React.FC<PropertyMapProps> = ({ properties, center }) => {
             {properties.map((property) => (
                 <Marker
                     key={property._id}
-                    position={property.coordinates}
+                    position={{
+                        lat: property.coordinates?.coordinates[1] ?? 0,
+                        lng: property.coordinates?.coordinates[0] ?? 0,
+                    }}
                     label={{
                         text:
                             property.price >= 1_000_000
@@ -49,7 +52,10 @@ const PropertyMap: React.FC<PropertyMapProps> = ({ properties, center }) => {
             ))}
             {selectedProperty && (
                 <InfoWindow
-                    position={selectedProperty.coordinates}
+                    position={{
+                        lat: selectedProperty.coordinates?.coordinates[1] ?? 0,
+                        lng: selectedProperty.coordinates?.coordinates[0] ?? 0,
+                    }}
                     onCloseClick={() => setSelectedProperty(null)}
                 >
                     <div className="max-w-[320px] rounded-xl overflow-hidden shadow-lg">
