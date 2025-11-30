@@ -69,8 +69,8 @@ export const notificationService = {
 
     const data = notifications.map((n) => ({
       ...n,
-      title: n.title?.[lang] ?? n.title?.vi ?? "",
-      message: n.message?.[lang] ?? n.message?.vi ?? "",
+      title: n.title,
+      message: n.message,
     }));
 
     return {

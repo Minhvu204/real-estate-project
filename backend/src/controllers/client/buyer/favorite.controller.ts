@@ -38,117 +38,16 @@ export const removeFavorite = async (
   }
 };
 
-export const getMyFavorites = async (
-  req: AuthenticatedRequest,
-  res: Response
-) => {
+export const getMyFavorites = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
-    const { sort } = req.query;
 
-    const favorites = await favoriteService.getFavorites(userId!, {
-      sort: sort ? String(sort) : undefined,
-    });
+    const result = await favoriteService.getMyFavorites(String(userId));
 
-    const flat = favorites.map((fav: any) => {
-      const p = fav.property_id;
-
-      return {
-        favorite_id: fav._id,
-        property_id: p._id,
-
-        title: {
-          vi: p.title?.vi || "",
-          en: p.title?.en || "",
-        },
-        description: {
-          vi: p.description?.vi || "",
-          en: p.description?.en || "",
-        },
-        price: p.price,
-        images: p.images || [],
-
-        address: {
-          vi: p.address?.vi || "",
-          en: p.address?.en || "",
-        },
-
-        city: {
-          vi: p.city_id?.city_name?.vi || "",
-          en: p.city_id?.city_name?.en || "",
-        },
-        district: {
-          vi: p.district_id?.district_name?.vi || "",
-          en: p.district_id?.district_name?.en || "",
-        },
-        ward: {
-          vi: p.ward_id?.ward_name?.vi || "",
-          en: p.ward_id?.ward_name?.en || "",
-        },
-
-        type: {
-          vi: p.type_id?.type_name?.vi || "",
-          en: p.type_id?.type_name?.en || "",
-        },
-        category: {
-          vi: p.category_id?.category_name?.vi || "",
-          en: p.category_id?.category_name?.en || "",
-        },
-
-        area: p.area,
-        unit: p.unit,
-        bedrooms: p.bedrooms,
-        bathrooms: p.bathrooms,
-        floors: p.floors,
-        yearBuilt: p.yearBuilt,
-
-        coordinates:
-          p.coordinates?.lat != null && p.coordinates?.lng != null
-            ? {
-                type: "Point",
-                coordinates: [p.coordinates.lng, p.coordinates.lat],
-              }
-            : undefined,
-
-        feature_name:
-          p.features?.map((f: any) => ({
-            vi: f.feature_name?.vi || "",
-            en: f.feature_name?.en || "",
-          })) || [],
-
-        owner: p.owner_id
-          ? {
-              _id: p.owner_id._id,
-              fullName: p.owner_id.fullName,
-              email: p.owner_id.email,
-              phone: p.owner_id.phone,
-              avatar: p.owner_id.avatar,
-            }
-          : null,
-
-        agent: p.agent_id
-          ? {
-              _id: p.agent_id._id,
-              fullName: p.agent_id.fullName,
-              email: p.agent_id.email,
-              phone: p.agent_id.phone,
-              avatar: p.agent_id.avatar,
-            }
-          : null,
-
-        status: p.status,
-        deleted: p.deleted,
-        createdAt: p.createdAt,
-        updatedAt: p.updatedAt,
-      };
-    });
-
-    return successResponse(req, res, "Lấy danh sách yêu thích thành công", {
-      total: flat.length,
-      data: flat,
-    });
-  } catch (err: any) {
-    return errorResponse(req, res, err.message, err.status || 500);
+    return successResponse(req, res, "favorite.list", { data: result });
+  } catch (error) {
+    console.error(error);
+    return errorResponse(req, res, "favorite.list_failed", 500);
   }
 };
 

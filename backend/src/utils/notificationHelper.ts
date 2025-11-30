@@ -159,30 +159,35 @@ export async function notifyNewAppointment(
   agentId: string,
   buyerName: string,
   propertyTitle: string,
-  appointmentId: string
+  appointmentId: string,
+  timesSummary?: string
 ) {
-  return createNotification(
-    agentId,
-    "Lịch hẹn mới",
-    `${buyerName} đã đặt lịch hẹn xem ${propertyTitle}`,
-    {
-      type: "appointment",
-      relatedId: appointmentId,
-      actionUrl: `/appointments/${appointmentId}`,
-    }
-  );
+  const message =
+    `${buyerName} đã đặt lịch hẹn xem ${propertyTitle}` +
+    (timesSummary ? `\nCác khung giờ đề xuất:\n${timesSummary}` : "");
+
+  return createNotification(agentId, "Lịch hẹn mới", message, {
+    type: "appointment",
+    relatedId: appointmentId,
+    actionUrl: `/appointments/${appointmentId}`,
+  });
 }
 
 export async function notifySellerNewAppointment(
   sellerId: string,
   buyerName: string,
   propertyTitle: string,
-  appointmentId: string
+  appointmentId: string,
+  timesSummary?: string
 ) {
+  const message =
+    `${buyerName} đã đặt lịch hẹn xem ${propertyTitle}` +
+    (timesSummary ? `\nCác khung giờ đề xuất:\n${timesSummary}` : "");
+
   return createNotification(
     sellerId,
     "Lịch hẹn mới cho bất động sản của bạn",
-    `${buyerName} đã đặt lịch hẹn xem ${propertyTitle}`,
+    message,
     {
       type: "appointment",
       relatedId: appointmentId,
@@ -219,17 +224,22 @@ export async function notifyAppointmentStatusToBuyerAndSeller(
   agentName: string,
   propertyTitle: string,
   status: "accepted" | "rejected",
-  appointmentId: string
+  appointmentId: string,
+  finalTimeText?: string
 ) {
   const title = status === "accepted" ? "Lịch hẹn được chấp nhận" : "Lịch hẹn bị từ chối";
   const buyerMessage =
     status === "accepted"
-      ? `${agentName} đã chấp nhận lịch hẹn xem ${propertyTitle}`
+      ? `${agentName} đã chấp nhận lịch hẹn xem ${propertyTitle}${
+          finalTimeText ? ` (khung giờ chốt: ${finalTimeText})` : ""
+        }`
       : `${agentName} đã từ chối lịch hẹn xem ${propertyTitle}`;
 
   const sellerMessage =
     status === "accepted"
-      ? `${agentName} đã chấp nhận lịch hẹn xem ${propertyTitle} của bạn`
+      ? `${agentName} đã chấp nhận lịch hẹn xem ${propertyTitle} của bạn${
+          finalTimeText ? ` (khung giờ chốt: ${finalTimeText})` : ""
+        }`
       : `${agentName} đã từ chối lịch hẹn xem ${propertyTitle} của bạn`;
 
   await Promise.all([
@@ -268,14 +278,18 @@ export async function notifyAppointmentCancelled(
   ]);
 }
 // tbao hoàn tất appointment
-export async function notifyAppointmentCompleted(
-  buyerId: string,
-  sellerId: string,
-  agentName: string,
-  propertyTitle: string,
-  appointmentId: string
-) {
-  const message = `${agentName} đã xác nhận hoàn tất lịch hẹn xem ${propertyTitle}`;
+export async function notifyAppointmentCompleted(params: {
+  buyerId: string;
+  sellerId: string;
+  agentName: string;
+  propertyTitle: string;
+  appointmentId: string;
+  finalTimeText?: string;
+}) {
+  const { buyerId, sellerId, agentName, propertyTitle, appointmentId, finalTimeText } = params;
+  const message =
+    `${agentName} đã xác nhận hoàn tất lịch hẹn xem ${propertyTitle}` +
+    (finalTimeText ? ` (khung giờ: ${finalTimeText})` : "");
 
   await Promise.all([
     createNotification(buyerId, "Lịch hẹn đã hoàn tất", message, {
@@ -283,7 +297,6 @@ export async function notifyAppointmentCompleted(
       relatedId: appointmentId,
       actionUrl: `/appointments/${appointmentId}`,
     }),
-
     createNotification(sellerId, "Lịch hẹn đã hoàn tất", message, {
       type: "appointment",
       relatedId: appointmentId,
@@ -697,4 +710,49 @@ export async function notifyBuyerContractDecision(params: {
       decision,
     },
   });
+}
+
+export async function notifyBuyerToPayEscrow(
+  buyerId: string,
+  dealId: string,
+  propertyTitle: string,
+  platformFee: number,
+  agentFee: number
+) {
+  const title = "Thanh toán Escrow";
+  const message = `Hợp đồng bất động sản "${propertyTitle}" đã được chấp nhận.
+Vui lòng tiến hành thanh toán escrow: 
+- Giá trị: ${platformFee + agentFee} VND (bao gồm phí nền tảng ${platformFee} VND, phí agent ${agentFee} VND)
+- Hoặc thanh toán trực tiếp với chủ nhà bằng tiền mặt.`;
+
+  return createNotification(buyerId, title, message, {
+    type: "system",
+    relatedId: dealId,
+    actionUrl: `/deals/${dealId}/payment` // link tới trang thanh toán
+  });
+}
+
+export async function notifyPaymentSuccessBuyer(buyerId: string, deal: any) {
+  return createNotification(
+    buyerId,
+    "Thanh toán thành công",
+    `Bạn đã thanh toán escrow cho bất động sản "${deal.property_id.title}".`
+  );
+}
+
+export async function notifyPaymentSuccessSellerAgent(deal: any) {
+  const seller = String(deal.seller_id);
+  const agent = String(deal.agent_id);
+
+  await createNotification(
+    seller,
+    "Bạn đã nhận được tiền BĐS",
+    "Hệ thống đã chuyển tiền cho bạn."
+  );
+
+  await createNotification(
+    agent,
+    "Bạn đã nhận tiền hoa hồng",
+    "Hệ thống đã gửi phí agent cho bạn."
+  );
 }

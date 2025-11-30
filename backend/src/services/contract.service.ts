@@ -5,7 +5,7 @@ import Contract, {
   ContractUploaderRole,
 } from "../models/contract.model";
 import Deal, { DealStatus } from "../models/deal.model";
-import { notifyBuyerContractDecision } from "../utils/notificationHelper";
+import { notifyBuyerContractDecision, notifyBuyerToPayEscrow } from "../utils/notificationHelper";
 import User from "../models/user.model";
 
 
@@ -29,6 +29,7 @@ const BUYER_CONTRACT_ALLOWED_STATUSES: DealStatus[] = [
   "active",
   "awaiting_contract",
   "contract_under_review",
+  "awaiting_escrow_payment",  
   "escrow_funded",
   "completed",
 ];
@@ -36,6 +37,7 @@ const BUYER_CONTRACT_ALLOWED_STATUSES: DealStatus[] = [
 const BUYER_CONTRACT_UPLOADABLE_STATUSES: DealStatus[] = [
   "awaiting_contract",
   "contract_under_review",
+  "awaiting_escrow_payment",
 ];
 
 interface BuyerContractUploadParams {
@@ -370,8 +372,34 @@ export const contractService = {
       contract.approved_at = new Date();
       // update contract_type thành "buyer_signed"
       contract.contract_type = "buyer_signed";
-      deal.status = "escrow_funded";
+      deal.status = "awaiting_escrow_payment";
       await deal.save();
+
+      try {
+        const propertyTitle =
+          typeof deal.property_id === "object" && deal.property_id !== null
+            ? (deal.property_id as any).title || "bất động sản"
+            : "bất động sản";
+
+        const agreedPrice = deal.amounts?.agreed_price ?? 0;
+        const platformFeeRate = Number(process.env.DEFAULT_PLATFORM_FEE_RATE ?? 4) / 100;
+        const agentFeeRate = Number(process.env.DEFAULT_AGENT_FEE_RATE ?? 2) / 100;
+
+        const platformFee = Math.round(agreedPrice * platformFeeRate);
+        const agentFee = Math.round(agreedPrice * agentFeeRate);
+
+        await notifyBuyerToPayEscrow(
+          buyerId,
+          String(deal._id),
+          propertyTitle,
+          platformFee,
+          agentFee
+        );
+
+      } catch (err) {
+        console.error("Failed to send escrow payment notification", err);
+      }
+
     } else {
       contract.status = "rejected";
       contract.notes = notes; // Lưu lý do từ chối vào notes
