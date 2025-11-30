@@ -66,14 +66,21 @@ const MyPropertiesPage: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (id && properties.length > 0 && !isUpdating && !editModalOpen && !isClosing) {
+        // Only open modal if:
+        // 1. There's an id in URL
+        // 2. Properties are loaded
+        // 3. Not currently updating
+        // 4. Not currently closing
+        // 5. Modal is not already open
+        // 6. No property is currently selected
+        if (id && properties.length > 0 && !isUpdating && !isClosing && !editModalOpen && !selectedProperty) {
             const property = properties.find(p => p._id === id);
             if (property) {
                 setSelectedProperty(property);
                 setEditModalOpen(true);
             }
         }
-    }, [id, properties, isUpdating, editModalOpen, isClosing]);
+    }, [id, properties, isUpdating, isClosing, editModalOpen, selectedProperty]);
 
     useEffect(() => {
         filterProperties();
@@ -94,7 +101,7 @@ const MyPropertiesPage: React.FC = () => {
             setLoading(false);
             return;
         }
-        
+
         setLoading(true);
         try {
             const data = await getMyProperties();
@@ -102,7 +109,7 @@ const MyPropertiesPage: React.FC = () => {
             setProperties(validData);
         } catch (error: any) {
             const status = error.response?.status;
-            
+
             if (status === 401) {
                 toast.error(t("sessionExpired"));
                 setTimeout(() => {
@@ -122,11 +129,11 @@ const MyPropertiesPage: React.FC = () => {
 
     const filterProperties = () => {
         let filtered = properties;
-        
+
         if (statusFilter !== "all") {
             filtered = filtered.filter(p => p.status === statusFilter);
         }
-        
+
         if (searchTerm) {
             filtered = filtered.filter(p =>
                 containsText(p.title, searchTerm) ||
@@ -182,7 +189,7 @@ const MyPropertiesPage: React.FC = () => {
         }
         setTimeout(() => {
             setIsClosing(false);
-        }, 100);
+        }, 300);
     };
 
     const handleUpdate = async (id: string, formData: FormData) => {
@@ -274,22 +281,22 @@ const MyPropertiesPage: React.FC = () => {
         <Box sx={{ minHeight: "100vh", bgcolor: "background.default", py: { xs: 1.5, sm: 3, md: 4 } }}>
             <Container maxWidth="xl" sx={{ px: { xs: 1, sm: 2, md: 3 } }}>
                 <Paper elevation={3} sx={{ p: { xs: 1.5, sm: 2.5, md: 3 } }}>
-                    <Box 
-                        sx={{ 
-                            display: "flex", 
+                    <Box
+                        sx={{
+                            display: "flex",
                             flexDirection: { xs: "column", sm: "row" },
-                            justifyContent: "space-between", 
+                            justifyContent: "space-between",
                             alignItems: { xs: "flex-start", sm: "center" },
                             gap: { xs: 1.5, sm: 2 },
-                            mb: { xs: 2, sm: 2.5, md: 3 } 
+                            mb: { xs: 2, sm: 2.5, md: 3 }
                         }}
                     >
-                        <Typography 
-                            variant="h4" 
-                            component="h1" 
-                            fontWeight="bold" 
+                        <Typography
+                            variant="h4"
+                            component="h1"
+                            fontWeight="bold"
                             color="primary"
-                            sx={{ 
+                            sx={{
                                 fontSize: { xs: "1.25rem", sm: "1.75rem", md: "2.125rem" },
                                 lineHeight: 1.2
                             }}
@@ -307,8 +314,8 @@ const MyPropertiesPage: React.FC = () => {
                             borderBottom: 1,
                             borderColor: "divider",
                             mb: { xs: 2, sm: 2.5, md: 3 },
-                            "& .MuiTab-root": { 
-                                textTransform: "none", 
+                            "& .MuiTab-root": {
+                                textTransform: "none",
                                 fontWeight: 600,
                                 fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.875rem" },
                                 minWidth: { xs: 50, sm: 70, md: 90 },
@@ -339,17 +346,17 @@ const MyPropertiesPage: React.FC = () => {
                                         <SearchIcon sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }} />
                                     </InputAdornment>
                                 ),
-                                sx: { 
+                                sx: {
                                     fontSize: { xs: "0.875rem", sm: "0.9375rem", md: "1rem" },
                                     py: { xs: 0.5, sm: 0.75 }
                                 }
                             }}
                         />
-                        <Typography 
-                            variant="body2" 
-                            color="text.secondary" 
-                            sx={{ 
-                                mt: { xs: 0.75, sm: 1 }, 
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{
+                                mt: { xs: 0.75, sm: 1 },
                                 textAlign: "right",
                                 fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.875rem" }
                             }}
@@ -378,7 +385,7 @@ const MyPropertiesPage: React.FC = () => {
                                     .map((property) => {
                                         const currentImageIndex = imageIndexes[property._id] || 0;
                                         const images = property.images?.length > 0 ? property.images : ["/defaultHome.png"];
-                                        
+
                                         return (
                                             <Grid key={property._id} size={{ xs: 12, sm: 6, md: 4 }}>
                                                 <Card
@@ -394,9 +401,9 @@ const MyPropertiesPage: React.FC = () => {
                                                         borderRadius: { xs: 2, sm: 3 },
                                                     }}
                                                 >
-                                                    <Box 
-                                                        sx={{ 
-                                                            position: "relative", 
+                                                    <Box
+                                                        sx={{
+                                                            position: "relative",
                                                             height: { xs: 180, sm: 220, md: 250 },
                                                             bgcolor: "#f5f5f5",
                                                             display: "flex",
@@ -416,7 +423,7 @@ const MyPropertiesPage: React.FC = () => {
                                                                 borderBottom: "1px solid #eee",
                                                             }}
                                                         />
-                                                        
+
                                                         {images.length > 1 && (
                                                             <>
                                                                 <IconButton
@@ -473,123 +480,123 @@ const MyPropertiesPage: React.FC = () => {
                                                             </>
                                                         )}
                                                     </Box>
-                                        <CardContent sx={{ flexGrow: 1, p: { xs: 1.5, sm: 2 }, "&:last-child": { pb: { xs: 1.5, sm: 2 } } }}>
-                                            <Typography
-                                                gutterBottom
-                                                variant="h6"
-                                                component="div"
-                                                color="primary"
-                                                sx={{
-                                                    fontWeight: 700,
-                                                    overflow: "hidden",
-                                                    textOverflow: "ellipsis",
-                                                    display: "-webkit-box",
-                                                    WebkitLineClamp: 2,
-                                                    WebkitBoxOrient: "vertical",
-                                                    minHeight: { xs: "auto", sm: "3.2em", md: "3.6em" },
-                                                    fontSize: { xs: "0.9375rem", sm: "1.125rem", md: "1.25rem" },
-                                                    lineHeight: 1.3,
-                                                    mb: { xs: 0.75, sm: 1 },
-                                                }}
-                                            >
-                                                {getText(property.title, currentLang)}
-                                            </Typography>
-                                            <Typography
-                                                variant="body2"
-                                                color="text.secondary"
-                                                sx={{
-                                                    mb: { xs: 1, sm: 1.5 },
-                                                    overflow: "hidden",
-                                                    textOverflow: "ellipsis",
-                                                    display: "-webkit-box",
-                                                    WebkitLineClamp: 2,
-                                                    WebkitBoxOrient: "vertical",
-                                                    fontSize: { xs: "0.8125rem", sm: "0.875rem" },
-                                                    lineHeight: 1.4,
-                                                }}
-                                            >
-                                                {getText(property.address, currentLang)}
-                                            </Typography>
-                                            <Typography 
-                                                variant="h6" 
-                                                color="error" 
-                                                fontWeight={700} 
-                                                sx={{ 
-                                                    mb: { xs: 1, sm: 1.5 },
-                                                    fontSize: { xs: "1rem", sm: "1.125rem", md: "1.25rem" },
-                                                }}
-                                            >
-                                                {t("price")}: {property.price.toLocaleString("vi-VN")} {t("vnd")}
-                                            </Typography>
-                                            <Box sx={{ display: "flex", gap: { xs: 0.75, sm: 1 }, flexWrap: "wrap", mb: { xs: 0.5, sm: 1 } }}>
-                                                {property.type_id && (
-                                                    <Chip
-                                                        label={getText(property.type_id.type_name as any, currentLang)}
-                                                        color="info"
-                                                        size="small"
-                                                        variant="outlined"
-                                                        sx={{ 
-                                                            fontSize: { xs: "0.7rem", sm: "0.75rem" },
-                                                            height: { xs: 24, sm: 28 },
-                                                            "& .MuiChip-label": { px: { xs: 1, sm: 1.5 } }
-                                                        }}
-                                                    />
-                                                )}
-                                                <Chip
-                                                    label={getStatusLabel(property.status)}
-                                                    color={getStatusColor(property.status)}
-                                                    size="small"
-                                                    sx={{ 
-                                                        fontSize: { xs: "0.7rem", sm: "0.75rem" },
-                                                        height: { xs: 24, sm: 28 },
-                                                        "& .MuiChip-label": { px: { xs: 1, sm: 1.5 } }
-                                                    }}
-                                                />
-                                            </Box>
-                                        </CardContent>
-                                        <CardActions sx={{ 
-                                            p: { xs: 1.5, sm: 2 }, 
-                                            pt: 0, 
-                                            gap: { xs: 0.75, sm: 1 }, 
-                                            flexDirection: { xs: "column", sm: "row" } 
-                                        }}>
-                                            <Button
-                                                fullWidth
-                                                variant="contained"
-                                                color="primary"
-                                                startIcon={<EditIcon sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }} />}
-                                                onClick={() => handleEdit(property)}
-                                                sx={{ 
-                                                    fontSize: { xs: "0.8125rem", sm: "0.875rem" },
-                                                    py: { xs: 0.75, sm: 0.875 },
-                                                    textTransform: "none",
-                                                    fontWeight: 600,
-                                                }}
-                                            >
-                                                {t("edit")}
-                                            </Button>
-                                            <Button
-                                                fullWidth
-                                                variant="outlined"
-                                                color="error"
-                                                startIcon={<DeleteIcon sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }} />}
-                                                onClick={() => handleDeleteClick(property)}
-                                                sx={{ 
-                                                    fontSize: { xs: "0.8125rem", sm: "0.875rem" },
-                                                    py: { xs: 0.75, sm: 0.875 },
-                                                    textTransform: "none",
-                                                    fontWeight: 600,
-                                                }}
-                                            >
-                                                {t("delete")}
-                                            </Button>
-                                        </CardActions>
-                                    </Card>
-                                </Grid>
+                                                    <CardContent sx={{ flexGrow: 1, p: { xs: 1.5, sm: 2 }, "&:last-child": { pb: { xs: 1.5, sm: 2 } } }}>
+                                                        <Typography
+                                                            gutterBottom
+                                                            variant="h6"
+                                                            component="div"
+                                                            color="primary"
+                                                            sx={{
+                                                                fontWeight: 700,
+                                                                overflow: "hidden",
+                                                                textOverflow: "ellipsis",
+                                                                display: "-webkit-box",
+                                                                WebkitLineClamp: 2,
+                                                                WebkitBoxOrient: "vertical",
+                                                                minHeight: { xs: "auto", sm: "3.2em", md: "3.6em" },
+                                                                fontSize: { xs: "0.9375rem", sm: "1.125rem", md: "1.25rem" },
+                                                                lineHeight: 1.3,
+                                                                mb: { xs: 0.75, sm: 1 },
+                                                            }}
+                                                        >
+                                                            {getText(property.title, currentLang)}
+                                                        </Typography>
+                                                        <Typography
+                                                            variant="body2"
+                                                            color="text.secondary"
+                                                            sx={{
+                                                                mb: { xs: 1, sm: 1.5 },
+                                                                overflow: "hidden",
+                                                                textOverflow: "ellipsis",
+                                                                display: "-webkit-box",
+                                                                WebkitLineClamp: 2,
+                                                                WebkitBoxOrient: "vertical",
+                                                                fontSize: { xs: "0.8125rem", sm: "0.875rem" },
+                                                                lineHeight: 1.4,
+                                                            }}
+                                                        >
+                                                            {getText(property.address, currentLang)}
+                                                        </Typography>
+                                                        <Typography
+                                                            variant="h6"
+                                                            color="error"
+                                                            fontWeight={700}
+                                                            sx={{
+                                                                mb: { xs: 1, sm: 1.5 },
+                                                                fontSize: { xs: "1rem", sm: "1.125rem", md: "1.25rem" },
+                                                            }}
+                                                        >
+                                                            {t("price")}: {property.price.toLocaleString("vi-VN")} {t("vnd")}
+                                                        </Typography>
+                                                        <Box sx={{ display: "flex", gap: { xs: 0.75, sm: 1 }, flexWrap: "wrap", mb: { xs: 0.5, sm: 1 } }}>
+                                                            {property.type_id && (
+                                                                <Chip
+                                                                    label={getText(property.type_id.type_name as any, currentLang)}
+                                                                    color="info"
+                                                                    size="small"
+                                                                    variant="outlined"
+                                                                    sx={{
+                                                                        fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                                                                        height: { xs: 24, sm: 28 },
+                                                                        "& .MuiChip-label": { px: { xs: 1, sm: 1.5 } }
+                                                                    }}
+                                                                />
+                                                            )}
+                                                            <Chip
+                                                                label={getStatusLabel(property.status)}
+                                                                color={getStatusColor(property.status)}
+                                                                size="small"
+                                                                sx={{
+                                                                    fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                                                                    height: { xs: 24, sm: 28 },
+                                                                    "& .MuiChip-label": { px: { xs: 1, sm: 1.5 } }
+                                                                }}
+                                                            />
+                                                        </Box>
+                                                    </CardContent>
+                                                    <CardActions sx={{
+                                                        p: { xs: 1.5, sm: 2 },
+                                                        pt: 0,
+                                                        gap: { xs: 0.75, sm: 1 },
+                                                        flexDirection: { xs: "column", sm: "row" }
+                                                    }}>
+                                                        <Button
+                                                            fullWidth
+                                                            variant="contained"
+                                                            color="primary"
+                                                            startIcon={<EditIcon sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }} />}
+                                                            onClick={() => handleEdit(property)}
+                                                            sx={{
+                                                                fontSize: { xs: "0.8125rem", sm: "0.875rem" },
+                                                                py: { xs: 0.75, sm: 0.875 },
+                                                                textTransform: "none",
+                                                                fontWeight: 600,
+                                                            }}
+                                                        >
+                                                            {t("edit")}
+                                                        </Button>
+                                                        <Button
+                                                            fullWidth
+                                                            variant="outlined"
+                                                            color="error"
+                                                            startIcon={<DeleteIcon sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }} />}
+                                                            onClick={() => handleDeleteClick(property)}
+                                                            sx={{
+                                                                fontSize: { xs: "0.8125rem", sm: "0.875rem" },
+                                                                py: { xs: 0.75, sm: 0.875 },
+                                                                textTransform: "none",
+                                                                fontWeight: 600,
+                                                            }}
+                                                        >
+                                                            {t("delete")}
+                                                        </Button>
+                                                    </CardActions>
+                                                </Card>
+                                            </Grid>
                                         );
                                     })}
                             </Grid>
-                            
+
                             <Stack spacing={2} alignItems="center" sx={{ mt: { xs: 3, sm: 4 } }}>
                                 <Pagination
                                     count={Math.ceil(filteredProperties.length / itemsPerPage)}
@@ -679,8 +686,8 @@ const MyPropertiesPage: React.FC = () => {
                     </DialogActions>
                 </Dialog>
 
-                <ToastContainer 
-                    position="top-right" 
+                <ToastContainer
+                    position="top-right"
                     autoClose={3000}
                     hideProgressBar={false}
                     newestOnTop={false}

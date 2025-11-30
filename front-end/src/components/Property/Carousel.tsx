@@ -16,16 +16,16 @@ const Carousel = ({
     return () => clearInterval(slideInterval);
   }, [next, autoSlide, autoSlideInterval]);
   return (
-    <div className="relative group w-full">
-      <div className="aspect-[4/3] w-full relative">
+    <div className="relative group w-full h-full">
+      <div className="w-full h-full relative overflow-hidden">
         <div
-          className="flex transition-transform ease-out duration-500"
+          className="flex h-full transition-transform ease-out duration-500"
           style={{ transform: `translateX(-${curr * 100}%)` }}
         >
           {slides.map((slide: any, index: number) => (
             <div
               key={index}
-              className="relative w-full h-full flex-shrink-0 overflow-hidden"
+              className="relative w-full h-full flex-shrink-0"
             >
               {slide}
             </div>

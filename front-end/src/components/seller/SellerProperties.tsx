@@ -6,37 +6,48 @@ import { useTranslation } from 'react-i18next';
 
 import { getLanguage } from '../../utils/storage';
 import type { Lang } from '../../utils/storage';
-import { Button, Card, CardContent, CardMedia, Chip, Grid, Pagination, Typography, TextField, MenuItem, PaginationItem } from '@mui/material';
-import { Box } from '@mui/material';
+import {
+    Button,
+    Card,
+    CardContent,
+    CardMedia,
+    Chip,
+    Grid,
+    Pagination,
+    Typography,
+    TextField,
+    MenuItem,
+    PaginationItem,
+    Box
+} from '@mui/material';
 import { getPropertiesByAgentOrSeller } from '../../services/propertyService';
-import type { Meta } from '../../types/Pagination';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import AddIcon from '@mui/icons-material/Add';
 
 const SellerProperties = () => {
     const [properties, setProperties] = useState<Property[]>([]);
     const [filtered, setFiltered] = useState<Property[]>([]);
     const [loading, setLoading] = useState(true);
     const user = getUser();
-    const [page, setPage] = useState<Meta>();
     const [itemsPerPage] = useState(6);
 
-    const { t } = useTranslation(['home', 'properties']);
+    const { t } = useTranslation(['home', 'properties', 'listProperties']);
     const currentLanguage: Lang = getLanguage();
 
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+
+    const [currentPage, setCurrentPage] = useState(1);
+
 
     useEffect(() => {
         const fetchProperties = async () => {
             try {
                 if (!user) return;
                 const response = await getPropertiesByAgentOrSeller();
-                setProperties(response.data || []);
-                setFiltered(response.data || []);
-                setPage(response.pagination);
-
-                console.log(response.data);
+                setProperties(response || []);
+                setFiltered(response || []);
             } catch (error) {
                 console.log("Cannot fetch properties for this role", error);
             } finally {
@@ -46,6 +57,7 @@ const SellerProperties = () => {
         fetchProperties();
     }, []);
 
+    // Filtering logic
     useEffect(() => {
         let result = [...properties];
 
@@ -60,20 +72,20 @@ const SellerProperties = () => {
         }
 
         setFiltered(result);
-        setPage(prev => prev ? { ...prev, currentPage: 1 } : prev);
-
+        setCurrentPage(1);
     }, [search, statusFilter, properties]);
 
     if (loading)
-        return <p className="text-center text-gray-500 mt-10">Đang tải dữ liệu...</p>;
+        return <p className="text-center text-gray-500 mt-10">{t('listProperties:loading')}</p>;
 
+
+    // Pagination calculations
     const totalPages = Math.ceil(filtered.length / itemsPerPage);
-    const startIndex = ((page?.currentPage || 1) - 1) * itemsPerPage;
+    const startIndex = (currentPage - 1) * itemsPerPage;
     const currentProperties = filtered.slice(startIndex, startIndex + itemsPerPage);
 
     const handleChangePage = (_: React.ChangeEvent<unknown>, value: number) => {
-        if (!page) return;
-        setPage({ ...page, currentPage: value });
+        setCurrentPage(value);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -81,12 +93,12 @@ const SellerProperties = () => {
         <Box className="p-6 bg-gray-50 min-h-screen">
             <Box className="flex flex-wrap justify-between items-center mb-6 gap-4">
                 <Typography variant="h5" fontWeight="bold" color="text.primary">
-                    Danh sách Bất Động Sản
+                    {t('listProperties:text-listProperties')}
                 </Typography>
 
-                <Box className="flex gap-3">
+                <Box className="flex gap-3 items-center">
                     <TextField
-                        label="Tìm kiếm..."
+                        label={t('listProperties:search')}
                         variant="outlined"
                         size="small"
                         value={search}
@@ -101,20 +113,36 @@ const SellerProperties = () => {
                         onChange={(e) => setStatusFilter(e.target.value)}
                         style={{ minWidth: 150 }}
                     >
-                        <MenuItem value="all">All</MenuItem>
-                        <MenuItem value="rejected">Rejected</MenuItem>
-                        <MenuItem value="pending">Pending</MenuItem>
-                        <MenuItem value="available">Available</MenuItem>
-                        <MenuItem value="approved">Approved</MenuItem>
+                        <MenuItem value="all">{t('listProperties:allStatus')}</MenuItem>
+                        <MenuItem value="rejected">{t('listProperties:Rejected')}</MenuItem>
+                        <MenuItem value="pending">{t('listProperties:Pending')}</MenuItem>
+                        <MenuItem value="available">{t('listProperties:Available')}</MenuItem>
+                        <MenuItem value="approved">{t('listProperties:Approved')}</MenuItem>
                     </TextField>
+                    
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<AddIcon />}
+                        component={Link}
+                        to="/seller/create"
+                        sx={{
+                            borderRadius: 2,
+                            textTransform: 'none',
+                            fontWeight: 'bold',
+                            px: 3,
+                        }}
+                    >
+                        {t('listProperties:createProperty')}
+                    </Button>
                 </Box>
-            </Box>
 
+            </Box>
 
             {filtered.length === 0 ? (
                 <Box className="text-center w-full py-10">
                     <Typography variant="h6" color="text.secondary">
-                        Không có dữ liệu phù hợp
+                        {t('listProperties:notHaveProperty')}
                     </Typography>
                 </Box>
             ) : (
@@ -154,7 +182,17 @@ const SellerProperties = () => {
                                             </Typography>
                                             <Chip
                                                 label={p.status || 'Đang xử lý'}
-                                                color={p.status === 'available' ? 'success' : 'warning'}
+                                                color={
+                                                    p.status === 'available'
+                                                        ? 'primary'
+                                                        : p.status === 'pending'
+                                                            ? 'warning'
+                                                            : p.status === 'approved'
+                                                                ? 'success'
+                                                                : p.status === 'rejected'
+                                                                    ? 'info'
+                                                                    : 'secondary'
+                                                }
                                                 size="small"
                                             />
                                         </Box>
@@ -182,6 +220,7 @@ const SellerProperties = () => {
                                         >
                                             {t('insideProperty.viewDetail')}
                                         </Button>
+
                                         {p.agent_id ? (
                                             <Button
                                                 fullWidth
@@ -196,9 +235,9 @@ const SellerProperties = () => {
                                                         color: 'rgba(0, 0, 0, 0.26)'
                                                     }
                                                 }}
-                                                title={`Đã có agent: ${p.agent_id.fullName}`}
+                                                title={`${t('listProperties:haveAgent')} : ${p.agent_id.fullName}`}
                                             >
-                                                Đã có agent
+                                                {t('listProperties:haveAgent')}
                                             </Button>
                                         ) : p.status !== 'approved' ? (
                                             <Button
@@ -216,7 +255,7 @@ const SellerProperties = () => {
                                                 }}
                                                 title="Chỉ có thể assign agent khi property đã được approved"
                                             >
-                                                {t('insideProperty.assignAgent')}
+                                                {t('listProperties:assignAgent')}
                                             </Button>
                                         ) : (
                                             <Button
@@ -231,10 +270,11 @@ const SellerProperties = () => {
                                             </Button>
                                         )}
                                     </Box>
+
                                     {p.agent_id && (
                                         <Box className="mt-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
                                             <Typography variant="caption" color="text.secondary" className="block mb-1">
-                                                Agent hiện tại:
+                                                {t('listProperties:currentAgent')}
                                             </Typography>
                                             <Typography variant="body2" fontWeight="medium" color="primary.main">
                                                 {p.agent_id.fullName}
@@ -256,6 +296,7 @@ const SellerProperties = () => {
                 <Box className="flex justify-center mt-10">
                     <Pagination
                         count={totalPages}
+                        page={currentPage}
                         onChange={handleChangePage}
                         renderItem={(item) => (
                             <PaginationItem
@@ -266,7 +307,6 @@ const SellerProperties = () => {
                     />
                 </Box>
             )}
-
         </Box>
     );
 };

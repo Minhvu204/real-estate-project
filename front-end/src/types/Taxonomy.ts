@@ -37,13 +37,13 @@ export type Taxonomy = {
     ]
 }
 // Song ngữ
-export interface LocalizedName {
+export type LocalizedName = {
     vi: string;
     en: string;
 }
 
 // === CITY ===
-export interface City {
+export type City = {
     _id: string;
     city_name: LocalizedName;
     deleted: boolean;
@@ -52,14 +52,14 @@ export interface City {
     __v: number;
 }
 
-export interface CityResponse {
+export type CityResponse = {
     success: true;
     message: string;
     data: City[];
 }
 
 // === FEATURE ===
-export interface Feature {
+export type Feature = {
     _id: string;
     feature_name: LocalizedName;
     deleted: boolean;
@@ -68,14 +68,14 @@ export interface Feature {
     __v: number;
 }
 
-export interface FeatureResponse {
+export type FeatureResponse = {
     success: true;
     message: string;
     data: Feature[];
 }
 
 // === TYPE ===
-export interface TypeItem {
+export type TypeItem = {
     _id: string;
     type_name: LocalizedName;
     deleted: boolean;
@@ -84,14 +84,14 @@ export interface TypeItem {
     __v: number;
 }
 
-export interface TypeResponse {
+export type TypeResponse = {
     success: true;
     message: string;
     data: TypeItem[];
 }
 
 // === CATEGORY ===
-export interface Category {
+export type Category = {
     _id: string;
     category_name: LocalizedName;
     deleted: boolean;
@@ -100,7 +100,7 @@ export interface Category {
     __v: number;
 }
 
-export interface CategoryResponse {
+export type CategoryResponse = {
     success: true;
     message: string;
     data: Category[];
