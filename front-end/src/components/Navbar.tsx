@@ -11,7 +11,6 @@ import ButtonLanguage from "./common/ButtonLanguage";
 import Notification from "./common/notification/Notification";
 import { useTranslation } from 'react-i18next';
 const Navbar: React.FC = () => {
-  // const { t } = useTranslation('favorite');
   const { state, signOut } = useContext(AuthContext);
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -19,14 +18,14 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const role = state.user?.role || 'guest';
   const isAdminRoute = location.pathname.startsWith('/admin');
-  const { t } = useTranslation("auth");
+  const { t } = useTranslation(["auth", "favorite"]);
 
   const roleMenus = {
     buyer: [
       { label: "My Properties", path: "/dwello/myProperties" },
       { label: "My Agent", path: "/dwello/myAgent" },
       { label: "Deals - Contract", path: "/buyer/deals/list" },
-      { label: "My Favorite", path: "/favorites" } // t('myFavorite')
+      { label: t('favorite:myFavorite'), path: "/favorites" }
     ],
     seller: [
       { label: "My Properties", path: "/seller/properties" },
@@ -55,7 +54,7 @@ const Navbar: React.FC = () => {
     { label: "Rent", path: "/rent" },
     { label: "Sell", path: "/sell" },
     { label: "Booking", path: "/booking" },
-    { label: "Get Help", path: "/get-help" },
+    { label: "Find Agent", path: "/find-agent" },
   ];
 
   const drawer = (

@@ -22,6 +22,8 @@
   "compare": "So Sánh",
   "maximumCompareAlert": "Tối đa 5 bất động sản để so sánh.",
   "compareMinMaxAlert": "vui lòng chọn ít nhất 2 và tối đa 5 bất động sản để so sánh",
+  "compareMinAlert": "Vui lòng chọn ít nhất 2 bất động sản để so sánh",
+  "compareMaxAlert": "Bạn chỉ có thể so sánh tối đa 5 bất động sản cùng lúc",
   "myFavorite": "Yêu Thích",
   "compareFields": {
     "status": "Trạng Thái",
@@ -31,5 +33,27 @@
     "square": "Diện Tích (m²)",
     "homeType": "Loại Nhà",
     "yearBuilt": "Năm Xây Dựng"
-  }
+  },
+  "comparePageTitle": "Dwello | So Sánh Bất Động Sản",
+  "noPropertiesSelected": "Chưa có bất động sản nào được chọn để so sánh",
+  "noPropertiesFound": "Không tìm thấy bất động sản",
+  "back": "Quay lại",
+  "propertiesCompare": "So Sánh Bất Động Sản",
+  "properties": "Bất động sản",
+  "goToFavorites": "Đến trang yêu thích",
+  "noPropertiesToCompare": "Không Có Bất Động Sản Để So Sánh",
+  "selectPropertiesFromFavorites": "Chọn bất động sản từ danh sách yêu thích của bạn để so sánh chúng",
+  "manageYourFavorites": "Quản lý bất động sản yêu thích của bạn",
+  "retry": "Thử lại",
+  "noFavoritesYet": "Chưa Có Mục Yêu Thích",
+  "startAddingFavorites": "Bắt đầu thêm bất động sản vào danh sách yêu thích để xem chúng ở đây",
+  "browseProperties": "Khám Phá Bất Động Sản",
+  "billion": "Tỷ",
+  "million": "Triệu",
+  "thousand": "Nghìn",
+  "rooms": "phòng",
+  "readyToCompare": "Sẵn sàng so sánh",
+  "remove": "Xóa",
+  "selectAtLeastTwo": "Chọn ít nhất 2 bất động sản để so sánh",
+  "maxFiveProperties": "Tối đa 5 bất động sản"
 }

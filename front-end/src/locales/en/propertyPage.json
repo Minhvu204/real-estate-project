@@ -4,6 +4,11 @@
         "bathrooms": "bathrooms",
         "viewDetail": "View Detail"
     },
+    "billion": "Billion",
+    "million": "Million",
+    "thousand": "Thousand",
+    "compare": "Compare",
+    "cannotCompare": "Cannot compare",
     "propertyMap": {
         "errorMap": "Unable to load map",
         "loading": "Loading map.."

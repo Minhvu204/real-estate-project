@@ -111,7 +111,6 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => {
         const { name, value } = e.target;
-        console.log(formData);
         setFormData(prev => {
             return { ...prev, [name]: value };
         });
@@ -211,26 +210,32 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
     return (
         <form
             onSubmit={handleSubmit}
-            className="bg-white shadow-md rounded-2xl p-4 md:p-6 space-y-4 flex flex-col justify-center"
+            className="bg-white shadow-xl rounded-2xl p-6 md:p-8 space-y-6 animate-fadeIn"
         >
-            <h2 className="text-xl md:text-2xl font-semibold text-blue-600 text-center mb-2">
-                {t("formProperty.formTitle")}
-            </h2>
+            <div className="text-center border-b border-gray-200 pb-4">
+                <h2 className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400 mb-2">
+                    {t("formProperty.formTitle")}
+                </h2>
+                <p className="text-sm text-gray-500">{t("formProperty.formSubtitle")}</p>
+            </div>
 
             {error && (
-                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
-                    <p className="text-sm text-yellow-700">{error}</p>
+                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-400 p-4 rounded-r-lg shadow-sm animate-fadeIn">
+                    <p className="text-sm text-yellow-700 font-medium">{error}</p>
                 </div>
             )}
 
             {loading ? (
-                <div className="flex justify-center items-center py-20">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                    <span className="ml-3 text-gray-600">{t("formProperty.loading")}</span>
+                <div className="flex flex-col justify-center items-center py-20">
+                    <div className="relative">
+                        <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-100"></div>
+                        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-600 absolute top-0 left-0"></div>
+                    </div>
+                    <span className="mt-4 text-gray-600 font-medium animate-pulse">{t("formProperty.loading")}</span>
                 </div>
             ) : (
-                <div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                             <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
                                 {t("formProperty.title")} <span className="text-red-500">*</span>
@@ -356,35 +361,21 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                                 district={getDistrictNameById(formData.district_id)}
                                 ward={getWardNameById(formData.ward_id)}
                                 value={formData.address}
-                                onChange={(val) => setFormData({ ...formData, address: val })}
+                                onChange={(val) => setFormData(prev => ({ ...prev, address: val }))}
                                 onSelect={(lat, lon) =>
-                                    setFormData({
-                                        ...formData, coordinates: {
+                                    setFormData(prev => ({
+                                        ...prev, coordinates: {
                                             type: "Point",
                                             coordinates: [
                                                 lon,
                                                 lat,
                                             ]
                                         }
-                                    })
+                                    }))
                                 }
                             />
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 ">
-                            <div>
-                                <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
-                                    {t("formProperty.bathrooms")}
-                                </label>
-                                <input
-                                    type="number"
-                                    name="bathrooms"
-                                    value={formData.bathrooms}
-                                    onChange={handleChange}
-                                    placeholder={t("formProperty.placeholder.bathrooms")}
-                                    className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
-                                />
-                            </div>
-
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                             <div>
                                 <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
                                     {t("formProperty.bedrooms")}
@@ -395,6 +386,22 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                                     value={formData.bedrooms}
                                     onChange={handleChange}
                                     placeholder={t("formProperty.placeholder.bedrooms")}
+                                    min="0"
+                                    className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
+                                    {t("formProperty.bathrooms")}
+                                </label>
+                                <input
+                                    type="number"
+                                    name="bathrooms"
+                                    value={formData.bathrooms}
+                                    onChange={handleChange}
+                                    placeholder={t("formProperty.placeholder.bathrooms")}
+                                    min="0"
                                     className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                                 />
                             </div>
@@ -418,6 +425,7 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                                     className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                                 />
                             </div>
+
                             <div>
                                 <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
                                     {t("formProperty.floors")}
@@ -429,6 +437,22 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                                     onChange={handleChange}
                                     placeholder={t("formProperty.placeholder.floors")}
                                     min="1"
+                                    className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-gray-700 font-medium mb-1 text-xs md:text-sm">
+                                    {t("formProperty.yearBuilt")}
+                                </label>
+                                <input
+                                    type="number"
+                                    name="yearBuilt"
+                                    value={formData.yearBuilt}
+                                    onChange={handleChange}
+                                    placeholder={t("formProperty.placeholder.yearBuilt")}
+                                    min="1900"
+                                    max={new Date().getFullYear()}
                                     className="w-full border border-gray-300 rounded-lg p-1.5 md:p-2 text-xs md:text-sm focus:ring-2 focus:ring-blue-400 outline-none"
                                 />
                             </div>
@@ -470,12 +494,15 @@ const FormProperty: React.FC<FormPropertyProps> = ({ initialData, onSubmit }) =>
                 </div>
             )
             }
-            <div className="pt-3 md:pt-4 flex justify-end">
+            <div className="pt-6 border-t border-gray-200 flex justify-end">
                 <button
                     type="submit"
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 md:px-6 py-1.5 md:py-2 text-sm md:text-base rounded-lg transition-all duration-300 cursor-pointer"
+                    className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold px-8 py-3 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center space-x-2"
                 >
-                    {t("formProperty.continue")}
+                    <span>{t("formProperty.continue")}</span>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
                 </button>
             </div>
         </form >

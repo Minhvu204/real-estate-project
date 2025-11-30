@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Property } from '../../types/Property';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { getAllProperties, getAllPropertiesByUser } from '../../services/propertyService';
+import { getAllPropertiesByUser } from '../../services/propertyService';
 import { useSearchParams } from 'react-router-dom';
 import PropertyMap from '../../components/Property/PropertyMap';
 import PropertyCard from '../../components/Property/PropertyCard';
@@ -218,36 +218,41 @@ const SearchPage = () => {
                     </div>
                     <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 w-full md:w-auto justify-center ">
 
-                        <FormControl size="small" sx={{ minWidth: 120 }}>
+                        <FormControl size="small" sx={{ minWidth: 140 }}>
                             <InputLabel>{t("propertyPage.minPrice")}</InputLabel>
                             <Select value={minPrice} label={t("propertyPage.minPrice")} onChange={handleMinPriceChange}>
                                 <MenuItem value=""><em>{t("propertyPage.minPrice")}</em></MenuItem>
-                                <MenuItem value={10000}>$10K</MenuItem>
-                                <MenuItem value={20000}>$20K</MenuItem>
-                                <MenuItem value={50000}>$50K</MenuItem>
-                                <MenuItem value={100000}>$100K</MenuItem>
-                                <MenuItem value={200000}>$200K</MenuItem>
-                                <MenuItem value={500000}>$500K</MenuItem>
-                                <MenuItem value={1000000}>$1M</MenuItem>
-                                <MenuItem value={2000000}>$2M</MenuItem>
-                                <MenuItem value={5000000}>$5M</MenuItem>
-                                <MenuItem value={10000000}>$10M</MenuItem>
+                                <MenuItem value={500000000}>500 Triệu</MenuItem>
+                                <MenuItem value={800000000}>800 Triệu</MenuItem>
+                                <MenuItem value={1000000000}>1 Tỷ</MenuItem>
+                                <MenuItem value={2000000000}>2 Tỷ</MenuItem>
+                                <MenuItem value={3000000000}>3 Tỷ</MenuItem>
+                                <MenuItem value={5000000000}>5 Tỷ</MenuItem>
+                                <MenuItem value={8000000000}>8 Tỷ</MenuItem>
+                                <MenuItem value={10000000000}>10 Tỷ</MenuItem>
+                                <MenuItem value={15000000000}>15 Tỷ</MenuItem>
+                                <MenuItem value={20000000000}>20 Tỷ</MenuItem>
+                                <MenuItem value={30000000000}>30 Tỷ</MenuItem>
+                                <MenuItem value={50000000000}>50 Tỷ</MenuItem>
                             </Select>
                         </FormControl>
-                        <FormControl size="small" sx={{ minWidth: 120 }}>
+                        <FormControl size="small" sx={{ minWidth: 140 }}>
                             <InputLabel>{t("propertyPage.maxPrice")}</InputLabel>
                             <Select value={maxPrice} label={t("propertyPage.maxPrice")} onChange={handleMaxPriceChange}>
                                 <MenuItem value=""><em>{t("propertyPage.maxPrice")}</em></MenuItem>
-                                <MenuItem value={10000}>$10K</MenuItem>
-                                <MenuItem value={20000}>$20K</MenuItem>
-                                <MenuItem value={50000}>$50K</MenuItem>
-                                <MenuItem value={100000}>$100K</MenuItem>
-                                <MenuItem value={200000}>$200K</MenuItem>
-                                <MenuItem value={500000}>$500K</MenuItem>
-                                <MenuItem value={1000000}>$1M</MenuItem>
-                                <MenuItem value={2000000}>$2M</MenuItem>
-                                <MenuItem value={5000000}>$5M</MenuItem>
-                                <MenuItem value={10000000}>$10M</MenuItem>
+                                <MenuItem value={500000000}>500 Triệu</MenuItem>
+                                <MenuItem value={800000000}>800 Triệu</MenuItem>
+                                <MenuItem value={1000000000}>1 Tỷ</MenuItem>
+                                <MenuItem value={2000000000}>2 Tỷ</MenuItem>
+                                <MenuItem value={3000000000}>3 Tỷ</MenuItem>
+                                <MenuItem value={5000000000}>5 Tỷ</MenuItem>
+                                <MenuItem value={8000000000}>8 Tỷ</MenuItem>
+                                <MenuItem value={10000000000}>10 Tỷ</MenuItem>
+                                <MenuItem value={15000000000}>15 Tỷ</MenuItem>
+                                <MenuItem value={20000000000}>20 Tỷ</MenuItem>
+                                <MenuItem value={30000000000}>30 Tỷ</MenuItem>
+                                <MenuItem value={50000000000}>50 Tỷ</MenuItem>
+                                <MenuItem value={100000000000}>100 Tỷ</MenuItem>
                             </Select>
                         </FormControl>
                         <FormControl size="small" sx={{ minWidth: 120 }}>

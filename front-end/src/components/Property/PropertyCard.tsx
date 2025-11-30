@@ -21,7 +21,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
 
     return (
         <div className="bg-white rounded-md shadow hover:shadow-lg transition-all duration-300 overflow-hidden">
-            <div className="aspect-[4/3] w-full relative">
+            <div className="w-full h-48 md:h-56 relative overflow-hidden bg-gray-100">
                 {property.type_id?.type_name?.[currentLanguage] && (
                     <div className="absolute top-2 left-2 z-10 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded">
                         {property.type_id.type_name[currentLanguage]}
@@ -36,7 +36,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
                             key={index}
                             src={imageUrl}
                             alt={`Ảnh ${index + 1}`}
-                            className="w-full h-full"
+                            className="w-full h-full object-cover"
                             height="100%"
                         />
                     ))}
