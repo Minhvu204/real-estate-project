@@ -5,15 +5,11 @@ import {
   googleAuthController,
   logoutController,
   refreshTokenController,
-  resendOtpController,
-  verifyEmailController,
 } from "../../../controllers/client/auth/auth.controller";
 
 const router = express.Router();
 
 router.post("/register", registerController);
-router.post("/verify-email", verifyEmailController);
-router.post("/resend-verification", resendOtpController);
 router.post("/login", loginController);
 router.post("/google", googleAuthController);
 router.post("/refresh-token", refreshTokenController);

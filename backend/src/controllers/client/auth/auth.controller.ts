@@ -5,7 +5,6 @@ import { successResponse, errorResponse } from "../../../utils/responseHandler";
 import { validateEmail, validatePassword } from "../../../utils/validation";
 import { setAuthCookie, clearAuthCookie } from "../../../utils/authCookie";
 import { verifyRefreshToken, generateAccessToken } from "../../../config/jwt.config";
-import { emailVerifyService } from "../../../services/emailVerification.service";
 
 // REGISTER
 export const registerController = async (req: Request, res: Response) => {
@@ -15,26 +14,23 @@ export const registerController = async (req: Request, res: Response) => {
     if (!fullName || !email || !password)
       return errorResponse(req, res, "Thiếu thông tin bắt buộc", 400);
 
-    if (!validateEmail(email))
-      return errorResponse(req, res, "Email không hợp lệ", 400);
-
-    if (!validatePassword(password))
-      return errorResponse(req, res, "Mật khẩu phải ít nhất 6 ký tự", 400);
+    if (!validateEmail(email)) return errorResponse(req, res, "Email không hợp lệ", 400);
+    if (!validatePassword(password)) return errorResponse(req, res, "Mật khẩu phải ít nhất 6 ký tự", 400);
 
     const result = await registerUser({ fullName, email, password, role });
 
-    // Gửi email OTP
-    await emailVerifyService.sendOTP(result.user.id as string, email);
+    // Set refresh token cookie
+    setAuthCookie(res, result.refreshToken);
 
-    return successResponse(req, res, "Đăng ký thành công. Vui lòng kiểm tra email để xác thực.", {
-      userId: result.user.id,
-      email,
+    // Return access token + user
+    return successResponse(req, res, "Đăng ký thành công", {
+      accessToken: result.accessToken,
+      user: result.user,
     });
   } catch (error: any) {
     return errorResponse(req, res, error.message);
   }
 };
-
 
 // LOGIN
 export const loginController = async (req: Request, res: Response) => {
@@ -51,14 +47,6 @@ export const loginController = async (req: Request, res: Response) => {
       user: result.user,
     });
   } catch (error: any) {
-    if (error.requiresVerification) {
-      return res.status(403).json({
-        success: false,
-        message: error.message,
-        requiresVerification: true,
-        userId: error.userId,
-      });
-    }
     return errorResponse(req, res, error.message);
   }
 };
@@ -101,30 +89,4 @@ export const googleAuthController = async (req: Request, res: Response) => {
 export const logoutController = async (req: Request, res: Response) => {
   clearAuthCookie(res);
   return successResponse(req, res, "Đăng xuất thành công");
-};
-
-// VERIFY EMAIL
-export const verifyEmailController = async (req: Request, res: Response) => {
-  try {
-    const { userId, otp } = req.body;
-
-    await emailVerifyService.verifyOTP(userId, otp);
-
-    return successResponse(req, res, "Xác thực email thành công.");
-  } catch (error: any) {
-    return errorResponse(req, res, error.message);
-  }
-};
-
-// RESEND OTP
-export const resendOtpController = async (req: Request, res: Response) => {
-  try {
-    const { userId, email } = req.body;
-
-    await emailVerifyService.sendOTP(userId, email);
-
-    return successResponse(req, res, "Đã gửi lại mã OTP.");
-  } catch (error: any) {
-    return errorResponse(req, res, error.message);
-  }
 };

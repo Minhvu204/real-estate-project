@@ -160,7 +160,7 @@ const Notification = () => {
     }
     handleClose();
     if (notification.action_url) {
-      navigate(`seller/${notification.action_url}`);
+      navigate(notification.action_url);
     }
   };
 

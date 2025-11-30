@@ -73,17 +73,27 @@ export const getMyFavorites = async (
           en: p.address?.en || "",
         },
 
-        city_vi: p.city_id?.city_name?.vi || null,
-        city_en: p.city_id?.city_name?.en || null,
-        district_vi: p.district_id?.district_name?.vi || null,
-        district_en: p.district_id?.district_name?.en || null,
-        ward_vi: p.ward_id?.ward_name?.vi || null,
-        ward_en: p.ward_id?.ward_name?.en || null,
+        city: {
+          vi: p.city_id?.city_name?.vi || "",
+          en: p.city_id?.city_name?.en || "",
+        },
+        district: {
+          vi: p.district_id?.district_name?.vi || "",
+          en: p.district_id?.district_name?.en || "",
+        },
+        ward: {
+          vi: p.ward_id?.ward_name?.vi || "",
+          en: p.ward_id?.ward_name?.en || "",
+        },
 
-        type_vi: p.type_id?.type_name?.vi || null,
-        type_en: p.type_id?.type_name?.en || null,
-        category_vi: p.category_id?.category_name?.vi || null,
-        category_en: p.category_id?.category_name?.en || null,
+        type: {
+          vi: p.type_id?.type_name?.vi || "",
+          en: p.type_id?.type_name?.en || "",
+        },
+        category: {
+          vi: p.category_id?.category_name?.vi || "",
+          en: p.category_id?.category_name?.en || "",
+        },
 
         area: p.area,
         unit: p.unit,
@@ -100,11 +110,11 @@ export const getMyFavorites = async (
               }
             : undefined,
 
-        features_vi:
-          p.features?.map((f: any) => f.feature_name?.vi).filter(Boolean) || [],
-        features_en:
-          p.features?.map((f: any) => f.feature_name?.en).filter(Boolean) || [],
-        feature_icons: [],
+        feature_name:
+          p.features?.map((f: any) => ({
+            vi: f.feature_name?.vi || "",
+            en: f.feature_name?.en || "",
+          })) || [],
 
         owner: p.owner_id
           ? {

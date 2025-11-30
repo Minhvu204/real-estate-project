@@ -8,6 +8,7 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import AuthContext from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import ButtonLanguage from "./common/ButtonLanguage";
+import Notification from "./common/notification/Notification";
 import { useTranslation } from "react-i18next";
 
 const Navbar: React.FC = () => {
@@ -384,6 +385,7 @@ const Navbar: React.FC = () => {
             </Box>
           )}
           <ButtonLanguage />
+          <Notification />
           {/* Right Side */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             {!state.token ? (

@@ -8,6 +8,7 @@ import { ChangePassword } from "../pages/Profile/ChangePassword";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
 import DealListPageBuyer from "../pages/DealContract/DealListPageBuyer";
 import DealContractPageBuyer from "../pages/DealContract/DealContractPageBuyer";
+import PaymentPage from "../pages/Payment/PaymentPage";
 
 export const BuyerRoute = [
     {
@@ -55,5 +56,9 @@ export const BuyerRoute = [
     {
         path: "/my-properties",
         element: <MyPropertiesPage />,
+    },
+    {
+        path: "/deals/:dealId/payment",
+        element: <PaymentPage />,
     },
 ];

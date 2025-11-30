@@ -51,14 +51,6 @@ export const loginUser = async (email: string, password: string) => {
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw new Error("Mật khẩu không chính xác");
 
-
-  if (!user.isVerified) {
-    const err = new Error("Vui lòng xác thực email trước khi đăng nhập");
-    (err as any).requiresVerification = true;
-    (err as any).userId = (user!._id as any).toString();
-    throw err;
-  }
-
   const payload = { id: user._id, role: user.role, email: user.email };
   const accessToken = generateAccessToken(payload);
   const refreshToken = generateRefreshToken(payload);
