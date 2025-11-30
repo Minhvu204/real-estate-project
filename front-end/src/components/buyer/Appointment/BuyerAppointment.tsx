@@ -1,34 +1,56 @@
 
-import { getPropertiesById } from '@/services/propertyService';
 import type { Property } from '@/types/Property';
-import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom';
-import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
+import { use, useState } from 'react'
+
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 import ArrowForwardIosOutlinedIcon from '@mui/icons-material/ArrowForwardIosOutlined';
 import TipsAndUpdatesOutlinedIcon from '@mui/icons-material/TipsAndUpdatesOutlined';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import { Button } from '@mui/material';
+
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
+import { Bounce, toast, ToastContainer } from 'react-toastify';
+
+import { postAppointments } from '@/services/buyer.service';
+import { getLanguage } from '@/utils/storage';
+import { useTranslation } from 'react-i18next';
+
 
 interface BuyerAppointmentProps {
     property: Property;
     onClose: () => void;
 }
+export type AppoinmentDate = {
+    propertyId: string;
+    location?: string;
+    times: {
+        time: string,
+        note?: string
+    }[];
 
-const BuyerAppointment = (
-    { property, onClose }: BuyerAppointmentProps
-) => {
+}
 
+const language = getLanguage();
+const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
 
     const today = new Date();
-
-
+    const [timeSl, setTimeSL] = useState<string>("");
     const [slots, setSlots] = useState<
-        { baseDate: Date; date: Date | null; time: string | null }[]
+        { baseDate: Date; date: Date | null; time: string | null; note: string | null }[]
     >([
-        { baseDate: new Date(), date: null, time: null }
+        { baseDate: new Date(), date: null, time: null, note: null },
     ]);
+    const { t } = useTranslation(['bookAppointment', 'myProperties']);
+
+    const formatTime = (date: Date, time: string) => {
+        const [hourMinute, period] = time.split(" ");
+        let [hour, minute] = hourMinute.split(":").map(Number);
+        if (period === "PM" && hour !== 12) hour += 12;
+        if (period === "AM" && hour === 12) hour = 0;
+        const result = new Date(date);
+        result.setHours(hour, minute, 0, 0);
+
+        return result.toISOString();
+    }
 
 
     const formatDate = (date: Date) => {
@@ -42,6 +64,7 @@ const BuyerAppointment = (
         result.setDate(result.getDate() + days);
         return result;
     };
+
     const timeSlots: string[] = [];
     for (let hour = 9; hour <= 19; hour++) {
         const suffix = hour >= 12 ? "PM" : "AM";
@@ -49,15 +72,119 @@ const BuyerAppointment = (
         timeSlots.push(`${displayHour}:00 ${suffix}`);
     }
 
+    const handlePrevDays = (index: number) => {
+        setSlots((prev) => {
+            const updated = [...prev];
+            if (updated[index].baseDate <= today) return updated;
+            updated[index].baseDate = addDays(updated[index].baseDate, -1);
+            return updated;
+        });
+    };
 
+    const handleNextDays = (index: number) => {
+        setSlots((prev) => {
+            const updated = [...prev];
+            updated[index].baseDate = addDays(updated[index].baseDate, 1);
+            return updated;
+        });
+    };
+
+
+    const isPastOrToday = (date: Date) => {
+        const d = new Date(date);
+        d.setHours(0, 0, 0, 0);
+        return d <= today;
+    };
+
+    const lastAllowedDate = addDays(today, 7);
+    lastAllowedDate.setHours(0, 0, 0, 0);
+
+    const canGoNext = (baseDate: Date) => {
+        const next = addDays(baseDate, 3);
+        next.setHours(0, 0, 0, 0);
+        return next <= lastAllowedDate;
+    };
+
+
+    const canGoBack = (baseDate: Date) => {
+        const prev = addDays(baseDate, -1);
+        prev.setHours(0, 0, 0, 0);
+        return prev >= today;
+    };
+
+    const handleSelectDate = (index: number, date: Date) => {
+        setSlots((prev) => {
+            const updated = [...prev];
+            updated[index].date = date;
+            updated[index].time = null;
+            return updated;
+        });
+    };
+
+    const handleSelectTime = (index: number, time: string) => {
+        console.log("Selected time:", time);
+        setTimeSL(time);
+
+        setSlots((prev) => {
+            const updated = [...prev];
+            updated[index].time = time;
+            return updated;
+        });
+    };
+
+    const handlePostAppointment = (time: AppoinmentDate) => {
+        const sendAppointment = async () => {
+            try {
+                const response = await postAppointments(time);
+                toast.success(t('appointment.successMessage'));
+                setTimeout(() => {
+                    onClose();
+                }, 3000);
+                console.log(
+                    "Appointment sent successfully:", response
+                )
+            } catch (error) {
+                console.error("Failed to send appointment:", error);
+                toast.error(t('appointment.errorMessage'));
+            }
+        }
+        sendAppointment();
+
+    }
+    const handleDeleteSlot = (index: number) => {
+        setSlots((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    const handleAddSlot = () => {
+        setSlots((prev) => [
+            ...prev,
+            { baseDate: new Date(), date: null, time: null, note: null }
+        ]);
+    };
+    const getTakenTimesForDate = (date: Date) => {
+        return slots
+            .filter(s => s.date && s.time && s.date.toDateString() === date.toDateString())
+            .map(s => s.time);
+    };
+    const buildAppointmentRequest = (): AppoinmentDate => {
+        const validSlots = slots.filter(s => s.date && s.time);
+
+        return {
+            propertyId: property._id,
+            location: property.address[language],
+            times: validSlots.map(s => ({
+                time: formatTime(s.date!, s.time!),
+                note: s.note ?? ""
+            })),
+        };
+    };
 
     return (
         <div className="w-full h-full overflow-y-auto overflow-x-hidden p-4">
 
-
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-center flex-1">
-                    Request a tour
+                    {t('appointment.bookAppointment')}
                 </h2>
                 <button className="p-2" onClick={onClose}>
                     <CloseOutlinedIcon />
@@ -66,7 +193,6 @@ const BuyerAppointment = (
 
             <hr className="my-4" />
 
-
             <div className="flex gap-4 sm:gap-5 mb-6">
                 <img
                     src={property.images[0] || "/defaultHome.png"}
@@ -74,24 +200,20 @@ const BuyerAppointment = (
                 />
 
                 <div className="text-sm my-auto leading-tight">
-                    <p className="font-semibold">{property.title.vi}</p>
-                    <p>{property.address.vi}</p>
-                    <p>
-                        {property.area} | {property.floors} | {property.price}
-                    </p>
+                    <p className="font-semibold">{property.title[language]}</p>
+                    <p>{property.address[language]}</p>
+                    <p>{t('myProperties:bathrooms')}: {property.bathrooms} | {t('myProperties:bedrooms')}: {property.bedrooms} | {t('myProperties:floors')}: {property.floors}</p>
                 </div>
             </div>
-
 
             <div className="flex gap-3 items-start bg-blue-50 p-4 rounded-xl mb-6">
                 <TipsAndUpdatesOutlinedIcon className="text-blue-400" />
                 <p className="text-sm">
-                    Selecting multiple times helps schedule your tour faster
+                    {t('appointment.tips')}
                 </p>
             </div>
 
             <hr className="my-4" />
-
 
             {slots.map((slot, index) => {
                 const days = [
@@ -103,37 +225,32 @@ const BuyerAppointment = (
                 return (
                     <div key={index} className="mb-10">
                         {index > 0 && <hr className='mb-3'></hr>}
+
                         {index === 0 ? (
-                            <h4 className="font-bold  mb-6">
-                                Select up to 3 times
+                            <h4 className="font-bold mb-6">
+                                {t('appointment.select3times')}
                             </h4>
                         ) : (
                             <div className="flex justify-between items-center mb-6 px-1">
                                 <span className="font-semibold text-gray-800 text-lg">
-                                    Alternative time
+                                    {t('appointment.alternativeTimes')}
                                 </span>
 
                                 <button
-                                    onClick={() => {
-                                        const s = [...slots];
-                                        s.splice(index, 1);
-                                        setSlots(s);
-                                    }}
+                                    onClick={() => handleDeleteSlot(index)}
                                     className="text-blue-600 hover:text-red-600 text-sm"
                                 >
                                     <DeleteOutlinedIcon />
                                 </button>
                             </div>
                         )}
-                        {/* DAY SELECTOR */}
+
                         <div className="flex justify-center items-center gap-4 mb-4">
                             <ArrowBackIosNewOutlinedIcon
-                                className="cursor-pointer"
+                                className={`cursor-pointer ${!canGoBack(slot.baseDate) ? "opacity-30 cursor-not-allowed" : ""}`}
                                 onClick={() => {
-                                    const updated = [...slots];
-                                    updated[index].baseDate = addDays(updated[index].baseDate, -3);
-                                    updated[index].date = null;
-                                    setSlots(updated);
+                                    if (!canGoBack(slot.baseDate)) return;
+                                    handlePrevDays(index);
                                 }}
                             />
 
@@ -141,16 +258,15 @@ const BuyerAppointment = (
                                 {days.map((d, dIndex) => (
                                     <div
                                         key={dIndex}
-                                        className={`cursor-pointer border-2 rounded-xl py-3 text-sm
-                                            ${slot.date?.toDateString() === d.toDateString()
+                                        className={` border-2 rounded-xl py-3 text-sm text-center ${isPastOrToday(d)
+                                            ? "opacity-40 cursor-not-allowed"
+                                            : "cursor-pointer"} ${slot.date?.toDateString() === d.toDateString()
                                                 ? "border-blue-500 text-blue-600 bg-blue-50"
-                                                : "border-gray-300"
-                                            }`}
+                                                : "border-gray-300"}
+        `}
                                         onClick={() => {
-                                            const updated = [...slots];
-                                            updated[index].date = d;
-                                            updated[index].time = null;
-                                            setSlots(updated);
+                                            if (isPastOrToday(d)) return;
+                                            handleSelectDate(index, d);
                                         }}
                                     >
                                         {formatDate(d)}
@@ -159,34 +275,49 @@ const BuyerAppointment = (
                             </div>
 
                             <ArrowForwardIosOutlinedIcon
-                                className="cursor-pointer"
+                                className={`
+                                         ${!canGoNext(slot.baseDate)
+                                        ? "opacity-30 cursor-not-allowed"
+                                        : "cursor-pointer"} `}
                                 onClick={() => {
-                                    const updated = [...slots];
-                                    updated[index].baseDate = addDays(updated[index].baseDate, 3);
-                                    updated[index].date = null;
-                                    setSlots(updated);
+                                    if (!canGoNext(slot.baseDate)) return;
+                                    handleNextDays(index)
                                 }}
                             />
                         </div>
-
 
                         <div className="w-full max-w-xs mx-auto">
                             <select
                                 className="w-full border rounded-lg p-3 text-sm"
                                 disabled={!slot.date}
                                 value={slot.time ?? ""}
-                                onChange={(e) => {
-                                    const updated = [...slots];
-                                    updated[index].time = e.target.value;
-                                    setSlots(updated);
-                                }}
+                                onChange={(e) => handleSelectTime(index, e.target.value)}
                             >
-                                <option value="">Select a time</option>
-                                {timeSlots.map((t) => (
-                                    <option key={t}>{t}</option>
+                                {timeSlots.filter((t) => {
+                                    const takenTimes = slot.date ? getTakenTimesForDate(slot.date) : [];
+                                    return t === slot.time || !takenTimes.includes(t);;
+                                }).map((t, index) => (
+                                    console.log("Slot time:", slot.time),
+                                    console.log("options", t),
+                                    <option key={index} value={t}>{t}</option>
                                 ))}
                             </select>
-
+                            <div className="w-full max-w-xs mx-auto mt-3">
+                                <textarea
+                                    className="w-full border rounded-lg p-3 text-sm"
+                                    placeholder={`${t('appointment.placeholderNote')}`}
+                                    maxLength={100}
+                                    value={slot.note ?? ""}
+                                    onChange={(e) =>
+                                        setSlots((prev) => {
+                                            const updated = [...prev];
+                                            updated[index].note = e.target.value;
+                                            return updated;
+                                        })
+                                    }
+                                    rows={2}
+                                />
+                            </div>
 
                         </div>
                     </div>
@@ -195,15 +326,35 @@ const BuyerAppointment = (
 
             {slots.length < 3 && (
                 <button
-                    onClick={() =>
-                        setSlots([...slots, { baseDate: new Date(), date: null, time: null }])
-                    }
+                    onClick={handleAddSlot}
                     className="flex items-center gap-2 text-blue-600 mt-2 text-sm"
                 >
-                    <span className="text-xl">＋</span> Add a time
+                    <span className="text-xl">＋</span> {t('appointment.addTime')}
                 </button>
             )}
+            <button
+                onClick={() => handlePostAppointment(buildAppointmentRequest())}
+                className="w-full bg-blue-600 text-white py-3 rounded-lg mt-6 hover:bg-blue-700 transition-colors"
+            >
+                {t('appointment.send')}
+            </button>
+
+            <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick={false}
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+                transition={Bounce}
+            />
         </div>
-    )
-}
-export default BuyerAppointment
+
+    );
+};
+
+export default BuyerAppointment;
