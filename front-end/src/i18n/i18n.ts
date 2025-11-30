@@ -115,46 +115,45 @@ export const resources = {
 };
 export const defaultNS = "home";
 i18n
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init({
-    debug: true,
-    resources,
-    ns: [
-      "home",
-      "properties",
-      "propertyPage",
-      "propertyDetail",
-      "profile",
-      "myProperties",
-      "buyerMyProperties",
-      "createPropertyPage",
-      "addressAutocomplete",
-      "favorite",
-      "offerManagement",
-      "listAgents",
-      "agentList",
-      "agentDetail",
-      "listProperties",
-      "detailProperty",
-      "dealContact",
-      "auth",
-      "contract",
-      "deal",
-      "payment",
-      "notification",
-      "review",
-    ], //add các namespace khi viết thêm ở trên vào mảng này
-    defaultNS,
-    fallbackLng: "en",
-    detection: {
-      // 👇 cấu hình để đọc/lưu ngôn ngữ vào localStorage
-      order: ["localStorage", "navigator"],
-      caches: ["localStorage"],
-      lookupLocalStorage: "i18nextLng", // key trong localStorage
-    },
-    interpolation: {
-      escapeValue: false,
-    },
-  });
->>>>>>> develop
+    .use(LanguageDetector)
+    .use(initReactI18next)
+    .init({
+        debug: true,
+        resources,
+        ns: [
+            "home",
+            "properties",
+            "propertyPage",
+            "propertyDetail",
+            "profile",
+            "myProperties",
+            "buyerMyProperties",
+            "createPropertyPage",
+            "addressAutocomplete",
+            "favorite",
+            "offerManagement",
+            "listAgents",
+            "agentList",
+            "agentDetail",
+            "listProperties",
+            "detailProperty",
+            "dealContact",
+            "auth",
+            "contract",
+            "deal",
+            "payment",
+            "notification",
+            "review",
+        ], //add các namespace khi viết thêm ở trên vào mảng này
+        defaultNS,
+        fallbackLng: "en",
+        detection: {
+            // 👇 cấu hình để đọc/lưu ngôn ngữ vào localStorage
+            order: ["localStorage", "navigator"],
+            caches: ["localStorage"],
+            lookupLocalStorage: "i18nextLng", // key trong localStorage
+        },
+        interpolation: {
+            escapeValue: false,
+        },
+    });

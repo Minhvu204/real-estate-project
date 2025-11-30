@@ -6,8 +6,6 @@ export type Review = {
     email: string;
     avatar: string;
   };
-<<<<<<< HEAD
-=======
   target: {
     _id: string;
     avatar: string;
@@ -37,7 +35,6 @@ export type Review = {
       _id: string;
     };
   };
->>>>>>> develop
   target_id: {
     _id: string;
   };
@@ -48,12 +45,6 @@ export type Review = {
     en: string;
   };
   isComment: boolean;
-<<<<<<< HEAD
-  canReview: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-};
-=======
   status: string;
   createdAt: Date;
   updatedAt: Date;
@@ -64,4 +55,3 @@ export type ReviewPagination = {
   totalPages: number;
   page: number;
 };
->>>>>>> develop

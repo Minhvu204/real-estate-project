@@ -11,7 +11,7 @@ import { getLanguage, getUser } from "../utils/storage";
 import { OfferService } from "@/services/offerService";
 import BuyerAppointment from "@/components/Buyer/Appointment/BuyerAppointment";
 import { getDetailPropertiesById } from "@/services/propertyService";
-import PropertyReview from "../components/buyer/PropertyReview";
+import PropertyReview from "../components/Buyer/PropertyReview";
 
 
 
