@@ -19,8 +19,9 @@ import {
 import IconButton from "@mui/material/IconButton";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { getUser } from "../../utils/storage";
+import { getLanguage, getUser, type Lang } from "../../utils/storage";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
 
 interface PropsProperty {
   propertyId: string;
@@ -35,6 +36,8 @@ const PropertyReview = ({ propertyId }: PropsProperty) => {
   const [canReview, setCanReview] = useState<boolean>(false);
   const [isComment, setIsComment] = useState<boolean>(false);
   const user = getUser();
+  const currentLanguage: Lang = getLanguage();
+  const { t } = useTranslation("comment");
   useEffect(() => {
     const fetchReview = async () => {
       const res = await getAllReviewPropertyById(propertyId);
@@ -57,22 +60,23 @@ const PropertyReview = ({ propertyId }: PropsProperty) => {
     if (!rating) {
       return;
     } else if (canReview === false) {
-      toast.error("bạn phải thuê hoặc mua để được comment");
+      toast.error(t("toast_error_review"));
       return;
     } else if (isComment === true && !editingReviewId) {
-      toast.error("bạn chỉ được comment 1 lần");
+      toast.error(t("toast_error_comment"));
       return;
     }
+
     const target_type = "property";
 
     try {
       if (editingReviewId) {
         await editReview(editingReviewId, rating, comment);
         setEditingReviewId(null);
-        toast.success("edit comment thành công");
+        toast.success(t("toast_success_edit"));
       } else {
         await createPropertyReview(propertyId, rating, comment, target_type);
-        toast.success("comment thành công");
+        toast.success(t("toast_success_comment"));
       }
       const res = await getAllReviewPropertyById(propertyId);
       setReview(res.reviews);
@@ -92,9 +96,9 @@ const PropertyReview = ({ propertyId }: PropsProperty) => {
       setReview(res.reviews);
       setCanReview(res.canReview);
       setIsComment(res.isCommented);
-      toast.success("bạn đã xóa comment thành công");
+      toast.success(t("toast_success_delete_comment"));
     } catch (error) {
-      toast.error("xóa comment thất bại");
+      toast.error(t("toast_error_delete_comment"));
       console.log("error: ", error);
     }
   };
@@ -125,11 +129,11 @@ const PropertyReview = ({ propertyId }: PropsProperty) => {
   return (
     <Box sx={{ maxWidth: 640, margin: "0 auto" }}>
       <Typography variant="h6" align="center" gutterBottom fontWeight={700}>
-        Đánh giá & Bình luận
+        {t("reviewAndComment")}
       </Typography>
       <Box sx={{ mb: 2 }}>
         <TextField
-          label="Nhập bình luận..."
+          label={t("enter_comment")}
           multiline
           minRows={3}
           fullWidth
@@ -153,7 +157,7 @@ const PropertyReview = ({ propertyId }: PropsProperty) => {
             disabled={!rating || comment.trim() === ""}
             sx={{ width: 120 }}
           >
-            {editingReviewId ? "Cập nhật" : "Bình luận"}
+            {editingReviewId ? t("update") : t("comment")}
           </Button>
 
           {editingReviewId && (
@@ -163,14 +167,14 @@ const PropertyReview = ({ propertyId }: PropsProperty) => {
               onClick={handleCancelEdit}
               sx={{ width: 120 }}
             >
-              Hủy
+              {t("cancel_btn")}
             </Button>
           )}
         </Box>
       </Box>
       <Divider />
       <Typography variant="subtitle1" fontWeight={700} mb={2} mt={3}>
-        comment
+        {t("comment")}
       </Typography>
       <Stack spacing={2}>
         {review?.map((item) => (
@@ -194,7 +198,7 @@ const PropertyReview = ({ propertyId }: PropsProperty) => {
               </Typography>
             </Box>
             <Typography variant="body2" sx={{ ml: 7 }}>
-              {item.comment}
+              {item.comment?.[currentLanguage]}
             </Typography>
             <Box
               sx={{
@@ -211,7 +215,7 @@ const PropertyReview = ({ propertyId }: PropsProperty) => {
                       size="small"
                       color="primary"
                       onClick={() =>
-                        handleEdit(item._id, item.rating, item.comment)
+                        handleEdit(item._id, item.rating, item.comment.vi)
                       }
                       aria-label="edit"
                     >
@@ -232,7 +236,7 @@ const PropertyReview = ({ propertyId }: PropsProperty) => {
         ))}
         {review?.length === 0 && (
           <Typography color="text.secondary" align="center">
-            Chưa có bình luận
+            {t("no_comment")}
           </Typography>
         )}
       </Stack>

@@ -11,9 +11,12 @@ export type Review = {
   };
   target_type: string;
   rating: number;
-  comment: string;
+  comment: {
+    vi: string;
+    en: string;
+  };
   isComment: boolean;
-  canReview:boolean;
+  canReview: boolean;
   createdAt: Date;
   updatedAt: Date;
 };
