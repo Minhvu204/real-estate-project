@@ -2,8 +2,7 @@
     "createProperty": {
         "steps": {
             "1": "Property Info",
-            "2": "Features",
-            "3": "Images"
+            "2": "Images"
         },
         "alerts": {
             "missingRequired": "Please fill in all required information (City, Category, Transaction Type)!",
@@ -52,7 +51,8 @@
         "stepsHeader": {
             "completed": "✓",
             "current": "Step {{number}}"
-        }
+        },
+        "pageTitle": "Dwello: Create Property"
     },
     "formProperty": {
         "title": "Title",
@@ -62,6 +62,8 @@
         "bathrooms": "Bathrooms",
         "bedrooms": "Bedrooms",
         "city": "City",
+        "district": "District",
+        "ward": "Ward",
         "category": "Category",
         "area": "Area",
         "unit": "Unit",
@@ -84,7 +86,9 @@
         "select": {
             "city": "Select city",
             "category": "Select category",
-            "type": "Select transaction type"
+            "type": "Select transaction type",
+            "district": "Select district",
+            "ward": "Select ward"
         },
         "units": {
             "m2": "m²",
@@ -93,7 +97,18 @@
         "warnings": {
             "required": "This field is required",
             "fetchFail": "Failed to load property taxonomies"
-        }
+        },
+        "apartmentInfo": {
+            "floorNumber": "Tầng căn hộ",
+            "buildingBlock": "Tháp / Khu",
+            "apartmentNumber": "Số căn hộ",
+            "placeholder": {
+                "floorNumber": "VD: 12A",
+                "buildingBlock": "VD: A1, B2",
+                "apartmentNumber": "VD: 1205"
+            }
+        },
+        "autoDescription": "Auto Description"
     },
     "selectFeatures": {
         "title": "Select Property Features",

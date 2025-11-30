@@ -24,12 +24,18 @@
   "createdAt": "Ngày tạo",
   "updatedAt": "Ngày cập nhập",
   "view": "Xem chi tiết",
-  "All status": "tất cả",
+  "All status": "Tất cả",
   "Approved": "Đã duyệt",
   "Pending": "Chờ duyệt",
   "Available": "Có sẵn",
   "Rejected": "Đã hủy",
   "text-ManageProperties": "Quản lí bất động sản",
   "approve": "Đồng ý",
-  "reject": "Từ chối"
+  "reject": "Từ chối",
+  "createProperty": "Tạo mới",
+  "notHaveProperty": "Không có bất động sản nào được tìm thấy.",
+  "haveAgent": "Đã có môi giới",
+  "currentAgent": "Môi giới hiện tại",
+  "allStatus": "Tất cả",
+  "assignAgent": "Chỉ định môi giới"
 }
