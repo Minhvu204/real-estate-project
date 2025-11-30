@@ -10,6 +10,7 @@ import type { City } from "@/types/City";
 import type { District } from "@/types/District";
 import type { Ward } from "@/types/Ward";
 import type { Description, PropertyFormData } from "@/types/PropertyData";
+import type { PropertyFavorite } from "@/types/FavoriteType";
 const RESOURCE = "/properties";
 const SELLER_RESOURCE = "/seller";
 const TAXONOMY_RESOURCE = "/taxonomy";

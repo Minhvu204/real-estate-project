@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import type { checkFavoriteType, Favorite } from '@/types/FavoriteType';
+import type { checkFavoriteType } from '@/types/FavoriteType';
 import { addPropertyFavorite, checkPropertyFavorite, deletePropertyFavorite } from '@/services/buyerService';
-type Props = {
+type FavoriteIconPropsType = {
     property_id: string;
+    onRemove?: () => void;
+    mode?: 'normal' | 'delayed';
 };
-const FavoriteIconProps = ({ property_id }: Props) => {
+const FavoriteIconProps = ({ property_id, onRemove, mode = 'normal' }: FavoriteIconPropsType) => {
     const [isFavorite, setIsFavorite] = useState<boolean | null>(null);
     useEffect(() => {
         const fetchIsFavorite = async () => {
@@ -21,8 +23,13 @@ const FavoriteIconProps = ({ property_id }: Props) => {
     const handleFavorite = async () => {
         try {
             if (isFavorite) {
-                await deletePropertyFavorite(property_id);
-                setIsFavorite(false);
+                if (mode === 'normal') {
+                    await deletePropertyFavorite(property_id);
+                    setIsFavorite(false);
+                } else if (mode === 'delayed') {
+                    setIsFavorite(false);
+                    if (onRemove) onRemove();
+                }
             } else {
                 await addPropertyFavorite(property_id);
                 setIsFavorite(true);
@@ -35,7 +42,7 @@ const FavoriteIconProps = ({ property_id }: Props) => {
         return null;
     }
     return (
-        <div className='absolute z-10 top-1 right-2 text-white'>
+        <div className=' text-white'>
             <button
                 title='favorite'
                 className='cursor-pointer'

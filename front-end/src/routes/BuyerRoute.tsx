@@ -13,6 +13,9 @@ import CreateOfferPage from "../pages/Offer/CreateOfferPage";
 import OfferHistoryPage from "../pages/Offer/OfferHistoryPage";
 import CancelOfferPage from "../pages/Offer/CancelOfferPage";
 import ListAppointment from "../components/buyer/Appointment/ListAppointment";
+import { Favorite } from "@mui/icons-material";
+import FavoritePage from "@/pages/Favorite/FavoritePage";
+import PropertiesComparePage from "@/pages/Compare/PropertiesComparePage";
 import DealListPageBuyer from "../pages/DealContract/DealListPageBuyer";
 import DealContractPageBuyer from "../pages/DealContract/DealContractPageBuyer";
 
@@ -74,6 +77,20 @@ export const BuyerRoute = [
     {
         path: "/my-properties",
         element: <MyPropertiesPage />,
+    }, {
+        path: "/chat",
+        element: <ChatPage />,
+        children: [
+
+        ]
+    },
+    {
+        path: "/favorites",
+        element: <FavoritePage />
+    },
+    {
+        path: "/compare/:ids",
+        element: <PropertiesComparePage />
     },
     {
         path: "/buyer/offer",
