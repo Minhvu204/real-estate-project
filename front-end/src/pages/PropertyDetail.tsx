@@ -10,6 +10,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import { getLanguage, getUser } from "../utils/storage";
 import { OfferService } from "@/services/offerService";
 import { getDetailPropertiesById } from "@/services/propertyService";
+import BuyerAppointment from "@/components/Buyer/Appointment/BuyerAppointment";
 
 
 
@@ -274,7 +275,7 @@ const PropertyDetailUser = () => {
                     <PlaceIcon sx={{ fontSize: 20, mr: 1 }} />
                     {property.address[lang]}
                 </Typography>
-           
+
 
                 {/* TAGS */}
                 <Stack direction="row" spacing={1} mt={1}>
