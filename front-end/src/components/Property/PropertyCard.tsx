@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import ImageWithFallback from "../common/ImageWithFallback";
 import { getLanguage, type Lang } from "../../utils/storage";
 import { useTranslation } from "react-i18next";
+import Favorite from "./FavoriteIconProps";
 
 type PropertyCardProps = {
     property: Property;
@@ -26,6 +27,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
                         {property.type_id.type_name[currentLanguage]}
                     </div>
                 )}
+                <Favorite property_id={property._id} />
                 <Carousel autoSlide={true} autoSlideInterval={5000}>
                     {property.images.map((imageUrl, index) => (
                         <ImageWithFallback

@@ -451,6 +451,14 @@ export const offerService = {
         : "property";
 
     const deal = await dealService.createDealFromOffer(String(offer._id));
+//update property status to sold
+    try {
+      await Property.findByIdAndUpdate(offer.property_id, {
+        status: "sold",
+      });
+    } catch (error) {
+      console.error("Failed to update property status:", error);
+    }
 
     notifyOfferAccepted(
       String(offer.buyer_id),
@@ -520,6 +528,25 @@ export const offerService = {
       String(offer._id),
       reason
     ).catch((err) => console.error("Failed to notify offer rejected:", err));
+
+    return offer;
+  },
+
+
+    //Xem chi tiết offer
+  async getOfferById(offerId: string) {
+    if (!mongoose.isValidObjectId(offerId)) {
+      const err: any = new Error("Offer không hợp lệ");
+      err.status = 400;
+      throw err;
+    }
+
+    const offer = await Offer.findById(offerId)
+      .populate("property_id", "title price images status address owner_id agent_id category_id type_id")
+      .populate("buyer_id", "fullName email phone avatar")
+      .populate("seller_id", "fullName email phone avatar")
+      .populate("agent_id", "fullName email phone avatar")
+      .lean();
 
     return offer;
   },
