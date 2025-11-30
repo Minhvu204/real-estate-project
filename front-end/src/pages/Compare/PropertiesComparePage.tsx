@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import useTitle from '@/hooks/useTitle';
 import { FiArrowLeft, FiAlertCircle } from 'react-icons/fi';
 
-
 const PropertiesComparePage = () => {
     const { t } = useTranslation('favorite');
     const navigate = useNavigate();

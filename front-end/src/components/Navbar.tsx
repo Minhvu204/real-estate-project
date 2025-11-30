@@ -391,7 +391,6 @@ const Navbar: React.FC = () => {
               ))}
             </Box>
           )}
-          <ButtonLanguage />
           <Notification />
           {/* Right Side */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -575,7 +574,7 @@ const Navbar: React.FC = () => {
           "& .MuiPaper-root": {
             borderRadius: 3,
             mt: 1.5,
-            minWidth: 200,
+            minWidth: 240,
             boxShadow: "0 10px 40px rgba(0,0,0,0.12)",
           },
         }}
@@ -604,6 +603,14 @@ const Navbar: React.FC = () => {
             </MenuItem>
           ))
         }
+
+        <Divider sx={{ my: 1 }} />
+
+        <Box sx={{ px: 2, py: 1.5, display: "flex", justifyContent: "center" }}>
+          <ButtonLanguage />
+        </Box>
+
+        <Divider sx={{ my: 1 }} />
 
         <MenuItem
           onClick={handleLogout}
