@@ -20,8 +20,10 @@ export type Property = {
   yearBuilt?: number;
   floors?: number;
   coordinates?: {
-    type: "Point",
-    coordinates: [number, number]
+    type: "Point";
+    coordinates: [number, number];
+    lat: string;
+    lng: string;
   };
   city_id?: {
     _id: string;

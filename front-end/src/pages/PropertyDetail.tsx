@@ -10,6 +10,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import { getLanguage, getUser } from "../utils/storage";
 import { OfferService } from "@/services/offerService";
 import { getDetailPropertiesById } from "@/services/propertyService";
+import PropertyReview from "../components/buyer/PropertyReview";
+
 import BuyerAppointment from "@/components/Buyer/Appointment/BuyerAppointment";
 
 
@@ -387,8 +389,6 @@ const PropertyDetailUser = () => {
                     {t("updatedOn")}: {new Date(property.updatedAt).toLocaleDateString()}
                 </Typography>
             </Grid >
-
-            {/* Dialog cho agent/seller */}
             <Dialog
                 open={restrictionDialogOpen}
                 onClose={() => setRestrictionDialogOpen(false)}
@@ -432,6 +432,7 @@ const PropertyDetailUser = () => {
                     onClose={handleCloseTour}
                 />
             </Dialog>
+            <PropertyReview propertyId = {property._id}/>
 
         </Container >
     );
