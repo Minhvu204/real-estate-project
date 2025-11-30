@@ -8,11 +8,7 @@ import { useTranslation } from 'react-i18next';
 import useTitle from '@/hooks/useTitle';
 import { FiArrowLeft, FiAlertCircle } from 'react-icons/fi';
 
-type PropertiesComparePageProps = {
-    properties: PropertyCompare[]
-}
-
-const PropertiesComparePage: React.FC<PropertiesComparePageProps> = () => {
+const PropertiesComparePage = () => {
     const { t } = useTranslation('favorite');
     const navigate = useNavigate();
     const [properties, setProperties] = useState<PropertyCompare[]>([]);
