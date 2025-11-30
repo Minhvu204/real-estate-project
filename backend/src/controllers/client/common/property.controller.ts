@@ -46,6 +46,16 @@ export const updateProperty = async (req: Request, res: Response) => {
 		// Merge: ảnh cũ trước, ảnh mới sau
 		body.images = [...existingImagesArray, ...newImagesArray];
 
+		// Xử lý coordinates từ FormData (coordinates[lat] và coordinates[lng])
+		if (req.body.coordinates && typeof req.body.coordinates === 'object') {
+			if (req.body.coordinates.lat !== undefined && req.body.coordinates.lng !== undefined) {
+				body.coordinates = {
+					lat: parseFloat(req.body.coordinates.lat),
+					lng: parseFloat(req.body.coordinates.lng)
+				};
+			}
+		}
+
 		const updated = await propertyService.updateProperty(id, body, String(userId));
 		return successResponse(req, res, "Cập nhật bất động sản thành công", updated);
 	} catch (error: any) {

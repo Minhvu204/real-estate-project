@@ -1,14 +1,20 @@
 import SearchPage from "../pages/SearchPage/SearchPage";
 import BuyPage from "../pages/SearchPage/BuyPage";
 import RentPage from "../pages/SearchPage/RentPage";
-import PropertyDetail from "../pages/PropertyDetail";
 import { ProfileLayout } from "../pages/Profile/ProfileLayout";
 import { PersonalInfo } from "../pages/Profile/PersonalInfo";
 import { ChangePassword } from "../pages/Profile/ChangePassword";
+import ChatPage from "@/pages/Chat/ChatPage";
+import PropertyDetailUser from "../pages/PropertyDetail";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
-import BuyerAppointment from "@/components/buyer/Appointment/BuyerAppointment";
-import ListAppointment from "@/components/buyer/Appointment/ListAppointment";
-
+import BuyerMyPropertiesPage from "../pages/Buyer/BuyerMyPropertiesPage";
+import FavoritePage from "../pages/Favorite/FavoritePage";
+import CreateOfferPage from "../pages/Offer/CreateOfferPage";
+import OfferHistoryPage from "../pages/Offer/OfferHistoryPage";
+import CancelOfferPage from "../pages/Offer/CancelOfferPage";
+import ListAppointment from "../components/buyer/Appointment/ListAppointment";
+import DealListPageBuyer from "../pages/DealContract/DealListPageBuyer";
+import DealContractPageBuyer from "../pages/DealContract/DealContractPageBuyer";
 
 export const BuyerRoute = [
     {
@@ -25,7 +31,15 @@ export const BuyerRoute = [
     },
     {
         path: "/property/detail/:id",
-        element: <PropertyDetail />
+        element: <PropertyDetailUser />
+    },
+    {
+        path: "/buyer/deals/list",
+        element: <DealListPageBuyer />
+    },
+    {
+        path: "/buyer/contracts/deals/:dealId",
+        element: <DealContractPageBuyer />
     },
     {
         path: "/profile",
@@ -45,13 +59,40 @@ export const BuyerRoute = [
             },
         ],
     },
+    {
+        path: "/dwello/myProperties",
+        element: <BuyerMyPropertiesPage />,
+    },
+    {
+        path: "/chat",
+        element: <ChatPage />,
+        children: [
+
+        ]
+    },
 
     {
-        path: "dwello/my-properties",
+        path: "/my-properties",
         element: <MyPropertiesPage />,
+    },
+    {
+        path: "/buyer/offer",
+        element: <OfferHistoryPage />,
+    },
+    {
+        path: "/buyer/offer/create/:id",
+        element: <CreateOfferPage />,
+    },
+    {
+        path: "/buyer/offer/:id/cancel",
+        element: <CancelOfferPage />,
     },
     {
         path: "dwello/appoinments",
         element: <ListAppointment />
-    }
+    },
+    {
+        path: "/favorites",
+        element: <FavoritePage />
+    },
 ];

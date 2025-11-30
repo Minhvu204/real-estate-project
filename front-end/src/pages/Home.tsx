@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { Box, Container, Typography, IconButton, Grid, Stack, CardMedia, CardContent, Card, CardActionArea, Chip, Button } from "@mui/material";
+import { Box, Container, Typography, IconButton, Stack, CardMedia, CardContent, Card, Chip, Button, Menu, MenuItem, Avatar, ListItemAvatar, ListItemText } from "@mui/material";
+import Grid from "@mui/material/Grid";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
+import HomeWorkIcon from "@mui/icons-material/HomeWork";
+import PeopleIcon from "@mui/icons-material/People";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { getAllPropertiesPublic } from "../services/propertyService";
+import { getPublicAgents } from "../services/publicAgent.service";
 import type { Property } from "@/types/Property";
+import type { Agent } from "@/types/Agent";
 import { getLanguage } from "../utils/storage";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 const HomePage: React.FC = () => {
     const images = [
         "https://cdnmedia.baotintuc.vn/Upload/GBzr0rzEkBb6ua36h4mJ9w/files/2022/09/P3.jpg",
@@ -18,9 +24,13 @@ const HomePage: React.FC = () => {
 
     const [current, setCurrent] = useState(0);
     const [properties, setProperties] = useState<Property[]>();
+    const [agents, setAgents] = useState<Agent[]>([]);
     const [loading, setLoading] = useState(true);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [activeTab, setActiveTab] = useState<'properties' | 'agents'>('properties');
     const currentLanguage = getLanguage();
     const { t } = useTranslation(['home', 'properties']);
+    const navigate = useNavigate();
 
     // Auto slide
     useEffect(() => {
@@ -33,11 +43,15 @@ const HomePage: React.FC = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const data = await getAllPropertiesPublic();
-                console.log(data)
-                setProperties(data);
+                const [propertiesData, agentsData] = await Promise.all([
+                    getAllPropertiesPublic(),
+                    getPublicAgents()
+                ]);
+                console.log(propertiesData)
+                setProperties(propertiesData);
+                setAgents(agentsData);
             } catch (error) {
-                console.log("Cannot fetch users", error);
+                console.log("Cannot fetch data", error);
                 console.error(error);
             } finally {
                 setLoading(false);
@@ -46,6 +60,25 @@ const HomePage: React.FC = () => {
 
         fetchData();
     }, []);
+
+    const handleAgentMenuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+        setAnchorEl(event.currentTarget);
+        setActiveTab('agents');
+    };
+
+    const handleAgentMenuClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleAgentClick = (agentId: string) => {
+        navigate(`/agents/${agentId}`);
+        handleAgentMenuClose();
+    };
+
+    const handlePropertiesTabClick = () => {
+        setActiveTab('properties');
+        setAnchorEl(null);
+    };
 
     const prevSlide = () => {
         setCurrent((prev) => (prev - 1 + images.length) % images.length);
@@ -119,7 +152,6 @@ const HomePage: React.FC = () => {
                     <ArrowForwardIosIcon />
                 </IconButton>
 
-                {/* Dots */}
                 <Box
                     sx={{
                         position: "absolute",
@@ -145,10 +177,156 @@ const HomePage: React.FC = () => {
                     ))}
                 </Box>
             </Box>
+
+            {/* Tab Section */}
+            <Container maxWidth="xl" sx={{ mt: 4 }}>
+                <Box 
+                    sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'center', 
+                        gap: 2,
+                        borderBottom: '2px solid',
+                        borderColor: 'divider',
+                        pb: 1
+                    }}
+                >
+                    <Button
+                        variant={activeTab === 'properties' ? 'contained' : 'outlined'}
+                        startIcon={<HomeWorkIcon />}
+                        onClick={handlePropertiesTabClick}
+                        sx={{
+                            px: 4,
+                            py: 1.5,
+                            borderRadius: 3,
+                            textTransform: 'none',
+                            fontSize: '1rem',
+                            fontWeight: 600,
+                            background: activeTab === 'properties' 
+                                ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                                : 'transparent',
+                            border: activeTab === 'properties' ? 'none' : '2px solid',
+                            borderColor: activeTab === 'properties' ? 'none' : 'primary.main',
+                            color: activeTab === 'properties' ? 'white' : 'primary.main',
+                            '&:hover': {
+                                background: activeTab === 'properties'
+                                    ? 'linear-gradient(135deg, #5568d3 0%, #6a3f91 100%)'
+                                    : 'rgba(102,126,234,0.08)',
+                            },
+                        }}
+                    >
+                        Bất động sản nổi bật
+                    </Button>
+
+                    <Button
+                        variant={activeTab === 'agents' ? 'contained' : 'outlined'}
+                        startIcon={<PeopleIcon />}
+                        endIcon={<KeyboardArrowDownIcon />}
+                        onClick={handleAgentMenuClick}
+                        sx={{
+                            px: 4,
+                            py: 1.5,
+                            borderRadius: 3,
+                            textTransform: 'none',
+                            fontSize: '1rem',
+                            fontWeight: 600,
+                            background: activeTab === 'agents'
+                                ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                                : 'transparent',
+                            border: activeTab === 'agents' ? 'none' : '2px solid',
+                            borderColor: activeTab === 'agents' ? 'none' : 'primary.main',
+                            color: activeTab === 'agents' ? 'white' : 'primary.main',
+                            '&:hover': {
+                                background: activeTab === 'agents'
+                                    ? 'linear-gradient(135deg, #5568d3 0%, #6a3f91 100%)'
+                                    : 'rgba(102,126,234,0.08)',
+                            },
+                        }}
+                    >
+                        Môi giới uy tín
+                    </Button>
+
+                    <Menu
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={handleAgentMenuClose}
+                        PaperProps={{
+                            sx: {
+                                mt: 1,
+                                minWidth: 350,
+                                maxHeight: 500,
+                                borderRadius: 2,
+                                boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                            },
+                        }}
+                        MenuListProps={{
+                            sx: {
+                                maxHeight: 440,
+                                overflow: 'auto',
+                                py: 0,
+                                '&::-webkit-scrollbar': {
+                                    width: '8px',
+                                },
+                                '&::-webkit-scrollbar-track': {
+                                    background: '#f1f1f1',
+                                    borderRadius: '10px',
+                                    margin: '8px 0',
+                                },
+                                '&::-webkit-scrollbar-thumb': {
+                                    background: '#888',
+                                    borderRadius: '10px',
+                                    '&:hover': {
+                                        background: '#555',
+                                    },
+                                },
+                            },
+                        }}
+                    >
+                        <Box sx={{ px: 2, py: 1.5, borderBottom: '1px solid', borderColor: 'divider', position: 'sticky', top: 0, bgcolor: 'white', zIndex: 1 }}>
+                            <Typography variant="subtitle1" fontWeight="bold">
+                                {agents.length} môi giới uy tín
+                            </Typography>
+                        </Box>
+                        {agents.map((agent) => (
+                            <MenuItem
+                                key={agent._id}
+                                onClick={() => handleAgentClick(agent._id)}
+                                sx={{
+                                    py: 2,
+                                    '&:hover': {
+                                        backgroundColor: 'rgba(102,126,234,0.08)',
+                                    },
+                                }}
+                            >
+                                <ListItemAvatar>
+                                    <Avatar
+                                        src={agent.avatar || '/defaultUser.png'}
+                                        alt={agent.fullName}
+                                        sx={{ width: 48, height: 48 }}
+                                    />
+                                </ListItemAvatar>
+                                <ListItemText
+                                    primary={
+                                        <Typography variant="subtitle1" fontWeight="600">
+                                            {agent.fullName}
+                                        </Typography>
+                                    }
+                                    secondary={
+                                        <Typography variant="body2" color="text.secondary">
+                                            {agent.email}
+                                        </Typography>
+                                    }
+                                />
+                            </MenuItem>
+                        ))}
+                    </Menu>
+                </Box>
+            </Container>
+
             {/*List property*/}
-            <Box paddingY={10}>
+            <Container maxWidth="xl">
+                <Box paddingY={6}>
                 <Grid container spacing={3}>
-                    {properties?.map((p) => (
+                    {properties?.filter((p) => p.status !== "pending").map((p) => (
                         <Grid size={{ xs: 12, md: 4, sm: 6 }} key={p._id}>
                             <Card
                                 component={Link}
@@ -207,8 +385,8 @@ const HomePage: React.FC = () => {
                         </Grid>
                     ))}
                 </Grid>
-
             </Box>
+            </Container>
 
 
             {/*Footer */}
@@ -217,7 +395,7 @@ const HomePage: React.FC = () => {
                     <Grid container spacing={2}>
 
                         {/* Column 1 */}
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{ xs: 12, md: 4 }}>
                             <Typography variant="h5" fontWeight={700}>Dwello</Typography>
                             <Typography sx={{ mt: 1, color: "gray" }}>
                                 Find your perfect home with comfort and trust.
@@ -225,28 +403,28 @@ const HomePage: React.FC = () => {
                         </Grid>
 
                         {/* Column 2 */}
-                        <Grid item xs={6} md={2}>
+                        <Grid size={{ xs: 6, md: 2 }}>
                             <Typography fontWeight={600}>Explore</Typography>
                             <Stack spacing={1} sx={{ mt: 1 }}>
-                                <Link color="gray" underline="hover">Buy</Link>
-                                <Link color="gray" underline="hover">Rent</Link>
-                                <Link color="gray" underline="hover">Sell</Link>
-                                <Link color="gray" underline="hover">Agents</Link>
+                                <Typography sx={{ color: "gray", cursor: "pointer" }}>Buy</Typography>
+                                <Typography sx={{ color: "gray", cursor: "pointer" }}>Rent</Typography>
+                                <Typography sx={{ color: "gray", cursor: "pointer" }}>Sell</Typography>
+                                <Typography sx={{ color: "gray", cursor: "pointer" }}>Agents</Typography>
                             </Stack>
                         </Grid>
 
                         {/* Column 3 */}
-                        <Grid item xs={6} md={2}>
+                        <Grid size={{ xs: 6, md: 2 }}>
                             <Typography fontWeight={600}>Support</Typography>
                             <Stack spacing={1} sx={{ mt: 1 }}>
-                                <Link color="gray" underline="hover">Help Center</Link>
-                                <Link color="gray" underline="hover">Privacy Policy</Link>
-                                <Link color="gray" underline="hover">Terms of Use</Link>
+                                <Typography sx={{ color: "gray", cursor: "pointer" }}>Help Center</Typography>
+                                <Typography sx={{ color: "gray", cursor: "pointer" }}>Privacy Policy</Typography>
+                                <Typography sx={{ color: "gray", cursor: "pointer" }}>Terms of Use</Typography>
                             </Stack>
                         </Grid>
 
                         {/* Column 4 */}
-                        <Grid item xs={12} md={4}>
+                        <Grid size={{ xs: 12, md: 4 }}>
                             <Typography fontWeight={600}>Follow Us</Typography>
                             <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
                                 <IconButton sx={{ color: "white" }} href="https://www.facebook.com/lopkstla16"><FacebookIcon /></IconButton>

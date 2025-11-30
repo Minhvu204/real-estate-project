@@ -52,7 +52,7 @@ export async function notifyAssignmentRequest(
     {
       type: "property",
       relatedId: assignmentId,
-      actionUrl: `/agent/assignments`, // (URL ví dụ, bạn đổi thành URL agent xem request)
+      actionUrl: `/notifications/agent/assignments`, // (URL ví dụ, bạn đổi thành URL agent xem request)
     }
   );
 }
@@ -71,7 +71,7 @@ export async function notifyAssignmentAccepted(
     {
       type: "property",
       relatedId: assignmentId,
-      actionUrl: `/seller/properties/${assignmentId}`, // (URL ví dụ)
+      actionUrl: `/notifications/seller/properties/${assignmentId}`, // (URL ví dụ)
     }
   );
 }
@@ -89,7 +89,7 @@ export async function notifyAssignmentRejected(
   return createNotification(sellerId, "Yêu cầu quản lý bị từ chối", message, {
     type: "property",
     relatedId: assignmentId,
-    actionUrl: `/seller/properties/${assignmentId}`, // (URL ví dụ)
+    actionUrl: `/notifications/seller/properties/${assignmentId}`, // (URL ví dụ)
   });
 }
 
@@ -107,7 +107,7 @@ export async function notifyAssignmentCancelled(
     {
       type: "property",
       relatedId: assignmentId,
-      actionUrl: `/agent/assignments`, // (URL ví dụ)
+      actionUrl: `/notifications/agent/assignments`, // (URL ví dụ)
     }
   );
 }
@@ -145,7 +145,7 @@ export async function notifyAgentRemoved(
     {
       type: "property",
       relatedId: propertyId,
-      actionUrl: `/properties/${propertyId}`,
+      actionUrl: `/notifications/properties/${propertyId}`,
     }
   );
 }
@@ -188,7 +188,7 @@ export async function notifyNewAppointment(
   return createNotification(agentId, "Lịch hẹn mới", message, {
     type: "appointment",
     relatedId: appointmentId,
-    actionUrl: `/appointments/${appointmentId}`,
+    actionUrl: `/notifications/appointments/${appointmentId}`,
   });
 }
 
@@ -210,7 +210,7 @@ export async function notifySellerNewAppointment(
     {
       type: "appointment",
       relatedId: appointmentId,
-      actionUrl: `/appointments/${appointmentId}`,
+      actionUrl: `/notifications/appointments/${appointmentId}`,
     }
   );
 }
@@ -232,7 +232,7 @@ export async function notifyAppointmentStatus(
   return createNotification(buyerId, title, message, {
     type: "appointment",
     relatedId: appointmentId,
-    actionUrl: `/appointments/${appointmentId}`,
+    actionUrl: `/notifications/appointments/${appointmentId}`,
   });
 }
 
@@ -265,12 +265,12 @@ export async function notifyAppointmentStatusToBuyerAndSeller(
     createNotification(buyerId, title, buyerMessage, {
       type: "appointment",
       relatedId: appointmentId,
-      actionUrl: `/appointments/${appointmentId}`,
+      actionUrl: `/notifications/appointments/${appointmentId}`,
     }),
     createNotification(sellerId, title, sellerMessage, {
       type: "appointment",
       relatedId: appointmentId,
-      actionUrl: `/appointments/${appointmentId}`,
+      actionUrl: `/notifications/appointments/${appointmentId}`,
     }),
   ]);
 }
@@ -292,7 +292,7 @@ export async function notifyAppointmentCancelled(
     createNotification(sellerId, "Lịch hẹn bị hủy", message, {
       type: "appointment",
       relatedId: appointmentId,
-      actionUrl: `/appointments/${appointmentId}`,
+      actionUrl: `/notifications/appointments/${appointmentId}`,
     }),
   ]);
 }
@@ -319,7 +319,7 @@ export async function notifyAppointmentCompleted(params: {
     createNotification(sellerId, "Lịch hẹn đã hoàn tất", message, {
       type: "appointment",
       relatedId: appointmentId,
-      actionUrl: `/appointments/${appointmentId}`,
+      actionUrl: `/notifications/appointments/${appointmentId}`,
     }),
   ]);
 }
@@ -339,7 +339,7 @@ export async function notifyNewOffer(
     {
       type: "offer",
       relatedId: offerId,
-      actionUrl: `/offers/${offerId}`,
+      actionUrl: `/notifications/offers/${offerId}`,
     }
   );
 }
@@ -359,7 +359,7 @@ export async function notifySellerNewOffer(
     {
       type: "offer",
       relatedId: offerId,
-      actionUrl: `/offers/${offerId}`,
+      actionUrl: `/notifications/offers/${offerId}`,
     }
   );
 }
@@ -382,7 +382,7 @@ export async function notifyOfferStatus(
   return createNotification(buyerId, title, message, {
     type: "offer",
     relatedId: offerId,
-    actionUrl: `/offers/${offerId}`,
+    actionUrl: `/notifications/offers/${offerId}`,
   });
 }
 
@@ -396,7 +396,7 @@ export async function notifyNewMessage(
   return createNotification(receiverId, `Tin nhắn mới từ ${senderName}`, message, {
     type: "chat",
     relatedId: conversationId,
-    actionUrl: `/chat/${conversationId}`,
+    actionUrl: `/notifications/chat/${conversationId}`,
   });
 }
 
@@ -417,7 +417,7 @@ export async function notifyPropertyStatus(
   return createNotification(userId, title, message, {
     type: "property",
     relatedId: propertyId,
-    actionUrl: `/properties/${propertyId}`,
+    actionUrl: `/notifications/properties/${propertyId}`,
   });
 }
 
@@ -436,7 +436,7 @@ export async function notifyOfferForwarded(
     {
       type: "offer",
       relatedId: offerId,
-      actionUrl: `/offers/${offerId}`,
+      actionUrl: `/notifications/offers/${offerId}`,
     }
   );
 }
@@ -458,7 +458,7 @@ export async function notifyOfferAccepted(
     {
       type: "offer",
       relatedId: offerId,
-      actionUrl: dealId ? `/deals/${dealId}` : `/offers/${offerId}`,
+      actionUrl: dealId ? `/notifications/deals/${dealId}` : `/notifications/offers/${offerId}`,
     }
   );
 
@@ -470,7 +470,7 @@ export async function notifyOfferAccepted(
     {
       type: "offer",
       relatedId: offerId,
-      actionUrl: dealId ? `/deals/${dealId}` : `/offers/${offerId}`,
+      actionUrl: dealId ? `/notifications/deals/${dealId}` : `/notifications/offers/${offerId}`,
     }
   );
 }
@@ -492,7 +492,7 @@ export async function notifyOfferRejected(
     {
       type: "offer",
       relatedId: offerId,
-      actionUrl: `/offers/${offerId}`,
+      actionUrl: `/notifications/offers/${offerId}`,
     }
   );
 
@@ -504,7 +504,7 @@ export async function notifyOfferRejected(
     {
       type: "offer",
       relatedId: offerId,
-      actionUrl: `/offers/${offerId}`,
+      actionUrl: `/notifications/offers/${offerId}`,
     }
   );
 }
@@ -523,17 +523,17 @@ export async function notifyDealCreated(
     createNotification(buyerId, "Deal mới", message, {
       type: "system",
       relatedId: dealId,
-      actionUrl: `/deals/${dealId}`,
+      actionUrl: `/notifications/deals/${dealId}`,
     }),
     createNotification(sellerId, "Deal mới", message, {
       type: "system",
       relatedId: dealId,
-      actionUrl: `/deals/${dealId}`,
+      actionUrl: `/notifications/deals/${dealId}`,
     }),
     createNotification(agentId, "Deal mới", message, {
       type: "system",
       relatedId: dealId,
-      actionUrl: `/deals/${dealId}`,
+      actionUrl: `/notifications/deals/${dealId}`,
     }),
   ]);
 }
@@ -555,7 +555,7 @@ export async function notifyContractUploaded(params: {
   const actionVerb = isUpdate ? "đã cập nhật" : "đã tải lên";
 
   const message = `${actorName} (${actorRole}) ${actionVerb} hợp đồng cho giao dịch "${propertyTitle}"`;
-  const actionUrl = `/deals/${dealId}/contract`;
+  const actionUrl = `/notifications/deals/${dealId}/contract`;
 
   await createNotificationsForUsers(recipientIds, title, message, {
     type: "contract",
@@ -597,7 +597,7 @@ export async function notifyContractReviewResult(params: {
 
   const message = `${adminName} (${isApproved ? "đã phê duyệt" : "đã từ chối"}) hợp đồng cho property "${propertyTitle}".${!isApproved && notes ? ` Lý do: ${notes}` : ""}`;
 
-  const actionUrl = `/deals/${deal._id}/contract`;
+  const actionUrl = `/notifications/deals/${deal._id}/contract`;
 
   // Lấy ID của các bên liên quan
   const recipientIds = [
@@ -639,7 +639,7 @@ export async function notifyDealStatusChange(params: {
   const title = `Trạng thái Deal được cập nhật: ${newStatus.toUpperCase()}`;
   const message = `${adminName} đã cập nhật trạng thái Deal cho property "${propertyTitle}" thành **${newStatus}**`;
 
-  const actionUrl = `/deals/${deal._id}`;
+  const actionUrl = `/notifications/deals/${deal._id}`;
 
   const recipientIds = [
     deal.buyer_id._id || deal.buyer_id,
@@ -679,7 +679,7 @@ export async function notifyPaymentUpdate(params: {
 
   const message = `${adminName} ${isCreated ? "đã ghi nhận" : "đã cập nhật"} thanh toán ${payment.amount?.toLocaleString() || "N/A"} VNĐ cho ${propertyTitle}${statusMessage}`;
 
-  const actionUrl = `/deals/${deal._id}/payments`;
+  const actionUrl = `/notifications/deals/${deal._id}/payments`;
 
   // Gửi cho người thực hiện thanh toán và Agent
   const recipientIds = [
@@ -717,7 +717,7 @@ export async function notifyBuyerContractDecision(params: {
     deal.agent_id?._id?.toString() || deal.agent_id?.toString()
   ].filter(Boolean);
 
-  const actionUrl = `/deals/${deal._id}`; // Hoặc URL chi tiết hợp đồng
+  const actionUrl = `/notifications/deals/${deal._id}`; // Hoặc URL chi tiết hợp đồng
 
   await createNotificationsForUsers(recipientIds, title, message, {
     type: "contract",

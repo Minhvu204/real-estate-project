@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import {
   Box,
   Typography,
@@ -17,6 +17,7 @@ import {
 } from "../../../services/notificationService";
 import type { NotificationType } from "../../../types/Notification";
 import { useNavigate } from "react-router-dom";
+import AuthContext from "../../../context/AuthContext";
 
 const NotificationsPage = () => {
   const [allNotifications, setAllNotifications] = useState<NotificationType[]>(
@@ -26,6 +27,7 @@ const NotificationsPage = () => {
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState<"all" | "unread">("all");
   const navigate = useNavigate();
+  const { state } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -145,7 +147,18 @@ const NotificationsPage = () => {
             key={n._id}
             onClick={() => {
               if (!n.is_read) handleMarkAsRead(n._id);
-              if (n.action_url) navigate(`seller/${n.action_url}`);
+              if (n.action_url) {
+                const userRole = state.user?.role?.toLowerCase();
+                if (userRole === 'agent') {
+                  navigate(`/agent${n.action_url}`);
+                } else if (userRole === 'seller') {
+                  navigate(`/seller${n.action_url}`);
+                } else if (userRole === 'buyer') {
+                  navigate(`/buyer${n.action_url}`);
+                } else {
+                  navigate(n.action_url);
+                }
+              }
             }}
             sx={{
               background: n.is_read

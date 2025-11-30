@@ -17,9 +17,9 @@ import {
     Typography,
     TextField,
     MenuItem,
-    PaginationItem
+    PaginationItem,
+    Box
 } from '@mui/material';
-import { Box } from '@mui/material';
 import { getPropertiesByAgentOrSeller } from '../../services/propertyService';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -58,6 +58,7 @@ const SellerProperties = () => {
         fetchProperties();
     }, []);
 
+    // Filtering logic
     useEffect(() => {
         let result = [...properties];
 
@@ -87,6 +88,7 @@ const SellerProperties = () => {
         return <p className="text-center text-gray-500 mt-10">{t('listProperties:loading')}</p>;
 
 
+    // Pagination calculations
     const totalPages = Math.ceil(filtered.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const currentProperties = filtered.slice(startIndex, startIndex + itemsPerPage);
@@ -102,23 +104,8 @@ const SellerProperties = () => {
                 <Typography variant="h5" fontWeight="bold" color="text.primary">
                     {t('listProperties:text-listProperties')}
                 </Typography>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    startIcon={<AddIcon />}
-                    component={Link}
-                    to="/seller/create"
-                    sx={{
-                        borderRadius: 2,
-                        textTransform: 'none',
-                        fontWeight: 'bold',
-                        px: 3,
-                    }}
-                >
-                    {t('listProperties:createProperty')}
-                </Button>
 
-                <Box className="flex gap-3">
+                <Box className="flex gap-3 items-center">
                     <TextField
                         label={t('listProperties:search')}
                         variant="outlined"
@@ -155,6 +142,7 @@ const SellerProperties = () => {
                         <MenuItem value="descending">{t('listProperties:desceding')}</MenuItem>
                     </TextField>
                 </Box>
+
             </Box>
 
             {filtered.length === 0 ? (

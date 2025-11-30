@@ -24,13 +24,14 @@ import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { Bounce, ToastContainer, toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const ListAgent = () => {
     const [agents, setAgents] = useState<Agent[]>([]);
     const [loading, setLoading] = useState(true);
     const { t } = useTranslation(['listAgents']);
     const { id: propertyId } = useParams();
-
+    const navigate = useNavigate();
     const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
     const [openConfirm, setOpenConfirm] = useState(false);
     const [page, setPage] = useState(1);

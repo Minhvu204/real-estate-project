@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Box, Chip, Container, Divider, Grid, Paper, Stack, Typography, Avatar, useMediaQuery, Button, } from "@mui/material";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { Box, Chip, Container, Divider, Grid, Paper, Stack, Typography, Avatar, useMediaQuery, IconButton, Button } from "@mui/material";
 import PlaceIcon from "@mui/icons-material/Place";
 import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
-import type { Property } from "../../types/Property";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useTranslation } from "react-i18next";
 import { getLanguage } from "../../utils/storage";
 import axios from "axios";
 import { getDetailPropertiesById } from "../../services/propertyService";
-import { Link } from "react-router-dom";
+
 const PropertyDetails = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [property, setProperty] = useState<Property | null>(null);
 
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -57,6 +58,22 @@ const PropertyDetails = () => {
 
     return (
         <Container sx={{ mt: 1, mb: 1 }}>
+            {/* Back button for mobile/responsive */}
+            <Box sx={{ mb: 2, display: { xs: 'block', md: 'none' } }}>
+                <IconButton
+                    onClick={() => navigate('/seller/properties')}
+                    sx={{
+                        backgroundColor: 'white',
+                        boxShadow: 1,
+                        '&:hover': {
+                            backgroundColor: 'grey.100',
+                        },
+                    }}
+                >
+                    <ArrowBackIcon />
+                </IconButton>
+            </Box>
+
             {/* CAROUSEL */}
             {property.images && property.images.length > 0 && (
                 <Box
@@ -295,17 +312,80 @@ const PropertyDetails = () => {
                     <Grid size={{ xs: 12, md: 6 }}>
                         <Paper sx={{ p: 2 }}>
                             <Typography variant="h6" fontWeight="bold">{t("agent")}</Typography>
-                            <Stack direction="row" spacing={2} mt={1}>
-                                <Avatar
-                                    src={property.agent_id?.avatar}
-                                    alt={property.agent_id?.fullName || "Agent"}
-                                />
-                                <Box>
-                                    <Typography fontWeight="bold">{property.agent_id?.fullName}</Typography>
-                                    <Typography color="text.secondary">{property.agent_id?.phone}</Typography>
-                                    <Typography color="text.secondary">{property.agent_id?.email}</Typography>
-                                </Box>
-                            </Stack>
+                            {property.agent_id ? (
+                                <>
+                                    <Stack direction="row" spacing={2} mt={1}>
+                                        <Avatar>{property.agent_id?.fullName?.charAt(0) || "A"}</Avatar>
+                                        <Box>
+                                            <Typography fontWeight="bold">{property.agent_id?.fullName || "N/A"}</Typography>
+                                            <Typography color="text.secondary">{property.agent_id?.phone || "N/A"}</Typography>
+                                            <Typography color="text.secondary">{property.agent_id?.email || "N/A"}</Typography>
+                                        </Box>
+                                    </Stack>
+                                    <Button
+                                        fullWidth
+                                        variant="contained"
+                                        color="primary"
+                                        disabled
+                                        sx={{
+                                            mt: 2,
+                                            borderRadius: 2,
+                                            textTransform: 'none',
+                                            '&.Mui-disabled': {
+                                                backgroundColor: 'rgba(0, 0, 0, 0.12)',
+                                                color: 'rgba(0, 0, 0, 0.26)'
+                                            }
+                                        }}
+                                    >
+                                        Đã có agent
+                                    </Button>
+                                </>
+                            ) : property.status !== 'approved' ? (
+                                <>
+                                    <Typography color="text.secondary" mt={1}>
+                                        Chưa có agent được assign
+                                    </Typography>
+                                    <Button
+                                        fullWidth
+                                        variant="contained"
+                                        color="primary"
+                                        disabled
+                                        sx={{
+                                            mt: 2,
+                                            borderRadius: 2,
+                                            textTransform: 'none',
+                                            '&.Mui-disabled': {
+                                                backgroundColor: 'rgba(0, 0, 0, 0.12)',
+                                                color: 'rgba(0, 0, 0, 0.26)'
+                                            }
+                                        }}
+                                        title="Chỉ có thể assign agent khi property đã được approved"
+                                    >
+                                        Chỉ định Agent
+                                    </Button>
+                                </>
+                            ) : (
+                                <>
+                                    <Typography color="text.secondary" mt={1}>
+                                        Chưa có agent được assign
+                                    </Typography>
+                                    <Button
+                                        fullWidth
+                                        variant="contained"
+                                        color="primary"
+                                        component={Link}
+                                        to={`/seller/properties/${property._id}/agents`}
+                                        sx={{
+                                            mt: 2,
+                                            borderRadius: 2,
+                                            textTransform: 'none',
+                                            fontWeight: 'bold',
+                                        }}
+                                    >
+                                        Chỉ định Agent
+                                    </Button>
+                                </>
+                            )}
                         </Paper>
                     </Grid>
                 </Grid>

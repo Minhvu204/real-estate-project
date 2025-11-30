@@ -308,6 +308,8 @@ export const propertyService = {
 
     const list = await Property.find(query)
       .populate("city_id", "city_name")
+      .populate("district_id", "district_name")
+      .populate("ward_id", "ward_name")
       .populate("category_id", "category_name")
       .populate("type_id", "type_name")
       .populate("owner_id", "fullName email phone avatar")
@@ -471,7 +473,7 @@ export const propertyService = {
       throw err;
     }
 
-    const { title, description, address, images, ...rest } = data || {};
+    const { title, description, address, images, city_id, district_id, ward_id, coordinates, ...rest } = data || {};
 
     // Áp dụng cập nhật các trường đơn giản
     Object.assign(property, rest);
@@ -489,7 +491,30 @@ export const propertyService = {
       property.address = await createMultilangText(address);
     }
 
-    // Ảnh: nếu gửi images (mảng URL) thì ghi đè; nếu không gửi thì giữ nguyên
+    // Xử lý city_id, district_id, ward_id
+    if (city_id) {
+      property.city_id = new mongoose.Types.ObjectId(city_id);
+    }
+    if (district_id) {
+      property.district_id = new mongoose.Types.ObjectId(district_id);
+    }
+    if (ward_id) {
+      property.ward_id = new mongoose.Types.ObjectId(ward_id);
+    }
+
+    // Xử lý coordinates
+    if (coordinates) {
+      // Nếu coordinates được gửi dưới dạng { lat, lng } hoặc coordinates[lat], coordinates[lng]
+      if (coordinates.lat !== undefined && coordinates.lng !== undefined) {
+        property.coordinates = {
+          type: 'Point',
+          coordinates: [coordinates.lng, coordinates.lat] // [lng, lat] format
+        };
+      } else if (Array.isArray(coordinates.coordinates)) {
+        property.coordinates = coordinates;
+      }
+    }
+
     if (Array.isArray(images)) {
       property.images = images;
     }
@@ -506,7 +531,7 @@ export const propertyService = {
       throw err;
     }
 
-    if (property.deleted) return; // idempotent
+    if (property.deleted) return;
 
     const isOwner = property.owner_id?.toString() === userId;
     const isAgent = property.agent_id?.toString() === userId;

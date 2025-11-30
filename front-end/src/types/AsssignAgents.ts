@@ -1,4 +1,4 @@
-export interface AssignAgent {
+export type AssignAgent = {
     _id: string;
     property_id: {
         _id: string;

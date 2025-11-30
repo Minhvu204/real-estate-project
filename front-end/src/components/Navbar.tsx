@@ -1,22 +1,5 @@
 import React, { useContext, useState } from "react";
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Box,
-  Button,
-  IconButton,
-  Avatar,
-  Menu,
-  MenuItem,
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Divider,
-  Fade,
-} from "@mui/material";
+import { AppBar, Toolbar, Typography, Box, Button, IconButton, Avatar, Menu, MenuItem, Drawer, List, ListItem, ListItemButton, ListItemText, Divider, Fade, } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import HomeIcon from "@mui/icons-material/Home";
@@ -25,6 +8,7 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import AuthContext from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import ButtonLanguage from "./common/ButtonLanguage";
+import { useTranslation } from "react-i18next";
 import Notification from "./common/notification/Notification";
 const Navbar: React.FC = () => {
   const { state, signOut } = useContext(AuthContext);
@@ -32,28 +16,35 @@ const Navbar: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const location = useLocation();
-  const role = state.user?.role || "guest";
-  const isAdminRoute = location.pathname.startsWith("/admin");
+  const role = state.user?.role || 'guest';
+  const isAdminRoute = location.pathname.startsWith('/admin');
+  const { t } = useTranslation("auth");
 
   const roleMenus = {
     buyer: [
       { label: "My Properties", path: "/dwello/myProperties" },
       { label: "My Agent", path: "/dwello/myAgent" },
-      { label: "My appointments", path: 'dwello/appoinments' },
+      { label: "My appointments", path: "/dwello/appointments" },
+      { label: "My Offer", path: "/buyer/offer" },
+      { label: "Deals - Contract", path: "/buyer/deals/list" },
     ],
     seller: [
       { label: "My Properties", path: "/seller/properties" },
       { label: "Manage Listings", path: "/seller/my-properties" },
+      { label: "My Offers", path: "/seller/offers" },
+      { label: "Deals - Contract", path: "/seller/deals/list" },
       { label: "Request Join", path: "/seller/request-join" },
     ],
     agent: [
       { label: "Agent Request Pool", path: "/agent/properties" },
       { label: "Manage Listings", path: "/agent/my-properties" },
       { label: "Assignments", path: "/agent/assignments" },
+      { label: "My Offers", path: "/agent/offers" },
+      { label: "Deals - Contract", path: "/agent/deals/list" },
       { label: "Appointments", path: "/agent/appointments" },
     ],
-
   };
+
 
   const handleLogout = () => {
     signOut();
@@ -399,7 +390,8 @@ const Navbar: React.FC = () => {
               ))}
             </Box>
           )}
-          {/* <ButtonLanguage /> */}
+          <ButtonLanguage />
+          <Notification />
           {/* Right Side */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             {!state.token ? (
@@ -425,7 +417,6 @@ const Navbar: React.FC = () => {
                   >
                     Sign In
                   </Button>
-
                   <Button
                     variant="contained"
                     onClick={() => navigate("/register")}
@@ -555,11 +546,11 @@ const Navbar: React.FC = () => {
               </>
             )}
           </Box>
-        </Toolbar>
-      </AppBar>
+        </Toolbar >
+      </AppBar >
 
       {/* Mobile Drawer */}
-      <Drawer
+      < Drawer
         anchor="right"
         open={mobileOpen}
         onClose={handleDrawerToggle}
@@ -571,7 +562,7 @@ const Navbar: React.FC = () => {
         }}
       >
         {drawer}
-      </Drawer>
+      </Drawer >
 
       {/* User Menu */}
       <Menu
@@ -598,18 +589,20 @@ const Navbar: React.FC = () => {
           Profile
         </MenuItem>
 
-        {roleMenus[role as keyof typeof roleMenus]?.map((item) => (
-          <MenuItem
-            key={item.path}
-            onClick={() => {
-              navigate(item.path);
-              setAnchorEl(null);
-            }}
-            sx={{ py: 1.5, fontWeight: 600 }}
-          >
-            {item.label}
-          </MenuItem>
-        ))}
+        {
+          roleMenus[role as keyof typeof roleMenus]?.map((item) => (
+            <MenuItem
+              key={item.path}
+              onClick={() => {
+                navigate(item.path);
+                setAnchorEl(null);
+              }}
+              sx={{ py: 1.5, fontWeight: 600 }}
+            >
+              {item.label}
+            </MenuItem>
+          ))
+        }
 
         <MenuItem
           onClick={handleLogout}
