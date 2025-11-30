@@ -106,6 +106,21 @@ const SellerProperties = () => {
                 </Typography>
 
                 <Box className="flex gap-3 items-center">
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<AddIcon />}
+                        component={Link}
+                        to="/seller/create"
+                        sx={{
+                            borderRadius: 2,
+                            textTransform: 'none',
+                            fontWeight: 'bold',
+                            px: 3,
+                        }}
+                    >
+                        {t('listProperties:createNewProperty')}
+                    </Button>
                     <TextField
                         label={t('listProperties:search')}
                         variant="outlined"
@@ -115,7 +130,7 @@ const SellerProperties = () => {
                     />
 
                     <TextField
-                        label="Trạng thái"
+                        label={t('listProperties:status')}
                         select
                         size="small"
                         value={statusFilter}
@@ -130,7 +145,7 @@ const SellerProperties = () => {
                     </TextField>
 
                     <TextField
-                        label="Price"
+                        label={t('listProperties:price')}
                         select
                         size="small"
                         value={priceFilter}
@@ -141,7 +156,9 @@ const SellerProperties = () => {
                         <MenuItem value="ascending">{t('listProperties:asceding')}</MenuItem>
                         <MenuItem value="descending">{t('listProperties:desceding')}</MenuItem>
                     </TextField>
+
                 </Box>
+
 
             </Box>
 

@@ -56,5 +56,6 @@
   "noPropertiesWithoutAgent": "Currently no properties without agents",
   "requestSent": "Request Sent",
   "processing": "Processing",
-  "requestingProperty": "You are requesting to join this property"
+  "requestingProperty": "You are requesting to join this property",
+  "createNewProperty": "Create "
 }
