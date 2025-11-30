@@ -21,7 +21,6 @@ interface ReviewListFilters {
   target_type?: "agent" | "property";
   rating?: number;
   buyerId?: string; // Optional: để check canReview và isCommented
-  buyerId?: string; // Optional: để check canReview và isCommented
 }
 
 const normalizePagination = ({
@@ -389,7 +388,7 @@ export const reviewService = {
     const property = await Property.findOne({
       _id: toObjectId(propertyId),
       deleted: false,
-      status: { $in: ["available", "approved"] },
+      status: { $in: ["rented", "sold", "approved"] },
     }).lean();
 
     if (!property) {

@@ -41,7 +41,7 @@ const PropertyReview = ({ propertyId }: PropsProperty) => {
   useEffect(() => {
     const fetchReview = async () => {
       const res = await getAllReviewPropertyById(propertyId);
-      console.log(res);
+      console.log("review: ", res);
       setReview(res.reviews);
       setCanReview(res.canReview);
       setIsComment(res.isCommented);
