@@ -1,8 +1,8 @@
-import PropertiesCompare from '@/components/Buyer/Compare/PropertiesCompare';
+import PropertiesCompare from '../../components/buyer/Compare/PropertiesCompare';
 import { getPropertyByIds } from '@/services/buyerService';
 import type { PropertyCompare } from '@/types/FavoriteType';
 import { getLanguage, type Lang } from '@/utils/storage';
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import useTitle from '@/hooks/useTitle';

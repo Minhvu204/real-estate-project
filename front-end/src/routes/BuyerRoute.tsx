@@ -11,11 +11,11 @@ import BuyerMyPropertiesPage from "../pages/Buyer/BuyerMyPropertiesPage";
 import CreateOfferPage from "../pages/Offer/CreateOfferPage";
 import OfferHistoryPage from "../pages/Offer/OfferHistoryPage";
 import CancelOfferPage from "../pages/Offer/CancelOfferPage";
-import FavoritePage from "@/pages/Favorite/FavoritePage";
+import ListAppointment from "../components/Buyer/Appointment/ListAppointment";
 import PropertiesComparePage from "@/pages/Compare/PropertiesComparePage";
 import DealListPageBuyer from "../pages/DealContract/DealListPageBuyer";
 import DealContractPageBuyer from "../pages/DealContract/DealContractPageBuyer";
-import ListAppointment from "@/components/Buyer/Appointment/ListAppointment";
+import FavoritePage from "@/pages/Favorite/FavoritePage";
 
 export const BuyerRoute = [
     {
