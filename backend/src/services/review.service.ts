@@ -21,6 +21,7 @@ interface ReviewListFilters {
   target_type?: "agent" | "property";
   rating?: number;
   buyerId?: string; // Optional: để check canReview và isCommented
+  buyerId?: string; // Optional: để check canReview và isCommented
 }
 
 const normalizePagination = ({

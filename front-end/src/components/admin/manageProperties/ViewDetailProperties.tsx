@@ -38,8 +38,6 @@ const ViewDetailProperties = () => {
     );
   }
 
-  const features = property.features ?? [];
-
   return (
     <>
       <div className="relative">
