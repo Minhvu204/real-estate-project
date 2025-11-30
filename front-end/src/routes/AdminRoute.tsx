@@ -10,7 +10,12 @@ import AdminTaxonomiesPage from "../pages/AdminTaxonomiesPage";
 import ListProperties from "../components/admin/manageProperties/ListProperties";
 import ViewDetailProperties from "../components/admin/manageProperties/ViewDetailProperties";
 import HideProperties from "../components/admin/manageProperties/HideProperties";
+import ContractsList from "../components/admin/manageContracts/ContractsList";
+import DealsList from "../components/admin/manageDeals/DealsList";
+import PaymentsList from "../components/admin/managePayments/PaymentsList";
 import HomeList from "../components/admin/HomeList";
+import DealDetail from "../components/admin/manageDeals/DealDetail";
+import PaymentDetail from "../components/admin/managePayments/PaymentDetail";
 import ReviewList from "../components/admin/manageReviews/ReviewList";
 
 const AdminProtectedRoute = () => {
@@ -54,6 +59,34 @@ export const AdminRoute = [
           {
             path: "manageProperties/:id",
             element: <ViewDetailProperties />,
+          },
+          {
+            path: "contracts",
+            element: <ContractsList />,
+          },
+          {
+            path: "deals",
+            element: <DealsList />,
+          },
+          {
+            path: "deals/:id",
+            element: <DealDetail />,
+          },
+          {
+            path: "deals/:id",
+            element: <DealDetail />,
+          },
+          {
+            path: "deals/:id/property/:id",
+            element: <ViewDetailProperties />,
+          },
+          {
+            path: "payments",
+            element: <PaymentsList />,
+          },
+          {
+            path: "payments/:id",
+            element: <PaymentDetail/>,
           },
           {
             path: "reviews",
