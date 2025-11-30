@@ -30,3 +30,21 @@ export const rejectRequest = async (req: Request, res: Response) => {
     return successResponse(req, res, "Đã từ chối yêu cầu", result);
   } catch (err: any) { return errorResponse(req, res, err.message, err.status || 500); }
 };
+
+export const cancelAssignmentByAgent = async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const { id } = req.params;
+
+    const result = await assignmentService.cancelRequestByAgent(
+      id,
+      user.id || user._id
+    );
+
+    return successResponse(req, res, "Agent đã hủy yêu cầu thành công", result);
+  } catch (error: any) {
+    console.error("cancelAssignmentByAgent error:", error);
+    return errorResponse(req, res, error.message, error.status || 500);
+  }
+};
+

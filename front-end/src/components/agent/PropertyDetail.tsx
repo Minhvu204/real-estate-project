@@ -1,31 +1,29 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Box, Chip, Container, Divider, Grid, Paper, Stack, Typography, Avatar, useMediaQuery, Button, Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText } from "@mui/material";
+import { useParams } from "react-router-dom";
+import { Box, Chip, Container, Divider, Grid, Paper, Stack, Typography, Avatar, useMediaQuery, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
 import PlaceIcon from "@mui/icons-material/Place";
 import BedIcon from "@mui/icons-material/Bed";
 import BathtubIcon from "@mui/icons-material/Bathtub";
-import type { Property } from "../types/Property";
-import { useTranslation } from "react-i18next";
-import { toast, ToastContainer } from 'react-toastify';
-import { getLanguage, getUser } from "../utils/storage";
-import { OfferService } from "@/services/offerService";
-import { getDetailPropertiesById } from "@/services/propertyService";
-import PropertyReview from "../components/buyer/PropertyReview";
+import SendIcon from "@mui/icons-material/Send";
+import CancelIcon from "@mui/icons-material/Cancel";
 
-import BuyerAppointment from "@/components/Buyer/Appointment/BuyerAppointment";
+import { useTranslation } from "react-i18next";
+
+import type { Property } from "@/types/Property";
+import { getLanguage } from "@/utils/storage";
+import { cancelRequestJoinProperty, requestJoinProperty, getAllAssignments } from "@/services/agent.service";
+import { toast } from "react-toastify";
+import type { AssignAgent } from '@/types/AsssignAgents';
 
 
 
 const PropertyDetailUser = () => {
     const { id } = useParams();
-    const navigate = useNavigate();
     const [property, setProperty] = useState<Property | null>(null);
-    const [restrictionDialogOpen, setRestrictionDialogOpen] = useState(false);
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const isMobile = useMediaQuery("(max-width:900px)");
-    const isMobileSmall = useMediaQuery("(max-width:600px)");
-    const user = getUser();
+    const [requestedProperties, setRequestedProperties] = useState<Map<string, string>>(new Map());
 
     const { t } = useTranslation("propertyDetail");
     const lang = getLanguage();
@@ -46,26 +44,77 @@ const PropertyDetailUser = () => {
 
 
 
-
-
     useEffect(() => {
-        const fetchProperty = async () => {
+        const fetchData = async () => {
             try {
-                const data: Property = await getDetailPropertiesById(id!);
-                setProperty(data);
-            } catch (error) {
-                console.error("Error fetching property:", error);
+                // Fetch property details
+                const response = await fetch(`http://localhost:3000/api/public/properties/${id}`);
+                const data = await response.json();
+                setProperty(data.data.data);
+
+                // Fetch agent's assignments to check pending requests
+                const assignmentsResponse = await getAllAssignments();
+                const pendingRequests = new Map<string, string>();
+
+                assignmentsResponse.forEach((assignment: AssignAgent) => {
+                    if (assignment.status === 'pending') {
+                        pendingRequests.set(assignment.property_id._id, assignment._id);
+                    }
+                });
+
+                setRequestedProperties(pendingRequests);
+            } catch (err) {
+                console.error(err);
             }
         };
-        fetchProperty();
+        fetchData();
     }, [id]);
 
-    const [openTourModal, setOpenTourModal] = useState(false);
+    const [openRequestModal, setOpenRequestModal] = useState(false);
 
+    const handleOpenRequesetToJoin = (property: Property) => {
+        setProperty(property);
+        setOpenRequestModal(true);
+    }
+    const handleCloseRequesetToJoin = () => {
+        setOpenRequestModal(false);
+    }
+    const handleRequestJoin = async (id: string, ownerId: string) => {
+        try {
+            const response = await requestJoinProperty(id, ownerId);
+            toast.success("Request sent successfully");
 
-    const handleOpenTour = () => setOpenTourModal(true);
-    const handleCloseTour = () => setOpenTourModal(false);
+            if (response?.data?._id) {
+                setRequestedProperties(prev => new Map(prev).set(id, response.data._id));
+            }
 
+            return response;
+        } catch (error) {
+            toast.error("Failed to send request");
+            console.log("Error requesting to join property:", error);
+            throw error;
+        }
+    }
+
+    const handleCancelRequest = async (propertyId: string) => {
+        const assignmentId = requestedProperties.get(propertyId);
+        if (!assignmentId) return;
+
+        try {
+            await cancelRequestJoinProperty(assignmentId);
+            toast.success("Request cancelled successfully");
+
+            setRequestedProperties(prev => {
+                const newMap = new Map(prev);
+                newMap.delete(propertyId);
+                return newMap;
+            });
+        } catch (error) {
+            toast.error("Failed to cancel request");
+            console.log("Error cancelling request:", error);
+            throw error;
+        }
+    }
 
 
     if (!property) {
@@ -73,6 +122,8 @@ const PropertyDetailUser = () => {
     }
 
     const features = property.features ?? [];
+
+
 
     return (
         <Container sx={{ mt: 1, mb: 1 }}>
@@ -177,97 +228,7 @@ const PropertyDetailUser = () => {
 
             <Grid>
 
-                <Box
-                    display="flex"
-                    justifyContent="flex-end"
-                    gap={2}
-                    mt={2}
-                    mb={2}
-                    flexWrap={isMobileSmall ? 'wrap' : 'nowrap'}
-                >
-                    <Button
-                        variant="contained"
-                        onClick={handleOpenTour}
-                        sx={{
-                            minWidth: 180,
-                            background: 'linear-gradient(135deg, #1976D2 0%, #1565C0 100%)',
-                            color: 'white',
-                            fontWeight: 700,
-                            textTransform: 'none',
-                            fontSize: '1rem',
-                            py: 1.5,
-                            px: 4,
-                            boxShadow: '0 4px 15px rgba(25, 118, 210, 0.4)',
-                            transition: 'all 0.3s ease',
-                            '&:hover': {
-                                background: 'linear-gradient(135deg, #1565C0 0%, #0D47A1 100%)',
-                                boxShadow: '0 6px 20px rgba(25, 118, 210, 0.6)',
-                                transform: 'translateY(-2px)',
-                            },
-                            '&:active': {
-                                transform: 'translateY(0px)',
-                            },
-                        }}
-                    >
-                        {t("requestTour")}
-                    </Button>
-                    <Button
-                        variant="contained"
-                        onClick={async () => {
-                            const user = getUser();
-                            if (!user) {
-                                toast.error(t("pleaseLoginToCreateOffer"));
-                                setTimeout(() => {
-                                    navigate('/login');
-                                }, 1500);
-                                return;
-                            }
-                            if (user.role?.toLowerCase() !== 'buyer') {
-                                setRestrictionDialogOpen(true);
-                                return;
-                            }
 
-                            try {
-                                const offers = await OfferService.getMyOffers({ property_id: id });
-                                const activeOffer = offers.find(
-                                    offer => offer.status !== 'rejected' && offer.status !== 'cancelled'
-                                );
-
-                                if (activeOffer) {
-                                    toast.error(t("offerAlreadySent"));
-                                    return;
-                                }
-
-                                navigate(`/buyer/offer/create/${id}`);
-                            } catch (error: any) {
-                                console.error("Error checking offer:", error);
-                                navigate(`/buyer/offer/create/${id}`);
-                            }
-                        }}
-                        sx={{
-                            minWidth: 180,
-                            background: 'linear-gradient(135deg, #1976D2 0%, #1565C0 100%)',
-                            color: 'white',
-                            fontWeight: 700,
-                            textTransform: 'none',
-                            fontSize: '1rem',
-                            py: 1.5,
-                            px: 4,
-                            boxShadow: '0 4px 15px rgba(25, 118, 210, 0.4)',
-                            transition: 'all 0.3s ease',
-                            '&:hover': {
-                                background: 'linear-gradient(135deg, #1565C0 0%, #0D47A1 100%)',
-                                boxShadow: '0 6px 20px rgba(25, 118, 210, 0.6)',
-                                transform: 'translateY(-2px)',
-                            },
-                            '&:active': {
-                                transform: 'translateY(0px)',
-                            },
-                        }}
-                    >
-                        {t("createOffer")}
-                    </Button>
-                </Box>
 
                 <Typography variant="h4" fontWeight="bold" mt={1}>
                     {property.title[lang]}
@@ -277,13 +238,61 @@ const PropertyDetailUser = () => {
                     <PlaceIcon sx={{ fontSize: 20, mr: 1 }} />
                     {property.address[lang]}
                 </Typography>
-
+                <div className="flex flex-row space-x-4 items-center justify-between">
+                    <Typography variant="h5" color="primary" fontWeight="bold" mt={1} className="flex-start">
+                        ${property.price.toLocaleString()}
+                    </Typography>
+                    <Box className="flex-end" sx={{ display: 'flex', gap: 1 }}>
+                        {requestedProperties.has(property._id) ? (
+                            <Button
+                                variant="contained"
+                                color="error"
+                                startIcon={<CancelIcon />}
+                                onClick={() => handleCancelRequest(property._id)}
+                                sx={{
+                                    borderRadius: 2,
+                                    textTransform: 'none',
+                                    fontWeight: 'bold',
+                                    boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)',
+                                    transition: 'all 0.3s ease',
+                                    '&:hover': {
+                                        boxShadow: '0 6px 20px rgba(239, 68, 68, 0.4)',
+                                        transform: 'translateY(-2px)'
+                                    }
+                                }}
+                            >
+                                {t('cancelRequest', { ns: 'listProperties' })}
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="contained"
+                                color="success"
+                                startIcon={<SendIcon />}
+                                onClick={() => handleOpenRequesetToJoin(property)}
+                                sx={{
+                                    borderRadius: 2,
+                                    textTransform: 'none',
+                                    fontWeight: 'bold',
+                                    boxShadow: '0 4px 12px rgba(17, 153, 142, 0.3)',
+                                    transition: 'all 0.3s ease',
+                                    '&:hover': {
+                                        boxShadow: '0 6px 20px rgba(17, 153, 142, 0.4)',
+                                        transform: 'translateY(-2px)'
+                                    }
+                                }}
+                            >
+                                {t('requestJoin', { ns: 'listProperties' })}
+                            </Button>
+                        )}
+                    </Box>
+                </div>
 
                 {/* TAGS */}
                 <Stack direction="row" spacing={1} mt={1}>
                     <Chip label={property.city_id?.city_name[lang]} />
                     <Chip label={property.category_id?.category_name[lang]} />
                     <Chip label={property.type_id?.type_name[lang]} />
+
                     <Chip label={property.status} color="success" />
                 </Stack>
 
@@ -337,6 +346,9 @@ const PropertyDetailUser = () => {
                                     alt={property.owner_id?.fullName || "Owner"}
                                 />
                                 <Box>
+                                    <Typography fontWeight="bold">{property.owner_id?.fullName}</Typography>
+                                    <Typography color="text.secondary">{property.owner_id?.phone}</Typography>
+                                    <Typography color="text.secondary">{property.owner_id?.email}</Typography>
 
                                 </Box>
                             </Stack>
@@ -355,6 +367,7 @@ const PropertyDetailUser = () => {
                                     <Typography fontWeight="bold">{property.agent_id?.fullName}</Typography>
                                     <Typography color="text.secondary">{property.agent_id?.phone}</Typography>
                                     <Typography color="text.secondary">{property.agent_id?.email}</Typography>
+
                                 </Box>
                             </Stack>
                         </Paper>
@@ -389,50 +402,86 @@ const PropertyDetailUser = () => {
                     {t("updatedOn")}: {new Date(property.updatedAt).toLocaleDateString()}
                 </Typography>
             </Grid >
+
+
             <Dialog
-                open={restrictionDialogOpen}
-                onClose={() => setRestrictionDialogOpen(false)}
-                aria-labelledby="restriction-dialog-title"
-                aria-describedby="restriction-dialog-description"
+                open={openRequestModal}
+                onClose={handleCloseRequesetToJoin}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        borderRadius: 3,
+                        p: 1
+                    }
+                }}
             >
-                <DialogTitle id="restriction-dialog-title">
-                    {t("cannotCreateOffer")}
+                <DialogTitle sx={{ fontWeight: 'bold', fontSize: '1.5rem' }}>
+                    {t('confirmChoice', { ns: 'listProperties' })}
                 </DialogTitle>
                 <DialogContent>
-                    <DialogContentText id="restriction-dialog-description">
-                        {t("onlyBuyersCanCreateOffers")}
+                    {property && (
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="body2" color="text.secondary" gutterBottom>
+                                Bạn đang yêu cầu tham gia bất động sản:
+                            </Typography>
+                            <Box sx={{
+                                p: 2,
+                                bgcolor: 'grey.50',
+                                borderRadius: 2,
+                                mt: 1,
+                                border: '1px solid',
+                                borderColor: 'divider'
+                            }}>
+                                <Typography variant="h6" fontWeight="bold" gutterBottom>
+                                    {property.title[lang]}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                     {property.address[lang]}
+                                </Typography>
+                                <Typography variant="body2" color="success.main" fontWeight="bold" sx={{ mt: 1 }}>
+                                     {property.price.toLocaleString()} VNĐ
+                                </Typography>
+                            </Box>
+                        </Box>
+                    )}
+                    <DialogContentText>
+                        {t('confirmMessage', { ns: 'listProperties' })}
                     </DialogContentText>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setRestrictionDialogOpen(false)} color="primary" variant="contained">
-                        {t("close")}
+                <DialogActions sx={{ p: 2, gap: 1 }}>
+                    <Button
+                        onClick={handleCloseRequesetToJoin}
+                        variant="outlined"
+                        sx={{
+                            borderRadius: 2,
+                            textTransform: 'none',
+                            fontWeight: 'bold'
+                        }}
+                    >
+                        {t('cancel', { ns: 'listProperties' })}
+                    </Button>
+                    <Button
+                        onClick={() => {
+                            if (property) {
+                                handleRequestJoin(property._id, property.owner_id?._id!);
+                                handleCloseRequesetToJoin();
+                            }
+                        }}
+                        variant="contained"
+                        color="success"
+                        autoFocus
+                        sx={{
+                            borderRadius: 2,
+                            textTransform: 'none',
+                            fontWeight: 'bold',
+                            boxShadow: '0 4px 12px rgba(17, 153, 142, 0.3)'
+                        }}
+                    >
+                        {t('confirm', { ns: 'listProperties' })}
                     </Button>
                 </DialogActions>
             </Dialog>
-
-            <ToastContainer
-                position="top-right"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light"
-            />
-            <Dialog
-                open={openTourModal}
-                onClose={handleCloseTour}
-                fullScreen={isMobileSmall}
-                fullWidth>
-                <BuyerAppointment
-                    property={property}
-                    onClose={handleCloseTour}
-                />
-            </Dialog>
-            <PropertyReview propertyId = {property._id}/>
 
         </Container >
     );

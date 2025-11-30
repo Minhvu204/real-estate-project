@@ -1,3 +1,4 @@
+import type { RequestJoinProperty } from "@/types/RequestJoinProperty";
 import type { Agent } from "../types/Agent";
 import { httpClient } from "../utils/httpClient";
 
@@ -20,3 +21,33 @@ export const assignAgent = async (id: string, agentId: string) => {
     throw error;
   }
 };
+
+export const getAllJoinedAgentsRequest = async (): Promise<RequestJoinProperty[]> => {
+  try {
+    const response = await httpClient.get(`${RESOURCE}/assignments`);
+    return response.data.data
+  } catch (error) {
+    console.error("Error fetching joined agents requests:", error);
+    throw error;
+  }
+}
+
+export const acceptAgentRequest = async (assignmentId: string) => {
+  try {
+    const response = await httpClient.patch(`${RESOURCE}/assignments/${assignmentId}/accept`);
+    return response.data;
+  } catch (error) {
+    console.error("Error accepting agent request:", error);
+    throw error;
+  }
+}
+
+export const rejectAgentRequest = async (assignmentId: string) => {
+  try {
+    const response = await httpClient.patch(`${RESOURCE}/assignments/${assignmentId}/reject`);
+    return response.data;
+  } catch (error) {
+    console.error("Error rejecting agent request:", error);
+    throw error;
+  }
+}

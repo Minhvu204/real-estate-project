@@ -27,7 +27,6 @@ import DETAIL_PROPERTIES_ADMIN_EN from "../locales/en/detailProperty.json";
 import DETAIL_PROPERTIES_ADMIN_VI from "../locales/vi/detailProperty.json";
 import LIST_AGENTS_EN from "../locales/en/listAgents.json";
 import LIST_AGENTS_VI from "../locales/vi/listAgents.json";
-import AGENT_LIST_EN from "../locales/en/agentList.json";
 import AGENT_LIST_VI from "../locales/vi/agentList.json";
 import AGENT_DETAIL_EN from "../locales/en/agentDetail.json";
 import AGENT_DETAIL_VI from "../locales/vi/agentDetail.json";
@@ -37,8 +36,14 @@ import FAVORITE_EN from "../locales/en/favorite.json";
 import FAVORITE_VI from "../locales/vi/favorite.json";
 import DEAL_CONTRACT_EN from "../locales/en/dealContract.json";
 import DEAL_CONTRACT_VI from "../locales/vi/dealContract.json";
-import AUTH_VI from "../locales/vi/auth.json";
 import AUTH_EN from "../locales/en/auth.json";
+import AUTH_VI from "../locales/vi/auth.json";
+import BOOK_APPOINTMENT_EN from "@/locales/en/appointment.json";
+import BOOK_APPOINTMENT_VI from "@/locales/vi/appointment.json";
+import LIST_REQUEST_JOIN_EN from "../locales/en/listRequestJoin.json";
+import LIST_REQUEST_JOIN_VI from "../locales/vi/listRequestJoin.json";
+import ASSIGN_AGENT_EN from "@/locales/en/assignAgents.json";
+import ASSIGN_AGENT_VI from "@/locales/vi/assignAgents.json";
 import CONTRACT_ADMIN_EN from "../locales/en/contract.json";
 import CONTRACT_ADMIN_VI from "../locales/vi/contract.json";
 import DEAL_ADMIN_EN from "../locales/en/deal.json";
@@ -64,12 +69,14 @@ export const resources = {
     listProperties: LIST_PROPERTIES_ADMIN_EN,
     detailProperty: DETAIL_PROPERTIES_ADMIN_EN,
     listAgents: LIST_AGENTS_EN,
-    agentList: AGENT_LIST_EN,
     agentDetail: AGENT_DETAIL_EN,
     offerManagement: OFFER_MANAGEMENT_EN,
     favorite: FAVORITE_EN,
     dealContact: DEAL_CONTRACT_EN,
     auth: AUTH_EN,
+    bookAppointment: BOOK_APPOINTMENT_EN,
+    assignAgent: ASSIGN_AGENT_EN,
+    listRequestJoin: LIST_REQUEST_JOIN_EN,
     contract: CONTRACT_ADMIN_EN,
     deal: DEAL_ADMIN_EN,
     payment: PAYMENT_ADMIN_EN,
@@ -96,6 +103,9 @@ export const resources = {
     offerManagement: OFFER_MANAGEMENT_VI,
     dealContact: DEAL_CONTRACT_VI,
     auth: AUTH_VI,
+    bookAppointment: BOOK_APPOINTMENT_VI,
+    assignAgent: ASSIGN_AGENT_VI,
+    listRequestJoin: LIST_REQUEST_JOIN_VI,
     contract: CONTRACT_ADMIN_VI,
     deal: DEAL_ADMIN_VI,
     payment: PAYMENT_ADMIN_VI,
@@ -115,7 +125,6 @@ i18n
       "properties",
       "propertyPage",
       "propertyDetail",
-      "taxonomies",
       "profile",
       "myProperties",
       "buyerMyProperties",

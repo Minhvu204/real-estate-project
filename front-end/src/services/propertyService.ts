@@ -2,6 +2,7 @@ import type { Property } from "../types/Property";
 import { httpPublic } from "../utils/httpPublic";
 import { createAxiosInstance } from "../utils/axiosInstance";
 import { httpClient } from "../utils/httpClient";
+import type { User } from "../types/Users";
 import { httpAdmin } from "../utils/httpAdmin";
 import type { Feature } from "@/types/Feature";
 import type { Taxonomy } from "@/types/Taxonomy";
@@ -211,4 +212,3 @@ export const generatePropertyDescription = async (formData: PropertyFormData): P
   const response = await httpClient.post(`${SELLER_RESOURCE}/properties/generate-description`, formData)
   return response.data.data
 }
-

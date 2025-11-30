@@ -28,3 +28,54 @@ export const cancelAssignmentRequest = async (req: Request, res: Response) => {
     return errorResponse(req, res, error.message, error.status || 500);
   }
 };
+
+
+export const listRequestsForSeller = async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user; // seller
+    const filters = req.query;
+
+    const data = await assignmentService.getRequestsForSeller(
+      user.id || user._id,
+      filters
+    );
+
+    return successResponse(req, res, "Danh sách yêu cầu từ agent", data);
+  } catch (err: any) {
+    return errorResponse(req, res, err.message, err.status || 500);
+  }
+};
+
+export const sellerAcceptRequest = async (req: Request, res: Response) => {
+  try {
+    const seller = (req as any).user;
+    const { id } = req.params;
+
+    const result = await assignmentService.sellerAcceptRequest(
+      id,
+      seller.id || seller._id
+    );
+
+    return successResponse(req, res, "Seller đã chấp nhận yêu cầu", result);
+  } catch (err: any) {
+    return errorResponse(req, res, err.message, err.status || 500);
+  }
+};
+
+export const sellerRejectRequest = async (req: Request, res: Response) => {
+  try {
+    const seller = (req as any).user;
+    const { id } = req.params;
+    const { reason } = req.body;
+
+    const result = await assignmentService.sellerRejectRequest(
+      id,
+      seller.id || seller._id,
+      reason
+    );
+
+    return successResponse(req, res, "Seller đã từ chối yêu cầu", result);
+  } catch (err: any) {
+    return errorResponse(req, res, err.message, err.status || 500);
+  }
+};

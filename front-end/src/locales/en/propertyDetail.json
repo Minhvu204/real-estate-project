@@ -17,5 +17,7 @@
     "offerAlreadySent": "You have already sent an offer for this property that is being processed. Cannot send another. (You can only resend if the previous offer was rejected)",
     "cannotCreateOffer": "Cannot Create Offer",
     "onlyBuyersCanCreateOffers": "Only buyers can create offers for properties.",
-    "close": "Close"
+    "close": "Close",
+    "requestToView": "Request a tour",
+    "requestToJoinThisProperty": "Request to join this property"
 }
