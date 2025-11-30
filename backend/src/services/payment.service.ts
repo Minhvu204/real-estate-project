@@ -34,12 +34,6 @@ export async function createEscrowPayment(buyerId: string, dealId: string) {
     throw err;
   }
 
-  if (deal.status === "awaiting_escrow_payment") {
-    const err: any = new Error("Đã tạo thanh toán với Deal này!. Vui lòng hoàn tất thanh toán.");
-    err.status = 400;
-    throw err;
-  }
-
   const existingCompleted = await Payment.findOne({
     deal_id: deal._id,
     type: "escrow_fund",
@@ -434,6 +428,37 @@ export async function getPaymentsBySeller(
     page,
     limit,
     totalPages: Math.ceil(total / limit),
+  };
+}
+
+export async function getPaymentsByDealId(buyerId: string, dealId: string) {
+  if (!mongoose.Types.ObjectId.isValid(dealId)) {
+    const err: any = new Error("DealId không hợp lệ");
+    err.status = 400;
+    throw err;
+  }
+
+  const deal = await Deal.findById(dealId);
+  if (!deal) {
+    const err: any = new Error("Deal không tồn tại");
+    err.status = 404;
+    throw err;
+  }
+
+  if (String(deal.buyer_id) !== buyerId) {
+    const err: any = new Error("Bạn không có quyền xem thanh toán của deal này");
+    err.status = 403;
+    throw err;
+  }
+
+  const payments = await Payment.find({ deal_id: dealId })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  return {
+    dealId,
+    total: payments.length,
+    payments,
   };
 }
 
