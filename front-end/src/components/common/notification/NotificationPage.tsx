@@ -17,15 +17,18 @@ import {
 } from "../../../services/notificationService";
 import type { NotificationType } from "../../../types/Notification";
 import { useNavigate } from "react-router-dom";
+import { getLanguage, type Lang } from "../../../utils/storage";
+import { useTranslation } from "react-i18next";
+import { socket } from '../../../socket/socket';
 
 const NotificationsPage = () => {
-  const [allNotifications, setAllNotifications] = useState<NotificationType[]>(
-    []
-  );
+  const [allNotifications, setAllNotifications] = useState<NotificationType[]>([]);
   const [notifications, setNotifications] = useState<NotificationType[]>([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState<"all" | "unread">("all");
   const navigate = useNavigate();
+  const currentLanguage: Lang = getLanguage();
+  const { t } = useTranslation("notification");
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -41,26 +44,83 @@ const NotificationsPage = () => {
       }
     };
     fetchNotifications();
-  }, []);
+
+    // Real-time Socket.io listeners
+    const handleNewNotification = (notification: NotificationType) => {
+      console.log("[NotificationsPage] Received new_notification:", notification);
+      
+      setAllNotifications((prev) => {
+        if (prev.some((n) => n._id === notification._id)) return prev;
+        return [notification, ...prev];
+      });
+
+      // Update filtered notifications if showing all
+      if (filter === "all") {
+        setNotifications((prev) => {
+          if (prev.some((n) => n._id === notification._id)) return prev;
+          return [notification, ...prev];
+        });
+      } else if (filter === "unread" && !notification.is_read) {
+        setNotifications((prev) => {
+          if (prev.some((n) => n._id === notification._id)) return prev;
+          return [notification, ...prev];
+        });
+      }
+    };
+
+    const handleUnreadCountUpdate = (data: { unreadCount: number }) => {
+      console.log("[NotificationsPage] Unread count updated:", data);
+    };
+
+    // Register Socket.io event listeners
+    socket.on("new_notification", handleNewNotification);
+    socket.on("unread_count_update", handleUnreadCountUpdate);
+
+    // Cleanup listeners on unmount
+    return () => {
+      socket.off("new_notification", handleNewNotification);
+      socket.off("unread_count_update", handleUnreadCountUpdate);
+    };
+  }, [filter]); // Re-run when filter changes
 
   const handleMarkAsRead = async (id: string) => {
-    await markAsRead(id);
+    // Emit to socket for real-time sync
+    socket.emit("notification_read", { notificationId: id });
+    
+    // Update local state immediately
     setAllNotifications((prev) =>
       prev.map((noti) => (noti._id === id ? { ...noti, is_read: true } : noti))
     );
     setNotifications((prev) =>
       prev.map((noti) => (noti._id === id ? { ...noti, is_read: true } : noti))
     );
+
+    // Call API in background
+    try {
+      await markAsRead(id);
+    } catch (error) {
+      console.error("Failed to mark as read:", error);
+    }
   };
 
   const handleMarkAllAsRead = async () => {
-    await markAllAsRead();
+    // Emit to socket for real-time sync
+    socket.emit('mark_all_notifications_read');
+    
+    // Update local state immediately
     setAllNotifications((prev) =>
       prev.map((noti) => (noti.is_read ? noti : { ...noti, is_read: true }))
     );
     setNotifications((prev) =>
       prev.map((noti) => (noti.is_read ? noti : { ...noti, is_read: true }))
     );
+
+    // Call API in background
+    try {
+      await markAllAsRead();
+    } catch (error) {
+      console.error("Failed to mark all as read:", error);
+    }
   };
 
   const handleShowAll = () => {
@@ -100,7 +160,7 @@ const NotificationsPage = () => {
         }}
       >
         <Typography variant="h5" fontWeight={700}>
-          Thông báo
+          {t("notification")}
         </Typography>
         <Box display="flex" gap={1}>
           <Button
@@ -108,14 +168,14 @@ const NotificationsPage = () => {
             size="small"
             onClick={handleShowAll}
           >
-            Tất cả
+            {t("all")}
           </Button>
           <Button
             variant={filter === "unread" ? "contained" : "outlined"}
             size="small"
             onClick={handleShowUnread}
           >
-            Chưa đọc
+            {t("un_read")}
           </Button>
           {(filter === "all" || filter === "unread") && hasUnread && (
             <Button
@@ -126,7 +186,7 @@ const NotificationsPage = () => {
               onClick={handleMarkAllAsRead}
               sx={{ textTransform: "none", borderRadius: 2, minWidth: 0 }}
             >
-              Đánh dấu tất cả đã đọc
+              {t("read_all")}
             </Button>
           )}
         </Box>
@@ -136,7 +196,7 @@ const NotificationsPage = () => {
         {notifications.length === 0 && !loading && (
           <Box p={8} textAlign="center" color="text.secondary">
             <NotificationsIcon color="disabled" sx={{ fontSize: 50, mb: 2 }} />
-            <Typography>Không có thông báo nào!</Typography>
+            <Typography>{t("no_new_notification")}</Typography>
           </Box>
         )}
 
@@ -145,7 +205,7 @@ const NotificationsPage = () => {
             key={n._id}
             onClick={() => {
               if (!n.is_read) handleMarkAsRead(n._id);
-              if (n.action_url) navigate(`seller/${n.action_url}`);
+              if (n.action_url) navigate(`${n.action_url}`);
             }}
             sx={{
               background: n.is_read
@@ -183,7 +243,7 @@ const NotificationsPage = () => {
                 fontWeight={n.is_read ? 400 : 700}
                 sx={{ maxWidth: "100%" }}
               >
-                {n.title}
+                {n.title?.[currentLanguage]}
               </Typography>
               <Typography
                 variant="body2"
@@ -198,7 +258,7 @@ const NotificationsPage = () => {
                   mb: 0.5,
                 }}
               >
-                {n.message}
+                {n.message?.[currentLanguage]}
               </Typography>
               <Typography variant="caption" color="text.disabled">
                 {(() => {

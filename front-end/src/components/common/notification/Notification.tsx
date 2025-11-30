@@ -15,8 +15,10 @@ import { useState, useEffect, useRef, useContext } from "react";
 import { getNotifications } from "../../../services/notificationService";
 import type { NotificationType } from "../../../types/Notification";
 import { useNavigate } from "react-router-dom";
-import { socket, SOCKET_URL } from "../../../socket/socket";
+import { socket } from "../../../socket/socket";
 import AuthContext from "../../../context/AuthContext";
+import { getLanguage, type Lang } from "../../../utils/storage";
+import { useTranslation } from "react-i18next";
 
 function debounce(fn: (...args: any[]) => void, delay: number) {
   let timer: number;
@@ -37,68 +39,70 @@ const Notification = () => {
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
   const isFetchingRef = useRef(false);
+  const currentLanguage: Lang = getLanguage();
+  const { t } = useTranslation("notification");
 
   const {
     state: { token },
   } = useAuth();
 
   useEffect(() => {
-    console.log("[DEBUG] Token FE dùng cho socket:", token);
-    console.log("[FE] Socket connect tới URL:", SOCKET_URL);
-
-    if (!token) return;
+    if (!token) {
+      setUnreadCount(0);
+      setNotifications([]);
+      setPage(1);
+      if (socket.connected) socket.disconnect();
+      return;
+    }
 
     socket.auth = { token };
     if (!socket.connected) socket.connect();
-    console.log("[DEBUG] Socket.IO connect gọi xong!");
 
-    // Bắt mọi event
-    socket.onAny((event, ...args) => {
-      console.log(`[SOCKET EVENT] ${event}:`, ...args);
-    });
-
-    // Bắt kết nối/thất bại
-    socket.on("connect", () => {
-      console.log("[SOCKET FE] Đã connect BE, socket.id:", socket.id);
-    });
-    socket.on("connect_error", (err) => {
-      console.error("[SOCKET FE] CONNECT ERROR:", err);
-    });
-    socket.on("disconnect", (reason) => {
-      console.warn("[SOCKET FE] disconnect:", reason);
-    });
-
+    // ✅ Gộp tất cả handlers - không đăng ký trùng
     const handleConnect = () => {
+      console.log("[SOCKET FE] Connected, socket.id:", socket.id);
       socket.emit("get_unread_count");
     };
 
+    const handleConnectError = (err: Error) => {
+      console.error("[SOCKET FE] CONNECT ERROR:", err);
+    };
+
+    const handleDisconnect = (reason: string) => {
+      console.warn("[SOCKET FE] disconnect:", reason);
+    };
+
     const handleNewNotification = (notification: NotificationType) => {
-      console.log("[FE] CLIENT nhận new_notification:", notification);
+      console.log("[FE] Received new_notification:", notification);
       setNotifications((prev) => {
         if (prev.some((n) => n._id === notification._id)) return prev;
         return [notification, ...prev];
       });
     };
 
-    const handleUnreadCountUpdate = (data: any) => {
-      console.log("[FE] CLIENT nhận unread_count_update:", data);
+    const handleUnreadCountUpdate = (data: { unreadCount: number }) => {
+      console.log("[FE] Received unread_count_update:", data);
       setUnreadCount(data.unreadCount);
     };
 
+    // ✅ Đăng ký listeners - MỖI CÁI CHỈ 1 LẦN
     socket.on("connect", handleConnect);
+    socket.on("connect_error", handleConnectError);
+    socket.on("disconnect", handleDisconnect);
     socket.on("new_notification", handleNewNotification);
     socket.on("unread_count_update", handleUnreadCountUpdate);
 
+    // ✅ Nếu đã connect trước đó
     if (socket.connected) handleConnect();
 
+    // ✅ Cleanup - GỠ ĐÚNG LISTENERS
     return () => {
       socket.off("connect", handleConnect);
+      socket.off("connect_error", handleConnectError);
+      socket.off("disconnect", handleDisconnect);
       socket.off("new_notification", handleNewNotification);
       socket.off("unread_count_update", handleUnreadCountUpdate);
-      socket.offAny();
-      socket.off("connect");
-      socket.off("connect_error");
-      socket.off("disconnect");
+      // ❌ KHÔNG gọi socket.offAny() hoặc disconnect ở đây
     };
   }, [token]);
 
@@ -111,11 +115,11 @@ const Notification = () => {
   }, [anchorEl]);
 
   useEffect(() => {
-    if (page > 1) fetchNotifications(page, false);
-  }, [page]);
+    if (page > 1 && token) fetchNotifications(page, false);
+  }, [page,token]);
 
   const fetchNotifications = async (page: number, reset = false) => {
-    if (isFetchingRef.current) return;
+    if (isFetchingRef.current || !token) return;
     setLoading(true);
     isFetchingRef.current = true;
     try {
@@ -160,7 +164,7 @@ const Notification = () => {
     }
     handleClose();
     if (notification.action_url) {
-      navigate(`seller/${notification.action_url}`);
+      navigate(`${notification.action_url}`);
     }
   };
 
@@ -175,7 +179,7 @@ const Notification = () => {
       const target = event.target as HTMLUListElement;
       const { scrollTop, scrollHeight, clientHeight } = target;
       if (
-        scrollHeight - scrollTop <= clientHeight + 50 &&
+        scrollHeight - scrollTop <= clientHeight + 150 &&
         !loading &&
         page < totalPages
       ) {
@@ -187,7 +191,7 @@ const Notification = () => {
 
   return (
     <>
-      <Tooltip title="Thông báo">
+      <Tooltip title={t("notification")}>
         <IconButton
           onClick={handleClick}
           sx={{ "&:hover": { backgroundColor: "#1565c0" } }}
@@ -237,7 +241,7 @@ const Notification = () => {
             justifyContent: "space-between",
           }}
         >
-          <Typography>Thông báo</Typography>
+          <Typography>{t("notification")}</Typography>
           <Button
             color="primary"
             size="small"
@@ -247,13 +251,13 @@ const Notification = () => {
               handleClose();
             }}
           >
-            Xem tất cả
+            {t("view_all")}
           </Button>
         </Box>
         {notifications.length === 0 && !loading && (
           <Box sx={{ py: 6, textAlign: "center" }}>
             <Typography color="text.secondary">
-              Không có thông báo mới
+              {t("no_new_notification")}
             </Typography>
           </Box>
         )}
@@ -290,7 +294,7 @@ const Notification = () => {
                 fontWeight={n.is_read ? 400 : 700}
                 sx={{ maxWidth: "100%" }}
               >
-                {n.title}
+                {n.title?.[currentLanguage]}
               </Typography>
               <Typography
                 variant="body2"
@@ -303,7 +307,7 @@ const Notification = () => {
                   WebkitBoxOrient: "vertical",
                 }}
               >
-                {n.message}
+                {n.message?.[currentLanguage]}
               </Typography>
               <Typography variant="caption" color="text.disabled">
                 {formatTime(n.createdAt)}
@@ -334,7 +338,7 @@ const Notification = () => {
               onClick={handleMarkAllAsRead}
               sx={{ textTransform: "none" }}
             >
-              Đánh dấu tất cả là đã đọc
+              {t("read_all")}
             </Button>
           </Box>
         )}

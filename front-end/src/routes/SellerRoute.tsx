@@ -18,7 +18,7 @@ export const SellerRoute = [
     element: <PropertyDetails />,
   },
   {
-    path: "notifications/seller/properties/:id",
+    path: "notifications/properties/:id",
     element: <PropertyDetails />,
   },
   {
