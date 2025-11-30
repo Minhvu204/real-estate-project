@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import type { AgentAppointment } from "@/types/AgentAppointment";
 import { getAllAppointmentsByAgent } from "@/services/agent.service";
 import { getLanguage } from "@/utils/storage";
@@ -6,14 +6,11 @@ import { acceptAppointment } from "@/services/agent.service";
 import { rejectAppointment } from "@/services/agent.service";
 import { toast, Bounce, ToastContainer } from "react-toastify";
 import { useTranslation } from "react-i18next";
-import { Pagination, Stack } from "@mui/material";
 
 const AgentListAppointment = () => {
     const [appointments, setAppointments] = useState<AgentAppointment[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<"pending" | "accepted" | "rejected">("pending");
-    const [page, setPage] = useState(1);
-    const itemsPerPage = 6;
     const language = getLanguage();
     const { t } = useTranslation('bookAppointment');
     const stats = useMemo(() => {
@@ -78,26 +75,9 @@ const AgentListAppointment = () => {
         }
     };
 
-    const filteredAppointments = useMemo(() => {
-        return appointments.filter((a) => a.status === filter);
-    }, [appointments, filter]);
-
-    const paginatedAppointments = useMemo(() => {
-        const startIndex = (page - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        return filteredAppointments.slice(startIndex, endIndex);
-    }, [filteredAppointments, page]);
-
-    const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
-
-    const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
-        setPage(value);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    useEffect(() => {
-        setPage(1);
-    }, [filter]);
+    const filteredAppointments = appointments.filter(
+        (a) => a.status === filter
+    );
 
 
     return (
@@ -159,106 +139,83 @@ const AgentListAppointment = () => {
 
                         </div>
                     ) : (
-                        <>
-                            <div className="grid gap-6 md:grid-cols-2">
-                                {paginatedAppointments.map((appointment) => (
-                                    <article
-                                        key={appointment._id}
-                                        className="flex h-full flex-col gap-4 rounded-3xl bg-white p-6 shadow-lg shadow-slate-200/70 transition hover:-translate-y-1 hover:shadow-xl"
-                                    >
-                                        <div className="flex items-start justify-between gap-3">
-                                            <div>
-                                                <p className="text-xs uppercase tracking-wide text-slate-400">{t('appointment.Real Estate')}</p>
-                                                <h2 className="text-xl font-semibold text-slate-900">{appointment.property_id.title[language]}</h2>
-                                                <p className="text-sm text-slate-500"> {appointment.property_id.address[language]}</p>
-                                            </div>
-                                            <span
-                                                className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${appointment.status === "pending"
-                                                    ? "bg-amber-100 text-amber-700"
-                                                    : appointment.status === "accepted"
-                                                        ? "bg-emerald-100 text-emerald-700"
-                                                        : "bg-rose-100 text-rose-700"
-                                                    }`}
-                                            >
-                                                {appointment.status === "pending" ? t('appointment.pending') : appointment.status === "accepted" ? t('appointment.accepted') : t('appointment.rejected')}
-                                            </span>
+                        <div className="grid gap-6 md:grid-cols-2">
+                            {filteredAppointments.map((appointment) => (
+                                <article
+                                    key={appointment._id}
+                                    className="flex h-full flex-col gap-4 rounded-3xl bg-white p-6 shadow-lg shadow-slate-200/70 transition hover:-translate-y-1 hover:shadow-xl"
+                                >
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div>
+                                            <p className="text-xs uppercase tracking-wide text-slate-400">{t('appointment.Real Estate')}</p>
+                                            <h2 className="text-xl font-semibold text-slate-900">{appointment.property_id.title[language]}</h2>
+                                            <p className="text-sm text-slate-500">📍 {appointment.property_id.address[language]}</p>
                                         </div>
+                                        <span
+                                            className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${appointment.status === "pending"
+                                                ? "bg-amber-100 text-amber-700"
+                                                : appointment.status === "accepted"
+                                                    ? "bg-emerald-100 text-emerald-700"
+                                                    : "bg-rose-100 text-rose-700"
+                                                }`}
+                                        >
+                                            {appointment.status === "pending" ? t('appointment.pending') : appointment.status === "accepted" ? t('appointment.accepted') : t('appointment.rejected')}
+                                        </span>
+                                    </div>
 
-                                        <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm text-slate-600">
-                                            <p className="font-semibold text-slate-700">{t('appointment.customer')}</p>
-                                            <p>{appointment.buyer_id.fullName}</p>
-                                            <p className="text-xs text-slate-500">{appointment.buyer_id.email}</p>
-                                        </div>
+                                    <div className="rounded-2xl border border-slate-100 bg-slate-50/80 p-4 text-sm text-slate-600">
+                                        <p className="font-semibold text-slate-700">{t('appointment.customer')}</p>
+                                        <p>{appointment.buyer_id.fullName}</p>
+                                        <p className="text-xs text-slate-500">{appointment.buyer_id.email}</p>
+                                    </div>
 
-                                        {filter === "pending" ? (
-                                            <div className="flex flex-col gap-3">
-                                                <p className="text-sm font-semibold text-slate-700">{t('appointment.time')}</p>
-                                                {appointment.times.map((timeSlot) => (
-                                                    <div
-                                                        key={timeSlot._id}
-                                                        className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-600"
-                                                    >
-                                                        <div className="flex flex-col gap-1">
-                                                            <span className="font-medium text-slate-800">
-                                                                {new Date(timeSlot.time).toLocaleString()}
-                                                            </span>
-                                                            <span className="text-xs text-slate-500">{timeSlot.note || t('appointment.noNote')}</span>
-                                                        </div>
-                                                        <div className="mt-3 flex flex-wrap gap-2">
-                                                            <button
-                                                                onClick={() => handleAccept(appointment._id, new Date(timeSlot.time))}
-                                                                className="flex-1 rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
-                                                            >
-                                                                {t('appointment.accept')}
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                                <button
-                                                    onClick={() => handleReject(appointment._id)}
-                                                    className="rounded-2xl border border-rose-200 bg-white px-4 py-2 text-sm font-semibold text-rose-600 transition hover:border-rose-300 hover:bg-rose-50"
+                                    {filter === "pending" ? (
+                                        <div className="flex flex-col gap-3">
+                                            <p className="text-sm font-semibold text-slate-700">{t('appointment.time')}</p>
+                                            {appointment.times.map((timeSlot) => (
+                                                <div
+                                                    key={timeSlot._id}
+                                                    className="rounded-2xl border border-slate-100 bg-slate-50 p-4 text-sm text-slate-600"
                                                 >
-                                                    {t('appointment.rejectAppointment')}
-                                                </button>
-                                            </div>
-                                        ) : filter === "accepted" ? (
-                                            <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-700">
-                                                <p className="text-xs uppercase tracking-wide text-emerald-600">{t('appointment.finalTime')}</p>
-                                                <p className="text-lg font-semibold text-emerald-800">
-                                                    {appointment.final_time ? new Date(appointment.final_time).toLocaleString() : t('appointment.updating')}
-                                                </p>
-                                            </div>
-                                        ) : (
-                                            <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4 text-sm text-rose-700">
-                                                <p className="text-xs uppercase tracking-wide text-rose-600">{t('appointment.rejected')}</p>
-                                                <p>{t('appointment.appointmentRejectedNotice')}</p>
-                                            </div>
-                                        )}
-                                    </article>
-                                ))}
-                            </div>
-
-                            {totalPages > 1 && (
-                                <div className="flex justify-center mt-8 pb-4">
-                                    <Stack spacing={2}>
-                                        <Pagination
-                                            count={totalPages}
-                                            page={page}
-                                            onChange={handlePageChange}
-                                            color="primary"
-                                            size="large"
-                                            showFirstButton
-                                            showLastButton
-                                            sx={{
-                                                '& .MuiPaginationItem-root': {
-                                                    fontSize: { xs: '0.875rem', sm: '1rem' },
-                                                },
-                                            }}
-                                        />
-                                    </Stack>
-                                </div>
-                            )}
-                        </>
+                                                    <div className="flex flex-col gap-1">
+                                                        <span className="font-medium text-slate-800">
+                                                            {new Date(timeSlot.time).toLocaleString()}
+                                                        </span>
+                                                        <span className="text-xs text-slate-500">{timeSlot.note || t('appointment.noNote')}</span>
+                                                    </div>
+                                                    <div className="mt-3 flex flex-wrap gap-2">
+                                                        <button
+                                                            onClick={() => handleAccept(appointment._id, new Date(timeSlot.time))}
+                                                            className="flex-1 rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+                                                        >
+                                                            {t('appointment.accept')}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            <button
+                                                onClick={() => handleReject(appointment._id)}
+                                                className="rounded-2xl border border-rose-200 bg-white px-4 py-2 text-sm font-semibold text-rose-600 transition hover:border-rose-300 hover:bg-rose-50"
+                                            >
+                                                {t('appointment.rejectAppointment')}
+                                            </button>
+                                        </div>
+                                    ) : filter === "accepted" ? (
+                                        <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-700">
+                                            <p className="text-xs uppercase tracking-wide text-emerald-600">{t('appointment.finalTime')}</p>
+                                            <p className="text-lg font-semibold text-emerald-800">
+                                                {appointment.final_time ? new Date(appointment.final_time).toLocaleString() : t('appointment.updating')}
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4 text-sm text-rose-700">
+                                            <p className="text-xs uppercase tracking-wide text-rose-600">{t('appointment.rejected')}</p>
+                                            <p>{t('appointment.appointmentRejectedNotice')}</p>
+                                        </div>
+                                    )}
+                                </article>
+                            ))}
+                        </div>
                     )}
                 </section>
             </div>

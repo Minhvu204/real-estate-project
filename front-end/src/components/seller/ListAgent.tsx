@@ -1,17 +1,29 @@
-// Updated ListAgent component with smaller item size, improved CSS, search & filter
-import { useState, useEffect } from 'react'
-import { getAllAgents } from '../../services/seller.service';
+import { useState, useEffect } from 'react';
+import { getAllAgents, assignAgent } from '../../services/seller.service';
 import type { Agent } from '@/types/Agent';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Pagination, PaginationItem, TextField, MenuItem } from '@mui/material';
-import { Card, CardContent, CardMedia, Chip, Typography } from '@mui/material';
-import Grid from '@mui/material/Grid';
+import {
+    Box,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Pagination,
+    TextField,
+    MenuItem,
+    Card,
+    CardContent,
+    CardMedia,
+    Chip,
+    Typography,
+    Grid,
+    CircularProgress
+} from '@mui/material';
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import { useTranslation } from 'react-i18next';
-import { assignAgent } from '../../services/seller.service';
 import { useParams } from 'react-router-dom';
 import { Bounce, ToastContainer, toast } from 'react-toastify';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 const ListAgent = () => {
     const [agents, setAgents] = useState<Agent[]>([]);
@@ -96,196 +108,177 @@ const ListAgent = () => {
     const startIndex = (page - 1) * itemsPerPage;
     const currentAgents = filteredAgents.slice(startIndex, startIndex + itemsPerPage);
 
-    if (loading)
-        return <p className="text-center text-gray-500 mt-10">{t('listAgents:loading')}</p>;
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+                <CircularProgress size={60} />
+            </Box>
+        );
+    }
 
     return (
-        <Box
-            className="min-h-screen"
-            sx={{
-                backgroundImage: 'linear-gradient(180deg, #eef2ff 0%, #f8fbff 50%, #ffffff 100%)',
-                py: { xs: 3, md: 6 },
-                px: { xs: 2, md: 6 },
-            }}
-        >
-            <Typography
-                variant="h4"
-                fontWeight={700}
-                className="text-gray-800 text-center sm:text-left"
-                sx={{ mb: 1 }}
-            >
-                {t('agentList')}
-            </Typography>
-            <Typography
-                variant="body1"
-                color="text.secondary"
-                sx={{ mb: 5, maxWidth: 620 }}
-            >
-                {t('listAgents:description', { defaultValue: 'Chọn chuyên viên phù hợp để theo sát giao dịch và hỗ trợ người bán nhanh chóng.' })}
-            </Typography>
-
-            <Box
-                className="flex flex-col sm:flex-row gap-3"
-                sx={{
-                    mb: 5,
-                    p: { xs: 2, md: 3 },
-                    borderRadius: 3,
-                    boxShadow: '0 25px 60px rgba(15,23,42,0.08)',
-                    bgcolor: 'rgba(255,255,255,0.9)',
-                    backdropFilter: 'blur(6px)',
-                }}
-            >
-                <TextField
-                    label={t('listAgents:findAgents')}
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-
-                <TextField
-                    select
-                    label={t('status')}
-                    size="small"
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    sx={{ minWidth: { xs: '100%', sm: 200 } }}
-                >
-                    <MenuItem value="all">{t('listAgents:allStatus')}</MenuItem>
-                    <MenuItem value="active">{t('listAgents:active')}</MenuItem>
-                    <MenuItem value="inactive">{t('listAgents:inactive')}</MenuItem>
-                </TextField>
-            </Box>
-
-            {currentAgents.length === 0 && (
-                <Box
-                    sx={{
-                        borderRadius: 3,
-                        p: 5,
-                        textAlign: 'center',
-                        bgcolor: 'rgba(255,255,255,0.95)',
-                        boxShadow: '0 35px 65px rgba(15,23,42,0.15)',
-                    }}
-                >
-                    <Typography variant="h6" fontWeight="bold" gutterBottom>
-                        {t('listAgents:noResultTitle', { defaultValue: 'Không tìm thấy chuyên viên phù hợp' })}
+        <Box sx={{ minHeight: '100vh', bgcolor: '#f5f5f5', py: 4, px: { xs: 2, md: 4 } }}>
+            <Box sx={{ maxWidth: 1400, mx: 'auto' }}>
+                {/* Header */}
+                <Box sx={{ textAlign: 'center', mb: 4 }}>
+                    <Typography variant="h4" fontWeight="bold" color="primary" gutterBottom>
+                        {t('agentList')}
                     </Typography>
-                    <Typography color="text.secondary">
-                        {t('listAgents:noResultDesc', { defaultValue: 'Hãy thay đổi từ khóa tìm kiếm hoặc trạng thái hoạt động để có thêm kết quả.' })}
+                    <Typography variant="body1" color="text.secondary">
+                        {t('listAgents:description', { defaultValue: 'Chọn chuyên viên phù hợp để theo sát giao dịch và hỗ trợ người bán nhanh chóng.' })}
                     </Typography>
                 </Box>
-            )}
 
-            <Grid container spacing={{ xs: 2, md: 3 }}>
-                {currentAgents.map((agent) => (
-                    <Grid size={{ xs: 12, md: 4, sm: 6 }} key={agent._id}>
-                        <Card
-                            sx={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                borderRadius: 4,
-                                p: 3,
-                                height: '100%',
-                                position: 'relative',
-                                boxShadow: '0 25px 55px rgba(15,23,42,0.12)',
-                                border: '1px solid rgba(99,102,241,0.12)',
-                                background: 'linear-gradient(160deg, #ffffff 0%, #f9fbff 100%)',
-                                transition: 'transform 250ms ease, box-shadow 250ms ease',
-                                '&:hover': {
-                                    transform: 'translateY(-6px)',
-                                    boxShadow: '0 35px 70px rgba(99,102,241,0.25)',
-                                },
-                            }}
-                        >
-                            <CardMedia
-                                component="img"
-                                image={agent.avatar || '/defaultUser.png'}
-                                alt={agent.fullName}
+                {/* Filter Section */}
+                <Box sx={{ mb: 4, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+                    <TextField
+                        label={t('listAgents:findAgents')}
+                        variant="outlined"
+                        size="small"
+                        fullWidth
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        sx={{ bgcolor: 'white' }}
+                    />
+                    <TextField
+                        select
+                        label={t('status')}
+                        size="small"
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        sx={{ minWidth: { xs: '100%', sm: 200 }, bgcolor: 'white' }}
+                    >
+                        <MenuItem value="all">{t('listAgents:allStatus')}</MenuItem>
+                        <MenuItem value="active">{t('listAgents:active')}</MenuItem>
+                        <MenuItem value="inactive">{t('listAgents:inactive')}</MenuItem>
+                    </TextField>
+                </Box>
+
+                {/* No Results */}
+                {currentAgents.length === 0 && (
+                    <Box sx={{ textAlign: 'center', py: 8, bgcolor: 'white', borderRadius: 2 }}>
+                        <Typography variant="h6" color="text.secondary" gutterBottom>
+                            {t('listAgents:noResultTitle', { defaultValue: 'Không tìm thấy chuyên viên phù hợp' })}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            {t('listAgents:noResultDesc', { defaultValue: 'Hãy thay đổi từ khóa tìm kiếm hoặc trạng thái hoạt động để có thêm kết quả.' })}
+                        </Typography>
+                    </Box>
+                )}
+
+                {/* Agent Cards */}
+                <Grid container spacing={3}>
+                    {currentAgents.map((agent) => (
+                        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={agent._id}>
+                            <Card
                                 sx={{
-                                    width: 90,
-                                    height: 90,
-                                    borderRadius: '50%',
-                                    objectFit: 'cover',
-                                    mb: 1.5,
-                                    border: '3px solid rgba(99,102,241,0.35)',
-                                    boxShadow: '0 15px 35px rgba(15,23,42,0.25)',
-                                }}
-                            />
-
-                            <Chip label={agent.role?.toUpperCase() || 'AGENT'} color="warning" size="small" sx={{ mb: 1 }} />
-
-                            <Typography variant="subtitle1" fontWeight="bold" align="center">{agent.fullName}</Typography>
-                            <Typography variant="body2" color="text.secondary" align="center">{agent.email}</Typography>
-
-                            {agent.phone && (
-                                <Typography variant="body2" className="text-gray-600 flex items-center gap-1" sx={{ mt: 0.5 }}>
-                                    <LocalPhoneIcon fontSize="small" /> {agent.phone}
-                                </Typography>
-                            )}
-
-                            <Typography
-                                variant="caption"
-                                sx={{
-                                    mt: 1,
-                                    px: 1.5,
-                                    py: 0.5,
-                                    borderRadius: 999,
-                                    fontWeight: 600,
-                                    textTransform: 'uppercase',
-                                    letterSpacing: 0.5,
-                                    bgcolor: agent.isActive ? 'rgba(16,185,129,0.15)' : 'rgba(248,113,113,0.15)',
-                                    color: agent.isActive ? '#047857' : '#b91c1c',
+                                    height: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    p: 3,
+                                    transition: 'transform 0.2s, box-shadow 0.2s',
+                                    '&:hover': {
+                                        transform: 'translateY(-4px)',
+                                        boxShadow: 4,
+                                    },
                                 }}
                             >
-                                {agent.isActive ? t('listAgents:active') : t('listAgents:inactive')}
-                            </Typography>
-
-                            <CardContent sx={{ display: 'flex', justifyContent: 'center', width: '100%', mt: 2 }}>
-                                <Button
-                                    fullWidth
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={() => handleOpenConfirm(agent)}
+                                <CardMedia
+                                    component="img"
+                                    image={agent.avatar || '/defaultUser.png'}
+                                    alt={agent.fullName}
                                     sx={{
-                                        borderRadius: 2,
-                                        textTransform: 'none',
-                                        height: 44,
-                                        fontWeight: 600,
-                                        boxShadow: '0 15px 35px rgba(59,130,246,0.35)',
+                                        width: 100,
+                                        height: 100,
+                                        borderRadius: '50%',
+                                        objectFit: 'cover',
+                                        mb: 2,
+                                        border: '3px solid',
+                                        borderColor: 'primary.main',
                                     }}
-                                >
-                                    {t('listAgents:assignAgent')}
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    </Grid>
-                ))}
-            </Grid>
+                                />
 
-            {currentAgents.length > 0 && (
-                <Box className="flex justify-center items-center mt-8">
-                    <Pagination count={totalPages} onChange={handleChangePage} renderItem={(item) => (
-                        <PaginationItem slots={{ previous: ArrowBackIcon, next: ArrowForwardIcon }} {...item} />
-                    )} />
-                </Box>
-            )}
+                                <Chip
+                                    label={agent.role?.toUpperCase() || 'AGENT'}
+                                    color="warning"
+                                    size="small"
+                                    sx={{ mb: 1, fontWeight: 'bold' }}
+                                />
 
-            <Dialog open={openConfirm} onClose={() => setOpenConfirm(false)}>
-                <DialogTitle>{t('listAgents:titileConfirmAssign')}</DialogTitle>
+                                <Typography variant="h6" fontWeight="bold" align="center" gutterBottom>
+                                    {agent.fullName}
+                                </Typography>
+
+                                <Typography variant="body2" color="text.secondary" align="center" sx={{ mb: 1 }}>
+                                    {agent.email}
+                                </Typography>
+
+                                {agent.phone && (
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                                        <LocalPhoneIcon fontSize="small" color="primary" />
+                                        <Typography variant="body2">{agent.phone}</Typography>
+                                    </Box>
+                                )}
+
+                                <Chip
+                                    label={agent.isActive ? t('listAgents:active') : t('listAgents:inactive')}
+                                    color={agent.isActive ? 'success' : 'error'}
+                                    size="small"
+                                    sx={{ mb: 2 }}
+                                />
+
+                                <CardContent sx={{ width: '100%', p: 0, '&:last-child': { pb: 0 } }}>
+                                    <Button
+                                        fullWidth
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={() => handleOpenConfirm(agent)}
+                                        sx={{ textTransform: 'none', fontWeight: 'bold' }}
+                                    >
+                                        {t('listAgents:assignAgent')}
+                                    </Button>
+                                </CardContent>
+                            </Card>
+                        </Grid>
+                    ))}
+                </Grid>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                        <Pagination
+                            count={totalPages}
+                            page={page}
+                            onChange={handleChangePage}
+                            color="primary"
+                            size="large"
+                            showFirstButton
+                            showLastButton
+                        />
+                    </Box>
+                )}
+            </Box>
+
+            {/* Confirm Dialog */}
+            <Dialog open={openConfirm} onClose={() => setOpenConfirm(false)} maxWidth="sm" fullWidth>
+                <DialogTitle sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                    {t('listAgents:titileConfirmAssign')}
+                </DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
-                        {t('listAgents:confirmAssign')}
-                    </DialogContentText>
+                    <DialogContentText>{t('listAgents:confirmAssign')}</DialogContentText>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenConfirm(false)} color="inherit">{t('listAgents:cancel')}</Button>
-                    <Button onClick={handleConfirmAssign} color="primary" variant="contained">{t('listAgents:confirm')}</Button>
+                <DialogActions sx={{ p: 2, gap: 1 }}>
+                    <Button onClick={() => setOpenConfirm(false)} variant="outlined">
+                        {t('listAgents:cancel')}
+                    </Button>
+                    <Button onClick={handleConfirmAssign} variant="contained" color="primary">
+                        {t('listAgents:confirm')}
+                    </Button>
                 </DialogActions>
             </Dialog>
 
-            <ToastContainer position="top-right" autoClose={5000} theme="light" transition={Bounce} />
+            <ToastContainer position="top-right" autoClose={3000} theme="light" transition={Bounce} />
         </Box>
     );
 };

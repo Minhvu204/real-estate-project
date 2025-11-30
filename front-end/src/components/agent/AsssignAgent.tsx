@@ -129,7 +129,7 @@ const AssignAgentPage = () => {
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
             <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
                 <div className="mb-8">
-                     <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">{t('assignAgent:assignAgent')}</h1>
+                    <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-2">{t('assignAgent:assignAgent')}</h1>
                     <p className="text-slate-600 text-sm sm:text-base">{t('assignAgent:manageRequests')}</p>
 
                 </div>

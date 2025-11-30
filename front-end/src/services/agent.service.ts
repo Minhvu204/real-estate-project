@@ -5,6 +5,7 @@ import type { AssignAgent } from "@/types/AsssignAgents";
 import { httpClient } from "../utils/httpClient";
 import type { AgentAppointment } from "@/types/AgentAppointment";
 import { http } from './api';
+import type { Property } from '@/types/Property';
 
 const RESOURCE = "/agent";
 export const getAllAssignments = async (): Promise<AssignAgent[]> => {
@@ -62,6 +63,17 @@ export const rejectAppointment = async (appointmentId: string) => {
         throw error;
     }
 }
+
+export const getPropertiesNoAgent = async (): Promise<Property[]> => {
+    try {
+        const response = await httpClient.get(`${RESOURCE}/properties/no-agent`);
+        return response.data.data;
+    } catch (error) {
+        console.log("Cannot get properties with no agent");
+        throw error
+    }
+}
+
 export const requestJoinProperty = async (propertyId: string, owner_id: string) => {
     try {
         const response = await httpClient.post(`${RESOURCE}/properties/${propertyId}/request-manage`, {
