@@ -381,7 +381,6 @@ const PropertyDetailUser = () => {
                     {t("updatedOn")}: {new Date(property.updatedAt).toLocaleDateString()}
                 </Typography>
             </Grid >
-
             {/* Dialog cho agent/seller */}
             <Dialog
                 open={restrictionDialogOpen}
