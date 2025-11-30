@@ -1,15 +1,17 @@
 {
     "createProperty": {
+        "step": "Step",
+        "subtitle": "List your property in minutes",
+        "pageTitle": "Create New Property",
         "steps": {
             "1": "Property Info",
-            "2": "Features",
-            "3": "Images"
+            "2": "Images"
         },
         "alerts": {
             "missingRequired": "Please fill in all required information (City, Category, Transaction Type)!",
             "createSuccess": "Property created successfully!",
-            "createError": "Error creating property: {{message}}",
-            "startNew": "Bạn có thể bắt đầu tạo tin mới!"
+            "createError": "Error creating property",
+            "startNew": "You can start creating a new listing!"
         },
         "buttons": {
             "next": "Next",
@@ -18,7 +20,7 @@
             "upload": "Upload Images",
             "viewList": "View My Listings",
             "createAnother": "Create Another Listing",
-            "createNew": "Tạo tin mới"
+            "createNew": "Create New Listing"
         },
         "fields": {
             "title": "Title",
@@ -52,7 +54,8 @@
         "stepsHeader": {
             "completed": "✓",
             "current": "Step {{number}}"
-        }
+        },
+        "pageTitle": "Dwello: Create Property"
     },
     "formProperty": {
         "title": "Title",
@@ -62,6 +65,8 @@
         "bathrooms": "Bathrooms",
         "bedrooms": "Bedrooms",
         "city": "City",
+        "district": "District",
+        "ward": "Ward",
         "category": "Category",
         "area": "Area",
         "unit": "Unit",
@@ -72,6 +77,8 @@
         "errorFetch": "Failed to load property taxonomies",
         "alertMissing": "Please fill in all required fields!",
         "formTitle": "Property Information",
+        "formSubtitle": "Fill in the details about your property",
+        "yearBuilt": "Year Built",
         "placeholder": {
             "title": "Eg: Riverside homestay",
             "price": "Eg: 10000000",
@@ -79,12 +86,15 @@
             "bathrooms": "Eg: 2",
             "bedrooms": "Eg: 3",
             "area": "Eg: 100",
-            "floors": "Eg: 2"
+            "floors": "Eg: 2",
+            "yearBuilt": "Eg: 2020"
         },
         "select": {
             "city": "Select city",
             "category": "Select category",
-            "type": "Select transaction type"
+            "type": "Select transaction type",
+            "district": "Select district",
+            "ward": "Select ward"
         },
         "units": {
             "m2": "m²",
@@ -93,7 +103,18 @@
         "warnings": {
             "required": "This field is required",
             "fetchFail": "Failed to load property taxonomies"
-        }
+        },
+        "apartmentInfo": {
+            "floorNumber": "Tầng căn hộ",
+            "buildingBlock": "Tháp / Khu",
+            "apartmentNumber": "Số căn hộ",
+            "placeholder": {
+                "floorNumber": "VD: 12A",
+                "buildingBlock": "VD: A1, B2",
+                "apartmentNumber": "VD: 1205"
+            }
+        },
+        "autoDescription": "Auto Description"
     },
     "selectFeatures": {
         "title": "Select Property Features",
@@ -106,10 +127,16 @@
     },
     "selectImages": {
         "title": "Select Property Images",
-        "subtitle": "Select images (up to 10) - Selected: {{count}}/10",
-        "dragText": "Drag and drop images here or",
-        "chooseFile": "choose files",
+        "subtitle": "Selected: {{count}}/10 images",
+        "dragText": "Drag and drop images here",
+        "chooseFile": "Browse Files",
         "alertEmpty": "Please select at least one image!",
-        "finish": "Finish"
+        "finish": "Complete & Submit",
+        "submitting": "Submitting...",
+        "maxFiles": "Max 10 files",
+        "preview": "Preview",
+        "limitReached": "Limit reached",
+        "primary": "Main",
+        "remove": "Remove image"
     }
 }

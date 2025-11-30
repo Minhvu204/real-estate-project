@@ -1,4 +1,4 @@
-export interface User {
+export type User = {
   id: string;
   fullName: string;
   email: string;
@@ -8,7 +8,7 @@ export interface User {
   password?: string; 
 }
 
-export interface UpdateProfileDto {
+export type UpdateProfileDto = {
   fullName?: string;
   email?: string;
   phone?: string;
@@ -16,7 +16,7 @@ export interface UpdateProfileDto {
   avatar?: File;
 }
 
-export interface ChangePasswordDto {
+export type ChangePasswordDto = {
   oldPassword: string;
   newPassword: string;
   confirmPassword: string;

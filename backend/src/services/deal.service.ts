@@ -6,6 +6,7 @@ import { notifyDealCreated } from "../utils/notificationHelper";
 
 
 const toObjectId = (id: string) => new mongoose.Types.ObjectId(id);
+const CONTRACT_UPLOADABLE_DEAL_STATUSES: DealStatus[] = ["awaiting_contract", "contract_under_review"];
 
 const calculateFees = (amount: number) => {
   const platformFeeRate = Number(process.env.DEFAULT_PLATFORM_FEE_RATE ?? 0) / 100;

@@ -31,5 +31,11 @@
   "Rejected": "Rejected",
   "text-ManageProperties": "Manage Properties",
   "approve": "Approve",
-  "reject": "Reject"
+  "reject": "Reject",
+  "createProperty": "Create Property",
+  "notHaveProperty": "No properties found.",
+  "haveAgent": "Have Agent",
+  "currentAgent": "Current Agent",
+  "allStatus" : "All",
+  "assignAgent": "Assign Agent"
 }

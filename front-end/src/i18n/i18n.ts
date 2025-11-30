@@ -1,7 +1,7 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import HOME_EN from "../locales/en/sellerPage.json";
-import HOME_VI from "../locales/VI/sellerPage.json";
+import HOME_VI from "../locales/vi/sellerPage.json";
 import PROPERTY_PAGE_EN from "../locales/en/propertyPage.json";
 import PROPERTY_PAGE_VI from "../locales/VI/propertyPage.json";
 import PROPERTY_DETAIl_EN from "../locales/en/propertyDetail.json";
@@ -15,6 +15,8 @@ import PROFILE_EN from "../locales/en/profile.json";
 import PROFILE_VI from "../locales/vi/profile.json";
 import MY_PROPERTIES_EN from "../locales/en/myProperties.json";
 import MY_PROPERTIES_VI from "../locales/vi/myProperties.json";
+import BUYER_MY_PROPERTIES_EN from "../locales/en/buyerMyProperties.json";
+import BUYER_MY_PROPERTIES_VI from "../locales/vi/buyerMyProperties.json";
 import CREATEPROPERTYPAGE_EN from "../locales/en/createPropertyPage.json";
 import CREATEPROPERTYPAGE_VI from "../locales/vi/createPropertyPage.json";
 import ADDRESSAUTOCOMPLETE_EN from "../locales/en/addressAutocomplete.json";
@@ -23,6 +25,20 @@ import LIST_PROPERTIES_ADMIN_EN from "../locales/en/listProperties.json";
 import LIST_PROPERTIES_ADMIN_VI from "../locales/vi/listProperties.json";
 import DETAIL_PROPERTIES_ADMIN_EN from "../locales/en/detailProperty.json";
 import DETAIL_PROPERTIES_ADMIN_VI from "../locales/vi/detailProperty.json";
+import LIST_AGENTS_EN from "../locales/en/listAgents.json";
+import LIST_AGENTS_VI from "../locales/vi/listAgents.json";
+import AGENT_LIST_EN from "../locales/en/agentList.json";
+import AGENT_LIST_VI from "../locales/vi/agentList.json";
+import AGENT_DETAIL_EN from "../locales/en/agentDetail.json";
+import AGENT_DETAIL_VI from "../locales/vi/agentDetail.json";
+import OFFER_MANAGEMENT_EN from "../locales/en/offerManagement.json";
+import OFFER_MANAGEMENT_VI from "../locales/vi/offerManagement.json";
+import FAVORITE_EN from "../locales/en/favorite.json";
+import FAVORITE_VI from "../locales/vi/favorite.json";
+import DEAL_CONTRACT_EN from "../locales/en/dealContract.json";
+import DEAL_CONTRACT_VI from "../locales/vi/dealContract.json";
+import AUTH_VI from "../locales/vi/auth.json";
+import AUTH_EN from "../locales/en/auth.json";
 import CONTRACT_ADMIN_EN from "../locales/en/contract.json";
 import CONTRACT_ADMIN_VI from "../locales/vi/contract.json";
 import DEAL_ADMIN_EN from "../locales/en/deal.json";
@@ -42,10 +58,18 @@ export const resources = {
         taxonomies: TAXONOMIES_EN,
         profile: PROFILE_EN,
         myProperties: MY_PROPERTIES_EN,
+        buyerMyProperties: BUYER_MY_PROPERTIES_EN,
         createPropertyPage: CREATEPROPERTYPAGE_EN,
         addressAutocomplete: ADDRESSAUTOCOMPLETE_EN,
         listProperties: LIST_PROPERTIES_ADMIN_EN,
         detailProperty: DETAIL_PROPERTIES_ADMIN_EN,
+        listAgents: LIST_AGENTS_EN,
+        agentList: AGENT_LIST_EN,
+        agentDetail: AGENT_DETAIL_EN,
+        offerManagement: OFFER_MANAGEMENT_EN,
+        favorite: FAVORITE_EN,
+        dealContact: DEAL_CONTRACT_EN,
+        auth: AUTH_EN,
         contract: CONTRACT_ADMIN_EN,
         deal: DEAL_ADMIN_EN,
         payment: PAYMENT_ADMIN_EN,
@@ -60,10 +84,18 @@ export const resources = {
         taxonomies: TAXONOMIES_VI,
         profile: PROFILE_VI,
         myProperties: MY_PROPERTIES_VI,
+        buyerMyProperties: BUYER_MY_PROPERTIES_VI,
         createPropertyPage: CREATEPROPERTYPAGE_VI,
         addressAutocomplete: ADDRESSAUTOCOMPLETE_VI,
         listProperties: LIST_PROPERTIES_ADMIN_VI,
         detailProperty: DETAIL_PROPERTIES_ADMIN_VI,
+        favorite: FAVORITE_VI,
+        listAgents: LIST_AGENTS_VI,
+        agentList: AGENT_LIST_VI,
+        agentDetail: AGENT_DETAIL_VI,
+        offerManagement: OFFER_MANAGEMENT_VI,
+        dealContact: DEAL_CONTRACT_VI,
+        auth: AUTH_VI,
         contract: CONTRACT_ADMIN_VI,
         deal: DEAL_ADMIN_VI,
         payment: PAYMENT_ADMIN_VI,
@@ -71,7 +103,7 @@ export const resources = {
         review: REVIEW_ADMIN_VI
     }
 };
-export const defaultNS = 'home';
+export const defaultNS = "home";
 i18n
     .use(LanguageDetector)
     .use(initReactI18next)
@@ -79,7 +111,7 @@ i18n
         {
             debug: true,
             resources,
-            ns: ["home", "properties", "propertyPage", "propertyDetail", "profile", "myProperties", 'createPropertyPage', 'addressAutocomplete','contract','deal','payment','notification','review'],     //add các namespace khi viết thêm ở trên vào mảng này
+            ns: ["home", "properties", "propertyPage", "propertyDetail", "profile", "myProperties", "buyerMyProperties", 'createPropertyPage', 'addressAutocomplete', 'favorite', 'offerManagement', 'listAgents', 'agentList', 'agentDetail','contract','deal','payment','notification','review'],     //add các namespace khi viết thêm ở trên vào mảng này
             defaultNS,
             fallbackLng: 'en',
             detection: {

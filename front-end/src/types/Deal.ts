@@ -1,118 +1,132 @@
-import type { Offer } from "./Offer";
-
 export type Deal = {
-  _id: string;
-  property_id: {
     _id: string;
-    title: {
-      vi: string;
-      en: string;
+
+    property_id: {
+        title: {
+            vi: string;
+            en: string;
+        };
+        description: {
+            vi: string;
+            en: string;
+        };
+        address: {
+            vi: string;
+            en: string;
+        };
+        coordinates: {
+            type: string;
+            coordinates: [number, number];
+        };
+        _id: string;
+        price: number;
+        bedrooms: number;
+        bathrooms: number;
+        area: number;
+        unit: string;
+        floors: number;
+        city_id: string;
+        district_id: string;
+        ward_id: string;
+        type_id: string;
+        category_id: string;
+        owner_id: string;
+        features: string[];
+        images: string[];
+        status: string;
+        deleted: boolean;
+        assignmentHistory: {
+            agent_id: string;
+            assignedBy: string;
+            action: string;
+            assignedAt: string;
+            _id: string;
+        }[];
+        createdAt: string;
+        updatedAt: string;
+        __v: number;
+        reviewedAt: string;
+        reviewedBy: string;
+        agent_id: string;
     };
-    description: {
-      vi: string;
-      en: string;
+
+    offer_id: {
+        _id: string;
+        property_id: string;
+        buyer_id: string;
+        seller_id: string;
+        agent_id: string;
+        amount: number;
+        currency: string;
+        note: string;
+        status: string;
+        attachments: string[];
+        meta: Record<string, any>;
+        createdAt: string;
+        updatedAt: string;
+        __v: number;
+        forwarded_at: string;
+        reviewed_at: string;
+        reviewed_by: string;
     };
-    price: number;
-    address: {
-      vi: string;
-      en: string;
+
+    buyer_id: {
+        _id: string;
+        fullName: string;
+        email: string;
+        password: string;
+        role: string;
+        isActive: boolean;
+        createdAt: string;
+        updatedAt: string;
+        __v: number;
+        phone: string;
+        avatar: string;
     };
-    bedrooms: number;
-    bathrooms: number;
-    area?: number;
-    unit?: string;
-    yearBuilt?: number;
-    floors?: number;
-    coordinates?: {
-      lat: number;
-      lng: number;
+
+    seller_id: {
+        _id: string;
+        fullName: string;
+        email: string;
+        password: string;
+        role: string;
+        isActive: boolean;
+        createdAt: string;
+        updatedAt: string;
+        __v: number;
+        phone: string;
+        avatar: string;
     };
-    city_id?: {
-      _id: string;
-      city_name: {
-        vi: string;
-        en: string;
-      };
+
+    agent_id: {
+        _id: string;
+        fullName: string;
+        email: string;
+        password: string;
+        role: string;
+        isActive: boolean;
+        createdAt: string;
+        updatedAt: string;
+        __v: number;
+        phone: string;
+        avatar: string;
     };
-    type_id?: {
-      _id: string;
-      type_name: {
-        vi: string;
-        en: string;
-      };
-    };
-    category_id?: {
-      _id: string;
-      category_name: {
-        vi: string;
-        en: string;
-      };
-    };
-    owner_id?: {
-      _id: string;
-      fullName: string;
-      email: string;
-      phone?: string;
-      avatar?: string;
-    };
-    agent_id?: {
-      _id: string;
-      fullName: string;
-      email: string;
-      phone?: string;
-      avatar?: string;
-    };
-    features?: {
-      _id: string;
-      feature_name: {
-        vi: string;
-        en: string;
-      };
-    }[];
-    images: string[];
+
     status: string;
-    hiddenNote: string;
-    deleted: boolean;
-    assignmentHistory: any[];
+
+    amounts: {
+        agreed_price: number;
+        currency: string;
+        platform_fee: number;
+        agent_fee: number;
+        seller_payout: number;
+    };
+
+    audit: {
+        created_from_offer_at: string;
+    };
+
     createdAt: string;
     updatedAt: string;
-    publishedAt?: string;
-    reviewedAt?: string;
-    reviewedBy?: string;
-  };
-  agent_id?: {
-    _id: string;
-    fullName: string;
-    email: string;
-    phone?: string;
-    avatar?: string;
-  };
-  buyer_id: {
-    _id: string;
-    fullName: string;
-    email: string;
-    phone?: string;
-    avatar?: string;
-  };
-  seller_id: {
-    _id: string;
-    fullName: string;
-    email: string;
-    phone?: string;
-    avatar?: string;
-  };
-  amounts: {
-    agreed_price: number;
-    currency: string;
-    platform_fee: number;
-    agent_fee: number;
-    seller_payout: number;
-  };
-  audit: {
-    created_from_offer_at: Date;
-  };
-  offer_id: Offer;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
+    __v: number;
 };

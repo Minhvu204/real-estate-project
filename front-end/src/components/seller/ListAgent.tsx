@@ -2,23 +2,24 @@
 import { useState, useEffect } from 'react'
 import { getAllAgents } from '../../services/seller.service';
 import type { Agent } from '@/types/Agent';
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Pagination, PaginationItem, TextField, MenuItem } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Pagination, PaginationItem, TextField, MenuItem, IconButton } from '@mui/material';
 import { Card, CardContent, CardMedia, Chip, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import { useTranslation } from 'react-i18next';
 import { assignAgent } from '../../services/seller.service';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Bounce, ToastContainer, toast } from 'react-toastify';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { getLanguage } from '@/utils/storage';
 
 const ListAgent = () => {
     const [agents, setAgents] = useState<Agent[]>([]);
     const [loading, setLoading] = useState(true);
-    const { t } = useTranslation('home');
+    const { t } = useTranslation(['listAgents']);
     const { id: propertyId } = useParams();
-
+    const navigate = useNavigate();
     const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
     const [openConfirm, setOpenConfirm] = useState(false);
     const [page, setPage] = useState(1);
@@ -61,7 +62,7 @@ const ListAgent = () => {
         try {
             const data = await assignAgent(propertyId, selectedAgent._id);
             console.log(data);
-            toast.success('Gán môi giới thành công!');
+            toast.success(t('listAgents:succesessAssign'));
         } catch (error: any) {
             if (error.response) {
                 const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Có lỗi xảy ra';
@@ -71,13 +72,13 @@ const ListAgent = () => {
                     message: errorMessage,
                     data: error.response.data
                 });
-                toast.error(`Lỗi ${statusCode}: ${errorMessage}`);
+                toast.error(t('listAgents:failAssign'));
             } else if (error.request) {
                 console.error('Request error:', error.request);
-                alert('Không nhận được phản hồi từ server.');
+
             } else {
                 console.error('Other error:', error.message);
-                alert(`Lỗi: ${error.message}`);
+
             }
         } finally {
             setOpenConfirm(false);
@@ -85,7 +86,7 @@ const ListAgent = () => {
         }
     };
 
-    // FILTER + SEARCH
+
     const filteredAgents = agents.filter(a => {
         const matchesSearch = a.fullName.toLowerCase().includes(search.toLowerCase()) || a.email.toLowerCase().includes(search.toLowerCase());
         const matchesStatus = statusFilter === 'all' ? true : statusFilter === 'active' ? a.isActive : !a.isActive;
@@ -97,17 +98,33 @@ const ListAgent = () => {
     const currentAgents = filteredAgents.slice(startIndex, startIndex + itemsPerPage);
 
     if (loading)
-        return <p className="text-center text-gray-500 mt-10">Đang tải dữ liệu...</p>;
+        return <p className="text-center text-gray-500 mt-10">{t('listAgents:loading')}</p>;
 
     return (
         <Box className="p-6 bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen">
+            {/* Back button for mobile/responsive */}
+            <Box sx={{ mb: 2, display: { xs: 'block', md: 'none' } }}>
+                <IconButton
+                    onClick={() => navigate(`/seller/properties/${propertyId}`)}
+                    sx={{
+                        backgroundColor: 'white',
+                        boxShadow: 1,
+                        '&:hover': {
+                            backgroundColor: 'grey.100',
+                        },
+                    }}
+                >
+                    <ArrowBackIcon />
+                </IconButton>
+            </Box>
+
             <Typography variant="h5" fontWeight="bold" className="mb-6 text-gray-800 text-center sm:text-left">
-                Danh sách Agent
+                {t('agentList')}
             </Typography>
 
             <Box className="flex flex-col sm:flex-row gap-2 mb-4 max-w-3xl mx-auto">
                 <TextField
-                    label="Tìm kiếm agent..."
+                    label={t('listAgents:findAgents')}
                     variant="outlined"
                     size="small"
                     fullWidth
@@ -117,15 +134,15 @@ const ListAgent = () => {
 
                 <TextField
                     select
-                    label="Trạng thái"
+                    label={t('status')}
                     size="small"
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
                     fullWidth
                 >
-                    <MenuItem value="all">Tất cả</MenuItem>
-                    <MenuItem value="active">Đang hoạt động</MenuItem>
-                    <MenuItem value="inactive">Ngưng hoạt động</MenuItem>
+                    <MenuItem value="all">{t('listAgents:allStatus')}</MenuItem>
+                    <MenuItem value="active">{t('listAgents:active')}</MenuItem>
+                    <MenuItem value="inactive">{t('listAgents:inactive')}</MenuItem>
                 </TextField>
             </Box>
 
@@ -162,12 +179,12 @@ const ListAgent = () => {
                             )}
 
                             <Typography variant="body2" className={agent.isActive ? 'text-green-600' : 'text-red-500'}>
-                                {agent.isActive ? 'Đang hoạt động' : 'Ngưng hoạt động'}
+                                {agent.isActive ? t('listAgents:active') : t('listAgents:inactive')}
                             </Typography>
 
                             <CardContent sx={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                                 <Button variant="contained" color="primary" onClick={() => handleOpenConfirm(agent)} sx={{ borderRadius: 2, textTransform: 'none', height: 38 }}>
-                                    {t('insideProperty.assignAgent')}
+                                    {t('listAgents:assignAgent')}
                                 </Button>
                             </CardContent>
                         </Card>
@@ -184,15 +201,15 @@ const ListAgent = () => {
             )}
 
             <Dialog open={openConfirm} onClose={() => setOpenConfirm(false)}>
-                <DialogTitle>Xác nhận chỉ định</DialogTitle>
+                <DialogTitle>{t('listAgents:titileConfirmAssign')}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Bạn có chắc chắn muốn chỉ định agent <strong>{selectedAgent?.fullName}</strong> cho bất động sản này không?
+                        {t('listAgents:confirmAssign')}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenConfirm(false)} color="inherit">Hủy</Button>
-                    <Button onClick={handleConfirmAssign} color="primary" variant="contained">Xác nhận</Button>
+                    <Button onClick={() => setOpenConfirm(false)} color="inherit">{t('listAgents:cancel')}</Button>
+                    <Button onClick={handleConfirmAssign} color="primary" variant="contained">{t('listAgents:confirm')}</Button>
                 </DialogActions>
             </Dialog>
 

@@ -1,14 +1,17 @@
 {
     "createProperty": {
+        "step": "Bước",
+        "subtitle": "Đăng tin bất động sản trong vài phút",
+        "pageTitle": "Tạo Tin Đăng Mới",
         "steps": {
             "1": "Thông tin BĐS",
-            "2": "Tiện ích",
-            "3": "Hình ảnh"
+            "2": "Hình ảnh"
         },
         "alerts": {
             "missingRequired": "Vui lòng điền đầy đủ thông tin bắt buộc (Thành phố, Loại BĐS, Hình thức giao dịch)!",
             "createSuccess": "Tạo bất động sản thành công!",
-            "createError": "Lỗi khi tạo bất động sản: {{message}}"
+            "createError": "Lỗi khi tạo bất động sản",
+            "startNew": "Bạn có thể bắt đầu tạo tin mới!"
         },
         "buttons": {
             "next": "Tiếp theo",
@@ -16,7 +19,8 @@
             "submit": "Gửi",
             "upload": "Tải lên hình ảnh",
             "viewList": "Xem danh sách tin",
-            "createAnother": "Tạo thêm tin khác"
+            "createAnother": "Tạo thêm tin khác",
+            "createNew": "Tạo tin mới"
         },
         "fields": {
             "title": "Tiêu đề",
@@ -50,7 +54,8 @@
         "stepsHeader": {
             "completed": "✓",
             "current": "Bước {{number}}"
-        }
+        },
+        "pageTitle": "Dwello: Tạo Tin Đăng BĐS"
     },
     "formProperty": {
         "title": "Tiêu đề",
@@ -60,6 +65,8 @@
         "bathrooms": "Phòng tắm",
         "bedrooms": "Phòng ngủ",
         "city": "Thành phố",
+        "district": "Quận/Huyện",
+        "ward": "Phường/Xã",
         "category": "Loại BĐS",
         "area": "Diện tích",
         "unit": "Đơn vị",
@@ -70,6 +77,8 @@
         "errorFetch": "Không thể tải danh mục bất động sản",
         "alertMissing": "Vui lòng điền đầy đủ thông tin bắt buộc!",
         "formTitle": "Thông tin Bất động sản",
+        "formSubtitle": "Điền thông tin chi tiết về bất động sản của bạn",
+        "yearBuilt": "Năm xây dựng",
         "placeholder": {
             "title": "Ví dụ: Homestay view sông",
             "price": "Ví dụ: 10000000",
@@ -77,12 +86,15 @@
             "bathrooms": "Ví dụ: 2",
             "bedrooms": "Ví dụ: 3",
             "area": "Ví dụ: 100",
-            "floors": "Ví dụ: 2"
+            "floors": "Ví dụ: 2",
+            "yearBuilt": "Ví dụ: 2020"
         },
         "select": {
             "city": "Chọn thành phố",
             "category": "Chọn loại BĐS",
-            "type": "Chọn hình thức"
+            "type": "Chọn hình thức",
+            "district": "Chọn quận/huyện",
+            "ward": "Chọn phường/xã"
         },
         "units": {
             "m2": "m²",
@@ -91,7 +103,18 @@
         "warnings": {
             "required": "Trường này là bắt buộc",
             "fetchFail": "Không thể tải danh mục bất động sản"
-        }
+        },
+        "apartmentInfo": {
+            "floorNumber": "Tầng căn hộ",
+            "buildingBlock": "Tháp / Khu",
+            "apartmentNumber": "Số căn hộ",
+            "placeholder": {
+                "floorNumber": "VD: 12A",
+                "buildingBlock": "VD: A1, B2",
+                "apartmentNumber": "VD: 1205"
+            }
+        },
+        "autoDescription": "Tạo mô tả AI"
     },
     "selectFeatures": {
         "title": "Chọn tiện ích BĐS",
@@ -104,10 +127,16 @@
     },
     "selectImages": {
         "title": "Chọn ảnh bất động sản",
-        "subtitle": "Chọn ảnh (tối đa 10 ảnh) - Đã chọn: {{count}}/10",
-        "dragText": "Kéo thả hình ảnh vào đây hoặc",
-        "chooseFile": "chọn file",
+        "subtitle": "Đã chọn: {{count}}/10 ảnh",
+        "dragText": "Kéo thả hình ảnh vào đây",
+        "chooseFile": "Chọn File",
         "alertEmpty": "Vui lòng chọn ít nhất 1 ảnh!",
-        "finish": "Hoàn thành"
+        "finish": "Hoàn Thành & Đăng",
+        "submitting": "Đang gửi...",
+        "maxFiles": "Tối đa 10 file",
+        "preview": "Xem trước",
+        "limitReached": "Đã đạt giới hạn",
+        "primary": "Chính",
+        "remove": "Xóa ảnh"
     }
 }

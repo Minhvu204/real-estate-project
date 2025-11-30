@@ -35,7 +35,6 @@ const Notification = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const useAuth = () => useContext(AuthContext);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
   const isFetchingRef = useRef(false);
@@ -43,8 +42,8 @@ const Notification = () => {
   const { t } = useTranslation("notification");
 
   const {
-    state: { token },
-  } = useAuth();
+    state: { token, user },
+  } = useContext(AuthContext);
 
   useEffect(() => {
     if (!token) {
@@ -348,3 +347,5 @@ const Notification = () => {
 };
 
 export default Notification;
+
+
