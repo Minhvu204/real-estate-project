@@ -37,6 +37,7 @@ const SellerProperties = () => {
 
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+    const [priceFilter, setPriceFilter] = useState('all');
 
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -70,10 +71,18 @@ const SellerProperties = () => {
         if (statusFilter !== 'all') {
             result = result.filter(p => p.status === statusFilter);
         }
+        if (priceFilter === 'ascending') {
+            result = result.sort((a, b) => a.price - b.price);
+        } else if (priceFilter === 'descending') {
+            result = result.sort((a, b) => b.price - a.price);
+        }
+        else {
+            result = result;
+        }
 
         setFiltered(result);
         setCurrentPage(1);
-    }, [search, statusFilter, properties]);
+    }, [search, statusFilter, properties, priceFilter]);
 
     if (loading)
         return <p className="text-center text-gray-500 mt-10">{t('listProperties:loading')}</p>;
@@ -119,22 +128,19 @@ const SellerProperties = () => {
                         <MenuItem value="available">{t('listProperties:Available')}</MenuItem>
                         <MenuItem value="approved">{t('listProperties:Approved')}</MenuItem>
                     </TextField>
-                    
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        startIcon={<AddIcon />}
-                        component={Link}
-                        to="/seller/create"
-                        sx={{
-                            borderRadius: 2,
-                            textTransform: 'none',
-                            fontWeight: 'bold',
-                            px: 3,
-                        }}
+
+                    <TextField
+                        label="Price"
+                        select
+                        size="small"
+                        value={priceFilter}
+                        onChange={(e) => setPriceFilter(e.target.value)}
+                        style={{ minWidth: 150 }}
                     >
-                        {t('listProperties:createProperty')}
-                    </Button>
+                        <MenuItem value="all">{t('listProperties:allPrice')}</MenuItem>
+                        <MenuItem value="ascending">{t('listProperties:asceding')}</MenuItem>
+                        <MenuItem value="descending">{t('listProperties:desceding')}</MenuItem>
+                    </TextField>
                 </Box>
 
             </Box>
@@ -202,7 +208,7 @@ const SellerProperties = () => {
                                             color="text.secondary"
                                             className="line-clamp-2 mb-1"
                                         >
-                                            {p.address[currentLanguage]}
+                                            {t('listProperties:address')}: {p.address[currentLanguage]}
                                         </Typography>
                                         <Typography variant="body2" color="text.primary" fontWeight="medium">
                                             {t('properties:price')}: {p.price.toLocaleString()} VNĐ
