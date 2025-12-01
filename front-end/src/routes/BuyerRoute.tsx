@@ -9,6 +9,7 @@ import MyPropertiesPage from "../pages/MyPropertiesPage";
 import DealListPageBuyer from "../pages/DealContract/DealListPageBuyer";
 import DealContractPageBuyer from "../pages/DealContract/DealContractPageBuyer";
 import PaymentPage from "../pages/Payment/PaymentPage";
+import PaymentListBuyer from "../pages/Payment/PaymentListBuyer";
 
 export const BuyerRoute = [
     {
@@ -61,4 +62,8 @@ export const BuyerRoute = [
         path: "/deals/:dealId/payment",
         element: <PaymentPage />,
     },
+    {
+        path: "/buyer/listPayments",
+        element: <PaymentListBuyer />,
+    }
 ];

@@ -1,4 +1,5 @@
 import type { PaymentData } from "../types/PaymentData ";
+import type { Payment } from "../types/PaymentData ";
 import api from "./api";
 
 interface CreatePaymentResponse {
@@ -19,3 +20,8 @@ export const paymentSuccess = async (paymentId: string) => {
     });
 }
 
+export const getPayments = async (): Promise<Payment[]> => {
+    const res = await api.get("/api/client/buyer/payments", {
+    });
+    return res.data.data.items;
+};

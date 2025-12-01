@@ -26,6 +26,7 @@ const Navbar: React.FC = () => {
       { label: "My Properties", path: "/dwello/myProperties" },
       { label: "My Agent", path: "/dwello/myAgent" },
       { label: "Deals - Contract", path: "/buyer/deals/list" },
+      { label: "List Payment", path: "/buyer/listPayments" },
     ],
     seller: [
       { label: "My Properties", path: "/seller/properties" },

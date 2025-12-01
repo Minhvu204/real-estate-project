@@ -66,14 +66,14 @@ const BuyerDealsPage: React.FC = () => {
                 <Box
                     display="flex"
                     flexWrap="wrap"
-                    gap={3} // khoảng cách giữa các card
+                    gap={3}
                 >
                     {deals.map((deal) => (
                         <Box
                             key={deal._id}
                             sx={{
-                                flex: "1 1 300px", // card min-width 300px, tự co dãn
-                                maxWidth: 350, // giới hạn card max-width
+                                flex: "1 1 300px",
+                                maxWidth: 370,
                                 display: "flex",
                             }}
                         >
@@ -81,7 +81,7 @@ const BuyerDealsPage: React.FC = () => {
                                 sx={{
                                     display: "flex",
                                     flexDirection: "column",
-                                    height: "100%", // đồng đều chiều cao
+                                    height: "100%",
                                     borderRadius: 3,
                                     boxShadow: 6,
                                     transition: "transform 0.2s, box-shadow 0.2s",
