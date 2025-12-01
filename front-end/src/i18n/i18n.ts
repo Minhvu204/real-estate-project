@@ -54,6 +54,8 @@ import NOTIFICATION_EN from "../locales/en/notification.json";
 import NOTIFICATION_VI from "../locales/vi/notification.json";
 import REVIEW_ADMIN_EN from "../locales/en/review.json";
 import REVIEW_ADMIN_VI from "../locales/vi/review.json";
+import COMMENT_BUYER_EN from "../locales/en/comment.json";
+import COMMENT_BUYER_VI from "../locales/vi/comment.json";
 export const resources = {
   en: {
     home: HOME_EN,
@@ -68,6 +70,7 @@ export const resources = {
     addressAutocomplete: ADDRESSAUTOCOMPLETE_EN,
     listProperties: LIST_PROPERTIES_ADMIN_EN,
     detailProperty: DETAIL_PROPERTIES_ADMIN_EN,
+    comment: COMMENT_BUYER_EN,
     listAgents: LIST_AGENTS_EN,
     agentDetail: AGENT_DETAIL_EN,
     offerManagement: OFFER_MANAGEMENT_EN,
@@ -96,6 +99,7 @@ export const resources = {
     addressAutocomplete: ADDRESSAUTOCOMPLETE_VI,
     listProperties: LIST_PROPERTIES_ADMIN_VI,
     detailProperty: DETAIL_PROPERTIES_ADMIN_VI,
+    comment: COMMENT_BUYER_VI,
     favorite: FAVORITE_VI,
     listAgents: LIST_AGENTS_VI,
     agentList: AGENT_LIST_VI,
@@ -144,6 +148,7 @@ i18n
       "payment",
       "notification",
       "review",
+      "comment"
     ], //add các namespace khi viết thêm ở trên vào mảng này
     defaultNS,
     fallbackLng: "en",

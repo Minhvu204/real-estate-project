@@ -10,9 +10,9 @@ import { toast, ToastContainer } from 'react-toastify';
 import { getLanguage, getUser } from "../utils/storage";
 import { OfferService } from "@/services/offerService";
 import { getDetailPropertiesById } from "@/services/propertyService";
-import PropertyReview from "../components/buyer/PropertyReview";
+import PropertyAgentReview from "../components/buyer/PropertyAgentReview";
 
-import BuyerAppointment from "@/components/Buyer/Appointment/BuyerAppointment";
+import BuyerAppointment from "../components/buyer/Appointment/BuyerAppointment";
 
 
 
@@ -75,6 +75,7 @@ const PropertyDetailUser = () => {
     const features = property.features ?? [];
 
     return (
+        <>
         <Container sx={{ mt: 1, mb: 1 }}>
             {/* CAROUSEL */}
             {property.images && property.images.length > 0 && (
@@ -432,9 +433,22 @@ const PropertyDetailUser = () => {
                     onClose={handleCloseTour}
                 />
             </Dialog>
-            <PropertyReview propertyId = {property._id}/>
+            <PropertyAgentReview targetType="property" targetId = {property._id}/>
 
         </Container >
+        <ToastContainer
+                position="top-right"
+                autoClose={2000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+              />
+        </>
     );
 };
 

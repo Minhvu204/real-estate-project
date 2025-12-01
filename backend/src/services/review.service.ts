@@ -377,7 +377,10 @@ export const reviewService = {
    * Lấy danh sách reviews theo property
    * Chỉ lấy reviews của property còn cho thuê được (status: "available" hoặc "approved", deleted: false)
    */
-  async getReviewsByProperty(propertyId: string, filters: ReviewListFilters = {}) {
+  async getReviewsByProperty(
+    propertyId: string,
+    filters: ReviewListFilters = {}
+  ) {
     if (!mongoose.isValidObjectId(propertyId)) {
       const err: any = new Error("Property ID không hợp lệ");
       err.status = 400;
@@ -388,11 +391,13 @@ export const reviewService = {
     const property = await Property.findOne({
       _id: toObjectId(propertyId),
       deleted: false,
-      status: { $in: ["available", "approved"] },
+      status: { $in: ["available", "approved", "sold", "rented"] },
     }).lean();
 
     if (!property) {
-      const err: any = new Error("Property không tồn tại hoặc không còn cho thuê");
+      const err: any = new Error(
+        "Property không tồn tại hoặc không còn cho thuê"
+      );
       err.status = 404;
       throw err;
     }
@@ -443,7 +448,11 @@ export const reviewService = {
 
     if (filters.buyerId && mongoose.isValidObjectId(filters.buyerId)) {
       // Check buyer đã mua/thuê chưa
-      canReview = await checkBuyerInteraction(filters.buyerId, propertyId, "property");
+      canReview = await checkBuyerInteraction(
+        filters.buyerId,
+        propertyId,
+        "property"
+      );
 
       // Check buyer đã comment chưa
       if (canReview) {
@@ -539,7 +548,11 @@ export const reviewService = {
 
     if (filters.buyerId && mongoose.isValidObjectId(filters.buyerId)) {
       // Check buyer đã mua/thuê chưa
-      canReview = await checkBuyerInteraction(filters.buyerId, agentId, "agent");
+      canReview = await checkBuyerInteraction(
+        filters.buyerId,
+        agentId,
+        "agent"
+      );
 
       // Check buyer đã comment chưa
       if (canReview) {
