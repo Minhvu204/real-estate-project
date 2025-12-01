@@ -8,7 +8,6 @@ import ChatPage from "@/pages/Chat/ChatPage";
 import PropertyDetailUser from "../pages/PropertyDetail";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
 import BuyerMyPropertiesPage from "../pages/Buyer/BuyerMyPropertiesPage";
-import FavoritePage from "../pages/Favorite/FavoritePage";
 import CreateOfferPage from "../pages/Offer/CreateOfferPage";
 import OfferHistoryPage from "../pages/Offer/OfferHistoryPage";
 import CancelOfferPage from "../pages/Offer/CancelOfferPage";
@@ -16,6 +15,7 @@ import ListAppointment from "../components/Buyer/Appointment/ListAppointment";
 import PropertiesComparePage from "@/pages/Compare/PropertiesComparePage";
 import DealListPageBuyer from "../pages/DealContract/DealListPageBuyer";
 import DealContractPageBuyer from "../pages/DealContract/DealContractPageBuyer";
+import FavoritePage from "@/pages/Favorite/FavoritePage";
 
 export const BuyerRoute = [
     {
@@ -103,7 +103,7 @@ export const BuyerRoute = [
         element: <CancelOfferPage />,
     },
     {
-        path: "dwello/appoinments",
+        path: "dwello/appointments",
         element: <ListAppointment />
     },
     {

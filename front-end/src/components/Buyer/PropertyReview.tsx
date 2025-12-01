@@ -13,6 +13,7 @@ import {
   Divider,
   Stack,
 } from "@mui/material";
+import { getLanguage } from "../../utils/storage";
 
 interface PropsProperty {
   propertyId: string;
@@ -22,6 +23,7 @@ const PropertyReview = ({ propertyId }: PropsProperty) => {
   const [review, setReview] = useState<Review[]>([]);
   const [comment, setComment] = useState<string>("");
   const [rating, setRating] = useState<number | null>(0);
+  const currentLanguage = getLanguage() as 'vi' | 'en';
 
   useEffect(() => {
     const fetchReview = async () => {
@@ -98,7 +100,11 @@ const PropertyReview = ({ propertyId }: PropsProperty) => {
                   new Date(item.createdAt).toLocaleDateString()}
               </Typography>
             </Box>
-            {/* <Typography variant="body2">{item.comment}</Typography> */}
+            <Typography variant="body2">
+              {typeof item.comment === 'string' 
+                ? item.comment 
+                : item.comment?.[currentLanguage] || item.comment?.vi || ''}
+            </Typography>
           </Box>
         ))}
         {review?.length === 0 && (
