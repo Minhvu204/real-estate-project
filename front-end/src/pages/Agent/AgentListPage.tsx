@@ -37,12 +37,13 @@ const AgentListPage = () => {
   const { t } = useTranslation('agentList');
   const navigate = useNavigate();
   const lang = getLanguage() as 'vi' | 'en';
-  
+
   const [agents, setAgents] = useState<AgentWithLocation[]>([]);
   const [cities, setCities] = useState<City[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCity, setSelectedCity] = useState<string>('all');
+  const [searchMode, setSearchMode] = useState<"location" | "name">("location");
 
   useTitle(t('pageTitle'));
 
@@ -57,7 +58,7 @@ const AgentListPage = () => {
         ]);
 
         const agentLocationMap = new Map<string, { cities: Set<string>, count: number }>();
-        
+
         propertiesData.forEach((property: Property) => {
           if (property.agent_id && typeof property.agent_id === 'object' && '_id' in property.agent_id) {
             const agentId = property.agent_id._id;
@@ -65,7 +66,7 @@ const AgentListPage = () => {
               agentLocationMap.set(agentId, { cities: new Set(), count: 0 });
             }
             const agentData = agentLocationMap.get(agentId)!;
-            
+
             if (property.city_id && typeof property.city_id === 'object' && '_id' in property.city_id) {
               agentData.cities.add(property.city_id._id);
             }
@@ -93,8 +94,7 @@ const AgentListPage = () => {
 
   const filteredAgents = useMemo(() => {
     return agents.filter((agent) => {
-      // Filter by search term (name or email)
-      const matchesSearch = searchTerm === '' || 
+      const matchesSearch = searchTerm === '' ||
         agent.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         agent.email.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -120,22 +120,22 @@ const AgentListPage = () => {
     <Box sx={{ bgcolor: '#f5f5f5', minHeight: '100vh', py: 4 }}>
       <Container maxWidth="xl">
         <Box sx={{ mb: 3, textAlign: 'center' }}>
-          <Typography 
-            variant="h4" 
-            fontWeight="bold" 
-            color="primary.main"
-            sx={{ 
-              mb: 1.5, 
+          <Typography
+            variant="h4"
+            fontWeight="bold"
+            color="#052647"
+            sx={{
+              mb: 1.5,
               fontSize: { xs: '1.5rem', md: '2rem' },
               lineHeight: 1.3
             }}
           >
             {t('title')}
           </Typography>
-          <Typography 
-            variant="body1" 
-            color="text.secondary"
-            sx={{ 
+          <Typography
+            variant="body1"
+            color="#2a445e"
+            sx={{
               fontSize: { xs: '0.875rem', md: '1rem' },
               lineHeight: 1.5,
               maxWidth: '700px',
@@ -144,76 +144,170 @@ const AgentListPage = () => {
           >
             {t('subtitle')}
           </Typography>
+
         </Box>
 
-        <Box 
-          sx={{ 
-            mb: 4, 
-            display: 'flex', 
-            flexDirection: { xs: 'column', md: 'row' }, 
-            gap: 2,
-            bgcolor: 'white',
-            p: 3,
-            borderRadius: 2,
-            boxShadow: 1
+        <Box
+          sx={{
+            mb: 4,
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            alignItems: { xs: "stretch", md: "center" },
+            justifyContent: { xs: "flex-start", md: "space-between" },
+            gap: { xs: 1.5, md: 2 },
+            bgcolor: "white",
+            borderRadius: 3,
+            boxShadow: { xs: "0 2px 6px rgba(15,23,42,0.06)", md: "0 6px 16px rgba(15,23,42,0.08)" },
+            border: "1px solid #e5e7eb",
+            p: { xs: 1.5, md: 1.5 }
           }}
         >
-          <TextField
-            fullWidth
-            placeholder={t('searchPlaceholder')}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon color="action" />
-                </InputAdornment>
-              ),
+          <Box
+            sx={{
+              display: "flex",
+              flex: 1,
+              flexDirection: { xs: "column", md: "row" },
+              gap: { xs: 1.5, md: 0 }
             }}
-            sx={{ flex: 1 }}
-          />
-          
-          <TextField
-            select
-            label={t('filterByLocation')}
-            value={selectedCity}
-            onChange={(e) => setSelectedCity(e.target.value)}
-            sx={{ minWidth: { xs: '100%', md: 250 } }}
           >
-            <MenuItem value="all">{t('allLocations')}</MenuItem>
-            {cities.map((city) => (
-              <MenuItem key={city._id} value={city._id}>
-                {city.city_name[lang]}
-              </MenuItem>
-            ))}
-          </TextField>
-
-          {(searchTerm || selectedCity !== 'all') && (
-            <Button
-              variant="outlined"
-              onClick={() => {
-                setSearchTerm('');
-                setSelectedCity('all');
+            <Box
+              sx={{
+                display: "flex",
+                borderRight: { xs: "none", md: "1px solid #e0e0e0" },
+                borderBottom: { xs: "1px solid #e0e0e0", md: "none" }
               }}
-              sx={{ minWidth: { xs: '100%', md: 'auto' } }}
             >
-              {t('clearFilters')}
-            </Button>
-          )}
+              <Box
+                onClick={() => {
+                  setSearchMode("location");
+                  setSearchTerm("");
+                  setSelectedCity("all");
+                }}
+                sx={{
+                   flex: 1,
+                   textAlign: "center",
+                   px: { xs: 1.5, md: 3 },
+                  py: 1.2,
+                  cursor: "pointer",
+                  fontWeight: searchMode === "location" ? "bold" : 500,
+                  bgcolor: searchMode === "location" ? "#f0f6ff" : "white",
+                  borderBottom: searchMode === "location"
+                    ? "3px solid #1976d2"
+                    : "3px solid transparent",
+                  color: searchMode === "location" ? "#000" : "#555",
+                  transition: "0.2s"
+                }}
+              >
+                Location
+              </Box>
+              <Box
+                onClick={() => {
+                  setSearchMode("name");
+                  setSelectedCity("all");
+                  setSearchTerm("");
+                }}
+                sx={{
+                   flex: 1,
+                   textAlign: "center",
+                   px: { xs: 1.5, md: 3 },
+                  py: 1.2,
+                  cursor: "pointer",
+                  fontWeight: searchMode === "name" ? "bold" : 500,
+                  bgcolor: searchMode === "name" ? "#f0f6ff" : "white",
+                  borderBottom: searchMode === "name"
+                    ? "3px solid #1976d2"
+                    : "3px solid transparent",
+                  color: searchMode === "name" ? "#000" : "#555",
+                  transition: "0.2s"
+                }}
+              >
+                Name
+              </Box>
+            </Box>
+
+            <Box sx={{ flex: 1 }}>
+              {searchMode === "location" ? (
+                <TextField
+                  select
+                  value={selectedCity}
+                  onChange={(e) => setSelectedCity(e.target.value)}
+                  fullWidth
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LocationOnIcon sx={{ color: "#6b7280" }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    "& fieldset": { border: "none" },
+                    bgcolor: "white",
+                  }}
+                >
+                  <MenuItem value="all">{t("allLocations")}</MenuItem>
+                  {cities.map((city) => (
+                    <MenuItem key={city._id} value={city._id}>
+                      {city.city_name[lang]}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              ) : (
+                <TextField
+                  fullWidth
+                  placeholder={t("searchPlaceholder")}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon sx={{ color: "#6b7280" }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    "& fieldset": { border: "none" },
+                    bgcolor: "white",
+                  }}
+                />
+              )}
+            </Box>
+          </Box>
+
+          <Button
+            variant="outlined"
+            onClick={() => {
+              setSearchTerm("");
+              setSelectedCity("all");
+              setSearchMode("location");
+            }}
+            sx={{
+              whiteSpace: "nowrap",
+              borderRadius: 2,
+              textTransform: "none",
+              fontWeight: 600,
+              px: { xs: 2, md: 2.5 },
+              py: 1,
+              width: { xs: "100%", md: "auto" },
+              alignSelf: { xs: "stretch", md: "auto" }
+            }}
+          >
+            {t("clearFilters")}
+          </Button>
         </Box>
+
 
         <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
           {t('found')} <strong>{filteredAgents.length}</strong> {t('agents')}
         </Typography>
 
         {filteredAgents.length === 0 ? (
-          <Box 
-            sx={{ 
-              textAlign: 'center', 
-              py: 8, 
-              bgcolor: 'white', 
+          <Box
+            sx={{
+              textAlign: 'center',
+              py: 8,
+              bgcolor: 'white',
               borderRadius: 2,
-              boxShadow: 1 
+              boxShadow: 1
             }}
           >
             <Typography variant="h6" color="text.secondary" gutterBottom>
@@ -226,213 +320,122 @@ const AgentListPage = () => {
         ) : (
           <Grid container spacing={3}>
             {filteredAgents.map((agent) => (
-              <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={agent._id}>
+            <Grid size={{ xs: 12, md: 6 }} key={agent._id}>
                 <Card
                   sx={{
-                    height: '100%',
+                    position: 'relative',
                     display: 'flex',
-                    flexDirection: 'column',
-                    cursor: 'pointer',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    p: { xs: 2, sm: 3 },
                     borderRadius: 3,
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    overflow: 'hidden',
+                    border: '1px solid #e0e0e0',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+                    transition: '0.3s ease',
+                    cursor: 'pointer',
+                    height: '100%',
                     '&:hover': {
-                      transform: 'translateY(-8px)',
-                      boxShadow: '0 12px 24px rgba(102, 126, 234, 0.15)',
-                      borderColor: 'primary.main',
-                    },
+                      transform: 'translateY(-4px)',
+                      boxShadow: '0 8px 20px rgba(0,0,0,0.12)',
+                      borderColor: 'primary.main'
+                    }
                   }}
                   onClick={() => handleAgentClick(agent._id)}
                 >
-                  <CardContent
+                  {agent.propertyCount > 0 && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 12,
+                        right: 12,
+                        background: '#1976d2',
+                        color: 'white',
+                        px: 1.5,
+                        py: 0.5,
+                        borderRadius: 2,
+                        fontSize: '0.75rem',
+                        fontWeight: 600,
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+                      }}
+                    >
+                      {agent.propertyCount} {t('properties')}
+                    </Box>
+                  )}
+
+                  <Box
                     sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: 1,
-                      p: 2.5,
-                      flex: 1,
-                      '&:last-child': { pb: 2.5 }
+                      width: { xs: 96, sm: 130 },
+                      height: { xs: 96, sm: 130 },
+                      borderRadius: '50%',
+                      overflow: 'hidden',
+                      mr: { xs: 0, sm: 3 },
+                      mb: { xs: 2, sm: 0 },
+                      flexShrink: 0,
+                      alignSelf: { xs: 'center', sm: 'flex-start' }
                     }}
                   >
                     <Avatar
                       src={agent.avatar || '/defaultUser.png'}
                       alt={agent.fullName}
-                      sx={{
-                        width: 90,
-                        height: 90,
-                        border: '3px solid',
-                        borderColor: 'primary.main',
-                        mb: 0.5,
-                        boxShadow: '0 4px 12px rgba(102, 126, 234, 0.2)',
-                      }}
+                      sx={{ width: '100%', height: '100%' }}
                     />
+                  </Box>
 
-                    <Chip
-                      label="AGENT"
-                      color="primary"
-                      size="small"
-                      sx={{ 
-                        fontWeight: 'bold', 
-                        mb: 0.5,
-                        px: 1,
-                        height: 24,
-                        fontSize: '0.7rem',
-                        boxShadow: '0 2px 4px rgba(102, 126, 234, 0.2)',
-                      }}
-                    />
+                  <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
 
-                    <Typography
-                      variant="h6"
-                      fontWeight="bold"
-                      align="center"
-                      sx={{
-                        minHeight: 50,
-                        width: '100%',
-                        lineHeight: 1.3,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        mb: 0.5
-                      }}
-                    >
+                    <Typography variant="h5" fontWeight="bold" sx={{ mb: 1 }}>
                       {agent.fullName}
                     </Typography>
 
-                    <Box sx={{ minHeight: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 0.5 }}>
-                      {agent.propertyCount > 0 && (
-                        <Chip
-                          label={`${agent.propertyCount} ${t('properties')}`}
-                          size="small"
-                          color="success"
-                          variant="outlined"
-                          sx={{
-                            fontWeight: 600,
-                            borderWidth: 1.5,
-                          }}
-                        />
-                      )}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                      <EmailIcon fontSize="small" sx={{ color: '#1976d2' }} />
+                      <Typography variant="body2" color="text.secondary">
+                        {agent.email}
+                      </Typography>
                     </Box>
 
-                    <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 0.75, mb: 0.5 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, width: '100%' }}>
-                        <EmailIcon 
-                          fontSize="small" 
-                          sx={{ color: '#1976d2', fontSize: '18px' }} 
-                        />
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          noWrap
-                          sx={{ flex: 1, fontSize: '0.875rem' }}
-                        >
-                          {agent.email}
+                    {agent.phone && (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                        <PhoneIcon fontSize="small" sx={{ color: '#2e7d32' }} />
+                        <Typography variant="body2" color="text.secondary">
+                          {agent.phone}
                         </Typography>
                       </Box>
+                    )}
 
-                      {agent.phone && (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, width: '100%' }}>
-                          <PhoneIcon 
-                            fontSize="small" 
-                            sx={{ color: '#2e7d32', fontSize: '18px' }} 
-                          />
-                          <Typography 
-                            variant="body2" 
-                            color="text.secondary"
-                            sx={{ fontSize: '0.875rem' }}
-                          >
-                            {agent.phone}
+                    {agent.cities.size > 0 && (
+                      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mt: 0.5 }}>
+                        <LocationOnIcon fontSize="small" sx={{ color: '#ed6c02', mt: '3px' }} />
+
+                        <Box>
+                          <Typography variant="caption" color="text.secondary" sx={{ mb: 0.5, display: 'block' }}>
+                            {t('activeAreas')}:
                           </Typography>
-                        </Box>
-                      )}
 
-                      {agent.cities.size > 0 && (
-                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.75, width: '100%' }}>
-                          <LocationOnIcon 
-                            fontSize="small" 
-                            sx={{ color: '#ed6c02', fontSize: '18px', mt: 0.25 }} 
-                          />
-                          <Box sx={{ flex: 1 }}>
-                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem', mb: 0.5, display: 'block' }}>
-                              {t('activeAreas')}:
-                            </Typography>
-                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                              {Array.from(agent.cities).slice(0, 3).map((cityId) => {
-                                const city = cities.find(c => c._id === cityId);
-                                return city ? (
-                                  <Chip
-                                    key={cityId}
-                                    label={city.city_name[lang]}
-                                    size="small"
-                                    variant="outlined"
-                                    sx={{ 
-                                      fontSize: '0.7rem',
-                                      cursor: 'pointer',
-                                      '&:hover': {
-                                        bgcolor: 'primary.light',
-                                        color: 'white',
-                                        borderColor: 'primary.main'
-                                      }
-                                    }}
-                                  />
-                                ) : null;
-                              })}
-                              {agent.cities.size > 3 && (
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                            {Array.from(agent.cities).slice(0, 3).map(cityId => {
+                              const city = cities.find(c => c._id === cityId);
+                              return city ? (
                                 <Chip
-                                  label={`+${agent.cities.size - 3}`}
+                                  key={cityId}
+                                  label={city.city_name[lang]}
                                   size="small"
                                   variant="outlined"
-                                  sx={{ 
-                                    fontSize: '0.7rem',
-                                    cursor: 'pointer',
-                                    '&:hover': {
-                                      bgcolor: 'primary.light',
-                                      color: 'white',
-                                      borderColor: 'primary.main'
-                                    }
+                                  sx={{
+                                    fontSize: '0.75rem',
+                                    borderRadius: 1,
                                   }}
                                 />
-                              )}
-                            </Box>
+                              ) : null;
+                            })}
+
+                            {agent.cities.size > 3 && (
+                              <Chip label={`+${agent.cities.size - 3}`} size="small" variant="outlined" />
+                            )}
                           </Box>
                         </Box>
-                      )}
-                    </Box>
-
-                    <Button
-                      variant="contained"
-                      fullWidth
-                      sx={{
-                        mt: 'auto',
-                        textTransform: 'none',
-                        fontWeight: 600,
-                        py: 1.25,
-                        borderRadius: 2,
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
-                        transition: 'all 0.3s ease',
-                        '&:hover': {
-                          background: 'linear-gradient(135deg, #5568d3 0%, #6a3f91 100%)',
-                          boxShadow: '0 6px 16px rgba(102, 126, 234, 0.4)',
-                          transform: 'translateY(-2px)',
-                        },
-                        '&:active': {
-                          transform: 'translateY(0)',
-                        },
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAgentClick(agent._id);
-                      }}
-                    >
-                      {t('viewDetails')}
-                    </Button>
-                  </CardContent>
+                      </Box>
+                    )}
+                  </Box>
                 </Card>
               </Grid>
             ))}
