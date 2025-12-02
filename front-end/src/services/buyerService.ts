@@ -1,9 +1,16 @@
-import type { checkFavoriteType, PropertyCompare, PropertyFavorite } from "../types/FavoriteType";
+
+import type { checkFavoriteType, PropertyCompare, PropertyFavorite } from "@/types/FavoriteType";
 import type { Review } from "../types/Review";
 import { httpClient } from "../utils/httpClient";
 
 const BUYER_RESOURCE = "/buyer";
 const RESOURCE = "/buyer/reviews";
+
+interface Reviews {
+  reviews: Review[];
+  canReview: boolean;
+  isCommented: boolean;
+}
 
 export const getAllFavoriteProperties = async (): Promise<PropertyFavorite[]> => {
   const response = await httpClient.get(`${BUYER_RESOURCE}/favorites`);
@@ -32,12 +39,37 @@ export const getPropertyByIds = async (ids: string): Promise<PropertyCompare[]> 
 
 export const getAllReviewPropertyById = async (
   id: string
-): Promise<Review[]> => {
+): Promise<Reviews> => {
   const res = await httpClient.get(
     `${RESOURCE}/property/${id}?page=1&limit=10`
   );
-  return res.data.data.data;
+  const data = res.data.data.data;
+  const review = res.data.data.canReview;
+  const comment = res.data.data.isCommented;
+  return {
+    reviews: data,
+    canReview: review,
+    isCommented: comment,
+  };
 };
+
+export const getAllReviewAgentById = async (
+  id: string
+): Promise<Reviews> => {
+  const res = await httpClient.get(
+    `${RESOURCE}/agent/${id}?page=1&limit=10`
+  );
+  const data = res.data.data.data;
+  const review = res.data.data.canReview;
+  const comment = res.data.data.isCommented;
+  return {
+    reviews: data,
+    canReview: review,
+    isCommented: comment,
+  };
+};
+
+
 
 export const getAllReviewProperty = async (): Promise<Review[]> => {
   const res = await httpClient.get(
@@ -73,8 +105,19 @@ export const createPropertyReview = async (
   const res = await httpClient.post(RESOURCE, body);
   return res.data.data;
 };
-export const createAgentReview = async (): Promise<Review> => {
-  const res = await httpClient.post(`${RESOURCE}`);
+export const createAgentReview = async (
+  id: string,
+  rating: number,
+  comment: string,
+  target_type: string
+): Promise<Review> => {
+  const body = {
+    target_id: id,
+    target_type,
+    rating,
+    comment,
+  };
+  const res = await httpClient.post(RESOURCE, body);
   return res.data.data;
 };
 

@@ -35,6 +35,7 @@ import useTitle from "@/hooks/useTitle";
 import { getLanguage } from "@/utils/storage";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+import PropertyAgentReview from "@/components/Buyer/PropertyAgentReview";
 
 const AgentDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -298,24 +299,31 @@ const AgentDetailPage = () => {
                 gap={2}
                 mb={{ xs: 2, md: 3 }}
               >
-                <Typography
-                  variant="h6"
-                  fontWeight="bold"
-                  color="#111"
-                  sx={{ fontSize: { xs: "1rem", md: "1.25rem" } }}
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  gap={2}
+                  mb={{ xs: 2, md: 3 }}
                 >
-                  {t("propertiesSold")} ({stats.sold_properties})
-                </Typography>
+                  <Typography
+                    variant="h6"
+                    fontWeight="bold"
+                    color="#111"
+                    sx={{ fontSize: { xs: "1rem", md: "1.25rem" } }}
+                  >
+                    {t("propertiesSold")} ({stats.sold_properties})
+                  </Typography>
+                </Box>
               </Box>
 
               {properties.length > 0 ? (
                 <>
-                  <Box 
-                    display="flex" 
-                    flexDirection="column" 
-                    gap={2} 
+                  <Box
+                    display="flex"
+                    flexDirection="column"
+                    gap={2}
                     flex={1}
-                    sx={{ 
+                    sx={{
                       overflowY: "auto",
                       "&::-webkit-scrollbar": {
                         width: "6px",
@@ -588,132 +596,23 @@ const AgentDetailPage = () => {
                   {t("customerReviews")} ({reviews.length})
                 </Typography>
               </Box>
-
-              {reviews.length > 0 ? (
-                <>
-                  <Box 
-                    display="flex" 
-                    flexDirection="column" 
-                    gap={2} 
-                    flex={1}
-                    sx={{ 
-                      overflowY: "auto",
-                      "&::-webkit-scrollbar": {
-                        width: "6px",
-                      },
-                      "&::-webkit-scrollbar-track": {
-                        background: "#f1f1f1",
-                        borderRadius: "10px",
-                      },
-                      "&::-webkit-scrollbar-thumb": {
-                        background: "#888",
-                        borderRadius: "10px",
-                      },
-                      "&::-webkit-scrollbar-thumb:hover": {
-                        background: "#555",
-                      },
-                    }}
-                  >
-                    {paginatedReviews.map((review) => (
-                      <Box
-                        key={review._id}
-                        sx={{
-                          p: 2,
-                          borderRadius: 2,
-                          bgcolor: "#f9fafb",
-                          border: "1px solid #e5e7eb",
-                        }}
-                      >
-                        <Box display="flex" alignItems="center" gap={1.5} mb={1}>
-                          <Avatar
-                            src={review.user_id.avatar || "/defaultUser.png"}
-                            alt={review.user_id.fullName}
-                            sx={{ width: 40, height: 40 }}
-                          />
-                          <Box flex={1}>
-                            <Typography
-                              variant="subtitle2"
-                              fontWeight="bold"
-                              color="#111"
-                            >
-                              {review.user_id.fullName}
-                            </Typography>
-                            <Box display="flex" alignItems="center" gap={0.5}>
-                              <StarIcon
-                                sx={{ fontSize: 16, color: "#fbbf24" }}
-                              />
-                              <Typography
-                                variant="caption"
-                                color="rgba(0,0,0,0.6)"
-                              >
-                                {review.rating.toFixed(1)}
-                              </Typography>
-                            </Box>
-                          </Box>
-                          <Typography
-                            variant="caption"
-                            color="rgba(0,0,0,0.5)"
-                          >
-                            {new Date(review.createdAt).toLocaleDateString()}
-                          </Typography>
-                        </Box>
-                        <Typography
-                          variant="body2"
-                          color="rgba(0,0,0,0.8)"
-                          sx={{ lineHeight: 1.6 }}
-                        >
-                          {review.comment?.[lang] || review.comment?.vi || ""}
-                        </Typography>
-                      </Box>
-                    ))}
-                  </Box>
-
-                  {totalReviewsPages > 1 && (
-                    <Box display="flex" justifyContent="center" mt="auto" pt={3}>
-                      <Pagination
-                        count={totalReviewsPages}
-                        page={reviewsPage}
-                        onChange={handleReviewsPageChange}
-                        color="primary"
-                        size="medium"
-                        showFirstButton
-                        showLastButton
-                      />
-                    </Box>
-                  )}
-                </>
-              ) : (
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="center"
-                  flex={1}
-                >
-                  <Typography
-                    variant="body1"
-                    color="rgba(0,0,0,0.6)"
-                    textAlign="center"
-                  >
-                    {t("agentDetail:noReviews")}
-                  </Typography>
-                </Box>
-              )}
+              <Box><PropertyAgentReview targetType="agent" targetId={agentInfo.agent._id} /></Box>
             </Paper>
           </Grid>
         </Grid>
       </Container>
       <ToastContainer
-                position="top-right"
-                autoClose={2000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light"
-              />
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </Box>
   );
 };

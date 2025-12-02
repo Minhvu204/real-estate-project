@@ -9,9 +9,9 @@ import { useTranslation } from "react-i18next";
 import { toast, ToastContainer } from 'react-toastify';
 import { getLanguage, getUser } from "../utils/storage";
 import { OfferService } from "@/services/offerService";
-import BuyerAppointment from "@/components/Buyer/Appointment/BuyerAppointment";
+import BuyerAppointment from "../components/Buyer/Appointment/BuyerAppointment";
 import { getDetailPropertiesById } from "@/services/propertyService";
-import PropertyReview from "../components/Buyer/PropertyReview";
+import PropertyAgentReview from "../components/Buyer/PropertyAgentReview";
 
 
 
@@ -465,8 +465,9 @@ const PropertyDetailUser = () => {
                         onClose={handleCloseTour}
                     />
                 </Dialog>
-                <PropertyReview propertyId={property._id} />
+                <PropertyAgentReview targetType="property" targetId={property._id} />
             </Container >
+
             <ToastContainer
                 position="top-right"
                 autoClose={2000}
