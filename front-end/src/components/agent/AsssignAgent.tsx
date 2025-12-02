@@ -7,7 +7,6 @@ import { acceptAssignAgent } from '../../services/agent.service';
 import { rejectAssignAgent } from '../../services/agent.service';
 import { Pagination, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Typography } from '@mui/material';
 import { getLanguage } from '@/utils/storage';
-import ButtonLanguage from '../common/ButtonLanguage';
 
 type FilterStatus = "all" | "pending" | "accepted" | "rejected";
 
@@ -49,6 +48,7 @@ const AssignAgentPage = () => {
                         : a
                 )
             );
+            return data;
         } catch (error: any) {
             console.error("Error accepting assignment:", error);
             const errorMessage = error?.response?.data?.message || error?.message || "Error accepting assignment";

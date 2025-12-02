@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import type { Appointment } from '@/types/Appointment';
-import { getAllAppoinments } from '@/services/buyer.service';
+import { cancelAppointmentBuyer, getAllAppoinments } from '@/services/buyer.service';
 import { getLanguage } from '@/utils/storage';
 import { Pagination, Stack } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-
+import useTitle from '@/hooks/useTitle';
+import { Bounce, toast, ToastContainer } from 'react-toastify';
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 type FilterStatus = "all" | "pending" | "accepted" | "rejected";
 
 const ListAppointment = () => {
@@ -12,14 +14,17 @@ const ListAppointment = () => {
     const [loading, setLoading] = useState(true);
     const [statusFilter, setStatusFilter] = useState<FilterStatus>("all");
     const [page, setPage] = useState(1);
+
     const itemsPerPage = 6;
     const language = getLanguage();
     const { t } = useTranslation('bookAppointment');
+    useTitle(t('appointment.pageTitleFull'));
 
     useEffect(() => {
         const fetchAppointments = async () => {
             try {
                 const response = await getAllAppoinments();
+                console.log("Response appointment:", response);
                 setAppointments(response || []);
             } catch (error) {
                 console.error("Failed to fetch appointments:", error);
@@ -42,7 +47,7 @@ const ListAppointment = () => {
         if (statusFilter !== "all") {
             filtered = appointments.filter((a) => a.status === statusFilter);
         }
-        return filtered.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+        return filtered.sort((a, b) => new Date(a.final_time).getTime() - new Date(b.final_time).getTime());
     }, [appointments, statusFilter]);
 
     const paginatedAppointments = useMemo(() => {
@@ -57,6 +62,27 @@ const ListAppointment = () => {
         setPage(value);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
+    const handleCancelAppointment = (appointmentId: string) => {
+        const cancelAppointment = async () => {
+            try {
+                await cancelAppointmentBuyer(appointmentId);
+
+                setAppointments(prev =>
+                    prev.map(a =>
+                        a._id === appointmentId ? { ...a, status: "rejected" } : a
+                    )
+                );
+
+                toast.success(t('appointment.cancelSuccess'));
+
+            } catch (error) {
+                console.error("Failed to cancel appointment:", error);
+                toast.error(t('appointment.cancelError'));
+            }
+        };
+        cancelAppointment();
+    };
+
 
     useEffect(() => {
         setPage(1);
@@ -185,7 +211,7 @@ const ListAppointment = () => {
                                                 <div>
                                                     <p className="text-xs text-slate-500">{t('appointment.timeLabel')}</p>
                                                     <p className="text-sm font-semibold text-slate-800">
-                                                        {new Date(appointment.time).toLocaleString(language === 'vi' ? 'vi-VN' : 'en-US', {
+                                                        {new Date(appointment.final_time).toLocaleString(language === 'vi' ? 'vi-VN' : 'en-US', {
                                                             weekday: 'long',
                                                             year: 'numeric',
                                                             month: 'long',
@@ -203,10 +229,10 @@ const ListAppointment = () => {
                                                         </p>
                                                     </div>
                                                 )}
-                                                {appointment.note && (
+                                                {appointment.times && appointment.times.length > 0 && appointment.times[0].note && (
                                                     <div>
                                                         <p className="text-xs text-slate-500">{t('appointment.noteLabel')}</p>
-                                                        <p className="text-sm text-slate-700">{appointment.note}</p>
+                                                        <p className="text-sm text-slate-700">{appointment.times[0].note}</p>
                                                     </div>
                                                 )}
                                             </div>
@@ -258,10 +284,34 @@ const ListAppointment = () => {
                                                 </p>
                                             </div>
                                         )}
+                                        {appointment.status === "pending" && (
+                                            <div className="flex justify-center mt-2">
+                                                <button
+                                                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 cursor-pointer"
+                                                    onClick={() => handleCancelAppointment(appointment._id)}
+                                                >
+                                                    <CancelOutlinedIcon className="text-lg" />
+                                                    {t('appointment.cancel')}
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}
                         </div>
+                        <ToastContainer
+                            position="top-right"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick={false}
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                            theme="light"
+                            transition={Bounce}
+                        />
 
                         {totalPages > 1 && (
                             <div className="flex justify-center mt-8 pb-4">

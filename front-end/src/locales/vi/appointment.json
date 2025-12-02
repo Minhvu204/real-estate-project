@@ -53,9 +53,13 @@
         "agent": "Môi giới",
         "noAgent": "Chưa có môi giới",
         "owner": "Chủ sở hữu",
+        "cancel": "Hủy",
         "acceptedMessage": "Lịch hẹn đã được chấp nhận",
         "acceptedInstruction": "Vui lòng đến đúng giờ và địa điểm đã hẹn",
         "rejectedMessage": "Lịch hẹn đã bị từ chối",
-        "rejectedInstruction": "Lịch hẹn này đã bị từ chối. Vui lòng đặt lịch hẹn mới nếu cần."
+        "rejectedInstruction": "Lịch hẹn này đã bị từ chối. Vui lòng đặt lịch hẹn mới nếu cần.",
+        "pageTitleFull": "Dwello: Lịch hẹn của tôi",
+        "cancelError": "Hủy lịch hẹn thất bại",
+        "cancelSuccess": "Hủy lịch hẹn thành công"
     }
 }
