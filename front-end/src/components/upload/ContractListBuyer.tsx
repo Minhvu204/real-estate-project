@@ -53,6 +53,7 @@ export const ContractListBuyer: React.FC<Props> = ({ dealId }) => {
             if (action === "accept") {
                 await contractApiBuyer.acceptContract(dealId, contractId);
                 toastSuccess(t("contractHasBeenAccepted"));
+                fetchContracts();
             } else {
                 // Yêu cầu lý do từ chối
                 const reason = window.prompt(t("enterReasonForRejectingTheContract"));
