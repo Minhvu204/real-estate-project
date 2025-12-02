@@ -5,7 +5,9 @@
   "status": "status",
   "action": "action",
   "view_btn": "view",
-  "view_tooltip": "view detail",
+  "release_btn": "view",
+  "view_tooltip": "Release",
+  "release_tooltip": "view detail",
   "PaymentDetails": "Payment Details",
   "Notes": "Notes",
   "Close_btn": "Close",
@@ -22,5 +24,11 @@
   "release_to_seller":"release_to_seller",
   "agent_fee":"agent_fee",
   "platform_fee":"platform_fee",
-  "refund":"refund"
+  "refund":"refund",
+  "release": "Release",
+  "release_question": "Do you want to release ?",
+  "cancel_btn":"Cancel",
+  "accept_btn": "Accept",
+  "toast_success_release":"Release successfully",
+  "toast_error_release":"Release failure"
 }

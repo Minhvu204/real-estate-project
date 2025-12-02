@@ -5,7 +5,9 @@
   "status": "Trạng thái",
   "action": "Chức năng",
   "view_btn": "Xem",
+  "release_btn": "Giải ngân",
   "view_tooltip": "Xem chi tiết",
+  "release_tooltip": "Giải ngân",
   "PaymentDetails": "Chi tiết thanh toán",
   "Notes": "Ghi chú",
   "Close_btn": "Đóng",
@@ -22,5 +24,11 @@
   "release_to_seller": "chuyển tiền cho seller",
   "agent_fee": "Thanh toán phí môi giới",
   "platform_fee": "Thanh toán phí nền tảng",
-  "refund": "Hoàn tiền"
+  "refund": "Hoàn tiền",
+  "release": "Giải ngân",
+  "release_question": "Bạn có muốn giải ngân không ?",
+  "cancel_btn":"Hủy",
+  "accept_btn": "Đồng ý",
+  "toast_success_release":"Giải ngân thành công",
+  "toast_error_release":"Giải ngân thất bại"
 }

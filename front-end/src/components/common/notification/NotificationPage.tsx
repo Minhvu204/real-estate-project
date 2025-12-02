@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState} from "react";
 import {
   Box,
   Typography,
@@ -19,10 +19,12 @@ import type { NotificationType } from "../../../types/Notification";
 import { useNavigate } from "react-router-dom";
 import { getLanguage, type Lang } from "../../../utils/storage";
 import { useTranslation } from "react-i18next";
-import { socket } from '../../../socket/socket';
+import { socket } from "../../../socket/socket";
 
 const NotificationsPage = () => {
-  const [allNotifications, setAllNotifications] = useState<NotificationType[]>([]);
+  const [allNotifications, setAllNotifications] = useState<NotificationType[]>(
+    []
+  );
   const [notifications, setNotifications] = useState<NotificationType[]>([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState<"all" | "unread">("all");
@@ -36,7 +38,6 @@ const NotificationsPage = () => {
       try {
         const res = await getAllNotifications();
         setAllNotifications(res.data);
-        setNotifications(res.data);
       } catch (error) {
         console.log(error);
       } finally {
@@ -45,49 +46,37 @@ const NotificationsPage = () => {
     };
     fetchNotifications();
 
-    // Real-time Socket.io listeners
     const handleNewNotification = (notification: NotificationType) => {
-      console.log("[NotificationsPage] Received new_notification:", notification);
-      
       setAllNotifications((prev) => {
         if (prev.some((n) => n._id === notification._id)) return prev;
         return [notification, ...prev];
       });
-
-      // Update filtered notifications if showing all
-      if (filter === "all") {
-        setNotifications((prev) => {
-          if (prev.some((n) => n._id === notification._id)) return prev;
-          return [notification, ...prev];
-        });
-      } else if (filter === "unread" && !notification.is_read) {
-        setNotifications((prev) => {
-          if (prev.some((n) => n._id === notification._id)) return prev;
-          return [notification, ...prev];
-        });
-      }
     };
 
     const handleUnreadCountUpdate = (data: { unreadCount: number }) => {
       console.log("[NotificationsPage] Unread count updated:", data);
     };
 
-    // Register Socket.io event listeners
     socket.on("new_notification", handleNewNotification);
     socket.on("unread_count_update", handleUnreadCountUpdate);
 
-    // Cleanup listeners on unmount
     return () => {
       socket.off("new_notification", handleNewNotification);
       socket.off("unread_count_update", handleUnreadCountUpdate);
     };
-  }, [filter]); // Re-run when filter changes
+  }, []);
+
+  useEffect(() => {
+    if (filter === "all") {
+      setNotifications(allNotifications);
+    } else {
+      setNotifications(allNotifications.filter((n) => !n.is_read));
+    }
+  }, [filter, allNotifications]);
 
   const handleMarkAsRead = async (id: string) => {
-    // Emit to socket for real-time sync
     socket.emit("notification_read", { notificationId: id });
-    
-    // Update local state immediately
+
     setAllNotifications((prev) =>
       prev.map((noti) => (noti._id === id ? { ...noti, is_read: true } : noti))
     );
@@ -95,7 +84,6 @@ const NotificationsPage = () => {
       prev.map((noti) => (noti._id === id ? { ...noti, is_read: true } : noti))
     );
 
-    // Call API in background
     try {
       await markAsRead(id);
     } catch (error) {
@@ -104,10 +92,8 @@ const NotificationsPage = () => {
   };
 
   const handleMarkAllAsRead = async () => {
-    // Emit to socket for real-time sync
-    socket.emit('mark_all_notifications_read');
-    
-    // Update local state immediately
+    socket.emit("mark_all_notifications_read");
+
     setAllNotifications((prev) =>
       prev.map((noti) => (noti.is_read ? noti : { ...noti, is_read: true }))
     );
@@ -115,7 +101,6 @@ const NotificationsPage = () => {
       prev.map((noti) => (noti.is_read ? noti : { ...noti, is_read: true }))
     );
 
-    // Call API in background
     try {
       await markAllAsRead();
     } catch (error) {
@@ -125,12 +110,10 @@ const NotificationsPage = () => {
 
   const handleShowAll = () => {
     setFilter("all");
-    setNotifications(allNotifications);
   };
 
   const handleShowUnread = () => {
     setFilter("unread");
-    setNotifications(allNotifications.filter((n) => !n.is_read));
   };
 
   const hasUnread = notifications.some((n) => !n.is_read);
@@ -288,4 +271,3 @@ const NotificationsPage = () => {
 };
 
 export default NotificationsPage;
-  

@@ -196,17 +196,7 @@ export default function AdminDashboard() {
     {
       text: "Canceled",
       icon: <BackspaceRoundedIcon />,
-      path: "/admin/payments?status=canceled",
-    },
-    {
-      text: "Failed",
-      icon: <BackspaceRoundedIcon />,
-      path: "/admin/payments?status=failed",
-    },
-    {
-      text: "Processing",
-      icon: <HailIcon />,
-      path: "/admin/payments?status=processing",
+      path: "/admin/payments?status=cancelled",
     },
   ];
 
