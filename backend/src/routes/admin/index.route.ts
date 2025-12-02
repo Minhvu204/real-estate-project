@@ -9,6 +9,7 @@ import dealRoutes from "./deal.route";
 import contractRoutes from "./contract.route";
 import paymentRoutes from "./payment.route";
 import reviewRoutes from "./review.route";
+import reportRoutes from "./report.route";
 
 const router = express.Router();
 
@@ -22,5 +23,6 @@ router.use("/deals", dealRoutes);
 router.use("/contracts", contractRoutes);
 router.use("/payments", paymentRoutes);
 router.use("/reviews", reviewRoutes);
+router.use("/reports", reportRoutes); 
 
 export default router;
