@@ -38,13 +38,13 @@ const columns = (navigate: any) => [
     width: 210,
     renderCell: (param: any) => (
       <div className=" w-full h-full flex justify-center items-center space-x-2 ">
-        <button
+        <button title="button"
           className="bg-blue-500 text-white px-2 py-1 rounded text-xs cursor-pointer"
           onClick={() => navigate(`${param.row.id}`)}
         >
           <FontAwesomeIcon icon={faEye} />
         </button>
-        <button
+        <button title="button"
           className="bg-red-500 text-white px-2 py-1 rounded text-xs cursor-pointer"
           onClick={() => navigate(`edit/${param.row.id}`)}
         >

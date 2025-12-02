@@ -150,7 +150,7 @@ const PaymentListBuyer = () => {
 
                                         <TableCell>
                                             <Typography fontWeight={600}>
-                                                {formatMoney(p.amount)}
+                                                {formatMoney(p.deal_id.amounts.agreed_price)}
                                             </Typography>
                                         </TableCell>
 

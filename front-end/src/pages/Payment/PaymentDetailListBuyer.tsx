@@ -60,7 +60,7 @@ const PaymentDetailListBuyer = ({ open, onClose, payment }: PaymentDetailsDrawer
                         <Typography variant="h6" fontWeight={600} gutterBottom>
                             {t("detail.transactionInfo")}
                         </Typography>
-                        <SectionItem label={t("detail.amount")} value={formatMoney(payment.amount)} />
+                        <SectionItem label={t("detail.amount")} value={formatMoney(payment.deal_id.amounts.agreed_price)} />
                         <SectionItem label={t("detail.currency")} value={payment.currency} />
                         <SectionItem label={t("detail.method")} value={payment.method} />
                         <SectionItem label={t("detail.type")} value={payment.type} />

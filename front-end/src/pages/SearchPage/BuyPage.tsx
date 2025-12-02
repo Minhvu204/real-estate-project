@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const BuyPage = () => {
     const navigate = useNavigate();
     useEffect(() => {
-        navigate('/search', { replace: true });
+        navigate('/search?type=for-sale', { replace: true });
     }, [navigate]);
     return null;
 };

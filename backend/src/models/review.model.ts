@@ -6,7 +6,16 @@ export interface IReview extends Document {
   target_id: mongoose.Types.ObjectId;
   target_type: "agent" | "property";
   rating: number;
-  comment: string;
+  comment: {
+    vi: string;
+    en: string;
+  };
+  status: "pending" | "approved" | "rejected";
+  is_hidden: boolean;
+  rejection_reason?: string;
+
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const ReviewSchema = new Schema<IReview>(
@@ -24,7 +33,19 @@ const ReviewSchema = new Schema<IReview>(
         message: "Rating phải là số nguyên từ 1 đến 5"
       }
     },
-    comment: String,
+
+    comment: {
+      vi: { type: String, trim: true },
+      en: { type: String, trim: true },
+    },
+
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "approved",
+    },
+    is_hidden: { type: Boolean, default: false },
+    rejection_reason: { type: String, trim: true },
   },
   { timestamps: true }
 );

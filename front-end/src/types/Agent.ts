@@ -3,7 +3,7 @@ export type Agent = {
     _id: string;
     fullName: string;
     email: string;
-    role: 'agent';
+    role: string;
     phone?: string;
     isActive: boolean;
     createdAt: string;

@@ -45,6 +45,33 @@ export const getMyOffers = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
+//Xem chi tiết offer
+export const getOfferById = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const agentId = req.user?.id || req.user?._id;
+    if (!agentId) {
+      return errorResponse(req, res, "Không xác thực được người dùng", 401);
+    }
+    const { id } = req.params;
+    if (!id) {
+      return errorResponse(req, res, "Thiếu offer id", 400);
+    }
+    const offer = await offerService.getOfferById(id);
+    
+    if (!offer) {
+      return errorResponse(req, res, "Không tìm thấy offer", 404);
+    }
+    const offerAgentId = String(offer.agent_id?._id || offer.agent_id);
+    if (offerAgentId !== String(agentId)) {
+      return errorResponse(req, res, "Bạn không có quyền xem offer này", 403);
+    }
+    return successResponse(req, res, "Lấy chi tiết offer thành công", offer);
+  } catch (error: any) {
+    const statusCode = error?.status || 500;
+    return errorResponse(req, res, error.message || "Không thể lấy chi tiết offer", statusCode);
+  }
+};
+
 export const forwardOffer = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const agentId = req.user?.id || req.user?._id;

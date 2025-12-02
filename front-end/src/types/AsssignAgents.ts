@@ -1,4 +1,4 @@
-export interface AssignAgent {
+export type AssignAgent = {
     _id: string;
     property_id: {
         _id: string;
@@ -24,4 +24,6 @@ export interface AssignAgent {
     createdAt: string;
     updatedAt: string;
     __v: number;
+    actedAt?: string;
+    actedBy?: string
 }

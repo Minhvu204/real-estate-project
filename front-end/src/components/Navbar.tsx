@@ -10,7 +10,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import ButtonLanguage from "./common/ButtonLanguage";
 import Notification from "./common/notification/Notification";
 import { useTranslation } from "react-i18next";
-
 const Navbar: React.FC = () => {
   const { state, signOut } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -19,27 +18,35 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const role = state.user?.role || 'guest';
   const isAdminRoute = location.pathname.startsWith('/admin');
-  const { t } = useTranslation("auth");
+  const { t } = useTranslation(["auth", "favorite"]);
 
   const roleMenus = {
     buyer: [
       { label: "My Properties", path: "/dwello/myProperties" },
       { label: "My Agent", path: "/dwello/myAgent" },
+      { label: "My appointments", path: "/dwello/appointments" },
+      { label: "My Offer", path: "/buyer/offer" },
       { label: "Deals - Contract", path: "/buyer/deals/list" },
       { label: "List Payment", path: "/buyer/listPayments" },
+      { label: t('favorite:myFavorite'), path: "/favorites" }
     ],
     seller: [
       { label: "My Properties", path: "/seller/properties" },
       { label: "Manage Listings", path: "/seller/my-properties" },
+      { label: "My Offers", path: "/seller/offers" },
       { label: "Deals - Contract", path: "/seller/deals/list" },
+      { label: "Request Join", path: "/seller/request-join" },
     ],
     agent: [
-      { label: "My Properties", path: "/agent/properties" },
+      { label: "Agent Request Pool", path: "/agent/properties" },
       { label: "Manage Listings", path: "/agent/my-properties" },
+      { label: "Assignments", path: "/agent/assignments" },
+      { label: "My Offers", path: "/agent/offers" },
       { label: "Deals - Contract", path: "/agent/deals/list" },
+      { label: "Appointments", path: "/agent/appointments" },
     ],
-
   };
+
 
   const handleLogout = () => {
     signOut();
@@ -57,7 +64,7 @@ const Navbar: React.FC = () => {
     { label: "Rent", path: "/rent" },
     { label: "Sell", path: "/sell" },
     { label: "Booking", path: "/booking" },
-    { label: "Get Help", path: "/get-help" },
+    { label: "Find Agent", path: "/find-agent" },
   ];
 
   const drawer = (
@@ -385,7 +392,6 @@ const Navbar: React.FC = () => {
               ))}
             </Box>
           )}
-          <ButtonLanguage />
           <Notification />
           {/* Right Side */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -410,9 +416,8 @@ const Navbar: React.FC = () => {
                       },
                     }}
                   >
-                    {t("narbar.signIn")}
+                    Sign In
                   </Button>
-
                   <Button
                     variant="contained"
                     onClick={() => navigate("/register")}
@@ -421,7 +426,8 @@ const Navbar: React.FC = () => {
                       px: 3,
                       py: 1,
                       borderRadius: 3,
-                      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      background:
+                        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                       fontWeight: 700,
                       boxShadow: "0 6px 20px rgba(102,126,234,0.35)",
                       transition: "all 0.3s ease",
@@ -431,7 +437,7 @@ const Navbar: React.FC = () => {
                       },
                     }}
                   >
-                    {t("narbar.signUp")}
+                    Sign up
                   </Button>
                 </Box>
                 {/* Mobile Menu Icon for non-logged users */}
@@ -439,7 +445,8 @@ const Navbar: React.FC = () => {
                   onClick={handleDrawerToggle}
                   sx={{
                     display: { md: "none" },
-                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    background:
+                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                     color: "white",
                     width: 42,
                     height: 42,
@@ -476,7 +483,8 @@ const Navbar: React.FC = () => {
                 >
                   <Avatar
                     sx={{
-                      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      background:
+                        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                       cursor: "pointer",
                       boxShadow: "0 4px 12px rgba(102,126,234,0.3)",
                       width: 38,
@@ -519,7 +527,8 @@ const Navbar: React.FC = () => {
                 <Avatar
                   sx={{
                     display: { xs: "flex", md: "none" },
-                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    background:
+                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                     cursor: "pointer",
                     boxShadow: "0 4px 12px rgba(102,126,234,0.3)",
                     width: 38,
@@ -538,11 +547,11 @@ const Navbar: React.FC = () => {
               </>
             )}
           </Box>
-        </Toolbar>
-      </AppBar>
+        </Toolbar >
+      </AppBar >
 
       {/* Mobile Drawer */}
-      <Drawer
+      < Drawer
         anchor="right"
         open={mobileOpen}
         onClose={handleDrawerToggle}
@@ -554,7 +563,7 @@ const Navbar: React.FC = () => {
         }}
       >
         {drawer}
-      </Drawer>
+      </Drawer >
 
       {/* User Menu */}
       <Menu
@@ -566,7 +575,7 @@ const Navbar: React.FC = () => {
           "& .MuiPaper-root": {
             borderRadius: 3,
             mt: 1.5,
-            minWidth: 200,
+            minWidth: 240,
             boxShadow: "0 10px 40px rgba(0,0,0,0.12)",
           },
         }}
@@ -581,18 +590,28 @@ const Navbar: React.FC = () => {
           Profile
         </MenuItem>
 
-        {roleMenus[role as keyof typeof roleMenus]?.map((item) => (
-          <MenuItem
-            key={item.path}
-            onClick={() => {
-              navigate(item.path);
-              setAnchorEl(null);
-            }}
-            sx={{ py: 1.5, fontWeight: 600 }}
-          >
-            {item.label}
-          </MenuItem>
-        ))}
+        {
+          roleMenus[role as keyof typeof roleMenus]?.map((item) => (
+            <MenuItem
+              key={item.path}
+              onClick={() => {
+                navigate(item.path);
+                setAnchorEl(null);
+              }}
+              sx={{ py: 1.5, fontWeight: 600 }}
+            >
+              {item.label}
+            </MenuItem>
+          ))
+        }
+
+        <Divider sx={{ my: 1 }} />
+
+        <Box sx={{ px: 2, py: 1.5, display: "flex", justifyContent: "center" }}>
+          <ButtonLanguage />
+        </Box>
+
+        <Divider sx={{ my: 1 }} />
 
         <MenuItem
           onClick={handleLogout}

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const RentPage = () => {
     const navigate = useNavigate();
     useEffect(() => {
-        navigate('/search?type=For Rent', { replace: true });
+        navigate('/search?type=for-rent', { replace: true });
     }, [navigate]);
     return null;
 };
