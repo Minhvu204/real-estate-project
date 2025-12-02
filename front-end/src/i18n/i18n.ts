@@ -33,6 +33,9 @@ import AGENT_DETAIL_EN from "../locales/en/agentDetail.json";
 import AGENT_DETAIL_VI from "../locales/vi/agentDetail.json";
 import OFFER_MANAGEMENT_EN from "../locales/en/offerManagement.json";
 import OFFER_MANAGEMENT_VI from "../locales/vi/offerManagement.json";
+
+import FAVORITE_EN from "../locales/en/favorite.json";
+import FAVORITE_VI from "../locales/vi/favorite.json";
 import DEAL_CONTRACT_EN from "../locales/en/dealContract.json";
 import DEAL_CONTRACT_VI from "../locales/vi/dealContract.json";
 import AUTH_EN from "../locales/en/auth.json";
@@ -60,6 +63,7 @@ export const resources = {
         listAgents: LIST_AGENTS_EN,
         agentDetail: AGENT_DETAIL_EN,
         offerManagement: OFFER_MANAGEMENT_EN,
+        favorite: FAVORITE_EN,
         dealContact: DEAL_CONTRACT_EN,
         auth: AUTH_EN,
         bookAppointment: BOOK_APPOINTMENT_EN,
@@ -79,6 +83,7 @@ export const resources = {
         addressAutocomplete: ADDRESSAUTOCOMPLETE_VI,
         listProperties: LIST_PROPERTIES_ADMIN_VI,
         detailProperty: DETAIL_PROPERTIES_ADMIN_VI,
+        favorite: FAVORITE_VI,
         listAgents: LIST_AGENTS_VI,
         agentList: AGENT_LIST_VI,
         agentDetail: AGENT_DETAIL_VI,

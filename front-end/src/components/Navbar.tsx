@@ -18,7 +18,7 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const role = state.user?.role || 'guest';
   const isAdminRoute = location.pathname.startsWith('/admin');
-  const { t } = useTranslation("auth");
+  const { t } = useTranslation(["auth", "favorite"]);
 
   const roleMenus = {
     buyer: [
@@ -27,6 +27,7 @@ const Navbar: React.FC = () => {
       { label: "My appointments", path: "/dwello/appointments" },
       { label: "My Offer", path: "/buyer/offer" },
       { label: "Deals - Contract", path: "/buyer/deals/list" },
+      { label: t('favorite:myFavorite'), path: "/favorites" }
     ],
     seller: [
       { label: "My Properties", path: "/seller/properties" },
@@ -62,7 +63,7 @@ const Navbar: React.FC = () => {
     { label: "Rent", path: "/rent" },
     { label: "Sell", path: "/sell" },
     { label: "Booking", path: "/booking" },
-    { label: "Get Help", path: "/get-help" },
+    { label: "Find Agent", path: "/find-agent" },
   ];
 
   const drawer = (
