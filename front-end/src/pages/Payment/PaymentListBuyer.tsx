@@ -132,7 +132,6 @@ const PaymentListBuyer = () => {
                                     <TableCell>{t("listPayment.payment")}</TableCell>
                                     <TableCell>{t("listPayment.amount")}</TableCell>
                                     <TableCell>{t("listPayment.status")}</TableCell>
-                                    <TableCell>{t("listPayment.method")}</TableCell>
                                     <TableCell>{t("listPayment.date")}</TableCell>
                                     <TableCell align="center">{t("listPayment.detail")}</TableCell>
                                 </TableRow>
@@ -161,17 +160,6 @@ const PaymentListBuyer = () => {
                                                 size="small"
                                                 sx={{ fontWeight: 600 }}
                                             />
-                                        </TableCell>
-
-                                        <TableCell>
-                                            {p.method === "payos_qr" ? (
-                                                <Box display="flex" alignItems="center" gap={1}>
-                                                    <QrCode2Icon color="primary" />
-                                                    {t("listPayment.payosQr")}
-                                                </Box>
-                                            ) : (
-                                                p.method
-                                            )}
                                         </TableCell>
 
                                         <TableCell>{formatDate(p.payment_date)}</TableCell>
