@@ -15,7 +15,15 @@ export interface CreateNotificationParams {
 
 export const notificationService = {
   async createNotification(params: CreateNotificationParams) {
-    const { userId, title, message, type = "system", relatedId, actionUrl, meta } = params;
+    const {
+      userId,
+      title,
+      message,
+      type = "system",
+      relatedId,
+      actionUrl,
+      meta,
+    } = params;
 
     const [titleMultilang, messageMultilang] = await Promise.all([
       createMultilangText(title),

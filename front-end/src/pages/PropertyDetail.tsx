@@ -10,6 +10,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import { getLanguage, getUser } from "../utils/storage";
 import { OfferService } from "@/services/offerService";
 import { getDetailPropertiesById } from "@/services/propertyService";
+import PropertyReview from "../components/buyer/PropertyReview";
+
 import BuyerAppointment from "@/components/Buyer/Appointment/BuyerAppointment";
 
 
@@ -351,8 +353,34 @@ const PropertyDetailUser = () => {
                                 />
                                 <Box>
                                     <Typography fontWeight="bold">{property.agent_id?.fullName}</Typography>
-                                    <Typography color="text.secondary">{property.agent_id?.phone}</Typography>
-                                    <Typography color="text.secondary">{property.agent_id?.email}</Typography>
+                                    <Typography color="text.secondary" sx={{ mt: 0.5 }}>
+                                        {property.agent_id?.phone}
+                                    </Typography>
+                                    <Typography color="text.secondary" sx={{ mt: 0.5 }}>
+                                        {property.agent_id?.email}
+                                    </Typography>
+                                    <Box
+                                        component="a"
+                                        href={`https://zalo.me/${property.agent_id?.phone}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        sx={{
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: 0.5,
+                                            mt: 1,
+                                            textDecoration: 'none',
+                                            color: '#0068FF',
+                                            fontWeight: 500,
+                                            '&:hover': {
+                                                textDecoration: 'underline',
+                                                opacity: 0.8
+                                            }
+                                        }}
+                                    >
+                                        <img src="/zalo.png" width="20" height="20" alt="Zalo" />
+                                        Chat Zalo
+                                    </Box>
                                 </Box>
                             </Stack>
                         </Paper>
@@ -361,7 +389,7 @@ const PropertyDetailUser = () => {
 
                 {/* MAP */}
                 {
-                    property.coordinates?.lat && property.coordinates?.lng && (
+                    property.coordinates && (
                         <>
                             <Typography variant="h6" fontWeight="bold" mt={2}>
                                 {t("location")}
@@ -369,7 +397,7 @@ const PropertyDetailUser = () => {
                             <Box mt={2} sx={{ borderRadius: 2, overflow: "hidden" }}>
                                 <iframe
                                     title="map"
-                                    src={`https://www.google.com/maps?q=${property.coordinates.lat},${property.coordinates.lng}&z=15&output=embed`}
+                                    src={`https://www.google.com/maps?q=${property.coordinates.coordinates[1]},${property.coordinates.coordinates[0]}&z=15&output=embed`}
                                     width="100%"
                                     height="300"
                                     style={{ border: 0 }}
@@ -387,8 +415,6 @@ const PropertyDetailUser = () => {
                     {t("updatedOn")}: {new Date(property.updatedAt).toLocaleDateString()}
                 </Typography>
             </Grid >
-
-            {/* Dialog cho agent/seller */}
             <Dialog
                 open={restrictionDialogOpen}
                 onClose={() => setRestrictionDialogOpen(false)}
@@ -432,6 +458,7 @@ const PropertyDetailUser = () => {
                     onClose={handleCloseTour}
                 />
             </Dialog>
+            <PropertyReview propertyId = {property._id}/>
 
         </Container >
     );

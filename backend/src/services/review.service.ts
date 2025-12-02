@@ -388,7 +388,7 @@ export const reviewService = {
     const property = await Property.findOne({
       _id: toObjectId(propertyId),
       deleted: false,
-      status: { $in: ["available", "approved"] },
+      status: { $in: ["available", "approved", "sold", "rented"] },
     }).lean();
 
     if (!property) {

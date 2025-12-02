@@ -56,5 +56,6 @@
   "noPropertiesWithoutAgent": "Hiện chưa có bất động sản nào chưa có Agent",
   "requestSent": "Đã gửi yêu cầu",
   "processing": "Đang xử lý",
-  "requestingProperty": "Bạn đang yêu cầu tham gia bất động sản"
+  "requestingProperty": "Bạn đang yêu cầu tham gia bất động sản",
+  "createNewProperty": "Tạo mới"
 }
