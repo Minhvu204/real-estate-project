@@ -31,11 +31,26 @@ export const getSummary = async () => {
   };
 };
 
-export const getRevenueChart = async (year: number) => {
-  const start = new Date(`${year}-01-01`);
-  const end = new Date(`${year}-12-31T23:59:59`);
+export const getRevenueChart = async (
+  year: number,
+  month?: number,
+  startDate?: Date,
+  endDate?: Date
+) => {
+  let start: Date;
+  let end: Date;
 
-  // Revenue by month
+  if (startDate && endDate) {
+    start = startDate;
+    end = endDate;
+  } else if (month) {
+    start = new Date(year, month - 1, 1, 0, 0, 0);
+    end = new Date(year, month, 0, 23, 59, 59);
+  } else {
+    start = new Date(year, 0, 1, 0, 0, 0);
+    end = new Date(year, 11, 31, 23, 59, 59);
+  }
+
   const revenueByMonth = await Payment.aggregate([
     {
       $match: {
@@ -53,7 +68,6 @@ export const getRevenueChart = async (year: number) => {
     { $sort: { "_id.month": 1 } },
   ]);
 
-  // Deals by month
   const dealsByMonth = await Deal.aggregate([
     {
       $match: {
@@ -72,6 +86,9 @@ export const getRevenueChart = async (year: number) => {
 
   return {
     year,
+    month: month || null,
+    startDate: startDate || null,
+    endDate: endDate || null,
     revenueByMonth,
     dealsByMonth,
   };
