@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { getLanguage } from "../../utils/storage";
 import axios from "axios";
 import { getDetailPropertiesById } from "../../services/propertyService";
+import type { Property } from "@/types/Property";
 
 const PropertyDetails = () => {
     const { id } = useParams();

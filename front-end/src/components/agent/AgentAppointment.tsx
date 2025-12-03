@@ -1,4 +1,4 @@
-import {  useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { AgentAppointment } from "@/types/AgentAppointment";
 import { getAllAppointmentsByAgent } from "@/services/agent.service";
 import { getLanguage } from "@/utils/storage";
@@ -82,23 +82,23 @@ const AgentListAppointment = () => {
 
     return (
         <div className="min-h-screen bg-slate-50">
-            <div className="mx-auto max-w-6xl px-4 py-10">
+            <div className="mx-auto max-w-6xl px-2 py-10">
                 <header className="flex flex-col gap-6 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 p-8 text-white shadow-xl">
-                    <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex flex-wrap items-center justify-between gap-4 ">
                         <div>
                             <p className="text-sm uppercase tracking-[0.3em] text-slate-300">{t('appointment.agentPortal')}</p>
 
                             <h1 className="text-3xl font-semibold mt-2">{t('appointment.title')}</h1>
 
                         </div>
-                        <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur">
+                        <div className="flex items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-sm font-medium backdrop-blur  ">
                             <span className="text-slate-200">{t('appointment.status')}</span>
-                            <div className="flex overflow-hidden rounded-full border border-white/20">
+                            <div className="flex overflow-hidden rounded-full border border-white/20 ">
                                 {(["pending", "accepted", "rejected"] as const).map((item) => (
                                     <button
                                         key={item}
                                         onClick={() => setFilter(item)}
-                                        className={`px-4 py-1 text-xs font-semibold uppercase tracking-wide transition ${filter === item ? "bg-white text-slate-900" : "text-white/70"}`}
+                                        className={`px-2 py-1  text-xs font-semibold uppercase tracking-wide transition ${filter === item ? "bg-white text-slate-900" : "text-white/70"}`}
                                     >
                                         {item === "pending" ? t('appointment.pending') : item === "accepted" ? t('appointment.accepted') : t('appointment.rejected')}
                                     </button>
