@@ -1,6 +1,6 @@
 import { httpClient } from "@/utils/httpClient";
 import type { Appointment } from "@/types/Appointment";
-import type { AppoinmentDate, } from "@/components/buyer/Appointment/BuyerAppointment";
+import type { AppoinmentDate, } from "@/components/Buyer/Appointment/BuyerAppointment";
 
 const RESOURCES = "/buyer";
 

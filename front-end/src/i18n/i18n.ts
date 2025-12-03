@@ -27,6 +27,7 @@ import DETAIL_PROPERTIES_ADMIN_EN from "../locales/en/detailProperty.json";
 import DETAIL_PROPERTIES_ADMIN_VI from "../locales/vi/detailProperty.json";
 import LIST_AGENTS_EN from "../locales/en/listAgents.json";
 import LIST_AGENTS_VI from "../locales/vi/listAgents.json";
+import AGENT_LIST_EN from "../locales/en/agentList.json";
 import AGENT_LIST_VI from "../locales/vi/agentList.json";
 import AGENT_DETAIL_EN from "../locales/en/agentDetail.json";
 import AGENT_DETAIL_VI from "../locales/vi/agentDetail.json";
@@ -54,6 +55,8 @@ import NOTIFICATION_EN from "../locales/en/notification.json";
 import NOTIFICATION_VI from "../locales/vi/notification.json";
 import REVIEW_ADMIN_EN from "../locales/en/review.json";
 import REVIEW_ADMIN_VI from "../locales/vi/review.json";
+import COMMENT_BUYER_EN from "../locales/en/comment.json";
+import COMMENT_BUYER_VI from "../locales/vi/comment.json";
 export const resources = {
   en: {
     home: HOME_EN,
@@ -69,6 +72,7 @@ export const resources = {
     listProperties: LIST_PROPERTIES_ADMIN_EN,
     detailProperty: DETAIL_PROPERTIES_ADMIN_EN,
     listAgents: LIST_AGENTS_EN,
+    agentList: AGENT_LIST_EN,
     agentDetail: AGENT_DETAIL_EN,
     offerManagement: OFFER_MANAGEMENT_EN,
     favorite: FAVORITE_EN,
@@ -82,6 +86,7 @@ export const resources = {
     payment: PAYMENT_ADMIN_EN,
     notification: NOTIFICATION_EN,
     review: REVIEW_ADMIN_EN,
+    comment: COMMENT_BUYER_EN,
   },
   vi: {
     home: HOME_VI,
@@ -111,6 +116,7 @@ export const resources = {
     payment: PAYMENT_ADMIN_VI,
     notification: NOTIFICATION_VI,
     review: REVIEW_ADMIN_VI,
+    comment: COMMENT_BUYER_VI
   },
 };
 export const defaultNS = "home";
@@ -144,6 +150,7 @@ i18n
       "payment",
       "notification",
       "review",
+      "comment"
     ], //add các namespace khi viết thêm ở trên vào mảng này
     defaultNS,
     fallbackLng: "en",

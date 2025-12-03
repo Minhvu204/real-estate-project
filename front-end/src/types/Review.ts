@@ -45,6 +45,7 @@ export type Review = {
     en: string;
   };
   isComment: boolean;
+  canReview: boolean;
   status: string;
   createdAt: Date;
   updatedAt: Date;
