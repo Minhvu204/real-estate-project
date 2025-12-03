@@ -14,7 +14,11 @@ export const getAdminSummary = async (req: Request, res: Response) => {
 export const getRevenueChart = async (req: Request, res: Response) => {
   try {
     const year = Number(req.query.year) || new Date().getFullYear();
-    const data = await reportService.getRevenueChart(year);
+    const month = req.query.month ? Number(req.query.month) : undefined;
+    const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
+    const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
+
+    const data = await reportService.getRevenueChart(year, month, startDate, endDate);
 
     return successResponse(req, res, "reports.revenue_success", data);
   } catch (error: any) {
