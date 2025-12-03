@@ -17,7 +17,6 @@ import {
 import Grid from "@mui/material/Grid";
 import LocalPhoneIcon from "@mui/icons-material/LocalPhone";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import StarIcon from "@mui/icons-material/Star";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import { useTranslation } from "react-i18next";
@@ -52,9 +51,7 @@ const AgentDetailPage = () => {
   );
 
   const [propertiesPage, setPropertiesPage] = useState(1);
-  const [reviewsPage, setReviewsPage] = useState(1);
-  const PROPERTIES_PER_PAGE = 4;
-  const REVIEWS_PER_PAGE = 5;
+  const PROPERTIES_PER_PAGE = 5;
 
   useTitle(
     agentInfo
@@ -119,26 +116,16 @@ const AgentDetailPage = () => {
     reviews.length > 0
       ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
       : 0;
+  
   const totalPropertiesPages = Math.ceil(properties.length / PROPERTIES_PER_PAGE);
-  const totalReviewsPages = Math.ceil(reviews.length / REVIEWS_PER_PAGE);
 
   const paginatedProperties = properties.slice(
     (propertiesPage - 1) * PROPERTIES_PER_PAGE,
     propertiesPage * PROPERTIES_PER_PAGE
   );
 
-  const paginatedReviews = reviews.slice(
-    (reviewsPage - 1) * REVIEWS_PER_PAGE,
-    reviewsPage * REVIEWS_PER_PAGE
-  );
-
   const handlePropertiesPageChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setPropertiesPage(value);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleReviewsPageChange = (_: React.ChangeEvent<unknown>, value: number) => {
-    setReviewsPage(value);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -281,14 +268,15 @@ const AgentDetailPage = () => {
         </Paper>
 
         <Grid container spacing={{ xs: 2, md: 3 }}>
-          <Grid size={{ xs: 12, md: 7 }}>
+          {/* Left */}
+          <Grid size={{ xs: 12, md: 7.2 }}>
             <Paper
               sx={{
                 bgcolor: "white",
                 borderRadius: 3,
                 p: { xs: 2, md: 3 },
-                minHeight: { xs: "300px", md: "600px" },
-                maxHeight: { xs: "auto", md: "600px" },
+                minHeight: { xs: "300px", md: "750px" },
+                maxHeight: { xs: "auto", md: "750px" },
                 display: "flex",
                 flexDirection: "column",
               }}
@@ -299,21 +287,14 @@ const AgentDetailPage = () => {
                 gap={2}
                 mb={{ xs: 2, md: 3 }}
               >
-                <Box
-                  display="flex"
-                  alignItems="center"
-                  gap={2}
-                  mb={{ xs: 2, md: 3 }}
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  color="#111"
+                  sx={{ fontSize: { xs: "1rem", md: "1.25rem" } }}
                 >
-                  <Typography
-                    variant="h6"
-                    fontWeight="bold"
-                    color="#111"
-                    sx={{ fontSize: { xs: "1rem", md: "1.25rem" } }}
-                  >
-                    {t("propertiesSold")} ({stats.sold_properties})
-                  </Typography>
-                </Box>
+                  {t("propertiesSold")} ({stats.sold_properties})
+                </Typography>
               </Box>
 
               {properties.length > 0 ? (
@@ -353,6 +334,7 @@ const AgentDetailPage = () => {
                             bgcolor: "white",
                             cursor: "pointer",
                             transition: "transform 0.2s",
+                            minHeight: { xs: "120px", sm: "140px" },
                             "&:hover": {
                               transform: "translateY(-2px)",
                             },
@@ -362,8 +344,8 @@ const AgentDetailPage = () => {
                           <Box
                             sx={{
                               position: "relative",
-                              width: { xs: 100, sm: 120 },
-                              height: { xs: 100, sm: 120 },
+                              width: { xs: 100, sm: 140 },
+                              height: { xs: 100, sm: 140 },
                               flexShrink: 0,
                             }}
                           >
@@ -458,54 +440,62 @@ const AgentDetailPage = () => {
                           <CardContent
                             sx={{
                               flex: 1,
-                              py: { xs: 1, sm: 1.5 },
-                              px: { xs: 1, sm: 2 },
+                              py: { xs: 1.5, sm: 2 },
+                              px: { xs: 1.5, sm: 2 },
+                              display: "flex",
+                              flexDirection: "column",
+                              justifyContent: "space-between",
                             }}
                           >
-                            <Typography
-                              variant="subtitle1"
-                              fontWeight="bold"
-                              color="#111"
-                              gutterBottom
-                              noWrap
-                              sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}
-                            >
-                              {property.title[lang]}
-                            </Typography>
-
-                            <Typography
-                              variant="body2"
-                              color="rgba(0,0,0,0.6)"
-                              gutterBottom
-                              noWrap
-                              sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-                            >
-                              {property.address[lang]}
-                            </Typography>
-
-                            <Typography
-                              variant="h6"
-                              color="#ef4444"
-                              fontWeight="bold"
-                              sx={{
-                                fontSize: { xs: "0.875rem", sm: "1.125rem" },
-                              }}
-                            >
-                              {new Intl.NumberFormat("vi-VN").format(
-                                property.price
-                              )}{" "}
-                              ₫
-                            </Typography>
-
-                            {property.area && (
+                            <Box>
                               <Typography
-                                variant="caption"
-                                color="rgba(0,0,0,0.6)"
-                                sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem" } }}
+                                variant="subtitle1"
+                                fontWeight="bold"
+                                color="#111"
+                                gutterBottom
+                                noWrap
+                                sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}
                               >
-                                {property.area} m²
+                                {property.title[lang]}
                               </Typography>
-                            )}
+
+                              <Typography
+                                variant="body2"
+                                color="rgba(0,0,0,0.6)"
+                                gutterBottom
+                                noWrap
+                                sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                              >
+                                {property.address[lang]}
+                              </Typography>
+                            </Box>
+
+                            <Box>
+                              <Typography
+                                variant="h6"
+                                color="#ef4444"
+                                fontWeight="bold"
+                                sx={{
+                                  fontSize: { xs: "1rem", sm: "1.25rem" },
+                                  mb: 0.5,
+                                }}
+                              >
+                                {new Intl.NumberFormat("vi-VN").format(
+                                  property.price
+                                )}{" "}
+                                ₫
+                              </Typography>
+
+                              {property.area && (
+                                <Typography
+                                  variant="caption"
+                                  color="rgba(0,0,0,0.6)"
+                                  sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem" } }}
+                                >
+                                  {property.area} m²
+                                </Typography>
+                              )}
+                            </Box>
                           </CardContent>
 
                           <Box
@@ -569,14 +559,14 @@ const AgentDetailPage = () => {
           </Grid>
 
           {/* Right */}
-          <Grid size={{ xs: 12, md: 5 }}>
+          <Grid size={{ xs: 12, md: 4.8 }}>
             <Paper
               sx={{
                 bgcolor: "white",
                 borderRadius: 3,
                 p: { xs: 2, md: 3 },
-                minHeight: { xs: "300px", md: "600px" },
-                maxHeight: { xs: "auto", md: "600px" },
+                minHeight: { xs: "300px", md: "750px" },
+                maxHeight: { xs: "auto", md: "750px" },
                 display: "flex",
                 flexDirection: "column",
               }}
@@ -596,7 +586,31 @@ const AgentDetailPage = () => {
                   {t("customerReviews")} ({reviews.length})
                 </Typography>
               </Box>
-              <Box><PropertyAgentReview targetType="agent" targetId={agentInfo.agent._id} /></Box>
+
+              <Box 
+                sx={{
+                  flex: 1,
+                  display: "flex",
+                  flexDirection: "column",
+                  overflowY: "auto",
+                  "&::-webkit-scrollbar": {
+                    width: "6px",
+                  },
+                  "&::-webkit-scrollbar-track": {
+                    background: "#f1f1f1",
+                    borderRadius: "10px",
+                  },
+                  "&::-webkit-scrollbar-thumb": {
+                    background: "#888",
+                    borderRadius: "10px",
+                  },
+                  "&::-webkit-scrollbar-thumb:hover": {
+                    background: "#555",
+                  },
+                }}
+              >
+                <PropertyAgentReview targetType="agent" targetId={agentInfo.agent._id} />
+              </Box>
             </Paper>
           </Grid>
         </Grid>
