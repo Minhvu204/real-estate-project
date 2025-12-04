@@ -37,7 +37,7 @@ const DealListPageAgent: React.FC = () => {
     const [imageIndexes, setImageIndexes] = useState<{ [dealId: string]: number }>({});
 
     // Lấy index hiện tại của deal
-    const getIndex = (dealId: string, length: number) => {
+    const getIndex = (dealId: string) => {
         return imageIndexes[dealId] ?? 0;
     };
 
@@ -114,7 +114,7 @@ const DealListPageAgent: React.FC = () => {
                     const statusColor = statusColors[deal.status] || "default";
                     const statusLabel = statusLabels[deal.status] || deal.status;
 
-                    const currentIndex = getIndex(deal._id, property.images.length);
+                    const currentIndex = getIndex(deal._id);
 
                     return (
                         <Box key={deal._id} sx={{ width: "90%", mx: "auto" }}>
@@ -136,8 +136,9 @@ const DealListPageAgent: React.FC = () => {
                                 <Box
                                     sx={{
                                         position: "relative",
-                                        width: { xs: 700, md: 360 },
-                                        height: { xs: 400, md: 280 },
+                                        width: { md: 360 },
+                                        height: { md: 280 },
+                                        display: { xs: "none", sm: "block" },
                                         my: "auto",
                                         overflow: "hidden",
                                         flexShrink: 0,
