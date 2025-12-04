@@ -34,7 +34,7 @@ import useTitle from "@/hooks/useTitle";
 import { getLanguage } from "@/utils/storage";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import PropertyAgentReview from "@/components/Buyer/PropertyAgentReview";
+import PropertyAgentReview from "../../components/buyer/PropertyAgentReview";
 
 const AgentDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -116,15 +116,20 @@ const AgentDetailPage = () => {
     reviews.length > 0
       ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
       : 0;
-  
-  const totalPropertiesPages = Math.ceil(properties.length / PROPERTIES_PER_PAGE);
+
+  const totalPropertiesPages = Math.ceil(
+    properties.length / PROPERTIES_PER_PAGE
+  );
 
   const paginatedProperties = properties.slice(
     (propertiesPage - 1) * PROPERTIES_PER_PAGE,
     propertiesPage * PROPERTIES_PER_PAGE
   );
 
-  const handlePropertiesPageChange = (_: React.ChangeEvent<unknown>, value: number) => {
+  const handlePropertiesPageChange = (
+    _: React.ChangeEvent<unknown>,
+    value: number
+  ) => {
     setPropertiesPage(value);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -431,7 +436,8 @@ const AgentDetailPage = () => {
                                     fontSize: "0.7rem",
                                   }}
                                 >
-                                  {currentImageIndex + 1}/{property.images.length}
+                                  {currentImageIndex + 1}/
+                                  {property.images.length}
                                 </Box>
                               </>
                             )}
@@ -454,7 +460,9 @@ const AgentDetailPage = () => {
                                 color="#111"
                                 gutterBottom
                                 noWrap
-                                sx={{ fontSize: { xs: "0.875rem", sm: "1rem" } }}
+                                sx={{
+                                  fontSize: { xs: "0.875rem", sm: "1rem" },
+                                }}
                               >
                                 {property.title[lang]}
                               </Typography>
@@ -464,7 +472,9 @@ const AgentDetailPage = () => {
                                 color="rgba(0,0,0,0.6)"
                                 gutterBottom
                                 noWrap
-                                sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                                sx={{
+                                  fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                                }}
                               >
                                 {property.address[lang]}
                               </Typography>
@@ -490,7 +500,9 @@ const AgentDetailPage = () => {
                                 <Typography
                                   variant="caption"
                                   color="rgba(0,0,0,0.6)"
-                                  sx={{ fontSize: { xs: "0.7rem", sm: "0.75rem" } }}
+                                  sx={{
+                                    fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                                  }}
                                 >
                                   {property.area} m²
                                 </Typography>
@@ -526,7 +538,12 @@ const AgentDetailPage = () => {
                   </Box>
 
                   {totalPropertiesPages > 1 && (
-                    <Box display="flex" justifyContent="center" mt="auto" pt={3}>
+                    <Box
+                      display="flex"
+                      justifyContent="center"
+                      mt="auto"
+                      pt={3}
+                    >
                       <Pagination
                         count={totalPropertiesPages}
                         page={propertiesPage}
@@ -571,45 +588,11 @@ const AgentDetailPage = () => {
                 flexDirection: "column",
               }}
             >
-              <Box
-                display="flex"
-                alignItems="center"
-                gap={2}
-                mb={{ xs: 2, md: 3 }}
-              >
-                <Typography
-                  variant="h6"
-                  fontWeight="bold"
-                  color="#111"
-                  sx={{ fontSize: { xs: "1rem", md: "1.25rem" } }}
-                >
-                  {t("customerReviews")} ({reviews.length})
-                </Typography>
-              </Box>
-
-              <Box 
-                sx={{
-                  flex: 1,
-                  display: "flex",
-                  flexDirection: "column",
-                  overflowY: "auto",
-                  "&::-webkit-scrollbar": {
-                    width: "6px",
-                  },
-                  "&::-webkit-scrollbar-track": {
-                    background: "#f1f1f1",
-                    borderRadius: "10px",
-                  },
-                  "&::-webkit-scrollbar-thumb": {
-                    background: "#888",
-                    borderRadius: "10px",
-                  },
-                  "&::-webkit-scrollbar-thumb:hover": {
-                    background: "#555",
-                  },
-                }}
-              >
-                <PropertyAgentReview targetType="agent" targetId={agentInfo.agent._id} />
+              <Box>
+                <PropertyAgentReview
+                  targetType="agent"
+                  targetId={agentInfo.agent._id}
+                />
               </Box>
             </Paper>
           </Grid>

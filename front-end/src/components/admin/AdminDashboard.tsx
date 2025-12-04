@@ -30,7 +30,6 @@ import {
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
-
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import ArticleRoundedIcon from "@mui/icons-material/ArticleRounded";
 import RealEstateAgentRoundedIcon from "@mui/icons-material/RealEstateAgentRounded";
@@ -101,7 +100,7 @@ export default function AdminDashboard() {
       text: t("sidebar.menu.taxonomies"),
       key: "Taxonomies",
       icon: <CategoryOutlinedIcon />,
-      path: "/admin/taxonomies"
+      path: "/admin/taxonomies",
     },
   ];
 
