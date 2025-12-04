@@ -23,27 +23,29 @@ const Navbar: React.FC = () => {
 
   const roleMenus = {
     buyer: [
-      { label: "My Properties", path: "/dwello/myProperties" },
-      { label: "My appointments", path: "/dwello/appointments" },
-      { label: "My Offer", path: "/buyer/offer" },
-      { label: "Deals - Contract", path: "/buyer/deals/list" },
-      { label: "List Payment", path: "/buyer/listPayments" },
-      { label: t('favorite:myFavorite'), path: "/favorites" }
+      { label: t("favorite:myProperties"), path: "/dwello/myProperties" },
+      { label: t("favorite:myAppointments"), path: "/dwello/appointments" },
+      { label: t("favorite:myOffer"), path: "/buyer/offer" },
+      { label: t("favorite:dealsContract"), path: "/buyer/deals/list" },
+      { label: t("favorite:listPayment"), path: "/buyer/listPayments" },
+      { label: t("favorite:myFavorite"), path: "/favorites" },
     ],
+
     seller: [
-      { label: "My Properties", path: "/seller/properties" },
-      { label: "Manage Listings", path: "/seller/my-properties" },
-      { label: "My Offers", path: "/seller/offers" },
-      { label: "Deals - Contract", path: "/seller/deals/list" },
-      { label: "Request Join", path: "/seller/request-join" },
+      { label: t("favorite:myProperties"), path: "/seller/properties" },
+      { label: t("favorite:manageListings"), path: "/seller/my-properties" },
+      { label: t("favorite:myOffers"), path: "/seller/offers" },
+      { label: t("favorite:dealsContract"), path: "/seller/deals/list" },
+      { label: t("favorite:requestJoin"), path: "/seller/request-join" },
     ],
+
     agent: [
-      { label: "Agent Request Pool", path: "/agent/properties" },
-      { label: "Manage Listings", path: "/agent/my-properties" },
-      { label: "Assignments", path: "/agent/assignments" },
-      { label: "My Offers", path: "/agent/offers" },
-      { label: "Deals - Contract", path: "/agent/deals/list" },
-      { label: "Appointments", path: "/agent/appointments" },
+      { label: t("favorite:agentRequestPool"), path: "/agent/properties" },
+      { label: t("favorite:manageListings"), path: "/agent/my-properties" },
+      { label: t("favorite:assignments"), path: "/agent/assignments" },
+      { label: t("favorite:myOffers"), path: "/agent/offers" },
+      { label: t("favorite:dealsContract"), path: "/agent/deals/list" },
+      { label: t("favorite:appointments"), path: "/agent/appointments" },
     ],
   };
 
@@ -61,7 +63,6 @@ const Navbar: React.FC = () => {
     { label: "Home", path: "/home" },
     { label: "Buy", path: "/buy" },
     { label: "Rent", path: "/rent" },
-    { label: "Sell", path: "/sell" },
     { label: "Find Agent", path: "/agents" },
   ];
 

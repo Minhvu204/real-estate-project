@@ -55,5 +55,17 @@
   "readyToCompare": "Ready to compare",
   "remove": "Remove",
   "selectAtLeastTwo": "Select at least 2 properties to compare",
-  "maxFiveProperties": "Maximum 5 properties allowed"
+  "maxFiveProperties": "Maximum 5 properties allowed",
+  "myFavorites": "My Favorites",
+  "myProperties": "My Properties",
+  "myAppointments": "My Appointments",
+  "myOffer": "My Offers",
+  "dealsContract": "Deals - Contracts",
+  "listPayment": "Payment List",
+  "manageListings": "Manage Listings",
+  "myOffers": "Received Offers",
+  "requestJoin": "Collaboration Requests",
+  "agentRequestPool": "Agent Request Pool",
+  "assignments": "Assignments",
+  "appointments": "Viewing Appointments"
 }
