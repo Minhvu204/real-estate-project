@@ -32,7 +32,7 @@ export default function RegisterPage() {
 	const validate = () => {
 		if (!form.fullName.trim()) return t("validation.fullNameRequired");
 		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) return t("validation.emailInvalid");
-		if (form.password.length < 6) return t("validation.passwordTooShort");
+		if (form.password.length < 8) return t("validation.passwordTooShort");
 		if (form.password !== form.confirmPassword) return t("validation.passwordNotMatch");
 		return '';
 	};

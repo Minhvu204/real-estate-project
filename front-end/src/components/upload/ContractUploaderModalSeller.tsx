@@ -9,7 +9,6 @@ interface Props {
     open: boolean;
     onClose: () => void;
     dealId: string;
-    token: string;
     onUploaded?: () => void;
     existingContracts?: Contract[];
     initialContractType?: "initial" | "buyer_signed" | "final";
@@ -24,7 +23,6 @@ export const ContractUploaderModalSeller: React.FC<Props> = ({
     open,
     onClose,
     dealId,
-    token,
     onUploaded,
     existingContracts = [],
     initialContractType = "initial",
@@ -74,7 +72,7 @@ export const ContractUploaderModalSeller: React.FC<Props> = ({
         formData.append("notes", notes);
 
         try {
-            await contractApiSeller.uploadOrReplaceContract(dealId, formData, hasExisting, token);
+            await contractApiSeller.uploadOrReplaceContract(dealId, formData, hasExisting);
             toastSuccess(t("uploadContractSuccessfully"));
             onUploaded?.();
             onClose();
