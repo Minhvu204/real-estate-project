@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import {Container,Box,Typography,CircularProgress,Alert,Card,CardContent,CardActions,Button,Chip,Stack,Avatar,Divider,} from "@mui/material";
+import React, { useEffect, useMemo, useState } from "react";
+import { Container, Box, Typography, CircularProgress, Alert, Card, CardContent, CardActions, Button, Chip, Stack, Avatar, Divider, Pagination, } from "@mui/material";
 import { dealApiBuyer } from "../../api/dealApiBuyer";
 import type { Deal } from "../../types/Deal";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +12,8 @@ const BuyerDealsPage: React.FC = () => {
     const [deals, setDeals] = useState<Deal[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [page, setPage] = useState(1);
+    const itemsPerPage = 6;
 
     const navigate = useNavigate();
 
@@ -27,7 +29,16 @@ const BuyerDealsPage: React.FC = () => {
             })
             .finally(() => setLoading(false));
     }, []);
-
+    const paginatedAssignments = useMemo(() => {
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        return deals.slice(startIndex, endIndex);
+    }, [deals, page]);
+    const totalPages = Math.ceil(deals.length / itemsPerPage);
+    const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
+        setPage(value);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
     if (loading) {
         return (
             <Box display="flex" justifyContent="center" mt={10}>
@@ -105,7 +116,7 @@ const BuyerDealsPage: React.FC = () => {
                     gap={3}
                     justifyContent="center"
                 >
-                    {deals.map((deal) => (
+                    {paginatedAssignments.map((deal) => (
                         <Card
                             key={deal._id}
                             sx={{
@@ -212,6 +223,28 @@ const BuyerDealsPage: React.FC = () => {
                         </Card>
                     ))}
                 </Box>
+            )}
+            {totalPages > 1 && (
+                <div className="flex justify-center mt-8 pb-4 truncate">
+
+                    <Pagination
+                        count={totalPages}
+                        page={page}
+                        onChange={handlePageChange}
+                        color="primary"
+                        size="large"
+                        showFirstButton
+                        showLastButton
+                        siblingCount={0}
+                        boundaryCount={1}
+                        sx={{
+                            '& .MuiPaginationItem-root': {
+                                fontSize: { xs: '0.75rem', sm: '1rem' },
+                            },
+                        }}
+                    />
+
+                </div>
             )}
         </Container>
     );
