@@ -48,7 +48,7 @@
   "deleteSuccess": "Đã xóa bất động sản thành công!",
   "deleteFailed": "Không thể xóa bất động sản",
   "noPermissionDelete": "❌ Bạn không có quyền xóa bất động sản này",
-  "cannotDeleteApproved": "❌ Không thể xóa bất động sản đã được duyệt!",
+  "cannotDelete": "❌ Không thể xóa bất động sản đã cho thuê hoặc đã bán!",
   "loadFailed": "Không thể tải danh sách bất động sản",
   "sessionExpired": "❌ Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!",
   "noPermission": "❌ Bạn không có quyền truy cập chức năng này",
