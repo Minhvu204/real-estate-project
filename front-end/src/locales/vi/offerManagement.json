@@ -98,7 +98,7 @@
     "rejectConfirm": "Bạn có chắc chắn muốn từ chối offer này không?",
     "rejectionReason": "Lý do từ chối",
     "rejectionReasonPlaceholder": "Nhập lý do từ chối (tùy chọn)",
-    "acceptSuccess": "✅ Chấp nhận offer thành công!",
+    "acceptSuccess": "Chấp nhận offer thành công!",
     "acceptError": "Chấp nhận offer thất bại",
     "acceptProcessing": "⏳ Đang xử lý chấp nhận offer...",
     "dealCreatedInfo": "🎉 Deal đã được tạo! Bạn có thể xem trong mục Quản lý Deal.",
@@ -149,7 +149,6 @@
       "title": "Thông tin người mua",
       "noName": "Không có tên",
       "noEmail": "Không có email",
-
       "email": "Email",
       "phone": "Điện thoại",
       "noBuyerInfo": "Không có thông tin người mua"

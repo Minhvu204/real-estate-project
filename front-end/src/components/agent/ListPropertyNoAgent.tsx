@@ -560,7 +560,7 @@ const SellerProperties = () => {
                                         {selectedProperty.title[currentLanguage]}
                                     </Typography>
                                     <Typography variant="body2" color="text.secondary">
-                                         {selectedProperty.address[currentLanguage]}
+                                        {selectedProperty.address[currentLanguage]}
                                     </Typography>
                                     <Typography variant="body2" color="success.main" fontWeight="bold" sx={{ mt: 1 }}>
                                         {selectedProperty.price.toLocaleString()} VNĐ

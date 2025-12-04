@@ -57,5 +57,6 @@
   "requestSent": "Request Sent",
   "processing": "Processing",
   "requestingProperty": "You are requesting to join this property",
-  "createNewProperty": "Create "
+  "createNewProperty": "Create ",
+  "viewDetails": "View Details"
 }

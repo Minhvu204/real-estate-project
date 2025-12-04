@@ -46,6 +46,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [displayAmount, setDisplayAmount] = useState<string>('');
   const hasAgent = property.agent_id !== null && property.agent_id !== undefined;
 
   const nextSlide = () => {
@@ -159,23 +160,35 @@ export const OfferForm: React.FC<OfferFormProps> = ({
   };
 
   const formatCurrency = (value: number): string => {
+    if (!value || value === 0) return '';
     return new Intl.NumberFormat('vi-VN').format(value);
   };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^\d]/g, '');
-    const numValue = value ? parseInt(value, 10) : 0;
+    const rawValue = e.target.value.replace(/[^\d]/g, '');
+    const numValue = rawValue ? parseInt(rawValue, 10) : 0;
     
     setFormData(prev => ({
       ...prev,
       amount: numValue,
     }));
+    if (rawValue) {
+      setDisplayAmount(formatCurrency(numValue));
+    } else {
+      setDisplayAmount('');
+    }
 
     if (errors.amount) {
       setErrors(prev => ({
         ...prev,
         amount: '',
       }));
+    }
+  };
+
+  const handleAmountBlur = () => {
+    if (formData.amount > 0) {
+      setDisplayAmount(formatCurrency(formData.amount));
     }
   };
 
@@ -529,8 +542,9 @@ export const OfferForm: React.FC<OfferFormProps> = ({
               <TextField
                 name="amount"
                 placeholder={t('form.enterProposedPricePlaceholder')}
-                value={formData.amount || ''}
+                value={displayAmount}
                 onChange={handleAmountChange}
+                onBlur={handleAmountBlur}
                 error={!!errors.amount}
                 helperText={errors.amount}
                 required

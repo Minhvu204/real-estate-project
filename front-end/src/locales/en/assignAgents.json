@@ -11,7 +11,7 @@
     "totalAccepted": "Accepted",
     "totalRejected": "Rejected",
     "noAgentFound": "No assignment requests found.",
-    "notFoundWithStatus": "No requests found with status \"{{status}}\"",
+    "notFoundWithStatus": "No requests found with this status ",
     "owner": "Owner",
     "btnAccept": "Accept",
     "btnReject": "Reject",

@@ -68,8 +68,11 @@ const BuyerMyPropertiesPage: React.FC = () => {
 				setError(null);
 				setErrorKey(null);
 				const data = await getBuyerPurchasedProperties();
-				setProperties(Array.isArray(data) ? data : []);
-				setFilteredProperties(Array.isArray(data) ? data : []);
+				const sortedData = Array.isArray(data) 
+					? data.sort((a, b) => new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime())
+					: [];
+				setProperties(sortedData);
+				setFilteredProperties(sortedData);
 			} catch (err: any) {
 				const message = err?.response?.data?.message || err?.message || "";
 				if (message) {
