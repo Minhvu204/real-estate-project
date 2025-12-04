@@ -11,31 +11,31 @@ export async function seedReport2024() {
 
   // 1. Tạo users
   const admin = await User.create({
-    fullName: "Admin System",
-    email: "adminDwello2024@test.com",
+    fullName: "Admin System 1",
+    email: "admin12Dwello2024@test.com",
     password: "123456",
     role: "admin",
     isVerified: true,
   });
 
   const agent = await User.create({
-    fullName: "Tran Thi Thuy",
-    email: "thuytranthi12024@test.com",
+    fullName: "Tran Thi Thuy 1",
+    email: "thuytranthi22024@test.com",
     password: "123456",
     role: "agent",
     isVerified: true,
   });
 
   const seller = await User.create({
-    fullName: "Dang Van Kha",
-    email: "dangvankha22024@test.com",
+    fullName: "Dang Van Kha 1",
+    email: "dangvankha12024@test.com",
     password: "123456",
     role: "seller",
     isVerified: true,
   });
 
   const buyer = await User.create({
-    fullName: "Le Van Minh Nhat",
+    fullName: "Le Van Minh Nhat 1",
     email: "nhatvanminhle12024@test.com",
     password: "123456",
     role: "buyer",
@@ -121,10 +121,10 @@ export async function seedReport2024() {
     agent_id: agent._id,
     seller_id: seller._id,
     times: [
-      { time: new Date("2024-03-01T09:00:00") },
-      { time: new Date("2024-03-02T09:00:00") },
+      { time: new Date("2025-12-05T09:00:00") },
+      { time: new Date("2025-12-05T09:00:00") },
     ],
-    final_time: new Date("2024-03-02T09:00:00"),
+    final_time: new Date("2025-12-06T09:00:00"),
     status: "completed",
   }, { validateBeforeSave: false });
 

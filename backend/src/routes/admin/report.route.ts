@@ -5,9 +5,17 @@ import {
   getAdminSummary,
   getRevenueChart,
   getTopAgents,
+  getUserRolesSummary,
 } from "../../controllers/admin/report.controller";
 
 const router = Router();
+
+router.get(
+  "/user-roles-summary",
+  verifyToken,
+  roleCheck("admin"),
+  getUserRolesSummary
+);
 
 // Summary
 router.get(
