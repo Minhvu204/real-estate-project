@@ -41,6 +41,7 @@ const HideProperties = ({ propertyId }: HideProperty) => {
   const navigate = useNavigate();
   const currentLanguage: Lang = getLanguage();
   const { t } = useTranslation("detailProperty");
+
   const handleOpen = async () => {
     setOpen(true);
   };

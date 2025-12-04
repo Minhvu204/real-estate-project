@@ -60,5 +60,6 @@
   "createNewProperty": "Create ",
   "cancel_btn": "Cancel",
   "toast_success":"Update property status successfully!",
-  "toast_fail":"Failed to update property status!"
+  "toast_fail":"Failed to update property status!",
+  "sold":"Sold"
 }

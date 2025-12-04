@@ -170,7 +170,7 @@ const ListProperties = () => {
             <option value="">{t("All status")}</option>
             <option value="approved">{t("Approved")}</option>
             <option value="pending">{t("Pending")}</option>
-            <option value="available">{t("Available")}</option>
+            <option value="sold">{t("sold")}</option>
             <option value="rejected">{t("Rejected")}</option>
           </select>
         )}
@@ -236,11 +236,13 @@ const ListProperties = () => {
                     ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
                     : item.status === "pending"
                     ? "bg-amber-50 text-amber-700 ring-1 ring-amber-100"
-                    : item.status === "available"
+                    : item.status === "sold"
                     ? "bg-sky-50 text-sky-700 ring-1 ring-sky-100"
                     : item.status === "rejected"
                     ? "bg-rose-50 text-rose-700 ring-1 ring-rose-100"
-                    : "bg-gray-100 text-gray-700 ring-1 ring-gray-200"
+                    : item.status === "rented"
+                    ? "bg-gray-100 text-purple-700 ring-1 ring-purple-200"
+                    : ""
                 }`}
                       >
                         <span className="h-1.5 w-1.5 rounded-full bg-current" />

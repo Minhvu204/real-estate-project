@@ -30,7 +30,6 @@ import {
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
-
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import ArticleRoundedIcon from "@mui/icons-material/ArticleRounded";
 import RealEstateAgentRoundedIcon from "@mui/icons-material/RealEstateAgentRounded";
@@ -97,7 +96,7 @@ export default function AdminDashboard() {
     {
       text: "Taxonomies",
       icon: <CategoryOutlinedIcon />,
-      path: "/admin/taxonomies"
+      path: "/admin/taxonomies",
     },
   ];
 
@@ -256,14 +255,14 @@ export default function AdminDashboard() {
                   item.text === "User"
                     ? handleUserListToggle
                     : item.text === "Properties"
-                      ? handlePropertyListToggle
-                      : item.text === "Contracts"
-                        ? handleContractListToggle
-                        : item.text === "Deals"
-                          ? handleDealListToggle
-                          : item.text === "Payments"
-                            ? handlePaymentListToggle
-                            : undefined
+                    ? handlePropertyListToggle
+                    : item.text === "Contracts"
+                    ? handleContractListToggle
+                    : item.text === "Deals"
+                    ? handleDealListToggle
+                    : item.text === "Payments"
+                    ? handlePaymentListToggle
+                    : undefined
                 }
                 sx={{
                   borderRadius: "12px",
@@ -289,9 +288,9 @@ export default function AdminDashboard() {
                 {item.text === "Contracts" &&
                   (contractOpen ? <ExpandLess /> : <ExpandMore />)}
                 {item.text === "Deals" &&
-                  (contractOpen ? <ExpandLess /> : <ExpandMore />)}
+                  (dealOpen ? <ExpandLess /> : <ExpandMore />)}
                 {item.text === "Payments" &&
-                  (contractOpen ? <ExpandLess /> : <ExpandMore />)}
+                  (paymentOpen ? <ExpandLess /> : <ExpandMore />)}
               </ListItemButton>
             </ListItem>
 
