@@ -64,7 +64,7 @@ const Navbar: React.FC = () => {
     { label: "Rent", path: "/rent" },
     { label: "Sell", path: "/sell" },
     { label: "Booking", path: "/booking" },
-    { label: "Find Agent", path: "/find-agent" },
+    { label: "Find Agent", path: "/agents" },
   ];
 
   const drawer = (

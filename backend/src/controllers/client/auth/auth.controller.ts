@@ -19,7 +19,7 @@ export const registerController = async (req: Request, res: Response) => {
       return errorResponse(req, res, "Email không hợp lệ", 400);
 
     if (!validatePassword(password))
-      return errorResponse(req, res, "Mật khẩu phải ít nhất 6 ký tự", 400);
+      return errorResponse(req, res, "Mật khẩu phải ít nhất 8 ký tự", 400);
 
     const result = await registerUser({ fullName, email, password, role });
 
@@ -147,6 +147,11 @@ export const resetPasswordController = async (req: Request, res: Response) => {
 
     if (!token || !newPassword)
       return errorResponse(req, res, "Thiếu token hoặc mật khẩu mới", 400);
+
+    if(newPassword){
+      if (!validatePassword(newPassword))
+        return errorResponse(req, res, "Mật khẩu phải ít nhất 8 ký tự", 400);
+    }
 
     const result = await resetPasswordService(token, newPassword);
     return successResponse(req, res, result.message);

@@ -6,6 +6,7 @@ import NotificationsPage from "../components/common/notification/NotificationPag
 import AgentDetailPage from "../pages/Agent/AgentDetailPage";
 import ForgotPasswordPage from "../pages/Pass/ForgotPasswordPage";
 import ResetPasswordPage from "../pages/Pass/ResetPasswordPage";
+import AgentListPage from "../pages/Agent/AgentListPage";
 
 export const LoginRoute = [
     { path: "/", element: <Navigate to="/home" /> },
@@ -15,5 +16,6 @@ export const LoginRoute = [
     { path: "/forgot-password", element: <ForgotPasswordPage /> },
     { path: "/reset-password", element: <ResetPasswordPage /> },
     { path: "/notifications", element: <NotificationsPage /> },
+    { path: "/agents", element: <AgentListPage /> },
     { path: "/agents/:id", element: <AgentDetailPage /> },
 ];
