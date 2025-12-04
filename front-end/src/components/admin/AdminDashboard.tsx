@@ -41,6 +41,7 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import { getUser } from "../../utils/storage";
 import ButtonLanguage from "../common/ButtonLanguage";
 import AuthContext from "@/context/AuthContext";
+import path from "path";
 const drawerWidth = 240;
 
 export default function AdminDashboard() {
@@ -96,6 +97,7 @@ export default function AdminDashboard() {
     {
       text: "Taxonomies",
       icon: <CategoryOutlinedIcon />,
+      path: "/admin/taxonomies"
     },
   ];
 

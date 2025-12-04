@@ -47,7 +47,7 @@ export const AdminRoute = [
           { path: "users/:id", element: <UserDetails /> },
           { path: "users/edit/:id", element: <UpdateUser /> },
           { path: "users/block", element: <BlockUser userId="" /> },
-          { path: "/admin/taxonomies", element: <AdminTaxonomiesPage /> },
+          { path: "taxonomies", element: <AdminTaxonomiesPage /> },
           { index: true, element: <HomeList /> },
           { path: "properties", element: <ListProperties /> },
           {
