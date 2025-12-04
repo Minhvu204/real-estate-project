@@ -52,9 +52,13 @@
         "agent": "Agent",
         "noAgent": "No agent assigned",
         "owner": "Owner",
+        "cancel": "Cancel",
         "acceptedMessage": "Appointment has been accepted",
         "acceptedInstruction": "Please arrive on time at the scheduled location",
         "rejectedMessage": "Appointment has been rejected",
-        "rejectedInstruction": "This appointment has been rejected. Please book a new appointment if needed."
+        "rejectedInstruction": "This appointment has been rejected. Please book a new appointment if needed.",
+        "pageTitleFull": "Dwello: My Appointments",
+        "cancelError": " Cancel appointment failed",
+        "cancelSuccess": " Cancel appointment successfully"
     }
 }

@@ -1,6 +1,6 @@
 
 import type { Property } from '@/types/Property';
-import { use, useState } from 'react'
+import { useState } from 'react'
 
 import ArrowBackIosNewOutlinedIcon from '@mui/icons-material/ArrowBackIosNewOutlined';
 import ArrowForwardIosOutlinedIcon from '@mui/icons-material/ArrowForwardIosOutlined';
@@ -29,11 +29,14 @@ export type AppoinmentDate = {
 
 }
 
-const language = getLanguage();
-const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
 
+const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
+    const language = getLanguage();
     const today = new Date();
-    const [timeSl, setTimeSL] = useState<string>("");
+    today.setHours(0, 0, 0, 0);
+    const [slotErrors, setSlotErrors] = useState<(string | null)[]>([null]);
+
+
     const [slots, setSlots] = useState<
         { baseDate: Date; date: Date | null; time: string | null; note: string | null }[]
     >([
@@ -113,23 +116,25 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
     };
 
     const handleSelectDate = (index: number, date: Date) => {
+
         setSlots((prev) => {
             const updated = [...prev];
             updated[index].date = date;
             updated[index].time = null;
             return updated;
         });
+
     };
 
     const handleSelectTime = (index: number, time: string) => {
-        console.log("Selected time:", time);
-        setTimeSL(time);
+
 
         setSlots((prev) => {
             const updated = [...prev];
             updated[index].time = time;
             return updated;
         });
+
     };
 
     const handlePostAppointment = (time: AppoinmentDate) => {
@@ -140,11 +145,9 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
                 setTimeout(() => {
                     onClose();
                 }, 3000);
-                console.log(
-                    "Appointment sent successfully:", response
-                )
             } catch (error) {
                 console.error("Failed to send appointment:", error);
+                console.log("TOÁT RUN");
                 toast.error(t('appointment.errorMessage'));
             }
         }
@@ -158,7 +161,7 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
     const handleAddSlot = () => {
         setSlots((prev) => [
             ...prev,
-            { baseDate: new Date(), date: null, time: null, note: null }
+            { baseDate: (new Date()), date: null, time: null, note: null }
         ]);
     };
     const getTakenTimesForDate = (date: Date) => {
@@ -166,8 +169,26 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
             .filter(s => s.date && s.time && s.date.toDateString() === date.toDateString())
             .map(s => s.time);
     };
-    const buildAppointmentRequest = (): AppoinmentDate => {
+    const buildAppointmentRequest = (): AppoinmentDate | null => {
+        const incompleteSlotsDate = slots.filter(s => s.date && !s.time);
+        const incompleteSlotsTime = slots.filter(s => !s.date && s.time);
+
+        const newErrors = slots.map(s => {
+            if (s.date && !s.time) return "Please select a time";
+            if (!s.date && s.time) return "Please select a date";
+            return null;
+        });
+        setSlotErrors(newErrors);
+
+        if (incompleteSlotsDate.length > 0 || incompleteSlotsTime.length > 0) {
+            return null;
+        }
+
         const validSlots = slots.filter(s => s.date && s.time);
+        if (validSlots.length === 0) {
+            toast.error("Please select at least one date and time");
+            return null;
+        }
 
         return {
             propertyId: property._id,
@@ -178,6 +199,7 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
             })),
         };
     };
+
 
     return (
         <div className="w-full h-full overflow-y-auto overflow-x-hidden p-4">
@@ -262,8 +284,8 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
                                             ? "opacity-40 cursor-not-allowed"
                                             : "cursor-pointer"} ${slot.date?.toDateString() === d.toDateString()
                                                 ? "border-blue-500 text-blue-600 bg-blue-50"
-                                                : "border-gray-300"}
-        `}
+                                                : "border-gray-300"}`}
+                                        aria-required
                                         onClick={() => {
                                             if (isPastOrToday(d)) return;
                                             handleSelectDate(index, d);
@@ -292,16 +314,18 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
                                 disabled={!slot.date}
                                 value={slot.time ?? ""}
                                 onChange={(e) => handleSelectTime(index, e.target.value)}
+                                required
                             >
                                 {timeSlots.filter((t) => {
                                     const takenTimes = slot.date ? getTakenTimesForDate(slot.date) : [];
-                                    return t === slot.time || !takenTimes.includes(t);;
+                                    return t === slot.time || !takenTimes.includes(t);
                                 }).map((t, index) => (
-                                    console.log("Slot time:", slot.time),
-                                    console.log("options", t),
                                     <option key={index} value={t}>{t}</option>
                                 ))}
                             </select>
+                            {slotErrors[index] && (
+                                <p className="text-red-500 text-xs mt-1">{slotErrors[index]}</p>
+                            )}
                             <div className="w-full max-w-xs mx-auto mt-3">
                                 <textarea
                                     className="w-full border rounded-lg p-3 text-sm"
@@ -333,28 +357,22 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
                 </button>
             )}
             <button
-                onClick={() => handlePostAppointment(buildAppointmentRequest())}
+                onClick={() => {
+                    const request = buildAppointmentRequest();
+                    if (!request) return;
+                    handlePostAppointment(request);
+                }
+                }
                 className="w-full bg-blue-600 text-white py-3 rounded-lg mt-6 hover:bg-blue-700 transition-colors"
             >
                 {t('appointment.send')}
             </button>
 
-            <ToastContainer
-                position="top-right"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick={false}
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light"
-                transition={Bounce}
-            />
+
         </div>
 
     );
 };
 
 export default BuyerAppointment;
+
