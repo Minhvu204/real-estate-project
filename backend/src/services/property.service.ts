@@ -556,7 +556,7 @@ export const propertyService = {
 
     const radiusInKm = 10; // Mặc định tìm trong bán kính 10km
 
-    // xử lí vị trí(Nếu có)
+    // xử lí vị trí(nếu có)
     if (centerPoint) {
       query.coordinates = {
         $nearSphere: {

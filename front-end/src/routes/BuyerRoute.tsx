@@ -10,11 +10,13 @@ import BuyerMyPropertiesPage from "../pages/Buyer/BuyerMyPropertiesPage";
 import CreateOfferPage from "../pages/Offer/CreateOfferPage";
 import OfferHistoryPage from "../pages/Offer/OfferHistoryPage";
 import CancelOfferPage from "../pages/Offer/CancelOfferPage";
+
 import ListAppointment from "../components/Buyer/Appointment/ListAppointment";
+import FavoritePage from "@/pages/Favorite/FavoritePage";
 import PropertiesComparePage from "@/pages/Compare/PropertiesComparePage";
 import DealListPageBuyer from "../pages/DealContract/DealListPageBuyer";
 import DealContractPageBuyer from "../pages/DealContract/DealContractPageBuyer";
-import FavoritePage from "@/pages/Favorite/FavoritePage";
+
 import PaymentPage from "../pages/Payment/PaymentPage";
 import PaymentListBuyer from "../pages/Payment/PaymentListBuyer";
 

@@ -6,8 +6,8 @@ export const setAuthCookie = (res: Response, refreshToken: string) => {
 
   res.cookie("refresh_token", refreshToken, {
     httpOnly: true,
-    secure: isProduction,                 // true only in production (HTTPS)
-    sameSite: isProduction ? "none" : "lax", // cross-site cookie needs none + secure
+    secure: isProduction,                
+    sameSite: isProduction ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,      // 7 days
   });
 };
