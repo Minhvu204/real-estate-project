@@ -66,14 +66,12 @@ const ListAppointment = () => {
         const cancelAppointment = async () => {
             try {
                 await cancelAppointmentBuyer(appointmentId);
-
+                toast.success(t('appointment.cancelSuccess'));
                 setAppointments(prev =>
                     prev.map(a =>
                         a._id === appointmentId ? { ...a, status: "rejected" } : a
                     )
                 );
-
-                toast.success(t('appointment.cancelSuccess'));
 
             } catch (error) {
                 console.error("Failed to cancel appointment:", error);

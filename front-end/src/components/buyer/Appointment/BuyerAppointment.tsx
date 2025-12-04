@@ -145,11 +145,9 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
                 setTimeout(() => {
                     onClose();
                 }, 3000);
-                console.log(
-                    "Appointment sent successfully:", response
-                )
             } catch (error) {
                 console.error("Failed to send appointment:", error);
+                console.log("TOÁT RUN");
                 toast.error(t('appointment.errorMessage'));
             }
         }
@@ -370,22 +368,11 @@ const BuyerAppointment = ({ property, onClose }: BuyerAppointmentProps) => {
                 {t('appointment.send')}
             </button>
 
-            <ToastContainer
-                position="top-right"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick={false}
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light"
-                transition={Bounce}
-            />
+
         </div>
 
     );
 };
 
 export default BuyerAppointment;
+

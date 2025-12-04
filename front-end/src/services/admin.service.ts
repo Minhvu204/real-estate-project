@@ -1,5 +1,4 @@
-
-import type { RevenueChart } from "@/types/SummaryReport";
+import type { RevenueChart, RevenueChartFilter } from "@/types/SummaryReport";
 import { httpAdmin } from "@/utils/httpAdmin";
 import type { SummaryReport } from "@/types/SummaryReport";
 import type { topAgents } from "@/types/SummaryReport";
@@ -14,6 +13,7 @@ export const getReportSummary = async (): Promise<SummaryReport> => {
         throw error;
     }
 }
+
 export const getTopAgents = async (): Promise<topAgents> => {
     try {
         const response = await httpAdmin.get(`${RESOURCES}/top-agents`);
@@ -23,9 +23,16 @@ export const getTopAgents = async (): Promise<topAgents> => {
         throw error;
     }
 }
-export const getRevenueChart = async (year?: number): Promise<RevenueChart> => {
+
+export const getRevenueChart = async (filter?: RevenueChartFilter): Promise<RevenueChart> => {
     try {
-        const params = year ? { year } : {};
+        const params: Record<string, any> = {};
+
+        if (filter?.year) params.year = filter.year;
+        if (filter?.month) params.month = filter.month;
+        if (filter?.startDate) params.startDate = filter.startDate;
+        if (filter?.endDate) params.endDate = filter.endDate;
+
         const response = await httpAdmin.get(`${RESOURCES}/revenue-chart`, { params });
         return response.data.data;
     } catch (error) {

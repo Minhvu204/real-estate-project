@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { getReportSummary, getTopAgents, getRevenueChart } from "@/services/admin.service";
-import type { SummaryReport, topAgents, RevenueChart } from "@/types/SummaryReport";
+import type { SummaryReport, topAgents, RevenueChart, FilterMode, RevenueChartFilter } from "@/types/SummaryReport";
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import HomeWorkOutlinedIcon from '@mui/icons-material/HomeWorkOutlined';
 import HandshakeOutlinedIcon from '@mui/icons-material/HandshakeOutlined';
 import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
 import TrendingUpOutlinedIcon from '@mui/icons-material/TrendingUpOutlined';
 import EmojiEventsOutlinedIcon from '@mui/icons-material/EmojiEventsOutlined';
+import FilterListIcon from '@mui/icons-material/FilterList';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import DateRangeIcon from '@mui/icons-material/DateRange';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -33,29 +37,36 @@ ChartJS.register(
 
 
 export const Dashboard: React.FC = () => {
+    const { t } = useTranslation("dashboard");
     const [summary, setSummary] = useState<SummaryReport>();
-    const [topAgents, setTopAgents] = useState<topAgents[]>();
+    const [topAgentsList, setTopAgentsList] = useState<topAgents[]>();
     const [revenue, setRevenue] = useState<RevenueChart>();
-    const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
     const [loading, setLoading] = useState(true);
     const [chartLoading, setChartLoading] = useState(false);
 
-    // Tạo danh sách năm (5 năm gần đây)
+    // Filter states
+    const [filterMode, setFilterMode] = useState<FilterMode>('year');
+    const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+    const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+    const [startDate, setStartDate] = useState<string>('');
+    const [endDate, setEndDate] = useState<string>('');
+
     const currentYear = new Date().getFullYear();
     const availableYears = Array.from({ length: 5 }, (_, i) => currentYear - i);
+    const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
-    // Fetch initial data
+
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const [summaryData, topAgentsData, revenueData] = await Promise.all([
                     getReportSummary(),
                     getTopAgents(),
-                    getRevenueChart(selectedYear),
+                    getRevenueChart({ year: selectedYear }),
                 ]);
 
                 setSummary(summaryData);
-                setTopAgents(topAgentsData as any);
+                setTopAgentsList(topAgentsData as any);
                 setRevenue(revenueData);
             } catch (error) {
                 console.log("Cannot fetch data", error);
@@ -67,12 +78,25 @@ export const Dashboard: React.FC = () => {
         fetchData();
     }, []);
 
-    // Fetch revenue chart when year changes
-    const handleYearChange = async (year: number) => {
-        setSelectedYear(year);
+    // Fetch revenue chart when filters change
+    const handleApplyFilter = async () => {
         setChartLoading(true);
         try {
-            const revenueData = await getRevenueChart(year);
+            const filter: RevenueChartFilter = {};
+
+            if (filterMode === 'year') {
+                filter.year = selectedYear;
+            } else if (filterMode === 'month') {
+                filter.year = selectedYear;
+                if (selectedMonth) {
+                    filter.month = selectedMonth;
+                }
+            } else if (filterMode === 'dateRange') {
+                if (startDate) filter.startDate = startDate;
+                if (endDate) filter.endDate = endDate;
+            }
+
+            const revenueData = await getRevenueChart(filter);
             setRevenue(revenueData);
         } catch (error) {
             console.error("Cannot fetch revenue chart", error);
@@ -81,23 +105,42 @@ export const Dashboard: React.FC = () => {
         }
     };
 
+    const handleResetFilter = () => {
+        setFilterMode('year');
+        setSelectedYear(currentYear);
+        setSelectedMonth(null);
+        setStartDate('');
+        setEndDate('');
+        handleApplyFilter();
+    };
+
+    // Auto apply when year or month changes for simple filters
+    useEffect(() => {
+        if (filterMode === 'year' || filterMode === 'month') {
+            handleApplyFilter();
+        }
+    }, [selectedYear, selectedMonth, filterMode]);
+
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('vi-VN', {
             style: 'currency',
             currency: 'VND'
         }).format(amount);
     };
-
+``
     const formatNumber = (num: number) => {
         return new Intl.NumberFormat('vi-VN').format(num);
     };
 
-    // Prepare chart data from revenue
+    const getMonthLabels = () => {
+        return months.map(m => t(`monthsShort.${m}` as any));
+    };
+
     const chartData = useMemo(() => {
-        const months = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
+        const monthLabels = getMonthLabels();
 
         if (!revenue) {
-            return { labels: months, revenueData: Array(12).fill(0), dealsData: Array(12).fill(0), year: new Date().getFullYear() };
+            return { labels: monthLabels, revenueData: Array(12).fill(0), dealsData: Array(12).fill(0), year: new Date().getFullYear() };
         }
 
         const revenueByMonth = Array(12).fill(0);
@@ -115,8 +158,8 @@ export const Dashboard: React.FC = () => {
             });
         }
 
-        return { labels: months, revenueData: revenueByMonth, dealsData: dealsByMonth, year: revenue.year };
-    }, [revenue]);
+        return { labels: monthLabels, revenueData: revenueByMonth, dealsData: dealsByMonth, year: revenue.year };
+    }, [revenue, t]);
 
     if (loading) {
         return (
@@ -138,7 +181,7 @@ export const Dashboard: React.FC = () => {
 
     const statsCards = [
         {
-            title: "Tổng Người Dùng",
+            title: t("stats.totalUsers"),
             value: summary?.totalUsers || 0,
             icon: <PeopleOutlineIcon className="text-4xl" />,
             color: "from-blue-500 to-blue-600",
@@ -146,7 +189,7 @@ export const Dashboard: React.FC = () => {
             textColor: "text-blue-600"
         },
         {
-            title: "Tổng Bất Động Sản",
+            title: t("stats.totalProperties"),
             value: summary?.totalProperties || 0,
             icon: <HomeWorkOutlinedIcon className="text-4xl" />,
             color: "from-emerald-500 to-emerald-600",
@@ -154,7 +197,7 @@ export const Dashboard: React.FC = () => {
             textColor: "text-emerald-600"
         },
         {
-            title: "Giao Dịch Hoàn Thành",
+            title: t("stats.dealsCompleted"),
             value: summary?.totalDealsCompleted || 0,
             icon: <HandshakeOutlinedIcon className="text-4xl" />,
             color: "from-purple-500 to-purple-600",
@@ -162,7 +205,7 @@ export const Dashboard: React.FC = () => {
             textColor: "text-purple-600"
         },
         {
-            title: "Tổng Doanh Thu",
+            title: t("stats.totalRevenue"),
             value: formatCurrency(summary?.totalRevenue || 0),
             icon: <AttachMoneyOutlinedIcon className="text-4xl" />,
             color: "from-amber-500 to-amber-600",
@@ -171,7 +214,7 @@ export const Dashboard: React.FC = () => {
             isRevenue: true
         },
         {
-            title: "Tổng Leads",
+            title: t("stats.totalLeads"),
             value: summary?.totalLeads || 0,
             icon: <TrendingUpOutlinedIcon className="text-4xl" />,
             color: "from-rose-500 to-rose-600",
@@ -186,10 +229,10 @@ export const Dashboard: React.FC = () => {
                 {/* Header */}
                 <div className="mb-6 sm:mb-8">
                     <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-2">
-                        Dashboard Quản Trị
+                        {t("title")}
                     </h1>
                     <p className="text-sm sm:text-base text-slate-600">
-                        Tổng quan về hiệu suất và hoạt động của hệ thống
+                        {t("subtitle")}
                     </p>
                 </div>
 
@@ -212,25 +255,138 @@ export const Dashboard: React.FC = () => {
                     ))}
                 </div>
 
-                {/* Chart (70%) + Top Agents (30%) */}
+
                 <div className="grid grid-cols-1 lg:grid-cols-10 gap-4 sm:gap-6">
-                    {/* Revenue Chart - 70% */}
+
                     <div className="lg:col-span-7 bg-white rounded-xl sm:rounded-2xl shadow-md p-4 sm:p-6 border border-slate-200">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
-                            <div>
-                                <h2 className="text-lg sm:text-xl font-bold text-slate-900">Biểu Đồ Doanh Thu & Giao Dịch</h2>
-                                <p className="text-xs sm:text-sm text-slate-500">Theo dõi xu hướng theo tháng</p>
+                        <div className="flex flex-col gap-4 mb-4 sm:mb-6">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+                                <div>
+                                    <h2 className="text-lg sm:text-xl font-bold text-slate-900">{t("chart.title")}</h2>
+                                    <p className="text-xs sm:text-sm text-slate-500">{t("chart.subtitle")}</p>
+                                </div>
                             </div>
-                            <select
-                                value={selectedYear}
-                                onChange={(e) => handleYearChange(Number(e.target.value))}
-                                disabled={chartLoading}
-                                className="px-3 sm:px-4 py-2 border border-slate-300 rounded-lg text-sm font-medium bg-white hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer disabled:opacity-50"
-                            >
-                                {availableYears.map(year => (
-                                    <option key={year} value={year}>Năm {year}</option>
-                                ))}
-                            </select>
+
+                          
+                            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <FilterListIcon className="text-slate-600" />
+                                    <span className="font-medium text-slate-700">{t("filter.filterBy")}</span>
+                                </div>
+
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                    <button
+                                        onClick={() => setFilterMode('year')}
+                                        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${filterMode === 'year'
+                                            ? 'bg-blue-500 text-white shadow-md'
+                                            : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                                            }`}
+                                    >
+                                        <CalendarMonthIcon className="text-base" />
+                                        {t("filter.byYear")}
+                                    </button>
+                                    <button
+                                        onClick={() => setFilterMode('month')}
+                                        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${filterMode === 'month'
+                                            ? 'bg-blue-500 text-white shadow-md'
+                                            : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                                            }`}
+                                    >
+                                        <CalendarMonthIcon className="text-base" />
+                                        {t("filter.byMonth")}
+                                    </button>
+                                    <button
+                                        onClick={() => setFilterMode('dateRange')}
+                                        className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${filterMode === 'dateRange'
+                                            ? 'bg-blue-500 text-white shadow-md'
+                                            : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                                            }`}
+                                    >
+                                        <DateRangeIcon className="text-base" />
+                                        {t("filter.byDateRange")}
+                                    </button>
+                                </div>
+
+                    
+                                <div className="flex flex-wrap items-end gap-3">
+                                    {/* Year Select - Show for year and month modes */}
+                                    {(filterMode === 'year' || filterMode === 'month') && (
+                                        <div className="flex flex-col gap-1">
+                                            <label className="text-xs text-slate-500 font-medium">{t("filter.year")}</label>
+                                            <select
+                                                value={selectedYear}
+                                                onChange={(e) => setSelectedYear(Number(e.target.value))}
+                                                disabled={chartLoading}
+                                                className="px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium bg-white hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer disabled:opacity-50 min-w-[120px]"
+                                            >
+                                                {availableYears.map(year => (
+                                                    <option key={year} value={year}>{year}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+
+                      
+                                    {filterMode === 'month' && (
+                                        <div className="flex flex-col gap-1">
+                                            <label className="text-xs text-slate-500 font-medium">{t("filter.month")}</label>
+                                            <select
+                                                value={selectedMonth || ''}
+                                                onChange={(e) => setSelectedMonth(e.target.value ? Number(e.target.value) : null)}
+                                                disabled={chartLoading}
+                                                className="px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium bg-white hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all cursor-pointer disabled:opacity-50 min-w-[150px]"
+                                            >
+                                                <option value="">{t("filter.allMonths")}</option>
+                                                {months.map(month => (
+                                                    <option key={month} value={month}>{t(`months.${month}` as any)}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+
+                                    {/* Date Range Inputs */}
+                                    {filterMode === 'dateRange' && (
+                                        <>
+                                            <div className="flex flex-col gap-1">
+                                                <label className="text-xs text-slate-500 font-medium">{t("filter.startDate")}</label>
+                                                <input
+                                                    type="date"
+                                                    value={startDate}
+                                                    onChange={(e) => setStartDate(e.target.value)}
+                                                    disabled={chartLoading}
+                                                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium bg-white hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all disabled:opacity-50"
+                                                />
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <label className="text-xs text-slate-500 font-medium">{t("filter.endDate")}</label>
+                                                <input
+                                                    type="date"
+                                                    value={endDate}
+                                                    onChange={(e) => setEndDate(e.target.value)}
+                                                    disabled={chartLoading}
+                                                    className="px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium bg-white hover:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all disabled:opacity-50"
+                                                />
+                                            </div>
+                                            <button
+                                                onClick={handleApplyFilter}
+                                                disabled={chartLoading}
+                                                className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-all disabled:opacity-50 shadow-sm"
+                                            >
+                                                {t("filter.apply")}
+                                            </button>
+                                        </>
+                                    )}
+
+                                    {/* Reset Button */}
+                                    <button
+                                        onClick={handleResetFilter}
+                                        disabled={chartLoading}
+                                        className="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-300 transition-all disabled:opacity-50"
+                                    >
+                                        {t("filter.reset")}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
 
                         <div className="h-[250px] sm:h-[300px] relative">
@@ -244,7 +400,7 @@ export const Dashboard: React.FC = () => {
                                     labels: chartData.labels,
                                     datasets: [
                                         {
-                                            label: 'Doanh Thu (VNĐ)',
+                                            label: t("chart.revenue"),
                                             data: chartData.revenueData,
                                             borderColor: '#3b82f6',
                                             backgroundColor: 'rgba(59, 130, 246, 0.1)',
@@ -253,7 +409,7 @@ export const Dashboard: React.FC = () => {
                                             yAxisID: 'y',
                                         },
                                         {
-                                            label: 'Số Giao Dịch',
+                                            label: t("chart.deals"),
                                             data: chartData.dealsData,
                                             borderColor: '#10b981',
                                             backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -277,32 +433,32 @@ export const Dashboard: React.FC = () => {
                             />
                         </div>
 
-                        {/* Summary */}
+
                         <div className="mt-3 sm:mt-4 grid grid-cols-2 gap-2 sm:gap-4 pt-3 sm:pt-4 border-t border-slate-200">
                             <div className="text-center p-2 sm:p-3 rounded-lg sm:rounded-xl bg-blue-50 border border-blue-200">
-                                <p className="text-[10px] sm:text-xs text-slate-600 mb-1">Tổng Doanh Thu {chartData.year}</p>
+                                <p className="text-[10px] sm:text-xs text-slate-600 mb-1">{t("chart.totalRevenue")} {chartData.year}</p>
                                 <p className="text-sm sm:text-lg font-bold text-blue-600">
                                     {formatCurrency(chartData.revenueData.reduce((a, b) => a + b, 0))}
                                 </p>
                             </div>
                             <div className="text-center p-2 sm:p-3 rounded-lg sm:rounded-xl bg-emerald-50 border border-emerald-200">
-                                <p className="text-[10px] sm:text-xs text-slate-600 mb-1">Tổng Giao Dịch {chartData.year}</p>
+                                <p className="text-[10px] sm:text-xs text-slate-600 mb-1">{t("chart.totalDeals")} {chartData.year}</p>
                                 <p className="text-sm sm:text-lg font-bold text-emerald-600">
-                                    {chartData.dealsData.reduce((a, b) => a + b, 0)} deals
+                                    {chartData.dealsData.reduce((a, b) => a + b, 0)} {t("chart.deals_unit")}
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    {/* Top Agents - 30% */}
+
                     <div className="lg:col-span-3 bg-white rounded-xl sm:rounded-2xl shadow-md p-4 sm:p-6 border border-slate-200 h-fit">
                         <div className="flex items-center gap-2 mb-3 sm:mb-4">
                             <EmojiEventsOutlinedIcon className="text-amber-500 text-lg sm:text-xl" />
-                            <h2 className="text-base sm:text-lg font-bold text-slate-900">Top Agents</h2>
+                            <h2 className="text-base sm:text-lg font-bold text-slate-900">{t("topAgents.title")}</h2>
                         </div>
 
                         <div className="space-y-2 sm:space-y-3">
-                            {topAgents && Array.isArray(topAgents) && topAgents.slice(0, 5).map((agent, index) => (
+                            {topAgentsList && Array.isArray(topAgentsList) && topAgentsList.slice(0, 5).map((agent, index) => (
                                 <div
                                     key={agent.agent_id}
                                     className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-br from-slate-50 to-slate-100 hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 border border-slate-200"
@@ -317,7 +473,7 @@ export const Dashboard: React.FC = () => {
                                     <div className="flex-1 min-w-0">
                                         <p className="font-semibold text-slate-900 text-xs sm:text-sm truncate">{agent.fullName}</p>
                                         <div className="flex items-center gap-1 sm:gap-2 mt-1">
-                                            <span className="text-[10px] sm:text-xs font-bold text-emerald-600">{agent.totalDeals} deals</span>
+                                            <span className="text-[10px] sm:text-xs font-bold text-emerald-600">{agent.totalDeals} {t("chart.deals_unit")}</span>
                                             <span className="text-[10px] sm:text-xs text-slate-400">•</span>
                                             <span className="text-[10px] sm:text-xs font-bold text-blue-600">{formatCurrency(agent.totalAgentFee)}</span>
                                         </div>
@@ -325,10 +481,10 @@ export const Dashboard: React.FC = () => {
                                 </div>
                             ))}
 
-                            {(!topAgents || !Array.isArray(topAgents) || topAgents.length === 0) && (
+                            {(!topAgentsList || !Array.isArray(topAgentsList) || topAgentsList.length === 0) && (
                                 <div className="text-center py-6 text-slate-400">
                                     <EmojiEventsOutlinedIcon className="text-4xl mb-2 opacity-30" />
-                                    <p className="text-sm">Chưa có dữ liệu</p>
+                                    <p className="text-sm">{t("topAgents.noData")}</p>
                                 </div>
                             )}
                         </div>
