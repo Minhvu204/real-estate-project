@@ -376,7 +376,7 @@ const PropertyDetailUser = () => {
 
                 {/* MAP */}
                 {
-                    property.coordinates?.lat && property.coordinates?.lng && (
+                    property.coordinates?.coordinates && (
                         <>
                             <Typography variant="h6" fontWeight="bold" mt={2}>
                                 {t("location")}
@@ -384,7 +384,7 @@ const PropertyDetailUser = () => {
                             <Box mt={2} sx={{ borderRadius: 2, overflow: "hidden" }}>
                                 <iframe
                                     title="map"
-                                    src={`https://www.google.com/maps?q=${property.coordinates.lat},${property.coordinates.lng}&z=15&output=embed`}
+                                    src={`https://www.google.com/maps?q=${property.coordinates.coordinates[0]},${property.coordinates.coordinates[1]}&z=15&output=embed`}
                                     width="100%"
                                     height="300"
                                     style={{ border: 0 }}
@@ -437,10 +437,10 @@ const PropertyDetailUser = () => {
                                     {property.title[lang]}
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
-                                     {property.address[lang]}
+                                    {property.address[lang]}
                                 </Typography>
                                 <Typography variant="body2" color="success.main" fontWeight="bold" sx={{ mt: 1 }}>
-                                     {property.price.toLocaleString()} VNĐ
+                                    {property.price.toLocaleString()} VNĐ
                                 </Typography>
                             </Box>
                         </Box>
