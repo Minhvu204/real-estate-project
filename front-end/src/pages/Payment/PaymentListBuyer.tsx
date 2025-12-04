@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, CircularProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, useMediaQuery, Divider, Button, Stack } from "@mui/material";
+import { Box, Typography, CircularProgress, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip, IconButton, useMediaQuery, Divider, Stack, Pagination, } from "@mui/material";
 
 import InfoIcon from "@mui/icons-material/Info";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
@@ -22,13 +22,8 @@ const PaymentListBuyer = () => {
     const { t } = useTranslation("payment");
 
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
-    const totalPages = Math.ceil(payments.length / itemsPerPage);
-
-    const paginatedPayments = payments.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
+    const [totalPages, setTotalPages] = useState(1);
+    const itemsPerPage = 10;
 
     const formatMoney = (value: number) =>
         value.toLocaleString("vi-VN") + " ₫";
@@ -36,31 +31,28 @@ const PaymentListBuyer = () => {
     const formatDate = (date: string) =>
         new Date(date).toLocaleString("vi-VN");
 
+    // Load payments từ backend
+    const loadPayments = async (page: number) => {
+        setLoading(true);
+        try {
+            const res = await getPayments({ page, limit: itemsPerPage });
+            setPayments(res.items);
+            setTotalPages(res.totalPages);
+        } catch (err) {
+            console.error(err);
+            toast.error(t("detail.failedToLoadPayments"));
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const load = async () => {
-            try {
-                const data = await getPayments();
-                setPayments(data);
-            } catch (err) {
-                console.error(err);
-                toast.error(t("detail.failedToLoadPayments"));
-            } finally {
-                setLoading(false);
-            }
-        };
-        load();
-    }, []);
+        loadPayments(currentPage);
+    }, [currentPage]);
 
     const openDetails = (p: Payment) => {
         setSelected(p);
         setOpenDrawer(true);
-    };
-
-    const handlePrev = () => {
-        setCurrentPage((prev) => Math.max(prev - 1, 1));
-    };
-    const handleNext = () => {
-        setCurrentPage((prev) => Math.min(prev + 1, totalPages));
     };
 
     if (loading)
@@ -78,7 +70,7 @@ const PaymentListBuyer = () => {
 
             {isMobile ? (
                 <Box display="flex" flexDirection="column" gap={2}>
-                    {paginatedPayments.map((p) => (
+                    {payments.map((p) => (
                         <Paper key={p._id} elevation={2} sx={{ borderRadius: 2, p: 2 }}>
                             <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                                 <Box display="flex" alignItems="center" gap={1}>
@@ -138,7 +130,7 @@ const PaymentListBuyer = () => {
                             </TableHead>
 
                             <TableBody>
-                                {paginatedPayments.map((p) => (
+                                {payments.map((p) => (
                                     <TableRow key={p._id} hover>
                                         <TableCell>
                                             <Box display="flex" alignItems="center" gap={1}>
@@ -149,7 +141,9 @@ const PaymentListBuyer = () => {
 
                                         <TableCell>
                                             <Typography fontWeight={600}>
-                                                {formatMoney(p.deal_id.amounts.agreed_price)}
+                                                {p.deal_id?.amounts?.agreed_price
+                                                    ? formatMoney(p.deal_id.amounts.agreed_price)
+                                                    : formatMoney(p.amount)}
                                             </Typography>
                                         </TableCell>
 
@@ -177,17 +171,20 @@ const PaymentListBuyer = () => {
                 </Paper>
             )}
 
-            {payments.length > itemsPerPage && (
-                <Stack direction="row" justifyContent="center" spacing={2} mt={3}>
-                    <Button variant="outlined" onClick={handlePrev} disabled={currentPage === 1}>
-                        {t("listPayment.prev")}
-                    </Button>
-                    <Typography variant="body2" align="center" sx={{ pt: 1 }}>
-                        {currentPage} / {totalPages}
-                    </Typography>
-                    <Button variant="outlined" onClick={handleNext} disabled={currentPage === totalPages}>
-                        {t("listPayment.next")}
-                    </Button>
+            {/* Pagination đẹp */}
+            {totalPages > 1 && (
+                <Stack direction="row" justifyContent="center" mt={3}>
+                    <Pagination
+                        count={totalPages}
+                        page={currentPage}
+                        onChange={(_, page) => setCurrentPage(page)}
+                        color="primary"
+                        shape="rounded"
+                        showFirstButton
+                        showLastButton
+                        siblingCount={1}
+                        boundaryCount={1}
+                    />
                 </Stack>
             )}
 

@@ -38,3 +38,20 @@ export interface Payment {
     payment_date: string;
 }
 
+
+export interface CreatePaymentResponse {
+    success: boolean;
+    message: string;
+    data: PaymentData;
+}
+
+export interface GetPaymentsResponse {
+    success: boolean;
+    message: string;
+    data: {
+        items: Payment[];
+        totalPages: number;
+        page: number;
+        total: number;
+    };
+}

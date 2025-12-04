@@ -1,12 +1,8 @@
 import type { PaymentData } from "../types/PaymentData ";
 import type { Payment } from "../types/PaymentData ";
+import type { CreatePaymentResponse } from "../types/PaymentData ";
+import type { GetPaymentsResponse } from "../types/PaymentData ";
 import api from "./api";
-
-interface CreatePaymentResponse {
-    success: boolean;
-    message: string;
-    data: PaymentData;
-}
 
 export const createPayment = async (dealId: string): Promise<PaymentData> => {
     const res = await api.post<CreatePaymentResponse>("/api/client/buyer/payments/create", { dealId });
@@ -20,8 +16,19 @@ export const paymentSuccess = async (paymentId: string) => {
     });
 }
 
-export const getPayments = async (): Promise<Payment[]> => {
-    const res = await api.get("/api/client/buyer/payments", {
+export const getPayments = async ({
+    page = 1,
+    limit = 10,
+}: {
+    page?: number;
+    limit?: number;
+} = {}): Promise<{ items: Payment[]; totalPages: number }> => {
+    const res = await api.get<GetPaymentsResponse>("/api/client/buyer/payments", {
+        params: { page, limit },
     });
-    return res.data.data.items;
+
+    return {
+        items: res.data.data.items,
+        totalPages: res.data.data.totalPages,
+    };
 };
