@@ -32,3 +32,14 @@ export const sendEmail = async (to: string, subject: string, html: string) => {
     throw new Error("Không thể gửi email");
   }
 };
+
+
+export const sendResetPasswordEmail = async (email: string, fullName: string, link: string) => {
+  const subject = "Reset your password";
+  const html = `
+    <p>Hi ${fullName},</p>
+    <p>Click the link below to reset your password. This link expires in 15 minutes:</p>
+    <a href="${link}">${link}</a>
+  `;
+  await sendEmail(email, subject, html);
+};
