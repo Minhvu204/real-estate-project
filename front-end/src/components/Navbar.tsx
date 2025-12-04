@@ -10,6 +10,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import ButtonLanguage from "./common/ButtonLanguage";
 import Notification from "./common/notification/Notification";
 import { useTranslation } from "react-i18next";
+
 const Navbar: React.FC = () => {
   const { state, signOut } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -45,7 +46,6 @@ const Navbar: React.FC = () => {
       { label: "Appointments", path: "/agent/appointments" },
     ],
   };
-
 
   const handleLogout = () => {
     signOut();
@@ -138,48 +138,6 @@ const Navbar: React.FC = () => {
 
       {state.token ? (
         <Box>
-          <Box
-            sx={{
-              p: 2,
-              borderRadius: 3,
-              background: "rgba(102,126,234,0.15)",
-              backdropFilter: "blur(10px)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              mb: 2,
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-              <Avatar
-                sx={{
-                  bgcolor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                  width: 48,
-                  height: 48,
-                }}
-              >
-                {state.user?.fullName?.[0] ?? "U"}
-              </Avatar>
-              <Typography sx={{ color: "white", fontWeight: 600 }}>
-                {state.user?.fullName}
-              </Typography>
-            </Box>
-            <Button
-              fullWidth
-              startIcon={<LogoutIcon />}
-              onClick={handleLogout}
-              sx={{
-                color: "#ff6b6b",
-                backgroundColor: "rgba(255,107,107,0.1)",
-                fontWeight: 600,
-                textTransform: "none",
-                borderRadius: 2,
-                "&:hover": {
-                  backgroundColor: "rgba(255,107,107,0.2)",
-                },
-              }}
-            >
-              Logout
-            </Button>
-          </Box>
         </Box>
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -253,7 +211,29 @@ const Navbar: React.FC = () => {
             minHeight: { xs: 64, md: 70 },
           }}
         >
-          {/* Logo */}
+          {/* Mobile Menu Icon - Left Side */}
+          {!isAdminRoute && (
+            <IconButton
+              onClick={handleDrawerToggle}
+              sx={{
+                display: { xs: "flex", md: "none" },
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                color: "white",
+                width: 42,
+                height: 42,
+                boxShadow: "0 4px 12px rgba(102,126,234,0.3)",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  transform: "rotate(90deg)",
+                  boxShadow: "0 6px 16px rgba(102,126,234,0.4)",
+                },
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
+
+          {/* Logo - Center on Mobile, Left on Desktop */}
           <Box
             sx={{
               display: "flex",
@@ -261,8 +241,11 @@ const Navbar: React.FC = () => {
               gap: 1.5,
               cursor: "pointer",
               transition: "transform 0.3s ease",
+              position: { xs: "absolute", md: "static" },
+              left: { xs: "50%", md: "auto" },
+              transform: { xs: "translateX(-50%)", md: "none" },
               "&:hover": {
-                transform: "scale(1.05)",
+                transform: { xs: "translateX(-50%) scale(1.05)", md: "scale(1.05)" },
               },
             }}
             onClick={() => navigate("/")}
@@ -291,55 +274,11 @@ const Navbar: React.FC = () => {
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 letterSpacing: "-0.02em",
-                display: { xs: "none", sm: "block" },
               }}
             >
               Dwello
             </Typography>
           </Box>
-
-          {/* Mobile Menu Items - Left Side */}
-          {!isAdminRoute && (
-            <Box
-              sx={{
-                display: { xs: "flex", md: "none" },
-                gap: 0.5,
-                alignItems: "center",
-                overflowX: "auto",
-                flex: 1,
-                mx: 1,
-                "&::-webkit-scrollbar": {
-                  display: "none",
-                },
-                scrollbarWidth: "none",
-              }}
-            >
-              {menuItems.map((item) => (
-                <Button
-                  key={item.label}
-                  onClick={() => navigate(item.path)}
-                  sx={{
-                    color: "rgba(0,0,0,0.7)",
-                    fontWeight: 600,
-                    textTransform: "none",
-                    px: 1.5,
-                    py: 0.5,
-                    borderRadius: 2,
-                    fontSize: "0.85rem",
-                    whiteSpace: "nowrap",
-                    minWidth: "auto",
-                    transition: "all 0.3s ease",
-                    "&:hover": {
-                      color: "#667eea",
-                      backgroundColor: "rgba(102,126,234,0.08)",
-                    },
-                  }}
-                >
-                  {item.label}
-                </Button>
-              ))}
-            </Box>
-          )}
 
           {/* Desktop Menu */}
           {!isAdminRoute && (
@@ -390,9 +329,11 @@ const Navbar: React.FC = () => {
               ))}
             </Box>
           )}
-          <Notification />
+
           {/* Right Side */}
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Notification />
+
             {!state.token ? (
               <>
                 {/* Desktop Sign In/Up */}
@@ -438,25 +379,24 @@ const Navbar: React.FC = () => {
                     Sign up
                   </Button>
                 </Box>
-                {/* Mobile Menu Icon for non-logged users */}
+                {/* Mobile - Only Login Button */}
                 <IconButton
-                  onClick={handleDrawerToggle}
+                  onClick={() => navigate("/login")}
                   sx={{
-                    display: { md: "none" },
-                    background:
-                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    display: { xs: "flex", md: "none" },
+                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                     color: "white",
-                    width: 42,
-                    height: 42,
+                    width: 40,
+                    height: 40,
                     boxShadow: "0 4px 12px rgba(102,126,234,0.3)",
                     transition: "all 0.3s ease",
                     "&:hover": {
-                      transform: "rotate(90deg)",
                       boxShadow: "0 6px 16px rgba(102,126,234,0.4)",
+                      transform: "scale(1.05)",
                     },
                   }}
                 >
-                  <MenuIcon />
+                  <PersonOutlineIcon fontSize="small" />
                 </IconButton>
               </>
             ) : (
@@ -521,7 +461,7 @@ const Navbar: React.FC = () => {
                     <LogoutIcon fontSize="small" />
                   </IconButton>
                 </Box>
-                {/* Mobile Avatar */}
+                {/* Mobile Avatar - Right Side */}
                 <Avatar
                   sx={{
                     display: { xs: "flex", md: "none" },
@@ -545,12 +485,12 @@ const Navbar: React.FC = () => {
               </>
             )}
           </Box>
-        </Toolbar >
-      </AppBar >
+        </Toolbar>
+      </AppBar>
 
       {/* Mobile Drawer */}
-      < Drawer
-        anchor="right"
+      <Drawer
+        anchor="left"
         open={mobileOpen}
         onClose={handleDrawerToggle}
         sx={{
@@ -561,7 +501,7 @@ const Navbar: React.FC = () => {
         }}
       >
         {drawer}
-      </Drawer >
+      </Drawer>
 
       {/* User Menu */}
       <Menu
