@@ -62,8 +62,10 @@ const PaymentSchema = new Schema<IPayment>(
 );
 
 // Indexes theo kế hoạch
-PaymentSchema.index({ deal_id: 1, type: 1, status: 1 });
-PaymentSchema.index({ createdAt: -1 }); 
-PaymentSchema.index({ payment_date: -1 }); 
+PaymentSchema.index({ deal_id: 1, type: 1, status: 1 },
+  { unique: true, partialFilterExpression: { status: "pending" } }
+);
+PaymentSchema.index({ createdAt: -1 });
+PaymentSchema.index({ payment_date: -1 });
 
 export default mongoose.model<IPayment>("Payment", PaymentSchema);

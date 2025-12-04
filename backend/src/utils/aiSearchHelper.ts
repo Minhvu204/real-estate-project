@@ -15,7 +15,6 @@ const throttle = async <T>(fn: () => Promise<T>, delay = 300): Promise<T> => {
   await new Promise(res => setTimeout(res, delay));
   return fn();
 };
-
 async function callLargeLanguageModel(
   message: string
 ): Promise<SearchCriteria> {
@@ -59,7 +58,6 @@ async function callLargeLanguageModel(
   JSON:
 `;
 
-
   try {
     const response = await throttle(() =>
       openRouterClient.chat.completions.create({
@@ -69,18 +67,32 @@ async function callLargeLanguageModel(
     );
 
     const raw = response.choices[0].message.content || "";
-    const cleanJson = raw.replace(/```json/g, "").replace(/```/g, "").trim();
-    const result = JSON.parse(cleanJson);
+    const clean = raw.replace(/```json/g, "").replace(/```/g, "").trim();
 
-    cache[`intent:${message}`] = result;
-    console.log("[AI] JSON nhận được:", cleanJson);
+    let parsed: SearchCriteria;
 
-    return result;
+    try {
+      parsed = JSON.parse(clean);
+    } catch (err) {
+      console.error("🔥 JSON parse fail từ AI, fallback ignore:", clean);
+      return { ignore: true };
+    }
+
+    // đảm bảo nếu AI đẻ text bậy
+    if (typeof parsed !== "object" || parsed === null) {
+      return { ignore: true };
+    }
+
+    cache[`intent:${message}`] = parsed;
+    console.log("[AI] JSON nhận được:", parsed);
+
+    return parsed;
   } catch (err: any) {
     console.error("Lỗi gọi OpenRouter (Parse Intent):", err.message);
     return { ignore: true };
   }
 }
+
 
 async function callGeneratorModel(
   data: any,
