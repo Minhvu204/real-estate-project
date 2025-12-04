@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { dealApiSeller } from "../../api/dealApiSeller";
 import type { Deal } from "../../types/Deal";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, Typography, Button, Box, Chip, Grid, Container, Divider, IconButton } from "@mui/material";
+import { Card, CardContent, Typography, Button, Box, Chip, Grid, Container, Divider, IconButton, Pagination } from "@mui/material";
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AspectRatioIcon from '@mui/icons-material/AspectRatio';
 import BedIcon from '@mui/icons-material/Bed';
@@ -35,6 +35,8 @@ const DealListPageSeller: React.FC = () => {
 
     // State lưu index ảnh cho từng deal
     const [imageIndexes, setImageIndexes] = useState<{ [dealId: string]: number }>({});
+    const [page, setPage] = useState(1);
+    const itemsPerPage = 6;
 
     // Lấy index hiện tại của deal
     const getIndex = (dealId: string) => {
@@ -58,6 +60,16 @@ const DealListPageSeller: React.FC = () => {
     useEffect(() => {
         dealApiSeller.getDeals().then(setDeals).catch(console.error);
     }, []);
+    const paginatedAssignments = useMemo(() => {
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        return deals.slice(startIndex, endIndex);
+    }, [deals, page]);
+    const totalPages = Math.ceil(deals.length / itemsPerPage);
+    const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
+        setPage(value);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     return (
         <Container maxWidth="xl" sx={{ py: 4 }}>
@@ -106,7 +118,7 @@ const DealListPageSeller: React.FC = () => {
             )}
 
             <Grid container spacing={3}>
-                {deals.map((deal) => {
+                {paginatedAssignments.map((deal) => {
                     const property = deal.property_id;
                     const buyer = deal.buyer_id;
                     const seller = deal.seller_id;
@@ -311,6 +323,28 @@ const DealListPageSeller: React.FC = () => {
                     );
                 })}
             </Grid>
+            {totalPages > 1 && (
+                <div className="flex justify-center mt-8 pb-4 truncate">
+
+                    <Pagination
+                        count={totalPages}
+                        page={page}
+                        onChange={handlePageChange}
+                        color="primary"
+                        size="large"
+                        showFirstButton
+                        showLastButton
+                        siblingCount={0}
+                        boundaryCount={1}
+                        sx={{
+                            '& .MuiPaginationItem-root': {
+                                fontSize: { xs: '0.75rem', sm: '1rem' },
+                            },
+                        }}
+                    />
+
+                </div>
+            )}
         </Container>
     );
 };

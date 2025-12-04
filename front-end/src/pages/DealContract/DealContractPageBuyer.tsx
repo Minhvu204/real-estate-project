@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import React, { useEffect, useState } from "react";
-import { Box, Button, Typography, Card, CardContent, Stack, Chip, Avatar, } from "@mui/material";
+import { Box, Button, Typography, Card, CardContent, Stack, Chip, Avatar, Modal, TextField } from "@mui/material";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import DownloadIcon from "@mui/icons-material/Download";
 import DescriptionIcon from "@mui/icons-material/Description";
@@ -18,6 +18,10 @@ const DealContractPageBuyer: React.FC = () => {
 
     const lang = getLanguage();
     const [contracts, setContracts] = useState<Contract[]>([]);
+
+    const [rejectModalOpen, setRejectModalOpen] = useState(false);
+    const [rejectReason, setRejectReason] = useState("");
+    const [contractToReject, setContractToReject] = useState<Contract | null>(null);
 
     const fetchContracts = async () => {
         try {
@@ -48,24 +52,13 @@ const DealContractPageBuyer: React.FC = () => {
         }
     };
 
-    const handleAcceptReject = async (contractId: string, action: "accept" | "reject") => {
+    const handleAccept = async (contractId: string) => {
         try {
-            if (action === "accept") {
-                await contractApiBuyer.acceptContract(dealId, contractId);
-                toastSuccess(t("contractHasBeenAccepted"));
-                fetchContracts();
-            } else {
-                // Yêu cầu lý do từ chối
-                const reason = window.prompt(t("enterReasonForRejectingTheContract"));
-                if (!reason) return alert(t("pleaseEnterReasonForRejecting"));
-                await contractApiBuyer.rejectContract(dealId, contractId, { reason });
-                toastError(t("contractHasBeenRejected"));
-                fetchContracts();
-            }
-
+            await contractApiBuyer.acceptContract(dealId, contractId);
+            toastSuccess(t("contractHasBeenAccepted"));
+            fetchContracts();
         } catch (err) {
             console.error(err);
-            alert(t("updateStatusFailed"));
             toastError(t("updateStatusFailed"));
         }
     };
@@ -229,11 +222,7 @@ const DealContractPageBuyer: React.FC = () => {
                                                     size="small"
                                                     startIcon={<OpenInNewIcon />}
                                                     onClick={() => window.open(c.file_url, "_blank")}
-                                                    sx={{
-                                                        textTransform: "none",
-                                                        borderRadius: 1.5,
-                                                        px: 2
-                                                    }}
+                                                    sx={{ textTransform: "none", borderRadius: 1.5, px: 2 }}
                                                 >
                                                     {t("view")}
                                                 </Button>
@@ -242,37 +231,35 @@ const DealContractPageBuyer: React.FC = () => {
                                                     size="small"
                                                     startIcon={<DownloadIcon />}
                                                     onClick={() => handleDownload(c.file_url, c.original_filename)}
-                                                    sx={{
-                                                        textTransform: "none",
-                                                        borderRadius: 1.5,
-                                                        px: 2
-                                                    }}
+                                                    sx={{ textTransform: "none", borderRadius: 1.5, px: 2 }}
                                                 >
                                                     {t("download")}
                                                 </Button>
-
                                             </>
                                         )}
-                                        {/* Nút Chấp nhận / Từ chối */}
                                         {c.status !== "approved" && c.status !== "rejected" && (
                                             <>
                                                 <Button
                                                     color="success"
                                                     variant="contained"
                                                     size="small"
-                                                    onClick={() => handleAcceptReject(c._id, "accept")}
+                                                    onClick={() => handleAccept(c._id)}
                                                     sx={{ textTransform: "none", borderRadius: 1.5 }}
                                                 >
-                                                    Chấp nhận
+                                                    {t("accept")}
                                                 </Button>
                                                 <Button
                                                     color="error"
                                                     variant="outlined"
                                                     size="small"
-                                                    onClick={() => handleAcceptReject(c._id, "reject")}
+                                                    onClick={() => {
+                                                        setContractToReject(c);
+                                                        setRejectReason("");
+                                                        setRejectModalOpen(true);
+                                                    }}
                                                     sx={{ textTransform: "none", borderRadius: 1.5 }}
                                                 >
-                                                    Từ chối
+                                                    {t("reject")}
                                                 </Button>
                                             </>
                                         )}
@@ -283,6 +270,49 @@ const DealContractPageBuyer: React.FC = () => {
                     );
                 })}
             </Stack>
+
+            {/* Modal nhập lý do từ chối */}
+            <Modal open={rejectModalOpen} onClose={() => setRejectModalOpen(false)}>
+                <Box sx={{ width: 400, margin: "150px auto", padding: 3, bgcolor: "background.paper", borderRadius: 2 }}>
+                    <Typography variant="h6" mb={2}>{t("rejectContract")}</Typography>
+                    <TextField
+                        label={t("enterReasonForRejectingTheContract")}
+                        multiline
+                        minRows={3}
+                        fullWidth
+                        value={rejectReason}
+                        onChange={(e) => setRejectReason(e.target.value)}
+                    />
+                    <Box mt={2} display="flex" justifyContent="space-between">
+                        <Button variant="outlined" onClick={() => setRejectModalOpen(false)}>
+                            {t("cancel")}
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="error"
+                            onClick={async () => {
+                                if (!rejectReason.trim()) return alert(t("pleaseEnterReasonForRejecting"));
+                                if (!contractToReject) return;
+                                try {
+                                    await contractApiBuyer.rejectContract(dealId, contractToReject._id, { reason: rejectReason });
+                                    toastError(t("contractHasBeenRejected"));
+                                    fetchContracts();
+                                } catch (err) {
+                                    console.error(err);
+                                    toastError(t("updateStatusFailed"));
+                                } finally {
+                                    setRejectModalOpen(false);
+                                    setContractToReject(null);
+                                    setRejectReason("");
+                                }
+                            }}
+                        >
+                            {t("reject")}
+                        </Button>
+                    </Box>
+                </Box>
+            </Modal>
+
             <ToastContainer position="top-right" autoClose={2000} theme="colored" />
         </Box>
     );
