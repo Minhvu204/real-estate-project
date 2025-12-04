@@ -99,14 +99,20 @@ export const getTopAgents = async (limit: number) => {
     { $match: { status: "completed" } },
 
     {
+      $group: {
+        _id: "$_id",
+        agent_id: { $first: "$agent_id" }
+      }
+    },
+
+    {
       $lookup: {
         from: "payments",
         localField: "_id",
         foreignField: "deal_id",
-        as: "payments",
-      },
+        as: "payments"
+      }
     },
-    { $unwind: { path: "$payments", preserveNullAndEmptyArrays: true } },
 
     {
       $group: {
@@ -114,14 +120,27 @@ export const getTopAgents = async (limit: number) => {
         totalDeals: { $sum: 1 },
         totalAgentFee: {
           $sum: {
-            $cond: [
-              { $eq: ["$payments.type", "agent_fee"] },
-              "$payments.amount",
-              0,
-            ],
-          },
-        },
-      },
+            $sum: {
+              $map: {
+                input: {
+                  $filter: {
+                    input: "$payments",
+                    as: "pay",
+                    cond: {
+                      $and: [
+                        { $eq: ["$$pay.type", "agent_fee"] },
+                        { $eq: ["$$pay.status", "completed"] }
+                      ]
+                    }
+                  }
+                },
+                as: "p",
+                in: "$$p.amount"
+              }
+            }
+          }
+        }
+      }
     },
 
     {
@@ -149,4 +168,21 @@ export const getTopAgents = async (limit: number) => {
   ]);
 
   return result;
+};
+
+
+export const getUserRolesSummary = async () => {
+  const [buyers, sellers, agents, admins] = await Promise.all([
+    User.countDocuments({ role: "buyer" }),
+    User.countDocuments({ role: "seller" }),
+    User.countDocuments({ role: "agent" }),
+    User.countDocuments({ role: "admin" }),
+  ]);
+
+  return {
+    buyers,
+    sellers,
+    agents,
+    admins,
+  };
 };

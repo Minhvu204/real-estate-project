@@ -36,3 +36,13 @@ export const getTopAgents = async (req: Request, res: Response) => {
     return errorResponse(req, res, error.message || "reports.top_agents_error", 500);
   }
 };
+
+export const getUserRolesSummary = async (req: Request, res: Response) => {
+  try {
+    const data = await reportService.getUserRolesSummary();
+    return successResponse(req, res, "reports.user_roles_summary_success", data);
+  } catch (error: any) {
+    return errorResponse(req, res, error.message || "reports.user_roles_summary_error", 500);
+  }
+};
+
