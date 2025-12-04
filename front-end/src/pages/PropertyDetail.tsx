@@ -463,7 +463,7 @@ const PropertyDetailUser = () => {
                         onClose={handleCloseTour}
                     />
                 </Dialog>
-                <PropertyAgentReview targetType="agent" targetId={property._id} />
+                <PropertyAgentReview targetType="property" targetId={property._id} />
 
             </Container >
         </>

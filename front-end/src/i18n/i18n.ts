@@ -1,7 +1,7 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import HOME_EN from "../locales/en/sellerPage.json";
-import HOME_VI from "../locales/vi/sellerPage.json";
+import HOME_EN from "../locales/en/home.json";
+import HOME_VI from "../locales/vi/home.json";
 import PROPERTY_PAGE_EN from "../locales/en/propertyPage.json";
 import PROPERTY_PAGE_VI from "../locales/vi/propertyPage.json";
 import PROPERTY_DETAIl_EN from "../locales/en/propertyDetail.json";

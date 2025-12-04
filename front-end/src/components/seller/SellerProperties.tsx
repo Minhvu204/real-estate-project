@@ -115,7 +115,7 @@ const SellerProperties = () => {
                     />
                     <div className='flex gap-3 mt-3 md:mt-0'>
                         <Button
-                        size='small'
+                            size='small'
                             variant="contained"
                             color="primary"
                             startIcon={<AddIcon />}
@@ -126,7 +126,7 @@ const SellerProperties = () => {
                                 borderRadius: 2,
                                 textTransform: 'none',
                                 fontWeight: 'bold',
-                                px:2,
+                                px: 2,
                             }}
                         >
                             {t('listProperties:createNewProperty')}
@@ -245,7 +245,7 @@ const SellerProperties = () => {
                                             to={`${p._id}`}
                                             sx={{ borderRadius: 2, textTransform: 'none' }}
                                         >
-                                            {t('insideProperty.viewDetail')}
+                                            {t('listProperties:viewDetails')}
                                         </Button>
 
                                         {p.agent_id ? (
@@ -293,7 +293,7 @@ const SellerProperties = () => {
                                                 to={`${p._id}/agents`}
                                                 sx={{ borderRadius: 2, textTransform: 'none' }}
                                             >
-                                                {t('insideProperty.assignAgent')}
+                                                {t('listProperties:assignAgent')}
                                             </Button>
                                         )}
                                     </Box>

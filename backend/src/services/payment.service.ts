@@ -6,6 +6,7 @@ import User from "../models/user.model";
 import { createNotification } from "../utils/notificationHelper";
 import { notifyPaymentSuccessBuyer, notifyPaymentSuccessSellerAgent } from "../utils/notificationHelper";
 import Property from "../models/property.model";
+import { formatVND } from "../utils/formatMoney";
 
 
 const toObjectId = (id: string) => new mongoose.Types.ObjectId(id);
@@ -20,7 +21,7 @@ export async function createEscrowPayment(buyerId: string, dealId: string) {
   const deal = await Deal.findById(dealId)
     .populate("seller_id", "fullName email phone")
     .populate("agent_id", "fullName email phone")
-    .populate("property_id", "title address price")
+    .populate("property_id", "title address price");
 
   if (!deal) {
     const err: any = new Error("Deal không tồn tại");
@@ -46,12 +47,6 @@ export async function createEscrowPayment(buyerId: string, dealId: string) {
     throw err;
   }
 
-  const existingPending = await Payment.findOne({
-    deal_id: deal._id,
-    type: "escrow_fund",
-    status: "pending",
-  });
-
   // compute fees
   const agreedPrice = deal.amounts?.agreed_price ?? 0;
   const platformFeeRate = Number(process.env.DEFAULT_PLATFORM_FEE_RATE ?? 5) / 100;
@@ -62,46 +57,33 @@ export async function createEscrowPayment(buyerId: string, dealId: string) {
 
   const amountToPay = agreedPrice;
 
-  if (existingPending) {
-    const qrUrl = `${process.env.FRONTEND_URL ?? ""}/pay/qr-demo?paymentId=${existingPending._id}&amount=${amountToPay}`;
-    return {
-      paymentId: String(existingPending._id),
-      qrUrl,
-      amount: amountToPay,
-      platformFee,
-      agentFee,
-      deal: {
-        _id: deal._id,
-        status: deal.status,
-        property: deal.property_id,
-        buyer: deal.buyer_id,
-        seller: deal.seller_id,
-        agent: deal.agent_id,
-        amounts: deal.amounts,
-        audit: deal.audit,
+  const payment = await Payment.findOneAndUpdate(
+    {
+      deal_id: deal._id,
+      type: "escrow_fund",
+      status: "pending",
+    },
+    {
+      $setOnInsert: {
+        amount: amountToPay,
+        currency: deal.amounts.currency || "VND",
+        method: "payos_qr",
+        initiated_by: buyerId,
+        notes: `Escrow initiation for deal ${dealId}`,
+        createdAt: new Date(),
       },
-    };
+    },
+    { new: true, upsert: true }
+  );
+
+  // update deal status only if newly created
+  if (deal.status !== "awaiting_escrow_payment") {
+    deal.status = "awaiting_escrow_payment";
+    deal.audit = deal.audit || {};
+    (deal.audit as any).escrow_created_at = new Date();
+    await deal.save();
   }
 
-  // create Payment record (escrow_fund)
-  const payment = await Payment.create({
-    deal_id: deal._id,
-    type: "escrow_fund",
-    status: "pending",
-    amount: amountToPay,
-    currency: deal.amounts.currency || "VND",
-    method: "payos_qr",
-    initiated_by: toObjectId(buyerId),
-    notes: `Escrow initiation for deal ${dealId}`,
-  });
-
-  // set deal.status to awaiting_escrow_payment
-  deal.status = (deal.status as any) || "awaiting_escrow_payment";
-  deal.audit = deal.audit || {};
-  (deal.audit as any).escrow_created_at = new Date();
-  await deal.save();
-
-  // create fake/demo QR url (frontend will display)
   const qrUrl = `${process.env.FRONTEND_URL ?? ""}/pay/qr-demo?paymentId=${payment._id}&amount=${amountToPay}`;
 
   return {
@@ -122,6 +104,7 @@ export async function createEscrowPayment(buyerId: string, dealId: string) {
     },
   };
 }
+
 
 export async function confirmEscrowPayment(paymentId: string, opts?: { externalRef?: string, paidAt?: Date }) {
   if (!mongoose.Types.ObjectId.isValid(paymentId)) {
@@ -176,7 +159,7 @@ export async function confirmEscrowPayment(paymentId: string, opts?: { externalR
     await createNotification(
       String(payment.initiated_by),
       "Thanh toán Escrow thành công",
-      `Bạn đã thanh toán ${payment.amount} ${payment.currency}. Tiền đang được giữ an toàn bởi sàn.`,
+      `Bạn đã thanh toán ${formatVND(payment.amount)}. Tiền đang được giữ an toàn bởi sàn.`,
       { relatedId: String(deal._id), type: "system" }
     );
 
@@ -188,7 +171,7 @@ export async function confirmEscrowPayment(paymentId: string, opts?: { externalR
       await createNotification(
         sellerId,
         "Buyer đã thanh toán Escrow",
-        `Người mua đã thanh toán tiền vào escrow cho BĐS "${(deal as any).property_id?.title ?? ""}". Vui lòng chuẩn bị thủ tục.`,
+        `Người mua đã thanh toán ${formatVND(payment.amount)} vào escrow cho BĐS "${(deal as any).property_id?.title ?? ""}". Vui lòng chuẩn bị thủ tục.`,
         { relatedId: String(deal._id), type: "system" }
       );
     }
@@ -197,7 +180,7 @@ export async function confirmEscrowPayment(paymentId: string, opts?: { externalR
       await createNotification(
         agentId,
         "Buyer đã thanh toán Escrow",
-        `Người mua đã thanh toán tiền vào escrow cho deal ${String(deal._id)}.`,
+        `Người mua đã thanh toán ${formatVND(payment.amount)} vào escrow cho deal ${String(deal._id)}.`,
         { relatedId: String(deal._id), type: "system" }
       );
     }

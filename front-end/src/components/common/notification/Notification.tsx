@@ -57,14 +57,9 @@ const Notification = () => {
     socket.auth = { token };
     if (!socket.connected) socket.connect();
 
-    // ✅ Gộp tất cả handlers - không đăng ký trùng
     const handleConnect = () => {
       console.log("[SOCKET FE] Connected, socket.id:", socket.id);
       socket.emit("get_unread_count");
-    };
-
-    const handleConnectError = (err: Error) => {
-      console.error("[SOCKET FE] CONNECT ERROR:", err);
     };
 
     const handleDisconnect = (reason: string) => {
@@ -73,6 +68,7 @@ const Notification = () => {
 
     const handleNewNotification = (notification: NotificationType) => {
       console.log("[FE] Received new_notification:", notification);
+
       setNotifications((prev) => {
         if (prev.some((n) => n._id === notification._id)) return prev;
         return [notification, ...prev];
@@ -84,24 +80,18 @@ const Notification = () => {
       setUnreadCount(data.unreadCount);
     };
 
-    // ✅ Đăng ký listeners - MỖI CÁI CHỈ 1 LẦN
     socket.on("connect", handleConnect);
-    socket.on("connect_error", handleConnectError);
     socket.on("disconnect", handleDisconnect);
     socket.on("new_notification", handleNewNotification);
     socket.on("unread_count_update", handleUnreadCountUpdate);
 
-    // ✅ Nếu đã connect trước đó
     if (socket.connected) handleConnect();
 
-    // ✅ Cleanup - GỠ ĐÚNG LISTENERS
     return () => {
       socket.off("connect", handleConnect);
-      socket.off("connect_error", handleConnectError);
       socket.off("disconnect", handleDisconnect);
       socket.off("new_notification", handleNewNotification);
       socket.off("unread_count_update", handleUnreadCountUpdate);
-      // ❌ KHÔNG gọi socket.offAny() hoặc disconnect ở đây
     };
   }, [token]);
 
@@ -115,7 +105,7 @@ const Notification = () => {
 
   useEffect(() => {
     if (page > 1 && token) fetchNotifications(page, false);
-  }, [page,token]);
+  }, [page, token]);
 
   const fetchNotifications = async (page: number, reset = false) => {
     if (isFetchingRef.current || !token) return;
@@ -144,11 +134,11 @@ const Notification = () => {
     const date = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
-    if (diffMs < 60000) return "Vừa xong";
+    if (diffMs < 60000) return t("diffMs");
     const diffMins = Math.floor(diffMs / 60000);
-    if (diffMins < 60) return `${diffMins} phút trước`;
+    if (diffMins < 60) return `${diffMins} ${t("diffMins")}`;
     const diffHours = Math.floor(diffMs / 3600000);
-    if (diffHours < 24) return `${diffHours} giờ trước`;
+    if (diffHours < 24) return `${diffHours} ${t("diffHours")}`;
     return date.toLocaleDateString("vi-VN");
   };
 
@@ -372,5 +362,3 @@ const Notification = () => {
 };
 
 export default Notification;
-
-

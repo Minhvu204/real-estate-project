@@ -46,7 +46,7 @@ const ListProperties = () => {
           setProperties(data || []);
         }
       } catch (error) {
-        console.log("Cannot fetch properties for this role", error);
+        console.log("Cannot fetch properties: ", error);
       } finally {
         setLoading(false);
       }
@@ -59,8 +59,8 @@ const ListProperties = () => {
       await updateStatus(id, newStatus);
       toast.success(
         currentLanguage === "en"
-          ? `Property ${newStatus} successfully`
-          : `Cập nhật trạng thái "${newStatus}" thành công!`
+          ? `Update property successfully`
+          : `Cập nhật trạng thái thành công!`
       );
       setProperties(properties.filter((p) => p._id !== id));
     } catch (error) {
@@ -124,7 +124,8 @@ const ListProperties = () => {
         />
 
         {!isManageMode && !status && (
-          <select title="select"
+          <select
+            title="select"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
             className="border px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 mr-3"
@@ -192,28 +193,27 @@ const ListProperties = () => {
                   <td className="px-4 py-3 text-sm">
                     <span
                       className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium
-                ${
-                  item.status === "approved"
-                    ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
-                    : item.status === "pending"
-                    ? "bg-amber-50 text-amber-700 ring-1 ring-amber-100"
-                    : item.status === "available"
-                    ? "bg-sky-50 text-sky-700 ring-1 ring-sky-100"
-                    : item.status === "rejected"
-                    ? "bg-rose-50 text-rose-700 ring-1 ring-rose-100"
-                    : "bg-gray-100 text-gray-700 ring-1 ring-gray-200"
-                }`}
+                ${item.status === "approved"
+                          ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"
+                          : item.status === "pending"
+                            ? "bg-amber-50 text-amber-700 ring-1 ring-amber-100"
+                            : item.status === "available"
+                              ? "bg-sky-50 text-sky-700 ring-1 ring-sky-100"
+                              : item.status === "rejected"
+                                ? "bg-rose-50 text-rose-700 ring-1 ring-rose-100"
+                                : "bg-gray-100 text-gray-700 ring-1 ring-gray-200"
+                        }`}
                     >
                       <span className="h-1.5 w-1.5 rounded-full bg-current" />
                       {currentLanguage === "en"
                         ? item.status
                         : item.status === "approved"
-                        ? "Đã duyệt"
-                        : item.status === "pending"
-                        ? "Chờ duyệt"
-                        : item.status === "available"
-                        ? "Có sẵn"
-                        : "Bị từ chối"}
+                          ? "Đã duyệt"
+                          : item.status === "pending"
+                            ? "Chờ duyệt"
+                            : item.status === "available"
+                              ? "Có sẵn"
+                              : "Bị từ chối"}
                     </span>
                   </td>
 

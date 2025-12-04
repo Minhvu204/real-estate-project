@@ -23,7 +23,6 @@ const Navbar: React.FC = () => {
   const roleMenus = {
     buyer: [
       { label: "My Properties", path: "/dwello/myProperties" },
-      { label: "My Agent", path: "/dwello/myAgent" },
       { label: "My appointments", path: "/dwello/appointments" },
       { label: "My Offer", path: "/buyer/offer" },
       { label: "Deals - Contract", path: "/buyer/deals/list" },
@@ -59,11 +58,10 @@ const Navbar: React.FC = () => {
   };
 
   const menuItems = [
-    { label: "New", path: "/new" },
+    { label: "Home", path: "/home" },
     { label: "Buy", path: "/buy" },
     { label: "Rent", path: "/rent" },
     { label: "Sell", path: "/sell" },
-    { label: "Booking", path: "/booking" },
     { label: "Find Agent", path: "/agents" },
   ];
 
