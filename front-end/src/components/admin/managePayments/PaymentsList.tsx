@@ -8,6 +8,7 @@ import {
   Button,
   Modal,
   Pagination,
+  Stack,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -160,23 +161,30 @@ const PaymentsList = () => {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <Tooltip title={t("view_tooltip")}>
-                      <Button onClick={() => navigate(`${data._id}`)}>
-                        {t("view_btn")}
-                      </Button>
-                    </Tooltip>
-                    {data.status === "completed" &&
-                      data.deal_id.status !== "completed" && (
-                        <Tooltip title={t("release_tooltip")}>
-                          <Button
-                            onClick={() =>
-                              handleOpenModalRelease(data.deal_id._id)
-                            }
-                          >
-                            {t("release_btn")}
-                          </Button>
-                        </Tooltip>
-                      )}
+                    <Stack direction="row" spacing={1}>
+                      <Tooltip title={t("view_tooltip")}>
+                        <Button
+                          variant="outlined"
+                          onClick={() => navigate(`${data._id}`)}
+                        >
+                          {t("view_btn")}
+                        </Button>
+                      </Tooltip>
+                      {data.status === "completed" &&
+                        data.deal_id.status !== "completed" && (
+                          <Tooltip title={t("release_tooltip")}>
+                            <Button
+                              variant="outlined"
+                              color="error"
+                              onClick={() =>
+                                handleOpenModalRelease(data.deal_id._id)
+                              }
+                            >
+                              {t("release_btn")}
+                            </Button>
+                          </Tooltip>
+                        )}
+                    </Stack>
                   </td>
                 </tr>
               ))}
@@ -196,6 +204,7 @@ const PaymentsList = () => {
             </Button>
             <Button
               variant="outlined"
+              color="error"
               onClick={() => handleDelete(paymentRelease!)}
             >
               {t("accept_btn")}

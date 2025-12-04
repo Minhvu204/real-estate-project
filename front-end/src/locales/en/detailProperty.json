@@ -16,5 +16,11 @@
   "restore": "Restore",
   "hide": "Hide",
   "cancel": "Cancel",
-  "confirm": "Confirm"
+  "confirm": "Confirm",
+  "toast_success_hide":"hide property successfully!",
+  "toast_fail_hide":"Failed to hide the property!",
+  "toast_success_restore":"restore property successfully!",
+  "toast_fail_restore":"Failed to restore the property!",
+  "user_notFound":"User ID not found!",
+  "no_note":"No notes"
 }
