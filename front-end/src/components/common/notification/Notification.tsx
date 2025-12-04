@@ -134,11 +134,11 @@ const Notification = () => {
     const date = new Date(dateString);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
-    if (diffMs < 60000) return "Vừa xong";
+    if (diffMs < 60000) return t("diffMs");
     const diffMins = Math.floor(diffMs / 60000);
-    if (diffMins < 60) return `${diffMins} phút trước`;
+    if (diffMins < 60) return `${diffMins} ${t("diffMins")}`;
     const diffHours = Math.floor(diffMs / 3600000);
-    if (diffHours < 24) return `${diffHours} giờ trước`;
+    if (diffHours < 24) return `${diffHours} ${t("diffHours")}`;
     return date.toLocaleDateString("vi-VN");
   };
 

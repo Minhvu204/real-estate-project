@@ -4,5 +4,8 @@
   "no_new_notification": "No new notification",
   "read_all": "Mark all as read",
   "all":"All",
-  "un_read": "Un read"
+  "un_read": "Un read",
+  "diffMs":"just finished",
+  "diffMins":"minutes ago",
+  "diffHours":"hours ago"
 }

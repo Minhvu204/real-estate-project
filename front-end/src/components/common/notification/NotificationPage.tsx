@@ -1,4 +1,4 @@
-import { useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -248,11 +248,11 @@ const NotificationsPage = () => {
                   const d = new Date(n.createdAt);
                   const now = new Date();
                   const diffMs = now.getTime() - d.getTime();
-                  if (diffMs < 60000) return "Vừa xong";
+                  if (diffMs < 60000) return t("diffMs");
                   if (diffMs < 60 * 60000)
-                    return `${Math.floor(diffMs / 60000)} phút trước`;
+                    return `${Math.floor(diffMs / 60000)} ${t("diffMins")}`;
                   if (diffMs < 24 * 3600000)
-                    return `${Math.floor(diffMs / 3600000)} giờ trước`;
+                    return `${Math.floor(diffMs / 3600000)} ${t("diffHours")}`;
                   return d.toLocaleDateString("vi-VN");
                 })()}
               </Typography>
