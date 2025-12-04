@@ -11,9 +11,7 @@ import { getLanguage, getUser } from "../utils/storage";
 import { OfferService } from "@/services/offerService";
 import BuyerAppointment from "../components/Buyer/Appointment/BuyerAppointment";
 import { getDetailPropertiesById } from "@/services/propertyService";
-import PropertyReview from "../components/Buyer/PropertyReview";
-
-
+import PropertyAgentReview from "@/components/Buyer/PropertyAgentReview";
 
 
 const PropertyDetailUser = () => {
@@ -443,31 +441,32 @@ const PropertyDetailUser = () => {
                     </DialogActions>
                 </Dialog>
 
-            <ToastContainer
-                position="top-right"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light"
-            />
-            <Dialog
-                open={openTourModal}
-                onClose={handleCloseTour}
-                fullScreen={isMobileSmall}
-                fullWidth>
-                <BuyerAppointment
-                    property={property}
-                    onClose={handleCloseTour}
+                <ToastContainer
+                    position="top-right"
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                    theme="light"
                 />
-            </Dialog>
-            <PropertyReview propertyId={property._id} />
+                <Dialog
+                    open={openTourModal}
+                    onClose={handleCloseTour}
+                    fullScreen={isMobileSmall}
+                    fullWidth>
+                    <BuyerAppointment
+                        property={property}
+                        onClose={handleCloseTour}
+                    />
+                </Dialog>
+                <PropertyAgentReview targetType="agent" targetId={property._id} />
 
-        </Container >
+            </Container >
+        </>
     );
 };
 
