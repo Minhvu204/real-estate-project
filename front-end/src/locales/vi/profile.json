@@ -28,6 +28,7 @@
   "unableToChangePassword": "Không thể đổi mật khẩu",
   "informationUpdatedSuccess": "Cập nhật thông tin thành công",
   "unableToUpdateInformation": "Không thể cập nhật thông tin",
+  "passwordMustBeAtLeast8": "Mật khẩu phải có ít nhất 8 ký tự",
   "home": "Trang chủ",
   "newPost": "Bất động sản của tôi",
   "manageListings": "Quản lý tin đăng",
