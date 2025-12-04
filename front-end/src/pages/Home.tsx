@@ -10,6 +10,7 @@ import type { Property } from "@/types/Property";
 import { getLanguage } from "../utils/storage";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import useTitle from "@/hooks/useTitle";
 const HomePage: React.FC = () => {
     const images = [
         "https://cdnmedia.baotintuc.vn/Upload/GBzr0rzEkBb6ua36h4mJ9w/files/2022/09/P3.jpg",
@@ -22,7 +23,7 @@ const HomePage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const currentLanguage = getLanguage();
     const { t } = useTranslation(['home', 'properties']);
-
+    useTitle(t("titlePage"));
     // Auto slide
     useEffect(() => {
         const interval = setInterval(() => {
