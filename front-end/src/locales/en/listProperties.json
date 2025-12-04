@@ -57,5 +57,8 @@
   "requestSent": "Request Sent",
   "processing": "Processing",
   "requestingProperty": "You are requesting to join this property",
-  "createNewProperty": "Create "
+  "createNewProperty": "Create ",
+  "cancel_btn": "Cancel",
+  "toast_success":"Update property status successfully!",
+  "toast_fail":"Failed to update property status!"
 }

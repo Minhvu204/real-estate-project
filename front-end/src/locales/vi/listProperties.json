@@ -57,5 +57,8 @@
   "requestSent": "Đã gửi yêu cầu",
   "processing": "Đang xử lý",
   "requestingProperty": "Bạn đang yêu cầu tham gia bất động sản",
-  "createNewProperty": "Tạo mới"
+  "createNewProperty": "Tạo mới",
+  "cancel_btn": "Hủy",
+  "toast_success":"Cập nhật trạng thái thành công!",
+  "toast_fail":"Cập nhật trạng thái thất bại!"
 }
