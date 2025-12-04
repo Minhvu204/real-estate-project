@@ -28,17 +28,19 @@ import {
   RealEstateAgent as RealEstateAgentIcon,
   CategoryOutlined as CategoryOutlinedIcon,
 } from "@mui/icons-material";
-import PaymentsIcon from "@mui/icons-material/Payments";
+import { useNavigate } from "react-router-dom";
+
+
 import LocalOfferIcon from "@mui/icons-material/LocalOffer";
 import ArticleRoundedIcon from "@mui/icons-material/ArticleRounded";
 import RealEstateAgentRoundedIcon from "@mui/icons-material/RealEstateAgentRounded";
 import BackspaceRoundedIcon from "@mui/icons-material/BackspaceRounded";
 import DoneRoundedIcon from "@mui/icons-material/DoneRounded";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router-dom";
 import { getUser } from "../../utils/storage";
 import ButtonLanguage from "../common/ButtonLanguage";
-
+import AuthContext from "@/context/AuthContext";
 const drawerWidth = 240;
 
 export default function AdminDashboard() {
@@ -54,11 +56,14 @@ export default function AdminDashboard() {
   const [contractOpen, setContractOpen] = useState(false);
   const [dealOpen, setDealOpen] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const { state, signOut } = useContext(AuthContext);
 
   const handleDrawerClose = () => {
     setIsClosing(true);
     setMobileOpen(false);
   };
+  const naviage = useNavigate();
   const handleDrawerTransitionEnd = () => setIsClosing(false);
   const handleDrawerToggle = () => !isClosing && setMobileOpen(!mobileOpen);
   const handleUserListToggle = () => setUserListOpen(!userListOpen);
@@ -66,6 +71,11 @@ export default function AdminDashboard() {
   const handleContractListToggle = () => setContractOpen(!contractOpen);
   const handleDealListToggle = () => setDealOpen(!dealOpen);
   const handlePaymentListToggle = () => setPaymentOpen(!paymentOpen);
+  const handleLogout = () => {
+    signOut();
+    naviage("/login");
+    setAnchorEl(null);
+  };
 
   const menuItems = [
     { text: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
@@ -254,14 +264,14 @@ export default function AdminDashboard() {
                   item.text === "User"
                     ? handleUserListToggle
                     : item.text === "Properties"
-                    ? handlePropertyListToggle
-                    : item.text === "Contracts"
-                    ? handleContractListToggle
-                    : item.text === "Deals"
-                    ? handleDealListToggle
-                    : item.text === "Payments"
-                    ? handlePaymentListToggle
-                    : undefined
+                      ? handlePropertyListToggle
+                      : item.text === "Contracts"
+                        ? handleContractListToggle
+                        : item.text === "Deals"
+                          ? handleDealListToggle
+                          : item.text === "Payments"
+                            ? handlePaymentListToggle
+                            : undefined
                 }
                 sx={{
                   borderRadius: "12px",
@@ -459,6 +469,7 @@ export default function AdminDashboard() {
             <ListItemButton
               component={Link}
               to={item.path}
+              onClick={handleLogout}
               sx={{
                 color: "#dc2626",
                 borderRadius: "12px",
