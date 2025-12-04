@@ -1,4 +1,4 @@
-import PropertiesCompare from '../../components/buyer/Compare/PropertiesCompare';
+import PropertiesCompare from '../../components/Buyer/Compare/PropertiesCompare';
 import { getPropertyByIds } from '@/services/buyerService';
 import type { PropertyCompare } from '@/types/FavoriteType';
 import { getLanguage, type Lang } from '@/utils/storage';

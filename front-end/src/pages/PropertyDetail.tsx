@@ -11,9 +11,7 @@ import { getLanguage, getUser } from "../utils/storage";
 import { OfferService } from "@/services/offerService";
 import BuyerAppointment from "../components/Buyer/Appointment/BuyerAppointment";
 import { getDetailPropertiesById } from "@/services/propertyService";
-import PropertyAgentReview from "../components/Buyer/PropertyAgentReview";
-
-
+import PropertyAgentReview from "@/components/Buyer/PropertyAgentReview";
 
 
 const PropertyDetailUser = () => {
@@ -465,21 +463,9 @@ const PropertyDetailUser = () => {
                         onClose={handleCloseTour}
                     />
                 </Dialog>
-                <PropertyAgentReview targetType="property" targetId={property._id} />
-            </Container >
+                <PropertyAgentReview targetType="agent" targetId={property._id} />
 
-            <ToastContainer
-                position="top-right"
-                autoClose={2000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-                theme="light"
-            />
+            </Container >
         </>
     );
 };

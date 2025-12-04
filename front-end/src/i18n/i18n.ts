@@ -57,6 +57,8 @@ import REVIEW_ADMIN_EN from "../locales/en/review.json";
 import REVIEW_ADMIN_VI from "../locales/vi/review.json";
 import COMMENT_BUYER_EN from "../locales/en/comment.json";
 import COMMENT_BUYER_VI from "../locales/vi/comment.json";
+import DASHBOARD_EN from "../locales/en/dashboard.json";
+import DASHBOARD_VI from "../locales/vi/dashboard.json";
 export const resources = {
   en: {
     home: HOME_EN,
@@ -87,6 +89,7 @@ export const resources = {
     notification: NOTIFICATION_EN,
     review: REVIEW_ADMIN_EN,
     comment: COMMENT_BUYER_EN,
+    dashboard: DASHBOARD_EN,
   },
   vi: {
     home: HOME_VI,
@@ -116,7 +119,8 @@ export const resources = {
     payment: PAYMENT_ADMIN_VI,
     notification: NOTIFICATION_VI,
     review: REVIEW_ADMIN_VI,
-    comment: COMMENT_BUYER_VI
+    comment: COMMENT_BUYER_VI,
+    dashboard: DASHBOARD_VI,
   },
 };
 export const defaultNS = "home";
@@ -150,7 +154,8 @@ i18n
       "payment",
       "notification",
       "review",
-      "comment"
+      "comment",
+      "dashboard",
     ], //add các namespace khi viết thêm ở trên vào mảng này
     defaultNS,
     fallbackLng: "en",
