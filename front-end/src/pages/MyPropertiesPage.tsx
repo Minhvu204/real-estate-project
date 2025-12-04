@@ -66,13 +66,6 @@ const MyPropertiesPage: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        // Only open modal if:
-        // 1. There's an id in URL
-        // 2. Properties are loaded
-        // 3. Not currently updating
-        // 4. Not currently closing
-        // 5. Modal is not already open
-        // 6. No property is currently selected
         if (id && properties.length > 0 && !isUpdating && !isClosing && !editModalOpen && !selectedProperty) {
             const property = properties.find(p => p._id === id);
             if (property) {
@@ -219,8 +212,8 @@ const MyPropertiesPage: React.FC = () => {
     };
 
     const handleDeleteClick = (property: Property) => {
-        if (property.status === "approved") {
-            toast.error(t("cannotDeleteApproved"));
+        if (property.status === "rented" || property.status === "sold") {
+            toast.error(t("cannotDelete"));
             return;
         }
         setSelectedProperty(property);
