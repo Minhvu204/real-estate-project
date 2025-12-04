@@ -23,6 +23,7 @@ const FavoritePage = () => {
             try {
                 const data = await getAllFavoriteProperties();
                 setProperties(data);
+                console.log('Fetched favorite properties:', data);
                 setPropertiesFiltered(data);
             } catch (error: any) {
                 console.error('Error fetching favorite properties:', error);

@@ -34,8 +34,9 @@ import useTitle from "@/hooks/useTitle";
 import { getLanguage } from "@/utils/storage";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import PropertyAgentReview from "../../components/buyer/PropertyAgentReview";
+import PropertyAgentReview from "@/components/Buyer/PropertyAgentReview";
 
+``
 const AgentDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation(["agentDetail"]);

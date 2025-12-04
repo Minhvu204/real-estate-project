@@ -1,4 +1,5 @@
 {
+  "pageTitle": "Dewllo | My Properties",
   "title": "My Properties",
   "subtitle": "Review every home you have purchased or currently rent through Dwello.",
   "searchPlaceholder": "Search by title, address or property type...",
@@ -27,4 +28,3 @@
     "leased": "Leased"
   }
 }
-

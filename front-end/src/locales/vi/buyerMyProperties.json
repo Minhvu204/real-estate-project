@@ -1,4 +1,5 @@
 {
+  "pageTitle": "Dewllo | Bất động sản của tôi",
   "title": "Bất động sản của tôi",
   "subtitle": "Danh sách các bất động sản bạn đã mua hoặc đang thuê trên Dwello.",
   "searchPlaceholder": "Tìm theo tên, địa chỉ, loại hình...",
@@ -27,4 +28,3 @@
     "leased": "Đã cho thuê"
   }
 }
-
