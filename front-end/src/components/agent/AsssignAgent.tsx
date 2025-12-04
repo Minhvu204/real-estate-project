@@ -5,9 +5,8 @@ import { Bounce, toast, ToastContainer } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
 import { acceptAssignAgent } from '../../services/agent.service';
 import { rejectAssignAgent } from '../../services/agent.service';
-import { Pagination, Stack, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Typography } from '@mui/material';
+import { Pagination, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Typography } from '@mui/material';
 import { getLanguage } from '@/utils/storage';
-import ButtonLanguage from '../common/ButtonLanguage';
 
 type FilterStatus = "all" | "pending" | "accepted" | "rejected";
 
@@ -49,6 +48,7 @@ const AssignAgentPage = () => {
                         : a
                 )
             );
+            return data;
         } catch (error: any) {
             console.error("Error accepting assignment:", error);
             const errorMessage = error?.response?.data?.message || error?.message || "Error accepting assignment";
@@ -257,23 +257,25 @@ const AssignAgentPage = () => {
                         </div>
 
                         {totalPages > 1 && (
-                            <div className="flex justify-center mt-8 pb-4">
-                                <Stack spacing={2}>
-                                    <Pagination
-                                        count={totalPages}
-                                        page={page}
-                                        onChange={handlePageChange}
-                                        color="primary"
-                                        size="large"
-                                        showFirstButton
-                                        showLastButton
-                                        sx={{
-                                            '& .MuiPaginationItem-root': {
-                                                fontSize: { xs: '0.875rem', sm: '1rem' },
-                                            },
-                                        }}
-                                    />
-                                </Stack>
+                            <div className="flex justify-center mt-8 pb-4 truncate">
+
+                                <Pagination
+                                    count={totalPages}
+                                    page={page}
+                                    onChange={handlePageChange}
+                                    color="primary"
+                                    size="large"
+                                    showFirstButton
+                                    showLastButton
+                                    siblingCount={0}
+                                    boundaryCount={1}
+                                    sx={{
+                                        '& .MuiPaginationItem-root': {
+                                            fontSize: { xs: '0.75rem', sm: '1rem' },
+                                        },
+                                    }}
+                                />
+
                             </div>
                         )}
                     </>

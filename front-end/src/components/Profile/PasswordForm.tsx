@@ -3,6 +3,7 @@ import type { ChangePasswordDto } from '../../types/User';
 import { Box, TextField, Button, Typography } from '@mui/material';
 import { getLanguage, type Lang } from '../../utils/storage';
 import { useTranslation } from 'react-i18next';
+import { validatePassword } from '@/utils/validation';
 
 interface PasswordFormProps {
   onSubmit: (data: ChangePasswordDto) => Promise<void>;
@@ -31,9 +32,16 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     if (name === 'newPassword') {
-      setErrors(prev => ({ ...prev, newPassword: '' }));
+      if (!validatePassword(value)) {
+        setErrors(prev => ({
+          ...prev,
+          newPassword: t('passwordMustBeAtLeast8')
+        }));
+      } else {
+        setErrors(prev => ({ ...prev, newPassword: '' }));
+      }
     }
-    
+
     if (name === 'confirmPassword') {
       if (value !== formData.newPassword) {
         setErrors(prev => ({ ...prev, confirmPassword: t('passwordMismatch') }));
@@ -45,9 +53,24 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validatePassword(formData.newPassword)) {
+      setErrors(prev => ({
+        ...prev,
+        newPassword: t('passwordMustBeAtLeast8')
+      }));
+      return;
+    }
+    if (formData.confirmPassword !== formData.newPassword) {
+      setErrors(prev => ({
+        ...prev,
+        confirmPassword: t('passwordMismatch')
+      }));
+      return;
+    }
     if (Object.values(errors).some(error => error)) return;
     await onSubmit(formData);
   };
+
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
@@ -103,7 +126,7 @@ export const PasswordForm: React.FC<PasswordFormProps> = ({
             type="submit"
             variant="contained"
             disabled={isLoading}
-            sx={{ 
+            sx={{
               textTransform: 'none',
               px: { xs: 2.5, md: 4 },
               bgcolor: '#1f61cc',

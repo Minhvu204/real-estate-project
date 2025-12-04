@@ -8,8 +8,8 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import AuthContext from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import ButtonLanguage from "./common/ButtonLanguage";
-import { useTranslation } from "react-i18next";
 import Notification from "./common/notification/Notification";
+import { useTranslation } from "react-i18next";
 const Navbar: React.FC = () => {
   const { state, signOut } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -27,6 +27,7 @@ const Navbar: React.FC = () => {
       { label: "My appointments", path: "/dwello/appointments" },
       { label: "My Offer", path: "/buyer/offer" },
       { label: "Deals - Contract", path: "/buyer/deals/list" },
+      { label: "List Payment", path: "/buyer/listPayments" },
       { label: t('favorite:myFavorite'), path: "/favorites" }
     ],
     seller: [
@@ -63,7 +64,7 @@ const Navbar: React.FC = () => {
     { label: "Rent", path: "/rent" },
     { label: "Sell", path: "/sell" },
     { label: "Booking", path: "/booking" },
-    { label: "Find Agent", path: "/find-agent" },
+    { label: "Find Agent", path: "/agents" },
   ];
 
   const drawer = (
@@ -391,7 +392,6 @@ const Navbar: React.FC = () => {
               ))}
             </Box>
           )}
-          <ButtonLanguage />
           <Notification />
           {/* Right Side */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -575,7 +575,7 @@ const Navbar: React.FC = () => {
           "& .MuiPaper-root": {
             borderRadius: 3,
             mt: 1.5,
-            minWidth: 200,
+            minWidth: 240,
             boxShadow: "0 10px 40px rgba(0,0,0,0.12)",
           },
         }}
@@ -604,6 +604,14 @@ const Navbar: React.FC = () => {
             </MenuItem>
           ))
         }
+
+        <Divider sx={{ my: 1 }} />
+
+        <Box sx={{ px: 2, py: 1.5, display: "flex", justifyContent: "center" }}>
+          <ButtonLanguage />
+        </Box>
+
+        <Divider sx={{ my: 1 }} />
 
         <MenuItem
           onClick={handleLogout}

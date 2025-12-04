@@ -3,6 +3,7 @@ import { validationResult } from "express-validator";
 import { successResponse, errorResponse } from "../../../utils/responseHandler";
 import { userService } from "../../../services/common/user.service";
 import { UpdateProfileDTO } from "../../../dtos/user.dto";
+import { validatePassword } from "../../../utils/validation";
 
 // GET profile
 export const getProfile = async (req: Request, res: Response) => {
@@ -45,6 +46,11 @@ export const changePassword = async (req: Request, res: Response) => {
     if (!userId) return errorResponse(req, res, "User ID not found", 401);
     if (!oldPassword || !newPassword)
       return errorResponse(req, res, "Thiếu dữ liệu (oldPassword, newPassword)", 400);
+
+    if(newPassword){
+      if (!validatePassword(newPassword))
+        return errorResponse(req, res, "Mật khẩu phải ít nhất 8 ký tự", 400);
+    }
 
     const result = await userService.changePassword(userId, oldPassword, newPassword);
     return successResponse(req, res, result.message);

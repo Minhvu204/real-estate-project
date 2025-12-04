@@ -2,7 +2,7 @@ import { Navigate, Outlet } from "react-router-dom";
 import { getUser } from "../utils/storage";
 import AdminDashboard from "../components/admin/AdminDashboard";
 import DataTable from "../components/admin/UserList";
-import GradientTooltip from "../components/admin/Dashboard";
+
 import UserDetails from "../components/admin/UserDetails";
 import UpdateUser from "../components/admin/userInfor/UpdateUser";
 import BlockUser from "../components/admin/userInfor/BlockUser";
@@ -17,6 +17,8 @@ import HomeList from "../components/admin/HomeList";
 import DealDetail from "../components/admin/manageDeals/DealDetail";
 import PaymentDetail from "../components/admin/managePayments/PaymentDetail";
 import ReviewList from "../components/admin/manageReviews/ReviewList";
+import { Dashboard } from "@/components/admin/Dashboard";
+
 
 const AdminProtectedRoute = () => {
   const user = getUser();
@@ -40,12 +42,12 @@ export const AdminRoute = [
       {
         element: <AdminDashboard />,
         children: [
-          { path: "dashboard", element: <GradientTooltip /> },
+          { path: "dashboard", element: <Dashboard /> },
           { path: "users", element: <DataTable /> },
           { path: "users/:id", element: <UserDetails /> },
           { path: "users/edit/:id", element: <UpdateUser /> },
           { path: "users/block", element: <BlockUser userId="" /> },
-          { path: "/admin/taxonomies", element: <AdminTaxonomiesPage /> },
+          { path: "taxonomies", element: <AdminTaxonomiesPage /> },
           { index: true, element: <HomeList /> },
           { path: "properties", element: <ListProperties /> },
           {
@@ -86,7 +88,7 @@ export const AdminRoute = [
           },
           {
             path: "payments/:id",
-            element: <PaymentDetail/>,
+            element: <PaymentDetail />,
           },
           {
             path: "reviews",

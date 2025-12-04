@@ -42,7 +42,7 @@ const Notification = () => {
   const { t } = useTranslation("notification");
 
   const {
-    state: { token },
+    state: { token, user },
   } = useContext(AuthContext);
 
   useEffect(() => {
@@ -142,6 +142,31 @@ const Notification = () => {
     return date.toLocaleDateString("vi-VN");
   };
 
+
+  const getRoute = (actionUrl: string): string => {
+    if (!actionUrl) return '';    
+    const role = user?.role?.toLowerCase();
+    const matchOffers = actionUrl.match(/\/notifications\/offers\/([^\/\?]+)/);
+    if (matchOffers) {
+      const id = matchOffers[1];
+      if (role === 'seller') return `/seller/offers/${id}`;
+      if (role === 'buyer') return `/buyer/offer`;
+      if (role === 'agent') return `/agent/offers/${id}`;
+    }
+    const matchDeals = actionUrl.match(/\/notifications\/deals\/([^\/\?]+)/);
+    if (matchDeals) {
+      const id = matchDeals[1];
+      if (role === 'buyer') return `/buyer/contracts/deals/${id}`;
+      if (role === 'seller') return `/seller/contracts/deals/${id}`;
+      if (role === 'agent') return `/agent/contracts/deals/${id}`;
+    }
+    const matchProperties = actionUrl.match(/\/notifications\/properties\/([^\/\?]+)/);
+    if (matchProperties) {
+      return actionUrl; 
+    }    
+    return actionUrl;
+  };
+
   const handleNotificationClick = (notification: NotificationType) => {
     if (!notification.is_read) {
       socket.emit("notification_read", { notificationId: notification._id });
@@ -153,7 +178,7 @@ const Notification = () => {
     }
     handleClose();
     if (notification.action_url) {
-      navigate(`${notification.action_url}`);
+      navigate(getRoute(notification.action_url));
     }
   };
 

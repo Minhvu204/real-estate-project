@@ -1,121 +1,103 @@
-import { useState } from "react";
-import { Button, Menu, MenuItem, Box } from "@mui/material";
+import { Box } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
 const ButtonLanguage = () => {
   const { i18n } = useTranslation();
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const open = Boolean(anchorEl);
-
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+  const isEnglish = i18n.language === "en";
 
   const changeLanguage = (lng: "en" | "vi") => {
-    i18n.changeLanguage(lng);
-    handleClose();
+    if (i18n.language !== lng) {
+      i18n.changeLanguage(lng);
+    }
   };
 
-  const currentLanguage = i18n.language === "en" ? "English" : "Tiếng Việt";
-  const currentFlag = i18n.language === "en" ? "🇺🇸" : "🇻🇳";
-
   return (
-    <>
-      <Button
-        onClick={handleClick}
-        endIcon={<KeyboardArrowDownIcon sx={{ color: "rgba(0,0,0,0.7)" }} />}
-        variant="outlined"
+    <Box
+      sx={{
+        display: "inline-flex",
+        alignItems: "center",
+        position: "relative",
+        width: "100px",
+        height: "40px",
+        borderRadius: "20px",
+        backgroundColor: "#F5F5F5",
+        cursor: "pointer",
+        overflow: "visible",
+        padding: "3px",
+      }}
+    >
+      {/* EN Text */}
+      <Box
+        onClick={() => changeLanguage("en")}
         sx={{
-          color: "rgba(0,0,0,0.7)",
-          fontWeight: 600,
-          textTransform: "none",
-          px: 2.5,
-          py: 1,
-          borderRadius: 3,
-          fontSize: "0.95rem",
-          borderColor: "rgba(0,0,0,0.5)",
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "0.8rem",
+          fontWeight: isEnglish ? 700 : 500,
+          color: isEnglish ? "#000000" : "rgba(0,0,0,0.4)",
+          transition: "all 0.3s ease",
+          zIndex: 1,
+          height: "100%",
+          userSelect: "none",
+        }}
+      >
+        EN
+      </Box>
+
+      {/* Sliding Circle with Flag */}
+      <Box
+        sx={{
+          position: "absolute",
+          left: isEnglish ? "4px" : "calc(100% - 40px)",
+          top: "50%",
+          transform: "translateY(-50%)",
+          width: "36px",
+          height: "36px",
+          borderRadius: "50%",
           backgroundColor: "white",
-          "&:hover": {
-            backgroundColor: "rgba(0,0,0,0.04)",
-            borderColor: "rgba(0,0,0,0.7)",
-          },
+          border: "1.5px solid #E0E0E0",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 2,
+          boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
+          transition: "left 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
+          overflow: "hidden",
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <span style={{ fontSize: "1.2rem" }}>{currentFlag}</span>
-          {currentLanguage}
-        </Box>
-      </Button>
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
+        <img
+          src={isEnglish ? "/eng.png" : "/vie.png"}
+          alt={isEnglish ? "English" : "Vietnamese"}
+          style={{
+            width: "24px",
+            height: "24px",
+            objectFit: "contain",
+          }}
+        />
+      </Box>
+
+      {/* VI Text */}
+      <Box
+        onClick={() => changeLanguage("vi")}
         sx={{
-          "& .MuiPaper-root": {
-            borderRadius: 2,
-            mt: 1,
-            minWidth: 180,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
-          },
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "0.8rem",
+          fontWeight: !isEnglish ? 700 : 500,
+          color: !isEnglish ? "#000000" : "rgba(0,0,0,0.4)",
+          transition: "all 0.3s ease",
+          zIndex: 1,
+          height: "100%",
+          userSelect: "none",
         }}
       >
-        <MenuItem
-          onClick={() => changeLanguage("vi")}
-          selected={i18n.language === "vi"}
-          sx={{
-            py: 1.5,
-            px: 2,
-            "&:hover": {
-              backgroundColor: "rgba(0,0,0,0.04)",
-            },
-            "&.Mui-selected": {
-              backgroundColor: "rgba(0,0,0,0.04)",
-              "& .MuiTypography-root": {
-                fontWeight: 600,
-              },
-              "&:hover": {
-                backgroundColor: "rgba(0,0,0,0.08)",
-              },
-            },
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, fontSize: "0.95rem", color: "rgba(0,0,0,0.7)", fontWeight: i18n.language === "vi" ? 600 : 400 }}>
-            <span style={{ fontSize: "1.2rem" }}>🇻🇳</span>
-            Tiếng Việt
-          </Box>
-        </MenuItem>
-        <MenuItem
-          onClick={() => changeLanguage("en")}
-          selected={i18n.language === "en"}
-          sx={{
-            py: 1.5,
-            px: 2,
-            "&:hover": {
-              backgroundColor: "rgba(0,0,0,0.04)",
-            },
-            "&.Mui-selected": {
-              backgroundColor: "rgba(0,0,0,0.04)",
-              "& .MuiTypography-root": {
-                fontWeight: 600,
-              },
-              "&:hover": {
-                backgroundColor: "rgba(0,0,0,0.08)",
-              },
-            },
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, fontSize: "0.95rem", color: "rgba(0,0,0,0.7)", fontWeight: i18n.language === "en" ? 600 : 400 }}>
-            <span style={{ fontSize: "1.2rem" }}>🇺🇸</span>
-            English
-          </Box>
-        </MenuItem>
-      </Menu>
-    </>
+        VI
+      </Box>
+    </Box>
   );
 };
 

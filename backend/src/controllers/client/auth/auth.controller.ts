@@ -1,6 +1,6 @@
 // src/controllers/client/auth/auth.controller.ts
 import { Request, Response } from "express";
-import { loginUser, loginWithGoogle, registerUser } from "../../../services/auth.service";
+import { forgotPasswordService, loginUser, loginWithGoogle, registerUser, resetPasswordService } from "../../../services/auth.service";
 import { successResponse, errorResponse } from "../../../utils/responseHandler";
 import { validateEmail, validatePassword } from "../../../utils/validation";
 import { setAuthCookie, clearAuthCookie } from "../../../utils/authCookie";
@@ -19,7 +19,7 @@ export const registerController = async (req: Request, res: Response) => {
       return errorResponse(req, res, "Email không hợp lệ", 400);
 
     if (!validatePassword(password))
-      return errorResponse(req, res, "Mật khẩu phải ít nhất 6 ký tự", 400);
+      return errorResponse(req, res, "Mật khẩu phải ít nhất 8 ký tự", 400);
 
     const result = await registerUser({ fullName, email, password, role });
 
@@ -124,6 +124,37 @@ export const resendOtpController = async (req: Request, res: Response) => {
     await emailVerifyService.sendOTP(userId, email);
 
     return successResponse(req, res, "Đã gửi lại mã OTP.");
+  } catch (error: any) {
+    return errorResponse(req, res, error.message);
+  }
+};
+
+// FORGOT PASSWORD
+export const forgotPasswordController = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    const result = await forgotPasswordService(email);
+    return successResponse(req, res, result.message);
+  } catch (error: any) {
+    return errorResponse(req, res, error.message);
+  }
+};
+
+// RESET PASSWORD
+export const resetPasswordController = async (req: Request, res: Response) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword)
+      return errorResponse(req, res, "Thiếu token hoặc mật khẩu mới", 400);
+
+    if(newPassword){
+      if (!validatePassword(newPassword))
+        return errorResponse(req, res, "Mật khẩu phải ít nhất 8 ký tự", 400);
+    }
+
+    const result = await resetPasswordService(token, newPassword);
+    return successResponse(req, res, result.message);
   } catch (error: any) {
     return errorResponse(req, res, error.message);
   }

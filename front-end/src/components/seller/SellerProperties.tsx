@@ -99,49 +99,70 @@ const SellerProperties = () => {
     };
 
     return (
-        <Box className="p-6 bg-gray-50 min-h-screen">
+        <Box className="p-2 bg-gray-50 min-h-screen ">
             <Box className="flex flex-wrap justify-between items-center mb-6 gap-4">
                 <Typography variant="h5" fontWeight="bold" color="text.primary">
                     {t('listProperties:text-listProperties')}
                 </Typography>
 
-                <Box className="flex gap-3 items-center">
-                    <TextField
+                <Box className=" gap-3 items-center grid grid-cols-1 md:grid-cols-2 ">
+                    <TextField className=''
                         label={t('listProperties:search')}
                         variant="outlined"
                         size="small"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
+                    <div className='flex gap-3 mt-3 md:mt-0'>
+                        <Button
+                        size='small'
+                            variant="contained"
+                            color="primary"
+                            startIcon={<AddIcon />}
+                            component={Link}
+                            to="/seller/create"
+                            className='md:mb-0 mb-3'
+                            sx={{
+                                borderRadius: 2,
+                                textTransform: 'none',
+                                fontWeight: 'bold',
+                                px:2,
+                            }}
+                        >
+                            {t('listProperties:createNewProperty')}
+                        </Button>
 
-                    <TextField
-                        label="Trạng thái"
-                        select
-                        size="small"
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                        style={{ minWidth: 150 }}
-                    >
-                        <MenuItem value="all">{t('listProperties:allStatus')}</MenuItem>
-                        <MenuItem value="rejected">{t('listProperties:Rejected')}</MenuItem>
-                        <MenuItem value="pending">{t('listProperties:Pending')}</MenuItem>
-                        <MenuItem value="available">{t('listProperties:Available')}</MenuItem>
-                        <MenuItem value="approved">{t('listProperties:Approved')}</MenuItem>
-                    </TextField>
 
-                    <TextField
-                        label="Price"
-                        select
-                        size="small"
-                        value={priceFilter}
-                        onChange={(e) => setPriceFilter(e.target.value)}
-                        style={{ minWidth: 150 }}
-                    >
-                        <MenuItem value="all">{t('listProperties:allPrice')}</MenuItem>
-                        <MenuItem value="ascending">{t('listProperties:asceding')}</MenuItem>
-                        <MenuItem value="descending">{t('listProperties:desceding')}</MenuItem>
-                    </TextField>
+                        <TextField
+                            label={t('listProperties:status')}
+                            select
+                            size="small"
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            style={{ minWidth: 100 }}
+                        >
+                            <MenuItem value="all">{t('listProperties:allStatus')}</MenuItem>
+                            <MenuItem value="rejected">{t('listProperties:Rejected')}</MenuItem>
+                            <MenuItem value="pending">{t('listProperties:Pending')}</MenuItem>
+                            <MenuItem value="available">{t('listProperties:Available')}</MenuItem>
+                            <MenuItem value="approved">{t('listProperties:Approved')}</MenuItem>
+                        </TextField>
+
+                        <TextField
+                            label={t('listProperties:price')}
+                            select
+                            size="small"
+                            value={priceFilter}
+                            onChange={(e) => setPriceFilter(e.target.value)}
+                            style={{ minWidth: 150 }}
+                        >
+                            <MenuItem value="all">{t('listProperties:allPrice')}</MenuItem>
+                            <MenuItem value="ascending">{t('listProperties:asceding')}</MenuItem>
+                            <MenuItem value="descending">{t('listProperties:desceding')}</MenuItem>
+                        </TextField>
+                    </div>
                 </Box>
+
 
             </Box>
 

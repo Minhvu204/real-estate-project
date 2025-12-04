@@ -26,7 +26,10 @@ export interface AgentReview {
   target_id: string;
   target_type: string;
   rating: number;
-  comment: string;
+  comment: {
+    vi: string;
+    en: string;
+  };
   status: string;
   is_hidden: boolean;
   createdAt: string;

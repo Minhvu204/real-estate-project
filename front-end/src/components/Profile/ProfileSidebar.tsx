@@ -69,8 +69,8 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user }) => {
             color: '#5f6368',
             textDecoration: 'none',
             '&:hover': { backgroundColor: '#e8eaed' },
-            '&.active': { 
-              backgroundColor: '#e8f0fe', 
+            '&.active': {
+              backgroundColor: '#e8f0fe',
               color: '#1967d2',
               '& .MuiListItemIcon-root': { color: '#1967d2' }
             }
@@ -84,7 +84,7 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user }) => {
 
         <ListItem
           component={NavLink}
-          to="/inbox"
+          to="/dwello/myProperties"
           sx={{
             py: 1.5,
             px: 2,
@@ -93,8 +93,8 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user }) => {
             color: '#5f6368',
             textDecoration: 'none',
             '&:hover': { backgroundColor: '#e8eaed' },
-            '&.active': { 
-              backgroundColor: '#e8f0fe', 
+            '&.active': {
+              backgroundColor: '#e8f0fe',
               color: '#1967d2',
               '& .MuiListItemIcon-root': { color: '#1967d2' }
             }
@@ -117,8 +117,8 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user }) => {
             color: '#5f6368',
             textDecoration: 'none',
             '&:hover': { backgroundColor: '#e8eaed' },
-            '&.active': { 
-              backgroundColor: '#e8f0fe', 
+            '&.active': {
+              backgroundColor: '#e8f0fe',
               color: '#1967d2',
               '& .MuiListItemIcon-root': { color: '#1967d2' }
             }
@@ -141,8 +141,8 @@ export const ProfileSidebar: React.FC<ProfileSidebarProps> = ({ user }) => {
             color: '#5f6368',
             textDecoration: 'none',
             '&:hover': { backgroundColor: '#e8eaed' },
-            '&.active': { 
-              backgroundColor: '#e8f0fe', 
+            '&.active': {
+              backgroundColor: '#e8f0fe',
               color: '#1967d2',
               '& .MuiListItemIcon-root': { color: '#1967d2' }
             }

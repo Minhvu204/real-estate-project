@@ -4,7 +4,7 @@ import Deal from "../models/deal.model";
 import Payment from "../models/payment.model";
 import User from "../models/user.model";
 import { createNotification } from "../utils/notificationHelper";
-import { notifyPaymentSuccessBuyer, notifyPaymentSuccessSellerAgent } from "../utils/notificationHelper"; // you may adapt import paths
+import { notifyPaymentSuccessBuyer, notifyPaymentSuccessSellerAgent } from "../utils/notificationHelper";
 import Property from "../models/property.model";
 
 
@@ -21,7 +21,6 @@ export async function createEscrowPayment(buyerId: string, dealId: string) {
     .populate("seller_id", "fullName email phone")
     .populate("agent_id", "fullName email phone")
     .populate("property_id", "title address price")
-    .lean();
 
   if (!deal) {
     const err: any = new Error("Deal không tồn tại");
@@ -35,6 +34,24 @@ export async function createEscrowPayment(buyerId: string, dealId: string) {
     throw err;
   }
 
+  const existingCompleted = await Payment.findOne({
+    deal_id: deal._id,
+    type: "escrow_fund",
+    status: "completed",
+  });
+
+  if (existingCompleted) {
+    const err: any = new Error("Hợp đồng đã được thanh toán escrow");
+    err.status = 400;
+    throw err;
+  }
+
+  const existingPending = await Payment.findOne({
+    deal_id: deal._id,
+    type: "escrow_fund",
+    status: "pending",
+  });
+
   // compute fees
   const agreedPrice = deal.amounts?.agreed_price ?? 0;
   const platformFeeRate = Number(process.env.DEFAULT_PLATFORM_FEE_RATE ?? 5) / 100;
@@ -43,9 +60,28 @@ export async function createEscrowPayment(buyerId: string, dealId: string) {
   const platformFee = Math.round(agreedPrice * platformFeeRate);
   const agentFee = Math.round(agreedPrice * agentFeeRate);
 
-  // amount buyer must pay to start escrow (in demo we charge whole price; or here we can require full price)
-  // For demo we assume buyer pays full agreedPrice into escrow. If you want partial deposit, adjust.
   const amountToPay = agreedPrice;
+
+  if (existingPending) {
+    const qrUrl = `${process.env.FRONTEND_URL ?? ""}/pay/qr-demo?paymentId=${existingPending._id}&amount=${amountToPay}`;
+    return {
+      paymentId: String(existingPending._id),
+      qrUrl,
+      amount: amountToPay,
+      platformFee,
+      agentFee,
+      deal: {
+        _id: deal._id,
+        status: deal.status,
+        property: deal.property_id,
+        buyer: deal.buyer_id,
+        seller: deal.seller_id,
+        agent: deal.agent_id,
+        amounts: deal.amounts,
+        audit: deal.audit,
+      },
+    };
+  }
 
   // create Payment record (escrow_fund)
   const payment = await Payment.create({
@@ -87,10 +123,6 @@ export async function createEscrowPayment(buyerId: string, dealId: string) {
   };
 }
 
-/**
- * Handle webhook confirmation (called by controller)
- * verify includes optional signature verification (to be implemented)
- */
 export async function confirmEscrowPayment(paymentId: string, opts?: { externalRef?: string, paidAt?: Date }) {
   if (!mongoose.Types.ObjectId.isValid(paymentId)) {
     const err: any = new Error("PaymentId không hợp lệ");
@@ -126,6 +158,18 @@ export async function confirmEscrowPayment(paymentId: string, opts?: { externalR
   deal.audit = deal.audit || {};
   (deal.audit as any).escrow_funded_at = new Date();
   await deal.save();
+
+  await Payment.updateMany(
+    {
+      deal_id: payment.deal_id,
+      _id: { $ne: payment._id },
+      type: "escrow_fund",
+      status: "pending",
+    },
+    {
+      $set: { status: "cancelled", notes: "Cancelled due to another payment completed", payment_date: new Date() },
+    }
+  );
 
   // notify buyer/seller/agent that escrow is paid (but not yet released)
   try {
@@ -164,10 +208,6 @@ export async function confirmEscrowPayment(paymentId: string, opts?: { externalR
   return payment;
 }
 
-/**
- * Release escrow (admin action) — transfer money to seller/agent and platform fee kept.
- * This should be executed within a transaction to ensure atomicity.
- */
 export async function releaseEscrow(adminId: string, dealId: string) {
   if (!mongoose.Types.ObjectId.isValid(dealId)) {
     const err: any = new Error("DealId không hợp lệ");
@@ -280,3 +320,134 @@ export async function releaseEscrow(adminId: string, dealId: string) {
     throw err;
   }
 }
+
+export async function getPaymentsByBuyer(
+  buyerId: string,
+  filters: {
+    dealId?: string;
+    type?: string;
+    status?: string;
+    page?: number;
+    limit?: number;
+  }
+) {
+  const { dealId, type, status, page = 1, limit = 10 } = filters;
+
+  // Tìm tất cả deal mà buyer này tham gia
+  const deals = await Deal.find({ buyer_id: buyerId }).select("_id");
+
+  const dealIds = deals.map((d) => d._id);
+
+  const query: any = { deal_id: { $in: dealIds } };
+
+  if (dealId && mongoose.Types.ObjectId.isValid(dealId)) {
+    query.deal_id = new mongoose.Types.ObjectId(dealId);
+  }
+
+  if (status) query.status = status;
+  else query.status = { $in: ["pending", "processing", "completed"] };
+
+  if (type) query.type = type;
+
+  const skip = (page - 1) * limit;
+
+  const [items, total] = await Promise.all([
+    Payment.find(query)
+      .populate("deal_id", "property_id seller_id agent_id amounts")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    Payment.countDocuments(query),
+  ]);
+
+  return {
+    items,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
+}
+
+
+export async function getPaymentsBySeller(
+  sellerId: string,
+  filters: {
+    dealId?: string;
+    type?: string;
+    status?: string;
+    page?: number;
+    limit?: number;
+  }
+) {
+  const { dealId, type, status, page = 1, limit = 10 } = filters;
+
+  // Tìm tất cả deal mà seller này tham gia
+  const deals = await Deal.find({ seller_id: sellerId }).select("_id");
+
+  const dealIds = deals.map((d) => d._id);
+
+  const query: any = { deal_id: { $in: dealIds } };
+
+  if (dealId && mongoose.Types.ObjectId.isValid(dealId)) {
+    query.deal_id = new mongoose.Types.ObjectId(dealId);
+  }
+
+  if (status) query.status = status;
+  else query.status = { $in: ["pending", "processing", "completed"] };
+
+  if (type) query.type = type;
+
+  const skip = (page - 1) * limit;
+
+  const [items, total] = await Promise.all([
+    Payment.find(query)
+      .populate("deal_id", "property_id seller_id agent_id amounts")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    Payment.countDocuments(query),
+  ]);
+
+  return {
+    items,
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
+}
+
+export async function getPaymentsByDealId(buyerId: string, dealId: string) {
+  if (!mongoose.Types.ObjectId.isValid(dealId)) {
+    const err: any = new Error("DealId không hợp lệ");
+    err.status = 400;
+    throw err;
+  }
+
+  const deal = await Deal.findById(dealId);
+  if (!deal) {
+    const err: any = new Error("Deal không tồn tại");
+    err.status = 404;
+    throw err;
+  }
+
+  if (String(deal.buyer_id) !== buyerId) {
+    const err: any = new Error("Bạn không có quyền xem thanh toán của deal này");
+    err.status = 403;
+    throw err;
+  }
+
+  const payments = await Payment.find({ deal_id: dealId })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  return {
+    dealId,
+    total: payments.length,
+    payments,
+  };
+}
+
