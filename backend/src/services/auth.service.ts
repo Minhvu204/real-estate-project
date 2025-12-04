@@ -1,8 +1,11 @@
 // src/services/auth.service.ts
 import User from "../models/user.model";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { generateAccessToken, generateRefreshToken } from "../config/jwt.config";
 import { OAuth2Client } from "google-auth-library";
+import { generatePasswordResetToken } from "../utils/passwordResetToken";
+import { sendResetPasswordEmail } from "../utils/sendEmail";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -114,4 +117,41 @@ export const loginWithGoogle = async (googleIdToken: string) => {
       avatar: user.avatar,
     },
   };
+};
+
+export const forgotPasswordService = async (email: string) => {
+  const user = await User.findOne({ email });
+  if (!user) throw new Error("Email không tồn tại");
+
+  const { resetToken, hashedToken } = generatePasswordResetToken();
+
+  user.resetPasswordToken = hashedToken;
+  user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
+
+  await user.save();
+
+  const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
+
+  await sendResetPasswordEmail(email, user.fullName, resetLink);
+
+  return { message: "Đã gửi email reset password" };
+};
+
+export const resetPasswordService = async (token: string, newPassword: string) => {
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  const user = await User.findOne({
+    resetPasswordToken: hashedToken,
+    resetPasswordExpires: { $gt: Date.now() }, 
+  });
+
+  if (!user) throw new Error("Token reset không hợp lệ hoặc đã hết hạn");
+
+  user.password = newPassword; 
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+
+  await user.save();
+
+  return { message: "Đặt lại mật khẩu thành công" };
 };
