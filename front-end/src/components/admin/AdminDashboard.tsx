@@ -86,6 +86,7 @@ export default function AdminDashboard() {
     {
       text: "Taxonomies",
       icon: <CategoryOutlinedIcon />,
+      path: "/admin/taxonomies",
     },
   ];
 
@@ -254,14 +255,14 @@ export default function AdminDashboard() {
                   item.text === "User"
                     ? handleUserListToggle
                     : item.text === "Properties"
-                    ? handlePropertyListToggle
-                    : item.text === "Contracts"
-                    ? handleContractListToggle
-                    : item.text === "Deals"
-                    ? handleDealListToggle
-                    : item.text === "Payments"
-                    ? handlePaymentListToggle
-                    : undefined
+                      ? handlePropertyListToggle
+                      : item.text === "Contracts"
+                        ? handleContractListToggle
+                        : item.text === "Deals"
+                          ? handleDealListToggle
+                          : item.text === "Payments"
+                            ? handlePaymentListToggle
+                            : undefined
                 }
                 sx={{
                   borderRadius: "12px",
