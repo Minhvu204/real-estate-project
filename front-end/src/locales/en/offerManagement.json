@@ -98,7 +98,7 @@
     "rejectConfirm": "Are you sure you want to reject this offer?",
     "rejectionReason": "Rejection Reason",
     "rejectionReasonPlaceholder": "Enter rejection reason (optional)",
-    "acceptSuccess": "✅ Offer accepted successfully!",
+    "acceptSuccess": "Offer accepted successfully!",
     "acceptError": "Failed to accept offer",
     "acceptProcessing": "⏳ Processing offer acceptance...",
     "dealCreatedInfo": "🎉 Deal has been created! You can view it in the Deals section.",
@@ -198,4 +198,3 @@
     }
   }
 }
-

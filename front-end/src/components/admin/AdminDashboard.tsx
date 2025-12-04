@@ -40,12 +40,13 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import { getUser } from "../../utils/storage";
 import ButtonLanguage from "../common/ButtonLanguage";
 import AuthContext from "@/context/AuthContext";
-import path from "path";
+import { useTranslation } from "react-i18next";
 const drawerWidth = 240;
 
 export default function AdminDashboard() {
   const location = useLocation();
   const user = getUser();
+  const { t } = useTranslation("dashboard");
   const isActive = (path: string) =>
     location.pathname + location.search === path;
 
@@ -78,23 +79,26 @@ export default function AdminDashboard() {
   };
 
   const menuItems = [
-    { text: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
-    { text: "User", icon: <PersonIcon />, path: "/admin/users" },
+    { text: t("sidebar.menu.dashboard"), key: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
+    { text: t("sidebar.menu.user"), key: "User", icon: <PersonIcon />, path: "/admin/users" },
     {
-      text: "Properties",
+      text: t("sidebar.menu.properties"),
+      key: "Properties",
       icon: <RealEstateAgentRoundedIcon />,
       path: "/admin/properties",
     },
     {
-      text: "Contracts",
+      text: t("sidebar.menu.contracts"),
+      key: "Contracts",
       icon: <ArticleRoundedIcon />,
       path: "/admin/contracts",
     },
-    { text: "Deals", icon: <LocalOfferIcon />, path: "/admin/deals" },
-    { text: "Payments", icon: <LocalOfferIcon />, path: "/admin/payments" },
-    { text: "Reviews", icon: <HomeIcon />, path: "/admin/reviews" },
+    { text: t("sidebar.menu.deals"), key: "Deals", icon: <LocalOfferIcon />, path: "/admin/deals" },
+    { text: t("sidebar.menu.payments"), key: "Payments", icon: <LocalOfferIcon />, path: "/admin/payments" },
+    { text: t("sidebar.menu.reviews"), key: "Reviews", icon: <HomeIcon />, path: "/admin/reviews" },
     {
-      text: "Taxonomies",
+      text: t("sidebar.menu.taxonomies"),
+      key: "Taxonomies",
       icon: <CategoryOutlinedIcon />,
       path: "/admin/taxonomies",
     },
@@ -102,18 +106,18 @@ export default function AdminDashboard() {
 
   const listUserItem = [
     {
-      text: "Admin",
+      text: t("sidebar.userSubmenu.admin"),
       icon: <SupervisorAccountIcon />,
       path: "/admin/users?role=admin",
     },
     {
-      text: "Buyer",
+      text: t("sidebar.userSubmenu.buyer"),
       icon: <ShoppingBagIcon />,
       path: "/admin/users?role=buyer",
     },
-    { text: "Seller", icon: <HailIcon />, path: "/admin/users?role=seller" },
+    { text: t("sidebar.userSubmenu.seller"), icon: <HailIcon />, path: "/admin/users?role=seller" },
     {
-      text: "Agent",
+      text: t("sidebar.userSubmenu.agent"),
       icon: <RealEstateAgentIcon />,
       path: "/admin/users?role=agent",
     },
@@ -121,22 +125,22 @@ export default function AdminDashboard() {
 
   const listPropertyItem = [
     {
-      text: "Sold",
+      text: t("sidebar.propertiesSubmenu.sold"),
       icon: <DoneRoundedIcon />,
       path: "/admin/properties?status=sold",
     },
     {
-      text: "Approved",
+      text: t("sidebar.propertiesSubmenu.approved"),
       icon: <ShoppingBagIcon />,
       path: "/admin/properties?status=approved",
     },
     {
-      text: "Pending",
+      text: t("sidebar.propertiesSubmenu.pending"),
       icon: <HailIcon />,
       path: "/admin/properties?status=pending",
     },
     {
-      text: "Rejected",
+      text: t("sidebar.propertiesSubmenu.rejected"),
       icon: <BackspaceRoundedIcon />,
       path: "/admin/properties?status=rejected",
     },
@@ -144,17 +148,17 @@ export default function AdminDashboard() {
 
   const listContractItem = [
     {
-      text: "Approved",
+      text: t("sidebar.contractsSubmenu.approved"),
       icon: <ShoppingBagIcon />,
       path: "/admin/contracts?status=approved",
     },
     {
-      text: "Superseded",
+      text: t("sidebar.contractsSubmenu.superseded"),
       icon: <HailIcon />,
       path: "/admin/contracts?status=superseded",
     },
     {
-      text: "Rejected",
+      text: t("sidebar.contractsSubmenu.rejected"),
       icon: <BackspaceRoundedIcon />,
       path: "/admin/contracts?status=rejected",
     },
@@ -162,32 +166,32 @@ export default function AdminDashboard() {
 
   const listDealsItem = [
     {
-      text: "Awaiting",
+      text: t("sidebar.dealsSubmenu.awaiting"),
       icon: <ShoppingBagIcon />,
       path: "/admin/deals?status=awaiting_contract",
     },
     {
-      text: "UnderReview",
+      text: t("sidebar.dealsSubmenu.underReview"),
       icon: <HailIcon />,
       path: "/admin/deals?status=contract_under_review",
     },
     {
-      text: "EscrowPayment",
+      text: t("sidebar.dealsSubmenu.escrowPayment"),
       icon: <BackspaceRoundedIcon />,
       path: "/admin/deals?status=awaiting_escrow_payment",
     },
     {
-      text: "EscrowFunded",
+      text: t("sidebar.dealsSubmenu.escrowFunded"),
       icon: <ShoppingBagIcon />,
       path: "/admin/deals?status=escrow_funded",
     },
     {
-      text: "Completed",
+      text: t("sidebar.dealsSubmenu.completed"),
       icon: <HailIcon />,
       path: "/admin/deals?status=completed",
     },
     {
-      text: "Cancelled",
+      text: t("sidebar.dealsSubmenu.cancelled"),
       icon: <BackspaceRoundedIcon />,
       path: "/admin/deals?status=cancelled",
     },
@@ -195,24 +199,24 @@ export default function AdminDashboard() {
 
   const listPaymentItem = [
     {
-      text: "Completed",
+      text: t("sidebar.paymentsSubmenu.completed"),
       icon: <ShoppingBagIcon />,
       path: "/admin/payments?status=completed",
     },
     {
-      text: "Pending",
+      text: t("sidebar.paymentsSubmenu.pending"),
       icon: <HailIcon />,
       path: "/admin/payments?status=pending",
     },
     {
-      text: "Canceled",
+      text: t("sidebar.paymentsSubmenu.canceled"),
       icon: <BackspaceRoundedIcon />,
       path: "/admin/payments?status=cancelled",
     },
   ];
 
   const bottomItems = [
-    { text: "Logout", icon: <LogoutIcon />, path: "/login" },
+    { text: t("sidebar.menu.logout"), icon: <LogoutIcon />, path: "/login" },
   ];
 
   const drawer = (
@@ -228,7 +232,7 @@ export default function AdminDashboard() {
             textAlign: "center",
           }}
         >
-          Dwello
+          {t("sidebar.appName")}
         </Typography>
       </Toolbar>
       <Typography
@@ -240,29 +244,29 @@ export default function AdminDashboard() {
           mb: 1,
         }}
       >
-        Your Home Your Future
+        {t("sidebar.tagline")}
       </Typography>
 
       <Divider />
       <List>
         {menuItems.map((item) => (
-          <Box key={item.text}>
+          <Box key={item.key}>
             <ListItem disablePadding>
               <ListItemButton
                 component={Link}
                 to={item.path}
                 onClick={
-                  item.text === "User"
+                  item.key === "User"
                     ? handleUserListToggle
-                    : item.text === "Properties"
-                    ? handlePropertyListToggle
-                    : item.text === "Contracts"
-                    ? handleContractListToggle
-                    : item.text === "Deals"
-                    ? handleDealListToggle
-                    : item.text === "Payments"
-                    ? handlePaymentListToggle
-                    : undefined
+                    : item.key === "Properties"
+                      ? handlePropertyListToggle
+                      : item.key === "Contracts"
+                        ? handleContractListToggle
+                        : item.key === "Deals"
+                          ? handleDealListToggle
+                          : item.key === "Payments"
+                            ? handlePaymentListToggle
+                            : undefined
                 }
                 sx={{
                   borderRadius: "12px",
@@ -281,20 +285,20 @@ export default function AdminDashboard() {
                   {item.icon}
                 </ListItemIcon>
                 <ListItemText primary={item.text} />
-                {item.text === "User" &&
+                {item.key === "User" &&
                   (userListOpen ? <ExpandLess /> : <ExpandMore />)}
-                {item.text === "Properties" &&
+                {item.key === "Properties" &&
                   (PropertyOpen ? <ExpandLess /> : <ExpandMore />)}
-                {item.text === "Contracts" &&
+                {item.key === "Contracts" &&
                   (contractOpen ? <ExpandLess /> : <ExpandMore />)}
-                {item.text === "Deals" &&
+                {item.key === "Deals" &&
                   (dealOpen ? <ExpandLess /> : <ExpandMore />)}
-                {item.text === "Payments" &&
+                {item.key === "Payments" &&
                   (paymentOpen ? <ExpandLess /> : <ExpandMore />)}
               </ListItemButton>
             </ListItem>
 
-            {item.text === "User" && (
+            {item.key === "User" && (
               <Collapse in={userListOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                   {listUserItem.map((sub) => (
@@ -325,7 +329,7 @@ export default function AdminDashboard() {
                 </List>
               </Collapse>
             )}
-            {item.text === "Properties" && (
+            {item.key === "Properties" && (
               <Collapse in={PropertyOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                   {listPropertyItem.map((sub) => (
@@ -356,7 +360,7 @@ export default function AdminDashboard() {
                 </List>
               </Collapse>
             )}
-            {item.text === "Contracts" && (
+            {item.key === "Contracts" && (
               <Collapse in={contractOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                   {listContractItem.map((sub) => (
@@ -387,7 +391,7 @@ export default function AdminDashboard() {
                 </List>
               </Collapse>
             )}
-            {item.text === "Deals" && (
+            {item.key === "Deals" && (
               <Collapse in={dealOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                   {listDealsItem.map((sub) => (
@@ -418,7 +422,7 @@ export default function AdminDashboard() {
                 </List>
               </Collapse>
             )}
-            {item.text === "Payments" && (
+            {item.key === "Payments" && (
               <Collapse in={paymentOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                   {listPaymentItem.map((sub) => (
@@ -500,7 +504,7 @@ export default function AdminDashboard() {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Hello, <strong>{user.fullName}</strong>
+            {t("sidebar.hello")} <strong>{user.fullName}</strong>
           </Typography>
           <ButtonLanguage />
         </Toolbar>

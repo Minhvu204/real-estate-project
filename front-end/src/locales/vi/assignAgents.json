@@ -11,7 +11,7 @@
     "totalAccepted": "Đã chấp nhận",
     "totalRejected": "Đã từ chối",
     "noAgentFound": "Không có yêu cầu phân công nào.",
-    "notFoundWithStatus": "Không tìm thấy yêu cầu nào với trạng thái \"{{status}}\"",
+    "notFoundWithStatus": "Không tìm thấy yêu cầu nào với trạng thái này",
     "owner": "Chủ sở hữu",
     "btnAccept": "Chấp nhận",
     "btnReject": "Từ chối",
