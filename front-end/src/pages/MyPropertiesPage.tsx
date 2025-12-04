@@ -30,7 +30,7 @@ import {
     Delete as DeleteIcon,
     Search as SearchIcon,
 } from "@mui/icons-material";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { getMyProperties, updateProperty, deleteProperty } from "../services/propertyService";
 import type { Property } from "../types/Property";
@@ -678,22 +678,6 @@ const MyPropertiesPage: React.FC = () => {
                         </Button>
                     </DialogActions>
                 </Dialog>
-
-                <ToastContainer
-                    position="top-right"
-                    autoClose={3000}
-                    hideProgressBar={false}
-                    newestOnTop={false}
-                    closeOnClick
-                    rtl={false}
-                    pauseOnFocusLoss
-                    draggable
-                    pauseOnHover
-                    theme="light"
-                    style={{
-                        fontSize: "14px",
-                    }}
-                />
             </Container>
         </Box>
     );
