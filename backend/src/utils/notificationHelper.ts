@@ -2,6 +2,7 @@ import { notificationService, CreateNotificationParams } from "../services/notif
 import { NotificationType } from "../models/notification.model";
 import { emitNotification } from "../socket/socket";
 import { DealStatus } from "../models/deal.model";
+import { formatVND } from "./formatMoney";
 
 
 export async function createNotification(
@@ -335,7 +336,7 @@ export async function notifyNewOffer(
   return createNotification(
     agentId,
     "Offer mới",
-    `${buyerName} đã đưa ra offer ${amount.toLocaleString()} VNĐ cho ${propertyTitle}`,
+    `${buyerName} đã đưa ra offer ${formatVND(amount)} cho ${propertyTitle}`,
     {
       type: "offer",
       relatedId: offerId,
@@ -355,7 +356,7 @@ export async function notifySellerNewOffer(
   return createNotification(
     sellerId,
     "Offer mới cho property của bạn",
-    `${buyerName} đã gửi offer ${amount.toLocaleString()} VNĐ cho ${propertyTitle}`,
+    `${buyerName} đã gửi offer ${formatVND(amount)} cho ${propertyTitle}`,
     {
       type: "offer",
       relatedId: offerId,
@@ -677,7 +678,7 @@ export async function notifyPaymentUpdate(params: {
   const title = isCreated ? "Thanh toán mới được ghi nhận" : "Cập nhật Thanh toán";
   const statusMessage = payment.status ? ` (Trạng thái: ${payment.status})` : "";
 
-  const message = `${adminName} ${isCreated ? "đã ghi nhận" : "đã cập nhật"} thanh toán ${payment.amount?.toLocaleString() || "N/A"} VNĐ cho ${propertyTitle}${statusMessage}`;
+  const message = `${adminName} ${isCreated ? "đã ghi nhận" : "đã cập nhật"} thanh toán ${formatVND(payment.amount)} VNĐ cho ${propertyTitle}${statusMessage}`;
 
   const actionUrl = `/notifications/deals/${deal._id}/payments`;
 
@@ -741,7 +742,7 @@ export async function notifyBuyerToPayEscrow(
   const title = "Thanh toán Escrow";
   const message = `Hợp đồng bất động sản "${propertyTitle}" đã được chấp nhận.
 Vui lòng tiến hành thanh toán escrow: 
-- Giá trị: ${platformFee + agentFee} VND (bao gồm phí nền tảng ${platformFee} VND, phí agent ${agentFee} VND)
+- Giá trị: ${formatVND(platformFee + agentFee)} (bao gồm phí nền tảng ${formatVND(platformFee)}, phí agent ${formatVND(agentFee)})
 - Hoặc thanh toán trực tiếp với chủ nhà bằng tiền mặt.`;
 
   return createNotification(buyerId, title, message, {
