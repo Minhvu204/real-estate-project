@@ -25,25 +25,40 @@ async function callLargeLanguageModel(
   if (cache[`intent:${message}`]) return cache[`intent:${message}`];
 
   const prompt = `
-    Phân tích câu chat của người dùng sau đây và trích xuất thông tin
-    thành một đối tượng JSON. Các trường có thể có là:
-    'location_query' (địa điểm), 
-    'min_price' (giá tối thiểu, nếu có "trên" hoặc "từ"), 
-    'max_price' (giá tối đa, nếu có "dưới" hoặc "tầm"), 
-    'category' (loại BĐS), 
-    'features' (mảng các tiện ích).
-    
-    Chỉ trả về JSON.
+  Bạn là hệ thống phân tích yêu cầu tìm bất động sản. 
+  Nhiệm vụ của bạn là: chỉ phân tích và trích xuất thông tin nếu câu chat của người dùng
+  LIÊN QUAN đến việc:
+  - mua bất động sản
+  - thuê bất động sản
+  - tìm bất động sản
+  - hỏi về giá bất động sản
+  - miêu tả loại hình bất động sản (căn hộ, chung cư, nhà, đất, biệt thự, shophouse…)
 
-    Ví dụ 1: "tìm căn hộ gần FPT dưới 5 tỷ có hồ bơi"
-    JSON: { "location_query": "FPT Đà Nẵng", "max_price": 5000000000, "category": "căn hộ", "features": ["hồ bơi"] }
+  Nếu NGỮ CẢNH KHÔNG LIÊN QUAN đến bất động sản, mua nhà, thuê nhà,
+  thì phải trả về đúng JSON:
+  { "ignore": true }
 
-    Ví dụ 2: "biệt thự trên 10 tỷ"
-    JSON: { "min_price": 10000000000, "category": "biệt thự" }
-    
-    Câu của người dùng: "${message}"
-    JSON:
-  `;
+  Nếu liên quan, hãy trích xuất thành JSON với các field có thể có:
+  - location_query: địa điểm
+  - min_price: giá tối thiểu (nếu có "trên", "từ", "ít nhất")
+  - max_price: giá tối đa (nếu có "dưới", "tầm", "không quá")
+  - category: loại bất động sản
+  - features: mảng tiện ích
+
+  Chỉ trả về JSON thuần.
+
+  Ví dụ hợp lệ (liên quan BĐS):
+  "tìm căn hộ gần FPT dưới 5 tỷ có hồ bơi"
+  --> { "location_query": "FPT Đà Nẵng", "max_price": 5000000000, "category": "căn hộ", "features": ["hồ bơi"] }
+
+  Ví dụ không hợp lệ (không nói gì về bất động sản):
+  "hôm nay trời nóng quá"
+  --> { "ignore": true }
+
+  Câu của người dùng: "${message}"
+  JSON:
+`;
+
 
   try {
     const response = await throttle(() =>
@@ -63,7 +78,7 @@ async function callLargeLanguageModel(
     return result;
   } catch (err: any) {
     console.error("Lỗi gọi OpenRouter (Parse Intent):", err.message);
-    return { location_query: message };
+    return { ignore: true };
   }
 }
 

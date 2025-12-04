@@ -10,8 +10,15 @@ export const chatService = {
       message
     );
 
+    if (criteria.ignore === true) {
+      return {
+        ignore: true,
+        properties: [],
+      };
+    }
+
     let centerPoint: { lat: number; lng: number } | null = null;
-    
+
     if (criteria.location_query) {
       centerPoint = await geocodeAddress(criteria.location_query);
       if (!centerPoint) {
@@ -25,6 +32,9 @@ export const chatService = {
       centerPoint
     );
 
-    return properties;
+    return {
+      ignore: false,
+      properties,
+    };
   },
 };

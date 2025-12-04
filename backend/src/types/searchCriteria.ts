@@ -4,4 +4,5 @@ export interface SearchCriteria {
   max_price?: number;
   category?: string;   
   features?: string[];  
+  ignore?: boolean;
 }
