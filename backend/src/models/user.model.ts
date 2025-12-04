@@ -11,6 +11,9 @@ export interface IUser extends Document {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+  isVerified: boolean;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   comparePassword: (password: string) => Promise<boolean>;
 }
 
@@ -26,8 +29,11 @@ const UserSchema: Schema<IUser> = new Schema(
     },
     phone: { type: String },
     avatar: { type: String },
-    // ✅ Trạng thái hoạt động
     isActive: { type: Boolean, default: true },
+    isVerified: { type: Boolean, default: false },
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
+
   },
   { timestamps: true }
 );

@@ -111,3 +111,53 @@ export const deleteMyReview = async (req: AuthenticatedRequest, res: Response) =
   }
 };
 
+export const getReviewsByProperty = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { propertyId } = req.params;
+    if (!propertyId) {
+      return errorResponse(req, res, "Thiếu property id", 400);
+    }
+
+    const { rating, page, limit } = req.query;
+    // Lấy buyerId từ token (nếu đã đăng nhập)
+    const buyerId = req.user?.id || undefined;
+
+    const data = await reviewService.getReviewsByProperty(propertyId, {
+      rating: rating ? Number(rating) : undefined,
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
+      buyerId, // Truyền buyerId để check canReview và isCommented
+    });
+
+    return successResponse(req, res, "Lấy danh sách review theo property thành công", data);
+  } catch (error: any) {
+    const statusCode = error?.status || 500;
+    return errorResponse(req, res, error.message || "Không thể lấy danh sách review", statusCode);
+  }
+};
+
+export const getReviewsByAgent = async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { agentId } = req.params;
+    if (!agentId) {
+      return errorResponse(req, res, "Thiếu agent id", 400);
+    }
+
+    const { rating, page, limit } = req.query;
+    // Lấy buyerId từ token (nếu đã đăng nhập)
+    const buyerId = req.user?.id || undefined;
+
+    const data = await reviewService.getReviewsByAgent(agentId, {
+      rating: rating ? Number(rating) : undefined,
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
+      buyerId, // Truyền buyerId để check canReview và isCommented
+    });
+
+    return successResponse(req, res, "Lấy danh sách review theo agent thành công", data);
+  } catch (error: any) {
+    const statusCode = error?.status || 500;
+    return errorResponse(req, res, error.message || "Không thể lấy danh sách review", statusCode);
+  }
+};
+

@@ -1,10 +1,11 @@
 // src/controllers/client/auth/auth.controller.ts
 import { Request, Response } from "express";
-import { loginUser, loginWithGoogle, registerUser } from "../../../services/auth.service";
+import { forgotPasswordService, loginUser, loginWithGoogle, registerUser, resetPasswordService } from "../../../services/auth.service";
 import { successResponse, errorResponse } from "../../../utils/responseHandler";
 import { validateEmail, validatePassword } from "../../../utils/validation";
 import { setAuthCookie, clearAuthCookie } from "../../../utils/authCookie";
 import { verifyRefreshToken, generateAccessToken } from "../../../config/jwt.config";
+import { emailVerifyService } from "../../../services/emailVerification.service";
 
 // REGISTER
 export const registerController = async (req: Request, res: Response) => {
@@ -14,23 +15,26 @@ export const registerController = async (req: Request, res: Response) => {
     if (!fullName || !email || !password)
       return errorResponse(req, res, "Thiếu thông tin bắt buộc", 400);
 
-    if (!validateEmail(email)) return errorResponse(req, res, "Email không hợp lệ", 400);
-    if (!validatePassword(password)) return errorResponse(req, res, "Mật khẩu phải ít nhất 6 ký tự", 400);
+    if (!validateEmail(email))
+      return errorResponse(req, res, "Email không hợp lệ", 400);
+
+    if (!validatePassword(password))
+      return errorResponse(req, res, "Mật khẩu phải ít nhất 6 ký tự", 400);
 
     const result = await registerUser({ fullName, email, password, role });
 
-    // Set refresh token cookie
-    setAuthCookie(res, result.refreshToken);
+    // Gửi email OTP
+    await emailVerifyService.sendOTP(result.user.id as string, email);
 
-    // Return access token + user
-    return successResponse(req, res, "Đăng ký thành công", {
-      accessToken: result.accessToken,
-      user: result.user,
+    return successResponse(req, res, "Đăng ký thành công. Vui lòng kiểm tra email để xác thực.", {
+      userId: result.user.id,
+      email,
     });
   } catch (error: any) {
     return errorResponse(req, res, error.message);
   }
 };
+
 
 // LOGIN
 export const loginController = async (req: Request, res: Response) => {
@@ -47,6 +51,14 @@ export const loginController = async (req: Request, res: Response) => {
       user: result.user,
     });
   } catch (error: any) {
+    if (error.requiresVerification) {
+      return res.status(403).json({
+        success: false,
+        message: error.message,
+        requiresVerification: true,
+        userId: error.userId,
+      });
+    }
     return errorResponse(req, res, error.message);
   }
 };
@@ -89,4 +101,56 @@ export const googleAuthController = async (req: Request, res: Response) => {
 export const logoutController = async (req: Request, res: Response) => {
   clearAuthCookie(res);
   return successResponse(req, res, "Đăng xuất thành công");
+};
+
+// VERIFY EMAIL
+export const verifyEmailController = async (req: Request, res: Response) => {
+  try {
+    const { userId, otp } = req.body;
+
+    await emailVerifyService.verifyOTP(userId, otp);
+
+    return successResponse(req, res, "Xác thực email thành công.");
+  } catch (error: any) {
+    return errorResponse(req, res, error.message);
+  }
+};
+
+// RESEND OTP
+export const resendOtpController = async (req: Request, res: Response) => {
+  try {
+    const { userId, email } = req.body;
+
+    await emailVerifyService.sendOTP(userId, email);
+
+    return successResponse(req, res, "Đã gửi lại mã OTP.");
+  } catch (error: any) {
+    return errorResponse(req, res, error.message);
+  }
+};
+
+// FORGOT PASSWORD
+export const forgotPasswordController = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    const result = await forgotPasswordService(email);
+    return successResponse(req, res, result.message);
+  } catch (error: any) {
+    return errorResponse(req, res, error.message);
+  }
+};
+
+// RESET PASSWORD
+export const resetPasswordController = async (req: Request, res: Response) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword)
+      return errorResponse(req, res, "Thiếu token hoặc mật khẩu mới", 400);
+
+    const result = await resetPasswordService(token, newPassword);
+    return successResponse(req, res, result.message);
+  } catch (error: any) {
+    return errorResponse(req, res, error.message);
+  }
 };
