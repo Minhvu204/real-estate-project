@@ -4,7 +4,7 @@ import Deal from "../models/deal.model";
 import Payment from "../models/payment.model";
 import User from "../models/user.model";
 import { createNotification } from "../utils/notificationHelper";
-import { notifyPaymentSuccessBuyer, notifyPaymentSuccessSellerAgent } from "../utils/notificationHelper"; // you may adapt import paths
+import { notifyPaymentSuccessBuyer, notifyPaymentSuccessSellerAgent } from "../utils/notificationHelper";
 import Property from "../models/property.model";
 
 
@@ -60,12 +60,9 @@ export async function createEscrowPayment(buyerId: string, dealId: string) {
   const platformFee = Math.round(agreedPrice * platformFeeRate);
   const agentFee = Math.round(agreedPrice * agentFeeRate);
 
-  // amount buyer must pay to start escrow (in demo we charge whole price; or here we can require full price)
-  // For demo we assume buyer pays full agreedPrice into escrow. If you want partial deposit, adjust.
   const amountToPay = agreedPrice;
 
   if (existingPending) {
-    // refresh QR url info etc if needed, return existing
     const qrUrl = `${process.env.FRONTEND_URL ?? ""}/pay/qr-demo?paymentId=${existingPending._id}&amount=${amountToPay}`;
     return {
       paymentId: String(existingPending._id),
@@ -126,10 +123,6 @@ export async function createEscrowPayment(buyerId: string, dealId: string) {
   };
 }
 
-/**
- * Handle webhook confirmation (called by controller)
- * verify includes optional signature verification (to be implemented)
- */
 export async function confirmEscrowPayment(paymentId: string, opts?: { externalRef?: string, paidAt?: Date }) {
   if (!mongoose.Types.ObjectId.isValid(paymentId)) {
     const err: any = new Error("PaymentId không hợp lệ");
@@ -215,10 +208,6 @@ export async function confirmEscrowPayment(paymentId: string, opts?: { externalR
   return payment;
 }
 
-/**
- * Release escrow (admin action) — transfer money to seller/agent and platform fee kept.
- * This should be executed within a transaction to ensure atomicity.
- */
 export async function releaseEscrow(adminId: string, dealId: string) {
   if (!mongoose.Types.ObjectId.isValid(dealId)) {
     const err: any = new Error("DealId không hợp lệ");

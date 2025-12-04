@@ -7,7 +7,7 @@ dotenv.config();
 const OPENCAGE_API_KEY = process.env.OPENCAGE_API_KEY;
 
 /**
- * Chuyển đổi một địa chỉ thành tọa độ (lat, lng) dùng OpenCage
+ * Chuyển đổi một địa chỉ thành tọa độ (lat, lng)
  * @param address Chuỗi địa chỉ (ví dụ: "123 Đường ABC, P. Mỹ An, Q. Ngũ Hành Sơn, Đà Nẵng")
  * @returns Object { lat, lng } hoặc null
  */
@@ -26,10 +26,10 @@ export async function geocodeAddress(
       "https://api.opencagedata.com/geocode/v1/json",
       {
         params: {
-          q: address, // OpenCage dùng 'q' (query) thay vì 'address'
+          q: address,
           key: OPENCAGE_API_KEY,
-          language: "vi", // Ưu tiên kết quả tiếng Việt
-          limit: 1, // Chỉ cần 1 kết quả chính xác nhất
+          language: "vi", 
+          limit: 1,
         },
       }
     );

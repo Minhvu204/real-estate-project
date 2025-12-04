@@ -17,6 +17,9 @@ import FavoritePage from "@/pages/Favorite/FavoritePage";
 import PropertiesComparePage from "@/pages/Compare/PropertiesComparePage";
 import DealListPageBuyer from "../pages/DealContract/DealListPageBuyer";
 import DealContractPageBuyer from "../pages/DealContract/DealContractPageBuyer";
+import FavoritePage from "@/pages/Favorite/FavoritePage";
+import PaymentPage from "../pages/Payment/PaymentPage";
+import PaymentListBuyer from "../pages/Payment/PaymentListBuyer";
 
 export const BuyerRoute = [
     {
@@ -111,4 +114,12 @@ export const BuyerRoute = [
         path: "/favorites",
         element: <FavoritePage />
     },
+    {
+        path: "/deals/:dealId/payment",
+        element: <PaymentPage />,
+    },
+    {
+        path: "/buyer/listPayments",
+        element: <PaymentListBuyer />,
+    }
 ];

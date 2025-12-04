@@ -7,6 +7,8 @@ import {
   refreshTokenController,
   resendOtpController,
   verifyEmailController,
+  forgotPasswordController,
+  resetPasswordController,
 } from "../../../controllers/client/auth/auth.controller";
 
 const router = express.Router();
@@ -18,5 +20,9 @@ router.post("/login", loginController);
 router.post("/google", googleAuthController);
 router.post("/refresh-token", refreshTokenController);
 router.post("/logout", logoutController);
+
+router.post("/forgot-password", forgotPasswordController);
+router.post("/reset-password", resetPasswordController);
+
 
 export default router;

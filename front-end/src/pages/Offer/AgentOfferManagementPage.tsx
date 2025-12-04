@@ -261,14 +261,14 @@ const AgentOfferManagementPage: React.FC = () => {
                 onClick={() => setViewMode('table')}
                 size="small"
               >
-                Table
+                {t('sellerList.tableView')}
               </Button>
               <Button
                 variant={viewMode === 'list' ? 'contained' : 'outlined'}
                 onClick={() => setViewMode('list')}
                 size="small"
               >
-                List
+                {t('sellerList.listView')}
               </Button>
             </Box>
           )}
@@ -312,12 +312,12 @@ const AgentOfferManagementPage: React.FC = () => {
           <Table sx={{ borderCollapse: 'separate', borderSpacing: 0 }}>
             <TableHead>
               <TableRow>
-                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', border: 0, borderBottom: 1, borderColor: 'primary.dark' }}>Property</TableCell>
-                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', border: 0, borderBottom: 1, borderColor: 'primary.dark' }}>Buyer</TableCell>
-                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', border: 0, borderBottom: 1, borderColor: 'primary.dark' }}>Proposed Amount</TableCell>
-                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', border: 0, borderBottom: 1, borderColor: 'primary.dark' }}>Status</TableCell>
-                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', border: 0, borderBottom: 1, borderColor: 'primary.dark' }}>Created At</TableCell>
-                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', border: 0, borderBottom: 1, borderColor: 'primary.dark' }}>Actions</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', border: 0, borderBottom: 1, borderColor: 'primary.dark', width: '5%' }}></TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', border: 0, borderBottom: 1, borderColor: 'primary.dark', width: '22%' }}>{t('sellerList.table.buyer')}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', border: 0, borderBottom: 1, borderColor: 'primary.dark', width: '18%' }}>{t('sellerList.table.amount')}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', border: 0, borderBottom: 1, borderColor: 'primary.dark', width: '14%' }}>{t('sellerList.table.status')}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', border: 0, borderBottom: 1, borderColor: 'primary.dark', width: '12%' }}>{t('sellerList.table.createdAt')}</TableCell>
+                <TableCell sx={{ bgcolor: 'primary.main', color: 'white', fontWeight: 'bold', border: 0, borderBottom: 1, borderColor: 'primary.dark', width: '29%' }}>{t('sellerList.table.actions')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -344,112 +344,119 @@ const AgentOfferManagementPage: React.FC = () => {
                       }}
                       onClick={() => togglePropertyExpanded(group.propertyId)}
                     >
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <IconButton size="small">
-                            {expandedProperties.has(group.propertyId) ? (
-                              <KeyboardArrowUpIcon />
-                            ) : (
-                              <KeyboardArrowDownIcon />
-                            )}
-                          </IconButton>
+                      <TableCell sx={{ width: '5%' }}>
+                        <IconButton size="small">
+                          {expandedProperties.has(group.propertyId) ? (
+                            <KeyboardArrowUpIcon />
+                          ) : (
+                            <KeyboardArrowDownIcon />
+                          )}
+                        </IconButton>
+                      </TableCell>
+                      <TableCell colSpan={5} sx={{ width: '95%' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                           <Box>
                             <Typography fontWeight="bold">{group.propertyTitle}</Typography>
                             <Typography variant="caption" color="text.secondary">
                               {group.propertyAddress}
                             </Typography>
                           </Box>
+                          <Chip 
+                            label={`${group.offers.length} ${t('sellerList.table.offers')}`}
+                            size="small"
+                            color="primary"
+                          />
                         </Box>
                       </TableCell>
-                      <TableCell>
-                        <Chip 
-                          label={`${group.offers.length} offers`}
-                          size="small"
-                          color="primary"
-                        />
-                      </TableCell>
-                      <TableCell colSpan={4} />
                     </TableRow>
                     <TableRow>
                       <TableCell colSpan={6} sx={{ py: 0, border: 0 }}>
                         <Collapse in={expandedProperties.has(group.propertyId)} timeout="auto" unmountOnExit>
-                          <Box sx={{ p: 2 }}>
-                            {group.offers.map((offer) => {
-                              const buyer = typeof offer.buyer_id === 'object' ? offer.buyer_id : null;
-                              const statusColors = getStatusColorConfig(offer.status);
-                              const canForward = offer.status === 'pending';
+                          <Table size="small">
+                            <TableBody>
+                              {group.offers.map((offer) => {
+                                const buyer = typeof offer.buyer_id === 'object' ? offer.buyer_id : null;
+                                const statusColors = getStatusColorConfig(offer.status);
+                                const canForward = offer.status === 'pending';
 
-                              return (
-                                <TableRow key={offer._id} sx={{ '&:hover': { bgcolor: 'action.hover' } }}>
-                                  <TableCell />
-                                  <TableCell>
-                                    {buyer ? (
-                                      <Box>
-                                        <Typography variant="body2" fontWeight="medium">
-                                          {buyer.fullName}
+                                return (
+                                  <TableRow 
+                                    key={offer._id} 
+                                    sx={{ 
+                                      '&:hover': { bgcolor: 'action.hover' },
+                                      bgcolor: 'grey.50',
+                                    }}
+                                  >
+                                    <TableCell sx={{ width: '5%', pl: 4 }} />
+                                    <TableCell sx={{ width: '22%' }}>
+                                      {buyer ? (
+                                        <Box>
+                                          <Typography variant="body2" fontWeight="medium">
+                                            {buyer.fullName}
+                                          </Typography>
+                                          <Typography variant="caption" color="text.secondary">
+                                            {buyer.email}
+                                          </Typography>
+                                        </Box>
+                                      ) : (
+                                        <Typography variant="body2" color="text.secondary">
+                                          {t('sellerList.unknownBuyer')}
                                         </Typography>
-                                        <Typography variant="caption" color="text.secondary">
-                                          {buyer.email}
-                                        </Typography>
-                                      </Box>
-                                    ) : (
-                                      <Typography variant="body2" color="text.secondary">
-                                        Unknown Buyer
+                                      )}
+                                    </TableCell>
+                                    <TableCell sx={{ width: '18%' }}>
+                                      <Typography variant="body2" fontWeight="bold" color="success.main">
+                                        {new Intl.NumberFormat('vi-VN').format(offer.amount)} ₫
                                       </Typography>
-                                    )}
-                                  </TableCell>
-                                  <TableCell>
-                                    <Typography variant="body2" fontWeight="bold" color="success.main">
-                                      {new Intl.NumberFormat('vi-VN').format(offer.amount)} ₫
-                                    </Typography>
-                                  </TableCell>
-                                  <TableCell>
-                                    <Chip
-                                      label={t(`list.status.${offer.status}`)}
-                                      size="small"
-                                      sx={{
-                                        backgroundColor: statusColors.backgroundColor,
-                                        color: statusColors.color,
-                                        border: `1px solid ${statusColors.borderColor}`,
-                                      }}
-                                    />
-                                  </TableCell>
-                                  <TableCell>
-                                    <Typography variant="body2">
-                                      {offer.createdAt ? new Date(offer.createdAt).toLocaleDateString('vi-VN') : 'N/A'}
-                                    </Typography>
-                                  </TableCell>
-                                  <TableCell>
-                                    <Box sx={{ display: 'flex', gap: 1 }}>
-                                      <Button
+                                    </TableCell>
+                                    <TableCell sx={{ width: '14%' }}>
+                                      <Chip
+                                        label={t(`list.status.${offer.status}`)}
                                         size="small"
-                                        variant="outlined"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleViewDetail(offer._id);
+                                        sx={{
+                                          backgroundColor: statusColors.backgroundColor,
+                                          color: statusColors.color,
+                                          border: `1px solid ${statusColors.borderColor}`,
                                         }}
-                                      >
-                                        View
-                                      </Button>
-                                      {canForward && (
+                                      />
+                                    </TableCell>
+                                    <TableCell sx={{ width: '12%' }}>
+                                      <Typography variant="body2">
+                                        {offer.createdAt ? new Date(offer.createdAt).toLocaleDateString('vi-VN') : 'N/A'}
+                                      </Typography>
+                                    </TableCell>
+                                    <TableCell sx={{ width: '29%' }}>
+                                      <Box sx={{ display: 'flex', gap: 1 }}>
                                         <Button
                                           size="small"
-                                          variant="contained"
-                                          color="primary"
+                                          variant="outlined"
                                           onClick={(e) => {
                                             e.stopPropagation();
-                                            openForwardDialog(offer._id);
+                                            handleViewDetail(offer._id);
                                           }}
                                         >
-                                          {t('agentList.forward')}
+                                          {t('agentList.viewDetail')}
                                         </Button>
-                                      )}
-                                    </Box>
-                                  </TableCell>
-                                </TableRow>
-                              );
-                            })}
-                          </Box>
+                                        {canForward && (
+                                          <Button
+                                            size="small"
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              openForwardDialog(offer._id);
+                                            }}
+                                          >
+                                            {t('agentList.forward')}
+                                          </Button>
+                                        )}
+                                      </Box>
+                                    </TableCell>
+                                  </TableRow>
+                                );
+                              })}
+                            </TableBody>
+                          </Table>
                         </Collapse>
                       </TableCell>
                     </TableRow>
@@ -475,16 +482,16 @@ const AgentOfferManagementPage: React.FC = () => {
         fullWidth
       >
         <DialogTitle>
-          Forward Offer
+          {t('agentList.forwardOffer')}
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to forward this offer to the seller?
+            {t('agentList.forwardConfirm')}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={closeForwardDialog} color="inherit" disabled={processing}>
-            Cancel
+            {t('sellerList.cancel')}
           </Button>
           <Button 
             onClick={handleForwardOfferInTable} 
@@ -492,7 +499,7 @@ const AgentOfferManagementPage: React.FC = () => {
             variant="contained"
             disabled={processing}
           >
-            {processing ? 'Processing...' : 'Confirm Forward'}
+            {processing ? t('sellerList.processing') : t('sellerList.confirmAccept')}
           </Button>
         </DialogActions>
       </Dialog>

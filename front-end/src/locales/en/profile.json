@@ -28,12 +28,12 @@
   "unableToChangePassword": "Unable to change password",
   "informationUpdatedSuccess": "Information updated successfully",
   "unableToUpdateInformation": "Unable to update information",
+  "passwordMustBeAtLeast8": "Password must be at least 8 characters",
   "home": "Home",
-  "newPost": "New post",
+  "newPost": "My property",
   "manageListings": "Manage listings",
   "notification": "Notification",
   "accountBalance": "Account balance",
   "adAccount": "Ad account",
   "promotionalAccount": "Promotional Account"
 }
-

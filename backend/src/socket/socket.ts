@@ -3,13 +3,10 @@ import { Server, Socket } from "socket.io";
 import jwt from "jsonwebtoken";
 import { notificationService } from "../services/notification.service";
 
-// Map để lưu userId -> socketId
 const userSocketMap = new Map<string, string>();
 
-// Map để lưu socketId -> userId
 const socketUserMap = new Map<string, string>();
 
-// Lưu instance của Socket.IO server
 let ioInstance: Server | null = null;
 
 /**
@@ -71,9 +68,6 @@ export function getIO(): Server | null {
   return ioInstance;
 }
 
-/**
- * Check xem user có đang online không
- */
 export function isUserOnline(userId: string): boolean {
   return userSocketMap.has(userId);
 }
@@ -98,14 +92,10 @@ export function setupSocketIO(io: Server) {
     const userId = (socket as any).userId;
     console.log(`✅ User ${userId} connected: ${socket.id}`);
 
-    // Lưu mapping
     userSocketMap.set(userId, socket.id);
     socketUserMap.set(socket.id, userId);
 
-    // Join room theo userId để có thể gửi notification trực tiếp
     socket.join(`user:${userId}`);
-
-    // NOTIFICATION EVENTS 
 
     // Event: Client yêu cầu unread count khi connect
     socket.on("get_unread_count", async () => {
@@ -148,7 +138,6 @@ export function setupSocketIO(io: Server) {
       }
     });
 
-    // ========== DISCONNECT ==========
 
     socket.on("disconnect", () => {
       console.log(`❌ User ${userId} disconnected: ${socket.id}`);

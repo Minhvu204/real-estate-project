@@ -48,7 +48,7 @@
   "deleteSuccess": "Property deleted successfully!",
   "deleteFailed": "Unable to delete property",
   "noPermissionDelete": "You don't have permission to delete this property",
-  "cannotDeleteApproved": "Cannot delete approved property!",
+  "cannotDelete": "Cannot delete rented or sold property!",
   "loadFailed": "Unable to load properties list",
   "sessionExpired": "Session expired. Please login again!",
   "noPermission": "You don't have permission to access this feature",
