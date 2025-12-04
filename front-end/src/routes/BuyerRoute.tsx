@@ -4,7 +4,6 @@ import RentPage from "../pages/SearchPage/RentPage";
 import { ProfileLayout } from "../pages/Profile/ProfileLayout";
 import { PersonalInfo } from "../pages/Profile/PersonalInfo";
 import { ChangePassword } from "../pages/Profile/ChangePassword";
-import ChatPage from "@/pages/Chat/ChatPage";
 import PropertyDetailUser from "../pages/PropertyDetail";
 import MyPropertiesPage from "../pages/MyPropertiesPage";
 import BuyerMyPropertiesPage from "../pages/Buyer/BuyerMyPropertiesPage";
@@ -67,22 +66,8 @@ export const BuyerRoute = [
         element: <BuyerMyPropertiesPage />,
     },
     {
-        path: "/chat",
-        element: <ChatPage />,
-        children: [
-
-        ]
-    },
-
-    {
         path: "/my-properties",
         element: <MyPropertiesPage />,
-    }, {
-        path: "/chat",
-        element: <ChatPage />,
-        children: [
-
-        ]
     },
     {
         path: "/favorites",

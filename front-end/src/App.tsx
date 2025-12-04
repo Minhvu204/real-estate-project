@@ -2,6 +2,7 @@ import { useRoutes, useLocation } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
+import ChatBot from "./components/ChatBot/ChatBot";
 import { LoginRoute } from "./routes/LoginRoute";
 import { AdminRoute } from "./routes/AdminRoute";
 import { SellerRoute } from "./routes/SellerRoute";
@@ -32,6 +33,7 @@ function App() {
       <AuthProvider>
         {!isAdmin && <Navbar />}
         {routing}
+        {!isAdmin && <ChatBot />}
       </AuthProvider>
     </ThemeProvider>
 
