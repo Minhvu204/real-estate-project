@@ -230,8 +230,7 @@ const PropertyAgentReview = ({ targetType, targetId }: ReviewProps) => {
                 gap: 1,
               }}
             >
-              {currentUserId === item.user_id._id &&
-                editingReviewId !== item._id && (
+              {currentUserId === item.user_id._id  && (
                   <>
                     <IconButton
                       size="small"

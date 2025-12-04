@@ -134,6 +134,7 @@ const ReviewList = () => {
                   <Tooltip title={t("delete_btn_toolTip")}>
                     <Button
                       variant="outlined"
+                      color="error"
                       onClick={() => handleOpenModalDelete(data._id)}
                     >
                       {t("delete_btn")}
@@ -282,6 +283,7 @@ const ReviewList = () => {
             </Button>
             <Button
               variant="outlined"
+              color="error"
               onClick={() => handleDelete(reviewIdDelete!)}
             >
               {t("delete_btn")}
