@@ -33,6 +33,8 @@ import type { Property } from "@/types/Property";
 import { getBuyerPurchasedProperties } from "@/services/propertyService";
 import { containsText, getText } from "@/utils/multilang";
 import { getUser } from "@/utils/storage";
+import useTitle from "@/hooks/useTitle";
+import { t } from "i18next";
 
 const BuyerMyPropertiesPage: React.FC = () => {
 	const [properties, setProperties] = useState<Property[]>([]);
@@ -68,8 +70,11 @@ const BuyerMyPropertiesPage: React.FC = () => {
 				setError(null);
 				setErrorKey(null);
 				const data = await getBuyerPurchasedProperties();
-				setProperties(Array.isArray(data) ? data : []);
-				setFilteredProperties(Array.isArray(data) ? data : []);
+				const sortedData = Array.isArray(data)
+					? data.sort((a, b) => new Date(b.createdAt || '').getTime() - new Date(a.createdAt || '').getTime())
+					: [];
+				setProperties(sortedData);
+				setFilteredProperties(sortedData);
 			} catch (err: any) {
 				const message = err?.response?.data?.message || err?.message || "";
 				if (message) {

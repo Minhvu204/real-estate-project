@@ -57,5 +57,6 @@
   "requestSent": "Đã gửi yêu cầu",
   "processing": "Đang xử lý",
   "requestingProperty": "Bạn đang yêu cầu tham gia bất động sản",
-  "createNewProperty": "Tạo mới"
+  "createNewProperty": "Tạo mới",
+  "viewDetails": "Xem chi tiết"
 }

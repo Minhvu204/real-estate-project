@@ -44,5 +44,10 @@
     "pleaseEnterReasonForRejecting": "Vui lòng nhập lý do từ chối",
     "contractHasBeenRejected": "Hợp đồng đã bị từ chối",
     "updateStatusFailed": "Cập nhật trạng thái thất bại",
-    "youCanRejectOrAccept": "Bạn có thể từ chối hoặc chấp nhận"
+    "youCanRejectOrAccept": "Bạn có thể từ chối hoặc chấp nhận",
+    "replace": "Thay thế",
+    "confirm": "Xác nhận",
+    "accept": "Chấp nhận",
+    "reject": "Từ chối",
+    "rejectContract": "Từ chối hợp đồng"
 }

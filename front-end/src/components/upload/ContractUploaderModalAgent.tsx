@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Box, Button, TextField, Typography, MenuItem } from "@mui/material";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import { contractApiAgent } from "../../api/contractApiAgent";
 import type { Contract } from "../../types/Contract";
 import { toastSuccess, toastError } from "../../utils/toast";
@@ -10,14 +11,12 @@ interface Props {
     onClose: () => void;
     dealId: string;
     onUploaded?: () => void;
-    existingContracts?: Contract[]; // thêm prop danh sách hợp đồng hiện tại
+    existingContracts?: Contract[];
     initialContractType?: "initial" | "buyer_signed" | "final";
     initialStatus?: "draft" | "submitted";
 }
 
-const FILE_TYPES = [
-    "application/pdf",
-];
+const FILE_TYPES = ["application/pdf"];
 
 export const ContractUploaderModalAgent: React.FC<Props> = ({
     open,
@@ -34,6 +33,8 @@ export const ContractUploaderModalAgent: React.FC<Props> = ({
     const [status, setStatus] = useState(initialStatus);
     const [notes, setNotes] = useState("");
     const [error, setError] = useState("");
+
+    const [confirmOpen, setConfirmOpen] = useState(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const f = e.target.files?.[0];
@@ -59,11 +60,16 @@ export const ContractUploaderModalAgent: React.FC<Props> = ({
             return;
         }
 
-        const hasExisting = existingContracts.length > 0;
-
-        if (hasExisting && !confirm(t("thisContractAlreadyExistsDoYouWantToReplaceIt"))) {
+        if (existingContracts.length > 0) {
+            setConfirmOpen(true);
             return;
         }
+
+        await uploadFile(false);
+    };
+
+    const uploadFile = async (replace: boolean) => {
+        if (!file) return;
 
         const formData = new FormData();
         formData.append("file", file);
@@ -72,9 +78,13 @@ export const ContractUploaderModalAgent: React.FC<Props> = ({
         formData.append("notes", notes);
 
         try {
-            await contractApiAgent.uploadOrReplaceContract(dealId, formData, hasExisting);
+            await contractApiAgent.uploadOrReplaceContract(dealId, formData, replace);
             toastSuccess(t("uploadContractSuccessfully"));
             onUploaded?.();
+            setFile(null);
+            setNotes("");
+            setContractType(initialContractType);
+            setStatus(initialStatus);
             onClose();
         } catch (err: any) {
             console.error(err);
@@ -84,56 +94,80 @@ export const ContractUploaderModalAgent: React.FC<Props> = ({
     };
 
     return (
-        <Modal open={open} onClose={onClose}>
-            <Box sx={{ width: 400, margin: "100px auto", padding: 3, bgcolor: "background.paper", borderRadius: 2 }}>
-                <Typography variant="h6" mb={2}>{t("upload")}</Typography>
+        <>
+            {/* Modal upload chính */}
+            <Modal open={open} onClose={onClose}>
+                <Box sx={{ width: 400, margin: "100px auto", padding: 3, bgcolor: "background.paper", borderRadius: 2 }}>
+                    <Typography variant="h6" mb={2}>{t("upload")}</Typography>
 
-                <Button variant="contained" component="label">
-                    {t("selectFile")}
-                    <input type="file" hidden onChange={handleFileChange} />
-                </Button>
-                {file && <Typography mt={1}>{file.name}</Typography>}
+                    <Button variant="contained" component="label">
+                        {t("selectFile")}
+                        <input type="file" hidden onChange={handleFileChange} />
+                    </Button>
+                    {file && <Typography mt={1}>{file.name}</Typography>}
 
-                <TextField
-                    select
-                    fullWidth
-                    label={t("contractType")}
-                    value={contractType}
-                    onChange={e => setContractType(e.target.value as any)}
-                    margin="normal"
-                >
-                    <MenuItem value="initial">Initial</MenuItem>
-                    <MenuItem value="buyer_signed">Buyer Signed</MenuItem>
-                    <MenuItem value="final">Final</MenuItem>
-                </TextField>
+                    <TextField
+                        select
+                        fullWidth
+                        label={t("contractType")}
+                        value={contractType}
+                        onChange={e => setContractType(e.target.value as any)}
+                        margin="normal"
+                    >
+                        <MenuItem value="initial">Initial</MenuItem>
+                        <MenuItem value="buyer_signed">Buyer Signed</MenuItem>
+                        <MenuItem value="final">Final</MenuItem>
+                    </TextField>
 
-                <TextField
-                    select
-                    fullWidth
-                    label={t("status")}
-                    value={status}
-                    onChange={e => setStatus(e.target.value as any)}
-                    margin="normal"
-                >
-                    <MenuItem value="draft">Draft</MenuItem>
-                    <MenuItem value="submitted">Submitted</MenuItem>
-                </TextField>
+                    <TextField
+                        select
+                        fullWidth
+                        label={t("status")}
+                        value={status}
+                        onChange={e => setStatus(e.target.value as any)}
+                        margin="normal"
+                    >
+                        <MenuItem value="draft">Draft</MenuItem>
+                        <MenuItem value="submitted">Submitted</MenuItem>
+                    </TextField>
 
-                <TextField
-                    fullWidth
-                    label={t("notes")}
-                    value={notes}
-                    onChange={e => setNotes(e.target.value)}
-                    margin="normal"
-                />
+                    <TextField
+                        fullWidth
+                        label={t("notes")}
+                        value={notes}
+                        onChange={e => setNotes(e.target.value)}
+                        margin="normal"
+                    />
 
-                {error && <Typography color="error" mt={1}>{error}</Typography>}
+                    {error && <Typography color="error" mt={1}>{error}</Typography>}
 
-                <Box mt={2} display="flex" justifyContent="space-between">
-                    <Button variant="outlined" onClick={onClose}>{t("cancel")}</Button>
-                    <Button variant="contained" onClick={handleSubmit}>{t("upload")}</Button>
+                    <Box mt={2} display="flex" justifyContent="space-between">
+                        <Button variant="outlined" onClick={onClose}>{t("cancel")}</Button>
+                        <Button variant="contained" onClick={handleSubmit}>{t("upload")}</Button>
+                    </Box>
                 </Box>
-            </Box>
-        </Modal>
+            </Modal>
+
+            {/* Modal xác nhận Replace */}
+            <Modal open={confirmOpen} onClose={() => setConfirmOpen(false)}>
+                <Box sx={{ width: 320, margin: "150px auto", padding: 3, bgcolor: "background.paper", borderRadius: 2, textAlign: "center" }}>
+                    <WarningAmberIcon sx={{ fontSize: 40, color: "orange", mb: 2 }} />
+                    <Typography variant="h6" mb={2}>{t("confirm")}</Typography>
+                    <Typography mb={3}>{t("thisContractAlreadyExistsDoYouWantToReplaceIt")}</Typography>
+                    <Box display="flex" justifyContent="space-between">
+                        <Button variant="outlined" onClick={() => setConfirmOpen(false)}>
+                            {t("cancel")}
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="error"
+                            onClick={() => { uploadFile(true); setConfirmOpen(false); }}
+                        >
+                            {t("replace")}
+                        </Button>
+                    </Box>
+                </Box>
+            </Modal>
+        </>
     );
 };

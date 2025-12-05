@@ -20,7 +20,7 @@ const SearchPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const { t } = useTranslation('propertyPage');
     const currentLanguage: Lang = getLanguage();
-    useTitle("Dwello | Find Homes");
+    useTitle(t("titlePage"));
     const query = searchParams.get('q') || '';
     const minPrice = searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : '';
     const maxPrice = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : '';
@@ -91,7 +91,7 @@ const SearchPage = () => {
         const normalizedQuery = removeVietnameseTones(query);
         let result = properties.filter((p) => {
             const title = removeVietnameseTones(p.title?.[currentLanguage] || '');
-            const address = removeVietnameseTones(p.address?.[currentLanguage] || '');
+            const address = removeVietnameseTones(`${p.address?.[currentLanguage]} ${p.city_id?.city_name?.[currentLanguage]}` || '');
             const matchesQuery =
                 title.includes(normalizedQuery) || address.includes(normalizedQuery);
             const matchesPrice = (minPrice === '' || p.price >= minPrice) && (maxPrice === '' || p.price <= maxPrice);

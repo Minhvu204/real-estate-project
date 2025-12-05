@@ -64,6 +64,22 @@ const PaymentDetail = () => {
                       : "",
                 },
                 {
+                  label: t("deal_status"),
+                  value: payment.deal_id.status === "completed"
+                          ? t("Completed")
+                          : payment.deal_id.status === "cancelled"
+                          ? t("Cancelled")
+                          : payment.deal_id.status === "awaiting_contract"
+                          ? t("Awaiting")
+                          : payment.deal_id.status === "contract_under_review"
+                          ? t("UnderReview")
+                          : payment.deal_id.status === "awaiting_escrow_payment"
+                          ? t("EscrowPayment")
+                          : payment.deal_id.status === "escrow_funded"
+                          ? t("EscrowFunded")
+                          : payment.deal_id.status
+                },
+                {
                   label: t("status"),
                   value:
                     payment.status === "completed"
@@ -105,14 +121,14 @@ const PaymentDetail = () => {
                       ? t("refund")
                       : "",
                 },
-              ].map((row, idx) => (
+              ].map((row, index) => (
                 <Box
                   key={row.label}
                   display="flex"
                   alignItems="center"
                   justifyContent="space-between"
                   py={1}
-                  sx={idx === 0 ? { mt: 0 } : { mt: 1 }}
+                  sx={index === 0 ? { mt: 0 } : { mt: 1 }}
                 >
                   <Typography color="text.secondary">{row.label}</Typography>
                   <Typography

@@ -41,6 +41,7 @@ const HideProperties = ({ propertyId }: HideProperty) => {
   const navigate = useNavigate();
   const currentLanguage: Lang = getLanguage();
   const { t } = useTranslation("detailProperty");
+
   const handleOpen = async () => {
     setOpen(true);
   };
@@ -63,7 +64,7 @@ const HideProperties = ({ propertyId }: HideProperty) => {
 
   const handleHideUser = async () => {
     if (!propertyId) {
-      toast.error("Không tìm thấy ID người dùng!");
+      toast.error(t("user_notFound"));
       return;
     }
     if (!property) return;
@@ -78,20 +79,19 @@ const HideProperties = ({ propertyId }: HideProperty) => {
         hiddenNote: hideProperties.hiddenNote,
       }));
       if (hideProperties.deleted) {
-        toast.success("Ẩn bất động sản thành công!");
+        toast.success(t("toast_success_hide"));
       } else {
-        toast.success("Ẩn bất động sản thất bại!");
+        toast.success(t("toast_fail_hide"));
       }
       setOpen(false);
     } catch (error) {
-      toast.error(property.deleted ? "hide thành công!" : "hide thất bại!");
       console.error(error);
     }
   };
 
   const handleRestoreUser = async () => {
     if (!propertyId) {
-      toast.error("Không tìm thấy ID người dùng!");
+      toast.error(t("user_notFound"));
       return;
     }
     if (!property) return;
@@ -106,14 +106,14 @@ const HideProperties = ({ propertyId }: HideProperty) => {
         hiddenNote: "",
       }));
       if (restoreProperties.deleted) {
-        toast.success("Khôi phục bất động sản thất bại!");
+        toast.success(t("toast_fail_restore"));
       } else {
-        toast.success("Khôi phục bất động sản thành công!");
+        toast.success(t("toast_success_restore"));
       }
       setOpen(false);
       navigate("/admin/properties", { state: { refresh: true } });
     } catch (error) {
-      toast.error(property.deleted ? "restore thất bại!" : "");
+      toast.error(property.deleted ? t("toast_fail_restore") : "");
       console.error(error);
     }
   };
@@ -123,20 +123,25 @@ const HideProperties = ({ propertyId }: HideProperty) => {
       {property && (
         <>
           <Tooltip title={property.deleted ? t("restore") : t("hide")}>
-            <button title="button"
+            <button
+              title="button"
               onClick={handleOpen}
               className={`w-9 h-9 cursor-pointer flex items-center justify-center rounded-md text-white shadow-sm hover:shadow-md transition-all duration-200 
-      ${property.deleted
-                  ? "bg-red-500 hover:bg-red-600"
-                  : "bg-green-500 hover:bg-green-600"
-                }`}
+      ${
+        property.deleted
+          ? "bg-red-500 hover:bg-red-600"
+          : "bg-green-500 hover:bg-green-600"
+      }`}
             >
               <FontAwesomeIcon icon={property.deleted ? faLock : faLockOpen} />
             </button>
           </Tooltip>
           {property.deleted && (
-            <Tooltip title={property.hiddenNote || "Không có ghi chú"}>
-              <button title="button" className="w-9 h-9 flex items-center cursor-pointer justify-center bg-amber-500 text-white rounded-md hover:bg-amber-600 shadow-sm hover:shadow-md transition-all duration-200">
+            <Tooltip title={property.hiddenNote || t("no_note")}>
+              <button
+                title="button"
+                className="w-9 h-9 flex items-center cursor-pointer justify-center bg-amber-500 text-white rounded-md hover:bg-amber-600 shadow-sm hover:shadow-md transition-all duration-200"
+              >
                 <FontAwesomeIcon icon={faCircleInfo} />
               </button>
             </Tooltip>
@@ -169,19 +174,19 @@ const HideProperties = ({ propertyId }: HideProperty) => {
                       property.status === "approved"
                         ? "Approved"
                         : property.status === "pending"
-                          ? "Pending"
-                          : property.status === "available"
-                            ? "Available"
-                            : "Rejected"
+                        ? "Pending"
+                        : property.status === "available"
+                        ? "Available"
+                        : "Rejected"
                     }
                     color={
                       property.status === "approved"
                         ? "success"
                         : property.status === "pending"
-                          ? "warning"
-                          : property.status === "available"
-                            ? "info"
-                            : "default"
+                        ? "warning"
+                        : property.status === "available"
+                        ? "info"
+                        : "default"
                     }
                     size="small"
                   />

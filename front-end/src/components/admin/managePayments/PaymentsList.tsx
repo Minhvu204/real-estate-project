@@ -1,10 +1,35 @@
-import { getAllPayment } from "@/services/paymentService";
+import {
+  getAllPayment,
+  releasePayment,
+} from "../../../services/paymentService";
 import type { Payment } from "../../../types/Payment";
-import { Button, Pagination, Tooltip } from "@mui/material";
+import {
+  Box,
+  Button,
+  Modal,
+  Pagination,
+  Stack,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import type { pagination } from "../../../types/Contract";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { toast, ToastContainer } from "react-toastify";
+
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 600,
+  maxWidth: "90%",
+  bgcolor: "background.paper",
+  boxShadow: 24,
+  borderRadius: 2,
+  p: 4,
+};
 
 const PaymentsList = () => {
   const [payment, setPayment] = useState<Payment[]>([]);
@@ -12,6 +37,8 @@ const PaymentsList = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [openModalRelease, setOpenModalRelease] = useState<boolean>(false);
+  const [paymentRelease, setPaymentRelease] = useState<string | null>(null);
   const status = searchParams.get("status");
   const { t } = useTranslation("payment");
 
@@ -34,6 +61,33 @@ const PaymentsList = () => {
 
     if (page >= 1 && page <= pagination.totalPages) {
       setCurrentPage(page);
+    }
+  };
+
+  const handleOpenModalRelease = (id: string) => {
+    setPaymentRelease(id);
+    setOpenModalRelease(true);
+  };
+
+  const handleClose = () => {
+    setOpenModalRelease(false);
+    setPaymentRelease(null);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!id) return;
+    try {
+      await releasePayment(id);
+      const data = await getAllPayment(currentPage, status || undefined);
+      console.log("PaymentList return is: ", data);
+      setPayment(data.payments);
+      setPagination(data.pagination);
+      toast.success(t("toast_success_release"));
+    } catch (error) {
+      console.log("err: ", error);
+      toast.error(t("toast_error_release"));
+    } finally {
+      handleClose();
     }
   };
 
@@ -107,17 +161,57 @@ const PaymentsList = () => {
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <Tooltip title={t("view_tooltip")}>
-                      <Button onClick={() => navigate(`${data._id}`)}>
-                        {t("view_btn")}
-                      </Button>
-                    </Tooltip>
+                    <Stack direction="row" spacing={1}>
+                      <Tooltip title={t("view_tooltip")}>
+                        <Button
+                          variant="outlined"
+                          onClick={() => navigate(`${data._id}`)}
+                        >
+                          {t("view_btn")}
+                        </Button>
+                      </Tooltip>
+                      {data.status === "completed" &&
+                        data.deal_id.status !== "completed" && (
+                          <Tooltip title={t("release_tooltip")}>
+                            <Button
+                              variant="outlined"
+                              color="error"
+                              onClick={() =>
+                                handleOpenModalRelease(data.deal_id._id)
+                              }
+                            >
+                              {t("release_btn")}
+                            </Button>
+                          </Tooltip>
+                        )}
+                    </Stack>
                   </td>
                 </tr>
               ))}
           </tbody>
         </table>
       </div>
+
+      <Modal open={openModalRelease} onClose={handleClose}>
+        <Box sx={style}>
+          <Typography variant="h6" component="h2">
+            {t("release")}
+          </Typography>
+          <Typography sx={{ mt: 2 }}>{t("release_question")}</Typography>
+          <Box sx={{ px: 3, textAlign: "right", mt: 3 }}>
+            <Button variant="outlined" onClick={handleClose} sx={{ mr: 2 }}>
+              {t("cancel_btn")}
+            </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              onClick={() => handleDelete(paymentRelease!)}
+            >
+              {t("accept_btn")}
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
 
       {pagination && pagination.totalPages > 1 && (
         <div className="flex justify-center items-center mt-6">
@@ -131,6 +225,18 @@ const PaymentsList = () => {
           />
         </div>
       )}
+      <ToastContainer
+        position="top-right"
+        autoClose={2000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </>
   );
 };

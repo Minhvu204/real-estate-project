@@ -44,5 +44,10 @@
     "pleaseEnterReasonForRejecting": "Please enter reason for rejecting",
     "contractHasBeenRejected": "Contract has been rejected",
     "updateStatusFailed": "Update status failed",
-    "youCanRejectOrAccept": "You can reject or accept"
+    "youCanRejectOrAccept": "You can reject or accept",
+    "replace": "Replace",
+    "confirm": "Confirm",
+    "accept": "Accept",
+    "reject": "Reject",
+    "rejectContract": "Reject Contract"
 }

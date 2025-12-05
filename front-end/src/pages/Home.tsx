@@ -10,6 +10,7 @@ import type { Property } from "@/types/Property";
 import { getLanguage } from "../utils/storage";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import useTitle from "@/hooks/useTitle";
 const HomePage: React.FC = () => {
     const images = [
         "https://cdnmedia.baotintuc.vn/Upload/GBzr0rzEkBb6ua36h4mJ9w/files/2022/09/P3.jpg",
@@ -22,7 +23,7 @@ const HomePage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const currentLanguage = getLanguage();
     const { t } = useTranslation(['home', 'properties']);
-
+    useTitle(t("titlePage"));
     // Auto slide
     useEffect(() => {
         const interval = setInterval(() => {
@@ -79,10 +80,10 @@ const HomePage: React.FC = () => {
                     >
                         <Container>
                             <Typography variant="h3" color="white" sx={{ fontWeight: 700 }}>
-                                Your home, your future
+                                {t('home:hero.title')}
                             </Typography>
                             <Typography variant="h6" color="white" sx={{ mt: 1 }}>
-                                Find the best properties around you
+                                {t('home:hero.subtitle')}
                             </Typography>
                         </Container>
                     </Box>
@@ -149,67 +150,67 @@ const HomePage: React.FC = () => {
             {/*List property*/}
             <Container maxWidth="xl">
                 <Box paddingY={6}>
-                <Grid container spacing={3}>
-                    {properties?.filter((p) => p.status !== "pending").map((p) => (
-                        <Grid size={{ xs: 12, md: 4, sm: 6 }} key={p._id}>
-                            <Card
-                                component={Link}
-                                to={`/property/detail/${p._id}`}
-                                sx={{
-                                    borderRadius: 3,
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    height: '100%',
-                                    transition: 'transform 0.2s ease',
-                                    '&:hover': { transform: 'scale(1.03)' }
-                                }}
-                            >
-                                <CardMedia
-                                    component="img"
-                                    height="1"
-                                    image={p.images?.[0] || '/defaultHome.png'}
-                                    alt={p.title.en}
+                    <Grid container spacing={3}>
+                        {properties?.filter((p) => p.status !== "pending" && p.status !== "rented" && p.status !== "sold").map((p) => (
+                            <Grid size={{ xs: 12, md: 4, sm: 6 }} key={p._id}>
+                                <Card
+                                    component={Link}
+                                    to={`/property/detail/${p._id}`}
                                     sx={{
-                                        height: { xs: 160, sm: 180, md: 200 },
-                                        objectFit: 'cover',
+                                        borderRadius: 3,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        height: '100%',
+                                        transition: 'transform 0.2s ease',
+                                        '&:hover': { transform: 'scale(1.03)' }
                                     }}
-                                />
-                                <CardContent className="flex flex-col justify-between ">
-                                    <Box>
-                                        <Box className="flex justify-between items-start mb-2">
+                                >
+                                    <CardMedia
+                                        component="img"
+                                        height="1"
+                                        image={p.images?.[0] || '/defaultHome.png'}
+                                        alt={p.title.en}
+                                        sx={{
+                                            height: { xs: 160, sm: 180, md: 200 },
+                                            objectFit: 'cover',
+                                        }}
+                                    />
+                                    <CardContent className="flex flex-col justify-between ">
+                                        <Box>
+                                            <Box className="flex justify-between items-start mb-2">
+                                                <Typography
+                                                    variant="h6"
+                                                    fontWeight="bold"
+                                                    color="primary.main"
+                                                    className="line-clamp-2"
+                                                >
+                                                    {p.title[currentLanguage]}
+                                                </Typography>
+                                                <Chip
+                                                    label={p.status === "approved" ? t('home:property.status.available') : t('home:property.status.processing')}
+                                                    color={p.status === 'approved' ? 'success' : 'warning'}
+                                                    size="small"
+                                                />
+                                            </Box>
+
                                             <Typography
-                                                variant="h6"
-                                                fontWeight="bold"
-                                                color="primary.main"
-                                                className="line-clamp-2"
+                                                variant="body2"
+                                                color="text.secondary"
+                                                className="line-clamp-2 mb-1"
                                             >
-                                                {p.title[currentLanguage]}
+                                                {p.address[currentLanguage]}
                                             </Typography>
-                                            <Chip
-                                                label={p.status || 'Đang xử lý'}
-                                                color={p.status === 'available' ? 'success' : 'warning'}
-                                                size="small"
-                                            />
+                                            <Typography variant="body2" color="text.primary" fontWeight="medium">
+                                                {t('properties:price')}: {p.price.toLocaleString()} VNĐ
+                                            </Typography>
                                         </Box>
 
-                                        <Typography
-                                            variant="body2"
-                                            color="text.secondary"
-                                            className="line-clamp-2 mb-1"
-                                        >
-                                            {p.address[currentLanguage]}
-                                        </Typography>
-                                        <Typography variant="body2" color="text.primary" fontWeight="medium">
-                                            {t('properties:price')}: {p.price.toLocaleString()} VNĐ
-                                        </Typography>
-                                    </Box>
-
-                                </CardContent>
-                            </Card>
-                        </Grid>
-                    ))}
-                </Grid>
-            </Box>
+                                    </CardContent>
+                                </Card>
+                            </Grid>
+                        ))}
+                    </Grid>
+                </Box>
             </Container>
 
 
@@ -220,36 +221,36 @@ const HomePage: React.FC = () => {
 
                         {/* Column 1 */}
                         <Grid size={{ xs: 12, md: 4 }}>
-                            <Typography variant="h5" fontWeight={700}>Dwello</Typography>
+                            <Typography variant="h5" fontWeight={700}>{t('home:footer.appName')}</Typography>
                             <Typography sx={{ mt: 1, color: "gray" }}>
-                                Find your perfect home with comfort and trust.
+                                {t('home:footer.tagline')}
                             </Typography>
                         </Grid>
 
                         {/* Column 2 */}
                         <Grid size={{ xs: 6, md: 2 }}>
-                            <Typography fontWeight={600}>Explore</Typography>
+                            <Typography fontWeight={600}>{t('home:footer.explore')}</Typography>
                             <Stack spacing={1} sx={{ mt: 1 }}>
-                                <Typography sx={{ color: "gray", cursor: "pointer" }}>Buy</Typography>
-                                <Typography sx={{ color: "gray", cursor: "pointer" }}>Rent</Typography>
-                                <Typography sx={{ color: "gray", cursor: "pointer" }}>Sell</Typography>
-                                <Typography sx={{ color: "gray", cursor: "pointer" }}>Agents</Typography>
+                                <Typography sx={{ color: "gray", cursor: "pointer" }}>{t('home:footer.buy')}</Typography>
+                                <Typography sx={{ color: "gray", cursor: "pointer" }}>{t('home:footer.rent')}</Typography>
+                                <Typography sx={{ color: "gray", cursor: "pointer" }}>{t('home:footer.sell')}</Typography>
+                                <Typography sx={{ color: "gray", cursor: "pointer" }}>{t('home:footer.agents')}</Typography>
                             </Stack>
                         </Grid>
 
                         {/* Column 3 */}
                         <Grid size={{ xs: 6, md: 2 }}>
-                            <Typography fontWeight={600}>Support</Typography>
+                            <Typography fontWeight={600}>{t('home:footer.support')}</Typography>
                             <Stack spacing={1} sx={{ mt: 1 }}>
-                                <Typography sx={{ color: "gray", cursor: "pointer" }}>Help Center</Typography>
-                                <Typography sx={{ color: "gray", cursor: "pointer" }}>Privacy Policy</Typography>
-                                <Typography sx={{ color: "gray", cursor: "pointer" }}>Terms of Use</Typography>
+                                <Typography sx={{ color: "gray", cursor: "pointer" }}>{t('home:footer.helpCenter')}</Typography>
+                                <Typography sx={{ color: "gray", cursor: "pointer" }}>{t('home:footer.privacyPolicy')}</Typography>
+                                <Typography sx={{ color: "gray", cursor: "pointer" }}>{t('home:footer.termsOfUse')}</Typography>
                             </Stack>
                         </Grid>
 
                         {/* Column 4 */}
                         <Grid size={{ xs: 12, md: 4 }}>
-                            <Typography fontWeight={600}>Follow Us</Typography>
+                            <Typography fontWeight={600}>{t('home:footer.followUs')}</Typography>
                             <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
                                 <IconButton sx={{ color: "white" }} href="https://www.facebook.com/lopkstla16"><FacebookIcon /></IconButton>
                                 <IconButton sx={{ color: "white" }} href="http://instagram.com/t.v.anh1910/"><InstagramIcon /></IconButton>
@@ -259,7 +260,7 @@ const HomePage: React.FC = () => {
 
                     {/* Bottom line */}
                     <Box sx={{ borderTop: "1px solid #333", mt: 4, pt: 2, textAlign: "center", color: "gray" }}>
-                        © 2025 Dwello — All rights reserved
+                        {t('home:footer.copyright')}
                     </Box>
                 </Container>
             </Box>

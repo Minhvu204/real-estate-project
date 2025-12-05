@@ -189,7 +189,7 @@ const AssignAgentPage = () => {
                 ) : filteredAssignments.length === 0 ? (
                     <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white p-12 text-center shadow-sm">
                         <p className="text-lg font-medium text-slate-600">
-                            {`${t('assignAgent:notFoundWithStatus')} ${`filter === "all" ?  : filter ${t('assignAgent:all')}=== "pending" ? ${t('assignAgent:pending')} : filter === "accepted" ? ${t('assignAgent:accepted')} : ${t('assignAgent:rejected')}`}`}
+                            {`${t('assignAgent:notFoundWithStatus')} `}
                         </p>
                     </div>
                 ) : (
