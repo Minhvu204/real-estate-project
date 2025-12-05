@@ -321,7 +321,10 @@ export async function getPaymentsByBuyer(
 
   const dealIds = deals.map((d) => d._id);
 
-  const query: any = { deal_id: { $in: dealIds } };
+  const query: any = {
+    deal_id: { $in: dealIds },
+    initiated_by: new mongoose.Types.ObjectId(buyerId)
+  };
 
   if (dealId && mongoose.Types.ObjectId.isValid(dealId)) {
     query.deal_id = new mongoose.Types.ObjectId(dealId);

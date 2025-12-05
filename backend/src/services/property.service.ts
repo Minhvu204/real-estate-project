@@ -389,7 +389,7 @@ export const propertyService = {
         console.log(`[Property] Sử dụng tọa độ từ FE: [${lng}, ${lat}]`);
         finalCoordinates = {
           type: "Point",
-          coordinates: [lng!, lat!], // MongoDB bắt buộc thứ tự: [Longitude, Latitude]
+          coordinates: [lng!, lat!],
         };
       }
     }
