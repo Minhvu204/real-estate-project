@@ -28,9 +28,9 @@ git push -uf origin main
 
 - [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
 - [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+
+### 🚀 Team Workflow
+Xem hướng dẫn chi tiết quy trình Git tại đây: **[GUIDE_GIT_WORKFLOW.md](./GUIDE_GIT_WORKFLOW.md)**
 
 ## Test and Deploy
 
