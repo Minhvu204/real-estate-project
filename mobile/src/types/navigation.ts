@@ -29,6 +29,10 @@ export type RootStackParamList = {
   SellerAgentMain: NavigatorScreenParams<SellerAgentTabParamList>;
   PropertyDetails: { propertyId: string };
   EditProperty: { propertyId: string };
+  AgentList: undefined;
+  AgentDetail: { agentId: string };
+  AssignmentList: undefined;
+  PublicPropertyExplore: undefined;
 };
 
 // You can add global typical declarations to React Navigation here

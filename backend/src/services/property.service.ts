@@ -11,7 +11,7 @@ import mongoose from "mongoose";
 import { assignmentService } from "./assignment.service";
 import { createMultilangText } from "../utils/translateHelper";
 import { getFullAddress } from "../utils/addressHelper";
-import { notifyAgentRemoved } from "../utils/notificationHelper";
+import { notifyAgentRemoved, createNotification } from "../utils/notificationHelper";
 import { geocodeAddress } from "../utils/geocodingHelper";
 import { SearchCriteria } from "../types/searchCriteria";
 import Deal from "../models/deal.model";
@@ -231,6 +231,28 @@ export const propertyService = {
 
     property.agent_id = new mongoose.Types.ObjectId(agentId);
     await property.save();
+
+    // GỬI NOTIFICATION CHO AGENT ĐƯỢC GÁN
+    try {
+      if (options?.actorId) {
+        const owner = await User.findById(options.actorId).select("fullName").lean();
+        if (owner) {
+          await createNotification(
+            agentId,
+            "Bạn đã được gán quản lý property",
+            `${owner.fullName} đã gán bạn quản lý property "${property.title.vi}"`,
+            {
+              type: "property",
+              relatedId: String(property._id),
+              actionUrl: `/notifications/properties/${property._id}`,
+            }
+          );
+        }
+      }
+    } catch (notifyError) {
+      console.error("Failed to send notification in assignAgent:", notifyError);
+    }
+
     return property;
   },
 

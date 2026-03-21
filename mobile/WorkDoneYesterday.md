@@ -56,3 +56,21 @@ Căn cứ theo File Kế Hoạch (`readme.md`), hãy tiến hành:
 - Cập nhật Mapping dữ liệu từ Backend gửi về, hỗ trợ hiển thị địa chỉ đầy đủ (Full Address) và dọn dẹp các lỗi truy cập thuộc tính của `undefined`.
 
 ---
+
+## ✅ CẬP NHẬT CÔNG VIỆC NGÀY 21/03/2026 (WORK DONE TODAY)
+
+### 🚀 Tính năng Quản lý Yêu cầu (U008) - Đã sửa lỗi Logic
+- **Phân loại Đã nhận/Đã gửi**: 
+    - **Backend**: Thêm trường `createdBy` vào model `Assignment` để xác định chính xác ai là người khởi tạo yêu cầu (Seller gửi hay Agent gửi).
+    - **Mobile**: Cập nhật logic lọc tại `AssignmentListScreen.tsx`. Hiện tại Agent không còn thấy các yêu cầu mình tự gửi trong tab "Đã nhận", tránh tình trạng "tự gửi tự duyệt".
+- **Hỗ trợ hình ảnh**: Bổ sung `images` vào lệnh `populate` ở Backend và thêm hàm `getImageUrl` ở Mobile để hiển thị đúng ảnh thumbnail của Bất Động Sản trong danh sách yêu cầu.
+
+### 🛠️ Cải thiện UI/UX & Thông tin chi tiết
+- **Thông tin chủ sở hữu (Owner Info)**: Bổ sung mục hiển thị Avatar, Tên và nút Gọi điện/Nhắn tin trực tiếp cho chủ nhà trong `PropertyDetailScreen.tsx`.
+- **Sửa lỗi Render Agent List**: Thay thế các tag `div` (dành cho Web) bằng `View` trong `AgentListScreen.tsx` để khắc phục lỗi "Render Error" trên thiết bị thật và giả lập Android.
+
+### 🐞 Fix bug & Assets
+- **Đường dẫn Asset**: Sửa lỗi sai đường dẫn `../../../assets/default-avatar.png` trong các màn hình Seller thành `../../assets/` để Metro Bundler có thể resolve chính xác.
+- **Dữ liệu Chi tiết Agent**: Cập nhật TypeScript interface `Property` để hỗ trợ hiển thị thông tin Agent/Owner đã được populate đầy đủ từ Backend.
+
+---

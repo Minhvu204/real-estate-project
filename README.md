@@ -1,6 +1,6 @@
 # Real Estate Management Platform_4_6
 
-
+Làm dự án mobile App và Backend (làm việc với folder backend và mobile)
 
 ## Getting started
 

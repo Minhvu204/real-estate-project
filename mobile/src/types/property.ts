@@ -3,6 +3,15 @@ export interface I18nString {
   en: string;
 }
 
+export interface IUser {
+  _id: string;
+  fullName: string;
+  email: string;
+  phone?: string;
+  avatar?: string;
+  role: string;
+}
+
 export interface Property {
   id: string;
   _id?: string;
@@ -25,8 +34,8 @@ export interface Property {
   ward_id?: string;
   type_id?: string;
   category_id?: string;
-  owner_id?: string;
-  agent_id?: string;
+  owner_id?: string | IUser;
+  agent_id?: string | IUser;
 
   features?: string[]; // IDs
   images?: string[];

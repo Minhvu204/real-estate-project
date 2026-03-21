@@ -26,6 +26,7 @@ export const assignmentService = {
       agent_id: agentId,
       owner_id: ownerId,
       note,
+      createdBy: new mongoose.Types.ObjectId(ownerId),
     });
 
     // push assignmentHistory
@@ -60,7 +61,7 @@ export const assignmentService = {
     const query: any = { agent_id: agentId };
     if (filters.status) query.status = filters.status;
     return Assignment.find(query)
-      .populate("property_id", "title address price owner_id")
+      .populate("property_id", "title address price owner_id images")
       .populate("owner_id", "fullName email phone")
       .sort({ createdAt: -1 })
       .lean();
@@ -272,6 +273,7 @@ export const assignmentService = {
       agent_id: agentId,
       owner_id: ownerId,
       note,
+      createdBy: new mongoose.Types.ObjectId(agentId),
     });
 
     // Lưu lịch sử
@@ -320,7 +322,7 @@ export const assignmentService = {
     if (filters.status) query.status = filters.status;
 
     return Assignment.find(query)
-      .populate("property_id", "title address price agent_id")
+      .populate("property_id", "title address price agent_id images")
       .populate("agent_id", "fullName email phone")
       .sort({ createdAt: -1 })
       .lean();

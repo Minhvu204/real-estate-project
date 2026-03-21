@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface User {
   id: string;
+  _id?: string; // Add this for compatibility with MongoDB
   email: string;
   role: string;
   fullName?: string;

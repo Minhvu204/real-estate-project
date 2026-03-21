@@ -12,3 +12,14 @@ export const getAgentList = async (req: Request, res: Response) => {
 		return errorResponse(req, res, error.message || "Lỗi server", error.status || 500);
 	}
 };
+
+export const getAgentDetail = async (req: Request, res: Response) => {
+	try {
+		const { id } = req.params;
+		const result = await userService.getAgentById(id);
+		return successResponse(req, res, "Chi tiết agent", result);
+	} catch (error: any) {
+		console.error("getAgentDetail error:", error);
+		return errorResponse(req, res, error.message || "Lỗi server", error.status || 500);
+	}
+};

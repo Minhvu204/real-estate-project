@@ -10,14 +10,19 @@ import {
   FlatList,
   StyleSheet,
   Platform,
+  Linking,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
+import { useRoute, useNavigation, RouteProp, useIsFocused } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 import { RootStackParamList } from '../../types/navigation';
 import { usePropertyDetails } from '../../hooks/useProperties';
+import { useAssignmentMutations } from '../../hooks/useAssignments';
+import { RootState } from '../../store';
 import { Property } from '../../types/property';
+import { Alert } from 'react-native';
 
 type DetailRouteProp = RouteProp<RootStackParamList, 'PropertyDetails'>;
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -115,10 +120,12 @@ function InfoRow({ icon, label, value }: { icon: keyof typeof Ionicons.glyphMap;
 export default function PropertyDetailScreen() {
   const insets = useSafeAreaInsets();
   const route = useRoute<DetailRouteProp>();
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const { propertyId } = route.params;
+  const { user } = useSelector((state: RootState) => state.auth);
   const { data, isLoading, isError } = usePropertyDetails(propertyId);
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const { removeAgent, agentRequest } = useAssignmentMutations();
 
   if (isLoading) {
     return (
@@ -231,23 +238,144 @@ export default function PropertyDetailScreen() {
             } />
           </View>
 
+          {/* Agent Info Section */}
+          <View style={styles.divider} />
+          <Text style={styles.sectionTitle}>Môi giới quản lý</Text>
+          {property.agent_id ? (
+            <Pressable 
+              style={styles.agentCard}
+              onPress={() => navigation.navigate('AgentDetail' as any, { agentId: (property.agent_id as any)._id || property.agent_id })}
+            >
+              <Image 
+                source={(property.agent_id as any).avatar ? { uri: (property.agent_id as any).avatar } : require('../../assets/default-avatar.png')} 
+                style={styles.agentAvatar} 
+              />
+              <View style={styles.agentInfo}>
+                <Text style={styles.agentName}>{(property.agent_id as any).fullName}</Text>
+                <Text style={styles.agentRole}>Chuyên viên Môi giới</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
+            </Pressable>
+          ) : (
+            <View style={styles.noAgentBox}>
+              <Ionicons name="information-circle-outline" size={20} color="#94a3b8" />
+              <Text style={styles.noAgentText}>Bất động sản này chưa có môi giới quản lý.</Text>
+            </View>
+          )}
+
+          {/* Owner Info Section */}
+          <View style={styles.divider} />
+          <Text style={styles.sectionTitle}>Chủ sở hữu</Text>
+          {property.owner_id ? (
+            <View style={styles.agentCard}>
+              <Image 
+                source={(property.owner_id as any).avatar ? { uri: (property.owner_id as any).avatar } : require('../../assets/default-avatar.png')} 
+                style={styles.agentAvatar} 
+              />
+              <View style={styles.agentInfo}>
+                <Text style={styles.agentName}>{(property.owner_id as any).fullName || 'Người dùng hệ thống'}</Text>
+                <Text style={styles.agentRole}>Chủ bất động sản</Text>
+              </View>
+              {(property.owner_id as any).phone && (
+                <Pressable onPress={() => Linking.openURL(`tel:${(property.owner_id as any).phone}`)}>
+                  <Ionicons name="call" size={24} color="#22c55e" />
+                </Pressable>
+              )}
+            </View>
+          ) : (
+            <View style={styles.noAgentBox}>
+              <Ionicons name="information-circle-outline" size={20} color="#94a3b8" />
+              <Text style={styles.noAgentText}>Không có thông tin chủ sở hữu.</Text>
+            </View>
+          )}
+
           {/* Spacer for bottom action bar */}
-          <View style={{ height: 100 + insets.bottom }} />
+          <View style={{ height: 120 + insets.bottom }} />
         </View>
       </ScrollView>
 
       {/* Bottom Action Bar */}
       <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <Pressable style={styles.contactButton}>
-          <Ionicons name="call-outline" size={20} color="#fff" />
-          <Text style={styles.contactButtonText}>Liên Hệ Ngay</Text>
-        </Pressable>
-        <Pressable style={styles.appointmentButton}>
-          <Ionicons name="calendar-outline" size={20} color="#0ea5e9" />
-          <Text style={styles.appointmentButtonText}>Đặt Lịch Xem</Text>
-        </Pressable>
+        {renderActionButtons(property, user, navigation, removeAgent, agentRequest)}
       </View>
     </View>
+  );
+}
+
+// Helper function to render action buttons based on status & role
+function renderActionButtons(property: any, user: any, navigation: any, removeAgent: any, agentRequest: any) {
+  const isOwner = property.owner_id?._id === user?._id || property.owner_id === user?._id;
+  const isAgent = property.agent_id?._id === user?._id || property.agent_id === user?._id;
+  const hasAgent = !!property.agent_id;
+
+  if (isOwner) {
+    return (
+      <>
+        {hasAgent ? (
+          <Pressable 
+            style={[styles.actionButton, styles.removeBtn]} 
+            onPress={() => {
+              Alert.alert('Xác nhận', 'Bạn có chắc chắn muốn gỡ môi giới này khỏi BĐS?', [
+                { text: 'Hủy', style: 'cancel' },
+                { text: 'Gỡ', style: 'destructive', onPress: () => removeAgent.mutate(property._id) }
+              ]);
+            }}
+          >
+            <Ionicons name="person-remove-outline" size={20} color="#fff" />
+            <Text style={styles.actionBtnText}>Gỡ Môi giới</Text>
+          </Pressable>
+        ) : (
+          <Pressable 
+            style={[styles.actionButton, styles.primaryBtn]} 
+            onPress={() => navigation.navigate('AgentList')}
+          >
+            <Ionicons name="person-add-outline" size={20} color="#fff" />
+            <Text style={styles.actionBtnText}>Giao quản lý</Text>
+          </Pressable>
+        )}
+        <Pressable 
+          style={[styles.actionButton, styles.secondaryBtn]} 
+          onPress={() => navigation.navigate('EditProperty', { propertyId: property._id })}
+        >
+          <Ionicons name="create-outline" size={20} color="#0ea5e9" />
+          <Text style={[styles.actionBtnText, { color: '#0ea5e9' }]}>Chỉnh sửa</Text>
+        </Pressable>
+      </>
+    );
+  }
+
+  if (user?.role === 'agent' && !hasAgent) {
+    return (
+      <Pressable 
+        style={[styles.actionButton, styles.primaryBtn, { flex: 1 }]} 
+        onPress={() => {
+          Alert.alert('Yêu cầu quản lý', 'Bạn muốn gửi yêu cầu quản lý BĐS này cho chủ nhà?', [
+            { text: 'Hủy', style: 'cancel' },
+            { text: 'Gửi yêu cầu', onPress: () => agentRequest.mutate({ propertyId: property._id, note: 'Tôi muốn hợp tác quản lý BĐS này.' }) }
+          ]);
+        }}
+      >
+        <Ionicons name="hand-right-outline" size={20} color="#fff" />
+        <Text style={styles.actionBtnText}>Gửi yêu cầu quản lý</Text>
+      </Pressable>
+    );
+  }
+
+  // Default contact buttons for buyers/others
+  return (
+    <>
+      <Pressable style={styles.contactButton} onPress={() => {
+        const phone = property.agent_id?.phone || property.owner_id?.phone;
+        if (phone) Linking.openURL(`tel:${phone}`);
+      }}>
+        <Ionicons name="call-outline" size={20} color="#fff" />
+        <Text style={styles.contactButtonText}>Liên Hệ Ngay</Text>
+      </Pressable>
+      <Pressable style={styles.appointmentButton}>
+        <Ionicons name="calendar-outline" size={20} color="#0ea5e9" />
+        <Text style={styles.appointmentButtonText}>Đặt Lịch Xem</Text>
+      </Pressable>
+    </>
   );
 }
 
@@ -512,6 +640,71 @@ const styles = StyleSheet.create({
   appointmentButtonText: {
     color: '#0ea5e9',
     fontSize: 15,
+    fontWeight: '700',
+  },
+  agentCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
+    borderRadius: 16,
+    padding: 12,
+  },
+  agentAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#f1f5f9',
+  },
+  agentInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  agentName: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1e293b',
+  },
+  agentRole: {
+    fontSize: 12,
+    color: '#64748b',
+    marginTop: 2,
+  },
+  noAgentBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f8fafc',
+    padding: 12,
+    borderRadius: 12,
+    gap: 8,
+  },
+  noAgentText: {
+    fontSize: 13,
+    color: '#64748b',
+    fontStyle: 'italic',
+  },
+  actionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    height: 50,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 8,
+  },
+  primaryBtn: {
+    backgroundColor: '#0ea5e9',
+  },
+  secondaryBtn: {
+    backgroundColor: '#e0f2fe',
+  },
+  removeBtn: {
+    backgroundColor: '#ef4444',
+  },
+  actionBtnText: {
+    color: '#fff',
+    fontSize: 14,
     fontWeight: '700',
   },
 });

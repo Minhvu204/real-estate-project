@@ -10,6 +10,7 @@ export interface IAssignment extends Document {
   updatedAt: Date;
   actedBy?: mongoose.Types.ObjectId; // who accepted/rejected
   actedAt?: Date;
+  createdBy: mongoose.Types.ObjectId; // who initiated the request
 }
 
 const AssignmentSchema = new Schema(
@@ -21,6 +22,7 @@ const AssignmentSchema = new Schema(
     note: String,
     actedBy: { type: Schema.Types.ObjectId, ref: "User" },
     actedAt: Date,
+    createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
   },
   { timestamps: true }
 );

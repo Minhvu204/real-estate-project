@@ -87,4 +87,18 @@ export const userService = {
       data,
     };
   },
+
+  // Lấy chi tiết agent
+  async getAgentById(id: string) {
+    const agent = await User.findOne({ _id: id, role: "agent", isActive: true }).select("-password");
+    if (!agent) {
+      const err: any = new Error("Không tìm thấy môi giới hoặc tài khoản không hoạt động");
+      err.status = 404;
+      throw err;
+    }
+
+    // Có thể bổ sung thêm thống kê sơ bộ ở đây nếu cần (ví dụ số BĐS quản lý)
+    // Hiện tại chỉ trả về thông tin user cơ bản
+    return agent;
+  },
 };
