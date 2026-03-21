@@ -97,6 +97,30 @@ export const createProperty = async (req: Request, res: Response) => {
   }
 };
 
+// GET /api/client/seller/properties
+export const getMyProperties = async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    if (!user) {
+      return errorResponse(req, res, "Unauthorized", 401);
+    }
+
+    const { page = 1, limit = 10, status, keyword } = req.query;
+
+    const data = await propertyService.getPropertiesByOwnerOrAgent(user, {
+      page,
+      limit,
+      status,
+      keyword,
+    });
+
+    return successResponse(req, res, "Fetched your properties successfully", data);
+  } catch (error: any) {
+    console.error("getMyProperties error:", error);
+    return errorResponse(req, res, error.message || "Lỗi server", 500);
+  }
+};
+
 // AI tạo mô tả bất động sản
 export const generatePropertyDescription = async (req: Request, res: Response) => {
   try {

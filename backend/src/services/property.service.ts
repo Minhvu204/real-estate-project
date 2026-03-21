@@ -27,7 +27,13 @@ export const propertyService = {
       minPrice,
       maxPrice,
       keyword,
+      page = 1,
+      limit = 10,
     } = filters;
+
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 10;
+    const skip = (pageNum - 1) * limitNum;
 
     const query: any = {
       deleted: false,
@@ -47,26 +53,39 @@ export const propertyService = {
     }
     if (keyword) query["title.vi"] = { $regex: keyword, $options: "i" };
 
-    const propertyList = await Property.find(query)
-      .populate("city_id", "city_name")
-      .populate("district_id", "district_name")
-      .populate("ward_id", "ward_name")
-      .populate("category_id", "category_name")
-      .populate("type_id", "type_name")
-      .populate("owner_id", "fullName email phone avatar")
-      .populate("agent_id", "fullName email phone avatar")
-      .populate("features", "feature_name")
-      .populate("assignmentHistory.agent_id", "fullName email")
-      .populate("assignmentHistory.assignedBy", "fullName email")
-      .sort({ createdAt: -1 })
-      .lean();
+    const [items, total] = await Promise.all([
+      Property.find(query)
+        .populate("city_id", "city_name")
+        .populate("district_id", "district_name")
+        .populate("ward_id", "ward_name")
+        .populate("category_id", "category_name")
+        .populate("type_id", "type_name")
+        .populate("owner_id", "fullName email phone avatar")
+        .populate("agent_id", "fullName email phone avatar")
+        .populate("features", "feature_name")
+        .populate("assignmentHistory.agent_id", "fullName email")
+        .populate("assignmentHistory.assignedBy", "fullName email")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
 
-    const dataWithAddress = propertyList.map((p) => ({
+      Property.countDocuments(query),
+    ]);
+
+    const dataWithAddress = items.map((p) => ({
       ...p,
       fullAddress: getFullAddress(p, "vi"),
     }));
 
-    return { data: dataWithAddress };
+    return {
+      pagination: {
+        currentPage: pageNum,
+        totalPages: Math.ceil(total / limitNum),
+        totalItems: total,
+      },
+      data: dataWithAddress,
+    };
   },
 
   // Lấy property theo owner hoặc agent
@@ -419,8 +438,24 @@ export const propertyService = {
       }
     }
 
+    // Parse numbers because FormData sends strings
+    const priceNum = Number(data.price);
+    const areaNum = Number(data.area);
+    const bedroomsNum = Number(data.bedrooms) || 0;
+    const bathroomsNum = Number(data.bathrooms) || 0;
+    const floorsNum = Number(data.floors) || 1;
+    const yearBuiltNum = data.yearBuilt ? Number(data.yearBuilt) : undefined;
+
+    // Ensure features is an array (multer/form-data with 1 item might be a string)
+    let featuresArray = features;
+    if (typeof features === 'string') {
+      featuresArray = [features];
+    } else if (!Array.isArray(features)) {
+      featuresArray = [];
+    }
+
     // Tạo property mới
-    const property = await Property.create({
+    const propertyData: any = {
       ...rest,
       title: titleMultilang,
       description:
@@ -428,17 +463,29 @@ export const propertyService = {
           ? descriptionMultilang
           : undefined,
       address: addressMultilang,
+      price: priceNum,
+      area: areaNum,
+      bedrooms: bedroomsNum,
+      bathrooms: bathroomsNum,
+      floors: floorsNum,
+      yearBuilt: yearBuiltNum,
       city_id,
       district_id,
       ward_id,
       category_id,
       type_id,
-      features,
+      features: featuresArray,
       owner_id: new mongoose.Types.ObjectId(ownerId),
       status: "pending",
       deleted: false,
-      coordinates: finalCoordinates,
-    });
+    };
+
+    // Chỉ gán coordinates nếu có dữ liệu hợp lệ
+    if (finalCoordinates) {
+      propertyData.coordinates = finalCoordinates;
+    }
+
+    const property = await Property.create(propertyData);
 
     if (agent_id) {
       await assignmentService.createRequest(

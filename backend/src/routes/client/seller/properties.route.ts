@@ -5,6 +5,7 @@ import { roleCheck } from "../../../middlewares/roleCheck.middleware";
 import {
   createProperty,
   generatePropertyDescription,
+  getMyProperties,
   removeAgentFromProperty,
 } from "../../../controllers/client/seller/property.controller";
 import { createAssignmentRequest } from "../../../controllers/client/seller/assignment.controller";
@@ -14,6 +15,15 @@ import { uploadMultipleToCloudinary } from "../../../middlewares/uploadMultipleT
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
+
+
+// Lấy danh sách property cá nhân (owner hoặc agent)
+router.get(
+  "/",
+  verifyToken,
+  roleCheck("seller", "agent"),
+  getMyProperties
+);
 
 
 // Seller gui yêu cầu quan li propety cho agent

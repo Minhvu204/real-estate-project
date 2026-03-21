@@ -80,11 +80,10 @@ const PropertySchema = new Schema<IProperty>(
     coordinates: {
       type: {
         type: String,
-        enum: ['Point'], // Chỉ chấp nhận kiểu 'Point'
-        default: 'Point',
+        enum: ['Point'],
       },
       coordinates: {
-        type: [Number], // Một mảng các con số [lng, lat]
+        type: [Number], // [lng, lat]
       },
     },
 
