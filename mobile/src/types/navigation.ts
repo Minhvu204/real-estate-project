@@ -23,9 +23,10 @@ export type SellerAgentTabParamList = {
   Profile: undefined;
 };
 
-/** U006 — Admin xem danh sách người dùng + lọc role */
+/** U006 — users; U026 — reviews */
 export type AdminTabParamList = {
   AdminUsers: undefined;
+  AdminReviews: undefined;
   Notifications: undefined;
   Profile: undefined;
 };
@@ -41,6 +42,7 @@ export type RootStackParamList = {
   AgentDetail: { agentId: string };
   AssignmentList: undefined;
   PublicPropertyExplore: undefined;
+  AdminReviewDetail: { reviewId: string };
 };
 
 // You can add global typical declarations to React Navigation here
