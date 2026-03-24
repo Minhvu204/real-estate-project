@@ -34,8 +34,16 @@ export const useAuth = () => {
       // Intentionally not showing Alert here because we will navigate to VerifyEmail screen
     },
     onError: (error: any) => {
-      const message = error?.response?.data?.message || 'Registration failed!';
-      Alert.alert('Error', message);
+      const apiMsg = error?.response?.data?.message;
+      const netMsg =
+        error?.message === 'Network Error'
+          ? 'Không kết nối được server. Kiểm tra Wi‑Fi, IP trong mobile/.env (EXPO_PUBLIC_API_URL), và backend đang chạy.'
+          : error?.code === 'ECONNABORTED'
+            ? 'Request quá lâu (timeout). Kiểm tra backend và mạng.'
+            : null;
+      const message =
+        (typeof apiMsg === 'string' && apiMsg) || netMsg || error?.message || 'Đăng ký thất bại.';
+      Alert.alert('Lỗi', message);
     }
   });
 
