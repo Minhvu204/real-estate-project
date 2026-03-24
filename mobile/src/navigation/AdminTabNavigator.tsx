@@ -3,7 +3,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { AdminTabParamList } from "../types/navigation";
 import AdminUsersScreen from "../screens/admin/AdminUsersScreen";
-import AdminReviewsScreen from "../screens/admin/AdminReviewsScreen";
+import AdminPropertyStackNavigator from "./AdminPropertyStackNavigator";
+import AdminReviewsStackNavigator from "./AdminReviewsStackNavigator";
 import ProfileScreen from "../screens/common/ProfileScreen";
 import { NotificationScreen } from "../screens/common/NotificationScreen";
 import { useNotifications } from "../hooks/useNotifications";
@@ -27,10 +28,20 @@ export default function AdminTabNavigator() {
         }}
       />
       <Tab.Screen
-        name="AdminReviews"
-        component={AdminReviewsScreen}
+        name="AdminListingModeration"
+        component={AdminPropertyStackNavigator}
         options={{
-          tabBarLabel: "Đánh giá",
+          tabBarLabel: "Bài đăng",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="document-text-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="AdminBuyerReviews"
+        component={AdminReviewsStackNavigator}
+        options={{
+          tabBarLabel: "Review buyer",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="chatbubble-ellipses-outline" size={size} color={color} />
           ),

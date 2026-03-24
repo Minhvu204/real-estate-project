@@ -23,10 +23,22 @@ export type SellerAgentTabParamList = {
   Profile: undefined;
 };
 
-/** U006 — users; U026 — reviews */
+/** U011 — kiểm duyệt bài đăng (stack riêng) */
+export type AdminPropertyStackParamList = {
+  AdminPropertyModeration: undefined;
+};
+
+/** U026 — quản lý review buyer (stack riêng, không gộp với U011) */
+export type AdminReviewsStackParamList = {
+  AdminReviewsList: undefined;
+  AdminReviewDetail: { reviewId: string };
+};
+
+/** Tab admin: mỗi nghiệp vụ một tab + stack nội bộ khi cần */
 export type AdminTabParamList = {
   AdminUsers: undefined;
-  AdminReviews: undefined;
+  AdminListingModeration: NavigatorScreenParams<AdminPropertyStackParamList>;
+  AdminBuyerReviews: NavigatorScreenParams<AdminReviewsStackParamList>;
   Notifications: undefined;
   Profile: undefined;
 };
@@ -42,7 +54,6 @@ export type RootStackParamList = {
   AgentDetail: { agentId: string };
   AssignmentList: undefined;
   PublicPropertyExplore: undefined;
-  AdminReviewDetail: { reviewId: string };
 };
 
 // You can add global typical declarations to React Navigation here

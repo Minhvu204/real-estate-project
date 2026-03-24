@@ -8,35 +8,47 @@ import {
   Pressable,
   StyleSheet,
   ScrollView,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, CompositeNavigationProp } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import {
-  useAdminReviewsPage,
-  ADMIN_REVIEWS_PAGE_SIZE,
-} from "../../hooks/useAdminReviews";
-import { AdminReviewListItem } from "../../components/admin/AdminReviewListItem";
-import type { AdminReviewListRow, AdminReviewStatusFilter } from "../../types/adminReview";
-import type { AdminReviewsStackParamList } from "../../types/navigation";
+  useAdminPropertiesPage,
+  ADMIN_PROPERTIES_PAGE_SIZE,
+  useAdminPropertyStatusMutation,
+} from "../../hooks/useAdminProperties";
+import { AdminPropertyModerationItem } from "../../components/admin/AdminPropertyModerationItem";
+import type { AdminPropertyListRow, AdminPropertyStatusFilter } from "../../types/adminProperty";
+import type {
+  AdminPropertyStackParamList,
+  RootStackParamList,
+} from "../../types/navigation";
 
-const STATUS_OPTIONS: { key: AdminReviewStatusFilter; label: string }[] = [
-  { key: "all", label: "Tất cả" },
+const STATUS_OPTIONS: { key: AdminPropertyStatusFilter; label: string }[] = [
   { key: "pending", label: "Chờ duyệt" },
+  { key: "all", label: "Tất cả" },
   { key: "approved", label: "Đã duyệt" },
   { key: "rejected", label: "Từ chối" },
 ];
 
-type Nav = NativeStackNavigationProp<
-  AdminReviewsStackParamList,
-  "AdminReviewsList"
+type Nav = CompositeNavigationProp<
+  NativeStackNavigationProp<
+    AdminPropertyStackParamList,
+    "AdminPropertyModeration"
+  >,
+  NativeStackNavigationProp<RootStackParamList>
 >;
 
-export default function AdminReviewsScreen() {
+/**
+ * U011 — Kiểm duyệt bài đăng (tách khỏi quản lý review buyer).
+ * Nằm trong stack tab “Bài đăng”.
+ */
+export default function AdminPropertyModerationScreen() {
   const navigation = useNavigation<Nav>();
   const [statusFilter, setStatusFilter] =
-    useState<AdminReviewStatusFilter>("all");
+    useState<AdminPropertyStatusFilter>("pending");
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -50,7 +62,13 @@ export default function AdminReviewsScreen() {
     isPlaceholderData,
     refetch,
     error,
-  } = useAdminReviewsPage(statusFilter, currentPage);
+  } = useAdminPropertiesPage(statusFilter, currentPage);
+
+  const statusMutation = useAdminPropertyStatusMutation();
+  const busyId =
+    statusMutation.isPending && statusMutation.variables
+      ? statusMutation.variables.propertyId
+      : null;
 
   const rows = useMemo(() => data?.data ?? [], [data]);
   const pagination = data?.pagination;
@@ -60,29 +78,62 @@ export default function AdminReviewsScreen() {
   const canNext = currentPage < totalPages;
 
   const keyExtractor = useCallback(
-    (item: AdminReviewListRow) => String(item._id),
+    (item: AdminPropertyListRow) => String(item._id),
     []
   );
 
   const openDetail = useCallback(
-    (item: AdminReviewListRow) => {
-      navigation.navigate("AdminReviewDetail", { reviewId: String(item._id) });
+    (item: AdminPropertyListRow) => {
+      navigation.navigate("PropertyDetails", {
+        propertyId: String(item._id),
+      });
     },
     [navigation]
   );
 
+  const confirmReject = useCallback(
+    (item: AdminPropertyListRow) => {
+      const id = String(item._id);
+      Alert.alert(
+        "Từ chối bài đăng",
+        "Người đăng sẽ nhận thông báo. Tiếp tục?",
+        [
+          { text: "Hủy", style: "cancel" },
+          {
+            text: "Từ chối",
+            style: "destructive",
+            onPress: () =>
+              statusMutation.mutate({ propertyId: id, status: "rejected" }),
+          },
+        ]
+      );
+    },
+    [statusMutation]
+  );
+
   const renderItem = useCallback(
-    ({ item }: { item: AdminReviewListRow }) => (
-      <AdminReviewListItem item={item} onPress={() => openDetail(item)} />
+    ({ item }: { item: AdminPropertyListRow }) => (
+      <AdminPropertyModerationItem
+        item={item}
+        busy={busyId === String(item._id)}
+        onApprove={() =>
+          statusMutation.mutate({
+            propertyId: String(item._id),
+            status: "approved",
+          })
+        }
+        onReject={() => confirmReject(item)}
+        onOpenDetail={() => openDetail(item)}
+      />
     ),
-    [openDetail]
+    [busyId, statusMutation, confirmReject, openDetail]
   );
 
   if (isLoading && !data) {
     return (
       <SafeAreaView style={styles.center} edges={["top"]}>
         <ActivityIndicator size="large" color="#1e3a8a" />
-        <Text style={styles.muted}>Đang tải đánh giá…</Text>
+        <Text style={styles.muted}>Đang tải danh sách bài đăng…</Text>
       </SafeAreaView>
     );
   }
@@ -94,11 +145,11 @@ export default function AdminReviewsScreen() {
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Đánh giá (Buyer)</Text>
+        <Text style={styles.title}>Kiểm duyệt bài đăng</Text>
         <Text style={styles.subtitle}>
           {typeof total === "number"
-            ? `Tổng ${total} đánh giá · ${ADMIN_REVIEWS_PAGE_SIZE} mỗi trang`
-            : "U026 — Ẩn / bỏ ẩn / xóa đánh giá"}
+            ? `Tổng ${total} bài · ${ADMIN_PROPERTIES_PAGE_SIZE} mỗi trang`
+            : "U011 — Phê duyệt / từ chối trước khi công khai"}
         </Text>
       </View>
 
@@ -134,7 +185,7 @@ export default function AdminReviewsScreen() {
           </Text>
           <Text style={styles.errorText}>
             {isForbidden
-              ? "Chỉ admin mới xem được danh sách này."
+              ? "Chỉ admin mới dùng được màn hình này."
               : errMsg ||
                 "Kiểm tra kết nối và EXPO_PUBLIC_API_URL trong mobile/.env."}
           </Text>
@@ -160,8 +211,12 @@ export default function AdminReviewsScreen() {
             ListEmptyComponent={
               !isFetching ? (
                 <View style={styles.empty}>
-                  <Ionicons name="chatbubbles-outline" size={48} color="#94a3b8" />
-                  <Text style={styles.emptyText}>Không có đánh giá phù hợp.</Text>
+                  <Ionicons name="folder-open-outline" size={48} color="#94a3b8" />
+                  <Text style={styles.emptyText}>
+                    {statusFilter === "pending"
+                      ? "Không có bài nào chờ duyệt."
+                      : "Không có bài đăng phù hợp bộ lọc."}
+                  </Text>
                 </View>
               ) : null
             }

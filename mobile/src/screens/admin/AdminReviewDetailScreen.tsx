@@ -9,18 +9,29 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
+import {
+  RouteProp,
+  useNavigation,
+  useRoute,
+  CompositeNavigationProp,
+} from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import {
   useAdminReviewDetailQuery,
   useAdminReviewMutations,
 } from "../../hooks/useAdminReviews";
-import type { RootStackParamList } from "../../types/navigation";
+import type {
+  AdminReviewsStackParamList,
+  RootStackParamList,
+} from "../../types/navigation";
 import type { AdminReviewDetail } from "../../types/adminReview";
 
-type Route = RouteProp<RootStackParamList, "AdminReviewDetail">;
-type Nav = NativeStackNavigationProp<RootStackParamList, "AdminReviewDetail">;
+type Route = RouteProp<AdminReviewsStackParamList, "AdminReviewDetail">;
+type Nav = CompositeNavigationProp<
+  NativeStackNavigationProp<AdminReviewsStackParamList, "AdminReviewDetail">,
+  NativeStackNavigationProp<RootStackParamList>
+>;
 
 function propertyIdFromDetail(d: AdminReviewDetail): string | null {
   if (d.target_type !== "property") return null;
