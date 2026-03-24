@@ -47,6 +47,9 @@ export type AdminReviewsPageResponse = {
 
 export type AdminReviewStatusFilter = "all" | ReviewModerationStatus;
 
+/** Lọc theo thứ được đánh giá — khớp query `target_type` backend */
+export type AdminReviewTargetFilter = "all" | ReviewTargetType;
+
 /** Chi tiết: backend gắn thêm `target` (property/agent đầy đủ hơn) */
 export type AdminReviewDetail = AdminReviewListRow & {
   target?: unknown;

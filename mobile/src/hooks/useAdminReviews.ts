@@ -12,7 +12,10 @@ import {
   patchAdminReviewHide,
   patchAdminReviewUnhide,
 } from "../services/adminReviewService";
-import type { AdminReviewStatusFilter } from "../types/adminReview";
+import type {
+  AdminReviewStatusFilter,
+  AdminReviewTargetFilter,
+} from "../types/adminReview";
 
 export const ADMIN_REVIEWS_PAGE_SIZE = 10;
 
@@ -28,16 +31,25 @@ function mutationErrorMessage(err: unknown): string {
 
 export function useAdminReviewsPage(
   statusFilter: AdminReviewStatusFilter,
+  targetFilter: AdminReviewTargetFilter,
   page: number
 ) {
-  const statusParam =
-    statusFilter === "all" ? undefined : statusFilter;
+  const statusParam = statusFilter === "all" ? undefined : statusFilter;
+  const targetParam = targetFilter === "all" ? undefined : targetFilter;
 
   return useQuery({
-    queryKey: ["admin", "reviews", "page", statusParam ?? "all", page],
+    queryKey: [
+      "admin",
+      "reviews",
+      "page",
+      targetParam ?? "all",
+      statusParam ?? "all",
+      page,
+    ],
     queryFn: () =>
       fetchAdminReviews({
         status: statusParam,
+        target_type: targetParam,
         page,
         limit: ADMIN_REVIEWS_PAGE_SIZE,
       }),

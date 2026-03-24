@@ -7,6 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
@@ -17,6 +18,7 @@ import {
 } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import {
   useAdminReviewDetailQuery,
   useAdminReviewMutations,
@@ -25,7 +27,9 @@ import type {
   AdminReviewsStackParamList,
   RootStackParamList,
 } from "../../types/navigation";
-import type { AdminReviewDetail } from "../../types/adminReview";
+import type { AdminReviewDetail, ReviewModerationStatus } from "../../types/adminReview";
+
+const ACCENT = "#1e3a8a";
 
 type Route = RouteProp<AdminReviewsStackParamList, "AdminReviewDetail">;
 type Nav = CompositeNavigationProp<
@@ -57,12 +61,62 @@ function agentIdFromDetail(d: AdminReviewDetail): string | null {
   return null;
 }
 
+function targetLabelVi(t: string): string {
+  switch (t) {
+    case "property":
+      return "Bất động sản";
+    case "agent":
+      return "Môi giới";
+    case "project":
+      return "Dự án";
+    default:
+      return t;
+  }
+}
+
+function statusLabelVi(s: ReviewModerationStatus): string {
+  switch (s) {
+    case "pending":
+      return "Chờ duyệt";
+    case "approved":
+      return "Đã duyệt";
+    case "rejected":
+      return "Từ chối";
+    default:
+      return s;
+  }
+}
+
+function heroThumbUri(d: AdminReviewDetail): string | null {
+  const t = d.target_id;
+  if (!t || typeof t !== "object") return null;
+  if (d.target_type === "property") {
+    const first = Array.isArray(t.images) ? t.images[0] : null;
+    return typeof first === "string" && first.length > 0 ? first : null;
+  }
+  if (d.target_type === "agent" && t.avatar) return String(t.avatar);
+  return null;
+}
+
+function formatDate(iso?: string): string | null {
+  if (!iso) return null;
+  const x = new Date(iso);
+  if (Number.isNaN(x.getTime())) return null;
+  return x.toLocaleString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export default function AdminReviewDetailScreen() {
   const navigation = useNavigation<Nav>();
   const { params } = useRoute<Route>();
   const reviewId = params.reviewId;
 
-  const { data, isLoading, isError, error, refetch } =
+  const { data, isLoading, isError, refetch } =
     useAdminReviewDetailQuery(reviewId);
 
   const { hideMutation, unhideMutation, deleteMutation } = useAdminReviewMutations(
@@ -78,6 +132,7 @@ export default function AdminReviewDetailScreen() {
     [data]
   );
   const agentId = useMemo(() => (data ? agentIdFromDetail(data) : null), [data]);
+  const heroUri = useMemo(() => (data ? heroThumbUri(data) : null), [data]);
 
   const confirmDelete = () => {
     Alert.alert(
@@ -97,7 +152,7 @@ export default function AdminReviewDetailScreen() {
   if (isLoading || !data) {
     return (
       <SafeAreaView style={styles.center} edges={["top"]}>
-        <ActivityIndicator size="large" color="#1e3a8a" />
+        <ActivityIndicator size="large" color={ACCENT} />
         <Text style={styles.muted}>Đang tải chi tiết…</Text>
         {isError ? (
           <Pressable style={styles.retryBtn} onPress={() => refetch()}>
@@ -114,6 +169,7 @@ export default function AdminReviewDetailScreen() {
       : "—";
   const commentVi = data.comment?.vi?.trim() || "";
   const commentEn = data.comment?.en?.trim() || "";
+  const created = formatDate(data.createdAt);
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
@@ -132,29 +188,63 @@ export default function AdminReviewDetailScreen() {
       <ScrollView
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        <View style={styles.card}>
-          <Text style={styles.label}>Người đánh giá</Text>
-          <Text style={styles.value}>{reviewer}</Text>
-          <Text style={styles.label}>Điểm</Text>
-          <Text style={styles.value}>{data.rating} / 5</Text>
-          <Text style={styles.label}>Loại mục tiêu</Text>
-          <Text style={styles.value}>{data.target_type}</Text>
-          <Text style={styles.label}>Trạng thái</Text>
-          <Text style={styles.value}>{data.status}</Text>
-          <Text style={styles.label}>Ẩn khỏi công khai</Text>
-          <Text style={styles.value}>{data.is_hidden ? "Có" : "Không"}</Text>
-          <Text style={styles.label}>Nội dung (VI)</Text>
-          <Text style={styles.block}>{commentVi || "—"}</Text>
-          <Text style={styles.label}>Nội dung (EN)</Text>
-          <Text style={styles.block}>{commentEn || "—"}</Text>
-          {data.rejection_reason ? (
-            <>
-              <Text style={styles.label}>Lý do từ chối</Text>
-              <Text style={styles.block}>{data.rejection_reason}</Text>
-            </>
-          ) : null}
+        <View style={styles.heroCard}>
+          {heroUri ? (
+            <Image source={{ uri: heroUri }} style={styles.heroImg} contentFit="cover" />
+          ) : (
+            <View style={styles.heroPlaceholder}>
+              <Ionicons name="chatbubble-ellipses" size={40} color="#94a3b8" />
+            </View>
+          )}
+          <View style={styles.heroOverlay}>
+            <View style={styles.heroBadge}>
+              <Text style={styles.heroBadgeText}>{targetLabelVi(data.target_type)}</Text>
+            </View>
+            <Text style={styles.heroRating}>{data.rating} / 5 sao</Text>
+            {created ? (
+              <Text style={styles.heroDate}>{created}</Text>
+            ) : null}
+          </View>
         </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Người đánh giá</Text>
+          <Text style={styles.sectionBody}>{reviewer}</Text>
+        </View>
+
+        <View style={styles.rowCards}>
+          <View style={[styles.miniCard, { borderLeftColor: "#2563eb" }]}>
+            <Text style={styles.miniLabel}>Trạng thái</Text>
+            <Text style={styles.miniValue}>{statusLabelVi(data.status)}</Text>
+          </View>
+          <View style={[styles.miniCard, { borderLeftColor: "#64748b" }]}>
+            <Text style={styles.miniLabel}>Ẩn công khai</Text>
+            <Text style={styles.miniValue}>{data.is_hidden ? "Có" : "Không"}</Text>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Nội dung (Tiếng Việt)</Text>
+          <View style={styles.quote}>
+            <Text style={styles.quoteText}>{commentVi || "—"}</Text>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Nội dung (English)</Text>
+          <View style={styles.quote}>
+            <Text style={styles.quoteText}>{commentEn || "—"}</Text>
+          </View>
+        </View>
+
+        {data.rejection_reason ? (
+          <View style={[styles.section, styles.warnBox]}>
+            <Text style={styles.sectionTitle}>Lý do từ chối</Text>
+            <Text style={styles.sectionBody}>{data.rejection_reason}</Text>
+          </View>
+        ) : null}
 
         {propertyId ? (
           <Pressable
@@ -163,8 +253,14 @@ export default function AdminReviewDetailScreen() {
               navigation.navigate("PropertyDetails", { propertyId })
             }
           >
-            <Ionicons name="home-outline" size={20} color="#1e3a8a" />
-            <Text style={styles.linkBtnText}>Mở bất động sản</Text>
+            <View style={styles.linkIconWrap}>
+              <Ionicons name="home-outline" size={22} color={ACCENT} />
+            </View>
+            <View style={styles.linkTextCol}>
+              <Text style={styles.linkTitle}>Xem tin đăng</Text>
+              <Text style={styles.linkSub}>Mở trang bất động sản</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
           </Pressable>
         ) : null}
 
@@ -173,8 +269,14 @@ export default function AdminReviewDetailScreen() {
             style={styles.linkBtn}
             onPress={() => navigation.navigate("AgentDetail", { agentId })}
           >
-            <Ionicons name="person-outline" size={20} color="#1e3a8a" />
-            <Text style={styles.linkBtnText}>Mở hồ sơ môi giới</Text>
+            <View style={[styles.linkIconWrap, { backgroundColor: "#f3e8ff" }]}>
+              <Ionicons name="person-outline" size={22} color="#7c3aed" />
+            </View>
+            <View style={styles.linkTextCol}>
+              <Text style={styles.linkTitle}>Hồ sơ môi giới</Text>
+              <Text style={styles.linkSub}>Xem trang đại diện</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
           </Pressable>
         ) : null}
 
@@ -188,7 +290,10 @@ export default function AdminReviewDetailScreen() {
               {unhideMutation.isPending ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.actionBtnText}>Bỏ ẩn</Text>
+                <>
+                  <Ionicons name="eye-outline" size={20} color="#fff" />
+                  <Text style={styles.actionBtnText}>Hiển thị lại</Text>
+                </>
               )}
             </Pressable>
           ) : (
@@ -200,7 +305,10 @@ export default function AdminReviewDetailScreen() {
               {hideMutation.isPending ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.actionBtnText}>Ẩn đánh giá</Text>
+                <>
+                  <Ionicons name="eye-off-outline" size={20} color="#fff" />
+                  <Text style={styles.actionBtnText}>Ẩn khỏi công khai</Text>
+                </>
               )}
             </Pressable>
           )}
@@ -212,7 +320,10 @@ export default function AdminReviewDetailScreen() {
             {deleteMutation.isPending ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.actionBtnText}>Xóa vĩnh viễn</Text>
+              <>
+                <Ionicons name="trash-outline" size={20} color="#fff" />
+                <Text style={styles.actionBtnText}>Xóa vĩnh viễn</Text>
+              </>
             )}
           </Pressable>
         </View>
@@ -222,81 +333,153 @@ export default function AdminReviewDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f8fafc" },
+  container: { flex: 1, backgroundColor: "#f1f5f9" },
   center: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#f1f5f9",
   },
   muted: { marginTop: 8, color: "#64748b" },
   toolbar: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 8,
-    paddingVertical: 8,
+    paddingVertical: 10,
+    backgroundColor: "#fff",
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: "#e2e8f0",
-    backgroundColor: "#fff",
   },
   backBtn: { padding: 8 },
   toolbarTitle: {
     flex: 1,
     textAlign: "center",
     fontSize: 17,
-    fontWeight: "700",
+    fontWeight: "800",
     color: "#0f172a",
   },
   toolbarSpacer: { width: 40 },
-  scroll: { padding: 16, paddingBottom: 32 },
-  card: {
+  scroll: { padding: 16, paddingBottom: 40 },
+  heroCard: {
+    borderRadius: 20,
+    overflow: "hidden",
     backgroundColor: "#fff",
-    borderRadius: 12,
+    marginBottom: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#0f172a",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 14,
+      },
+      android: { elevation: 4 },
+    }),
+  },
+  heroImg: { width: "100%", height: 160 },
+  heroPlaceholder: {
+    height: 140,
+    backgroundColor: "#e2e8f0",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  heroOverlay: {
     padding: 16,
+    backgroundColor: "#fff",
+  },
+  heroBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: "#e0e7ff",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+  },
+  heroBadgeText: { fontSize: 12, fontWeight: "800", color: ACCENT },
+  heroRating: {
+    marginTop: 10,
+    fontSize: 22,
+    fontWeight: "800",
+    color: "#0f172a",
+  },
+  heroDate: { marginTop: 4, fontSize: 13, color: "#64748b" },
+  section: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
     borderWidth: 1,
     borderColor: "#e2e8f0",
   },
-  label: {
-    marginTop: 12,
-    fontSize: 12,
-    fontWeight: "600",
+  sectionTitle: {
+    fontSize: 11,
+    fontWeight: "800",
     color: "#64748b",
     textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 8,
   },
-  value: { fontSize: 16, color: "#0f172a", marginTop: 4, fontWeight: "600" },
-  block: {
-    fontSize: 15,
-    color: "#334155",
-    marginTop: 6,
-    lineHeight: 22,
+  sectionBody: { fontSize: 16, color: "#0f172a", lineHeight: 24, fontWeight: "600" },
+  quote: {
+    backgroundColor: "#f8fafc",
+    borderRadius: 12,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
   },
+  quoteText: { fontSize: 15, color: "#334155", lineHeight: 23 },
+  rowCards: { flexDirection: "row", gap: 10, marginBottom: 12 },
+  miniCard: {
+    flex: 1,
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderLeftWidth: 4,
+  },
+  miniLabel: { fontSize: 11, fontWeight: "700", color: "#64748b" },
+  miniValue: { marginTop: 6, fontSize: 15, fontWeight: "800", color: "#0f172a" },
+  warnBox: { borderColor: "#fecaca", backgroundColor: "#fef2f2" },
   linkBtn: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    marginTop: 16,
-    paddingVertical: 14,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    gap: 12,
+  },
+  linkIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 14,
     backgroundColor: "#e0e7ff",
-    borderRadius: 10,
-  },
-  linkBtnText: { fontSize: 15, fontWeight: "700", color: "#1e3a8a" },
-  actions: { marginTop: 20, gap: 12 },
-  actionBtn: {
-    paddingVertical: 14,
-    borderRadius: 10,
     alignItems: "center",
+    justifyContent: "center",
   },
-  actionBtnText: { color: "#fff", fontWeight: "700", fontSize: 16 },
+  linkTextCol: { flex: 1 },
+  linkTitle: { fontSize: 16, fontWeight: "700", color: "#0f172a" },
+  linkSub: { fontSize: 12, color: "#64748b", marginTop: 2 },
+  actions: { marginTop: 8, gap: 12 },
+  actionBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    paddingVertical: 16,
+    borderRadius: 14,
+  },
+  actionBtnText: { color: "#fff", fontWeight: "800", fontSize: 16 },
   hideBtn: { backgroundColor: "#475569" },
   unhideBtn: { backgroundColor: "#15803d" },
   deleteBtn: { backgroundColor: "#b91c1c" },
   retryBtn: {
     marginTop: 16,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: "#1e3a8a",
-    borderRadius: 8,
+    paddingHorizontal: 22,
+    paddingVertical: 12,
+    backgroundColor: ACCENT,
+    borderRadius: 12,
   },
   retryText: { color: "#fff", fontWeight: "600" },
 });
