@@ -7,7 +7,8 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
-  StyleSheet
+  StyleSheet,
+  TouchableOpacity
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Formik } from 'formik';
@@ -121,7 +122,50 @@ export default function RegisterScreen() {
                         touched={touched.password}
                       />
 
-                      <Text style={styles.roleNote}>* Mặc định đăng ký tài khoản Người mua</Text>
+                      <View style={styles.roleContainer}>
+                        <Text style={styles.label}>Bạn đăng ký với vai trò:</Text>
+                        <View style={styles.roleOptions}>
+                          <TouchableOpacity
+                            onPress={() => handleChange('role')('buyer')}
+                            style={[
+                              styles.roleItem,
+                              values.role === 'buyer' && styles.roleActive
+                            ]}
+                            activeOpacity={0.7}
+                          >
+                            <View style={[
+                              styles.radio,
+                              values.role === 'buyer' && styles.radioActive
+                            ]}>
+                              {values.role === 'buyer' && <View style={styles.radioInner} />}
+                            </View>
+                            <Text style={[
+                              styles.roleText,
+                              values.role === 'buyer' && styles.roleTextActive
+                            ]}>Người mua</Text>
+                          </TouchableOpacity>
+
+                          <TouchableOpacity
+                            onPress={() => handleChange('role')('seller')}
+                            style={[
+                              styles.roleItem,
+                              values.role === 'seller' && styles.roleActive
+                            ]}
+                            activeOpacity={0.7}
+                          >
+                            <View style={[
+                              styles.radio,
+                              values.role === 'seller' && styles.radioActive
+                            ]}>
+                              {values.role === 'seller' && <View style={styles.radioInner} />}
+                            </View>
+                            <Text style={[
+                              styles.roleText,
+                              values.role === 'seller' && styles.roleTextActive
+                            ]}>Người bán</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
 
                       <View style={{ marginTop: 10 }}>
                         <CustomButton
@@ -192,11 +236,63 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 3,
   },
-  roleNote: {
-    color: '#9ca3af',
-    fontStyle: 'italic',
-    fontSize: 12,
-    marginBottom: 16,
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#374151',
+    marginBottom: 8,
+  },
+  roleContainer: {
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  roleOptions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  roleItem: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderWidth: 1.5,
+    borderColor: '#e5e7eb',
+    borderRadius: 12,
+    backgroundColor: '#f9fafb',
+  },
+  roleActive: {
+    borderColor: '#1e3a8a',
+    backgroundColor: '#eff6ff',
+  },
+  radio: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#d1d5db',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  },
+  radioActive: {
+    borderColor: '#1e3a8a',
+  },
+  radioInner: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#1e3a8a',
+  },
+  roleText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#6b7280',
+  },
+  roleTextActive: {
+    color: '#1e3a8a',
+    fontWeight: '700',
   },
   footer: {
     flexDirection: 'row',

@@ -49,12 +49,12 @@ export default function VerifyEmailScreen() {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View className="flex-1 justify-center px-6">
             <View className="mb-10">
-              <Text className="text-3xl font-extrabold text-primary mb-2">Verify Email ✉️</Text>
+              <Text className="text-3xl font-extrabold text-primary mb-2">Xác thực Email ✉️</Text>
               <Text className="text-gray-500 text-base">
-                We sent a 6-digit code to {email}
+                Chúng tôi đã gửi mã OTP gồm 6 chữ số đến {email}
               </Text>
             </View>
-
+ 
             <Formik
               initialValues={{ otp: '' }}
               validationSchema={VerifySchema}
@@ -63,8 +63,8 @@ export default function VerifyEmailScreen() {
               {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
                 <View>
                   <CustomTextInput
-                    label="OTP Code"
-                    placeholder="Enter 6-digit code"
+                    label="Mã OTP"
+                    placeholder="Nhập mã 6 chữ số"
                     keyboardType="number-pad"
                     maxLength={6}
                     onChangeText={handleChange('otp')}
@@ -73,10 +73,10 @@ export default function VerifyEmailScreen() {
                     error={errors.otp}
                     touched={touched.otp}
                   />
-
+ 
                   <View className="mt-4">
                     <CustomButton
-                      title="Verify Account"
+                      title="Xác nhận tài khoản"
                       loading={isVerifying}
                       onPress={() => handleSubmit()}
                     />
@@ -84,11 +84,11 @@ export default function VerifyEmailScreen() {
                 </View>
               )}
             </Formik>
-
+ 
             <View className="flex-col items-center mt-6">
-              <Text className="text-gray-600 mb-2">Didn't receive the code?</Text>
+              <Text className="text-gray-600 mb-2">Bạn không nhận được mã?</Text>
               <CustomButton
-                title="Resend Code"
+                title="Gửi lại mã"
                 outline
                 loading={isResendingOtp}
                 onPress={handleResend}
@@ -97,7 +97,7 @@ export default function VerifyEmailScreen() {
                 className="text-gray-500 underline mt-4"
                 onPress={() => navigation.goBack()}
               >
-                Back to Sign Up
+                Quay lại Đăng ký
               </Text>
             </View>
           </View>

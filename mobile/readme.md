@@ -34,6 +34,9 @@ STT	Code	User Story	Priority	Sprint	Epic
 28	U028	Là buyer, tôi muốn xem tổng quan về agent	Medium	Sprint 4	Reviews
 29	U029	Là admin, tôi muốn xem biểu đồ hiệu suất của từng Agent/Seller trên dashboard (số leads, giao dịch, doanh thu).	Medium	Sprint 4	Reports
 
+## Sử dụng skills
+- sử dụng các skills trong folder .agents/skills để áp dụng vào làm cho hiệu quả
+
 ## Quy trình làm việc để chuẩn xác việc lấy dữ liệu và hiểu đúng các thuộc tính của model:
  -Khi làm api nào thì bạn phải coi folder router --> controller --> services --> model(tìm các model tương ứng) trong folder backend để biết rõ các thuộc tính trong folder model.
  -Khi làm các User story thì nên để ý thử tính năng đó có cần thông báo hay không để tạo thông báo bằng cách đọc file ở folder backend/src/utils/notificationHelper.ts để thực hiện tính năng thông báo.
