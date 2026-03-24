@@ -23,10 +23,18 @@ export type SellerAgentTabParamList = {
   Profile: undefined;
 };
 
+/** U006 — Admin xem danh sách người dùng + lọc role */
+export type AdminTabParamList = {
+  AdminUsers: undefined;
+  Notifications: undefined;
+  Profile: undefined;
+};
+
 export type RootStackParamList = {
   Auth: NavigatorScreenParams<AuthStackParamList>;
   BuyerMain: NavigatorScreenParams<BuyerTabParamList>;
   SellerAgentMain: NavigatorScreenParams<SellerAgentTabParamList>;
+  AdminMain: NavigatorScreenParams<AdminTabParamList>;
   PropertyDetails: { propertyId: string };
   EditProperty: { propertyId: string };
   AgentList: undefined;

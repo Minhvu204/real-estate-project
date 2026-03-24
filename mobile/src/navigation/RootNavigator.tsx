@@ -8,6 +8,7 @@ import { RootStackParamList } from '../types/navigation';
 import AuthNavigator from './AuthNavigator';
 import BuyerTabNavigator from './BuyerTabNavigator';
 import SellerAgentTabNavigator from './SellerAgentTabNavigator';
+import AdminTabNavigator from './AdminTabNavigator';
 import PropertyDetailScreen from '../screens/property/PropertyDetailScreen';
 import EditPropertyScreen from '../screens/seller/EditPropertyScreen';
 import AgentListScreen from '../screens/seller/AgentListScreen';
@@ -21,6 +22,9 @@ export default function RootNavigator() {
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
 
   const getRoleNavigator = () => {
+    if (user?.role === 'admin') {
+      return <Stack.Screen name="AdminMain" component={AdminTabNavigator} />;
+    }
     if (user?.role === 'seller' || user?.role === 'agent') {
       return <Stack.Screen name="SellerAgentMain" component={SellerAgentTabNavigator} />;
     }
