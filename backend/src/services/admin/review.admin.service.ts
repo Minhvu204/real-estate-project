@@ -33,7 +33,8 @@ export const adminReviewService = {
         .populate("user_id", "fullName email avatar")
         .populate({
           path: "target_id",
-          select: "title address fullName email avatar",
+          // `images` cho property; agent/user vẫn có avatar (không có images trên User)
+          select: "title address fullName email avatar images",
         })
         .sort(sort)
         .skip((page - 1) * limit)

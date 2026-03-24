@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import type { AdminReviewListRow, ReviewModerationStatus } from "../../types/adminReview";
 
@@ -58,6 +59,20 @@ function statusLabel(s: ReviewModerationStatus): string {
   }
 }
 
+/** Ảnh BĐS (images[0]) hoặc avatar môi giới — khớp dữ liệu populate từ API */
+function listThumbUri(item: AdminReviewListRow): string | null {
+  const t = item.target_id;
+  if (!t || typeof t !== "object") return null;
+  if (item.target_type === "property") {
+    const first = Array.isArray(t.images) ? t.images[0] : null;
+    return typeof first === "string" && first.length > 0 ? first : null;
+  }
+  if (item.target_type === "agent" && t.avatar && String(t.avatar).length > 0) {
+    return String(t.avatar);
+  }
+  return null;
+}
+
 function Stars({ rating }: { rating: number }) {
   const n = Math.min(5, Math.max(0, Math.round(Number(rating) || 0)));
   return (
@@ -76,6 +91,7 @@ function Stars({ rating }: { rating: number }) {
 
 export function AdminReviewListItem({ item, onPress }: AdminReviewListItemProps) {
   const st = statusStyle(item.status);
+  const thumbUri = useMemo(() => listThumbUri(item), [item]);
   const comment =
     item.comment?.vi?.trim() ||
     item.comment?.en?.trim() ||
@@ -88,20 +104,42 @@ export function AdminReviewListItem({ item, onPress }: AdminReviewListItemProps)
       onPress={onPress}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
-      <View style={styles.topRow}>
-        <Text style={styles.reviewer} numberOfLines={1}>
-          {reviewerName(item)}
-        </Text>
-        {item.is_hidden ? (
-          <View style={styles.hiddenBadge}>
-            <Text style={styles.hiddenText}>Đã ẩn</Text>
+      <View style={styles.mediaRow}>
+        {thumbUri ? (
+          <Image
+            source={{ uri: thumbUri }}
+            style={styles.thumb}
+            contentFit="cover"
+            transition={150}
+          />
+        ) : (
+          <View style={styles.thumbPlaceholder}>
+            <Ionicons
+              name={
+                item.target_type === "agent" ? "person-outline" : "home-outline"
+              }
+              size={28}
+              color="#94a3b8"
+            />
           </View>
-        ) : null}
+        )}
+        <View style={styles.mediaBody}>
+          <View style={styles.topRow}>
+            <Text style={styles.reviewer} numberOfLines={1}>
+              {reviewerName(item)}
+            </Text>
+            {item.is_hidden ? (
+              <View style={styles.hiddenBadge}>
+                <Text style={styles.hiddenText}>Đã ẩn</Text>
+              </View>
+            ) : null}
+          </View>
+          <Stars rating={item.rating} />
+          <Text style={styles.target} numberOfLines={2}>
+            {targetSummary(item)}
+          </Text>
+        </View>
       </View>
-      <Stars rating={item.rating} />
-      <Text style={styles.target} numberOfLines={2}>
-        {targetSummary(item)}
-      </Text>
       <Text style={styles.preview} numberOfLines={3}>
         {preview}
       </Text>
@@ -130,6 +168,22 @@ const styles = StyleSheet.create({
     borderColor: "#e2e8f0",
   },
   pressed: { opacity: 0.92 },
+  mediaRow: { flexDirection: "row", gap: 12, alignItems: "flex-start" },
+  thumb: {
+    width: 72,
+    height: 72,
+    borderRadius: 8,
+    backgroundColor: "#f1f5f9",
+  },
+  thumbPlaceholder: {
+    width: 72,
+    height: 72,
+    borderRadius: 8,
+    backgroundColor: "#f1f5f9",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  mediaBody: { flex: 1, minWidth: 0 },
   topRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -150,7 +204,7 @@ const styles = StyleSheet.create({
   },
   hiddenText: { fontSize: 11, fontWeight: "700", color: "#475569" },
   starsRow: { flexDirection: "row", marginTop: 6, gap: 2 },
-  target: { fontSize: 13, color: "#475569", marginTop: 8 },
+  target: { fontSize: 13, color: "#475569", marginTop: 6 },
   preview: { fontSize: 14, color: "#334155", marginTop: 6, lineHeight: 20 },
   statusChip: {
     alignSelf: "flex-start",
