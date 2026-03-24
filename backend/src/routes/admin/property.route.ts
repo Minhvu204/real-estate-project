@@ -11,8 +11,13 @@ import { roleCheck } from "../../middlewares/roleCheck.middleware";
 
 const router = express.Router();
 
-// [GET] Danh sách cho admin
-router.get("", adminListProperties);
+// [GET] Danh sách cho admin — chỉ admin (JWT)
+router.get(
+  "",
+  verifyToken,
+  roleCheck("admin"),
+  adminListProperties
+);
 
 router.get("/:id", verifyToken, roleCheck("admin"), getPropertyById);
 
