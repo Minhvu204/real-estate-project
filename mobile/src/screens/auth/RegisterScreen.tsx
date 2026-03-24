@@ -23,7 +23,7 @@ const RegisterSchema = Yup.object().shape({
     .email('Email không hợp lệ')
     .required('Vui lòng nhập email'),
   password: Yup.string()
-    .min(6, 'Mật khẩu tối thiểu 6 ký tự')
+    .min(8, 'Mật khẩu tối thiểu 8 ký tự (giống yêu cầu server)')
     .required('Vui lòng nhập mật khẩu'),
   role: Yup.string().oneOf(['buyer', 'agent', 'seller']).required('Vui lòng chọn vai trò'),
 });

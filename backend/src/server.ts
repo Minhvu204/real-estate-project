@@ -30,7 +30,7 @@ const startServer = async () => {
       console.log("Socket.IO server ready."); // Thêm log cho socket
     });
   } catch (error) {
-    console.error("Failed to start server:", error);
+    console.error("Failed to start server (thường do MongoDB chưa kết nối được):", error);
     process.exit(1);
   }
 };

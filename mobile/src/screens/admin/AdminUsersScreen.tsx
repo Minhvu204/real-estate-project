@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useAdminUsers } from "../../hooks/useAdminUsers";
+import { useAdminUsersPage, ADMIN_USERS_PAGE_SIZE } from "../../hooks/useAdminUsers";
 import { AdminUserListItem } from "../../components/admin/AdminUserListItem";
 import type { AdminUserRow } from "../../types/adminUser";
 
@@ -27,30 +27,27 @@ export default function AdminUsersScreen() {
   const [roleFilter, setRoleFilter] = useState<
     "all" | "buyer" | "seller" | "agent" | "admin"
   >("all");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [roleFilter]);
 
   const {
     data,
     isLoading,
-    isRefetching,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
+    isFetching,
+    isPlaceholderData,
     refetch,
     error,
-  } = useAdminUsers(roleFilter);
+  } = useAdminUsersPage(roleFilter, currentPage);
 
-  const users = useMemo(
-    () => data?.pages.flatMap((p) => p.results) ?? [],
-    [data]
-  );
-
-  const total = data?.pages[0]?.meta.totalUsers;
-
-  const onEndReached = useCallback(() => {
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+  const users = useMemo(() => data?.results ?? [], [data]);
+  const meta = data?.meta;
+  const total = meta?.totalUsers;
+  const totalPages = Math.max(1, meta?.totalPages ?? 1);
+  const canPrev = currentPage > 1;
+  const canNext = currentPage < totalPages;
 
   const renderItem = useCallback(
     ({ item }: { item: AdminUserRow }) => (
@@ -80,7 +77,7 @@ export default function AdminUsersScreen() {
         <Text style={styles.title}>Người dùng hệ thống</Text>
         <Text style={styles.subtitle}>
           {typeof total === "number"
-            ? `Tổng ${total} tài khoản`
+            ? `Tổng ${total} tài khoản · ${ADMIN_USERS_PAGE_SIZE} mỗi trang`
             : "Lọc theo vai trò để xem chi tiết"}
         </Text>
       </View>
@@ -126,32 +123,69 @@ export default function AdminUsersScreen() {
           </Pressable>
         </View>
       ) : (
-        <FlatList
-          data={users}
-          keyExtractor={keyExtractor}
-          renderItem={renderItem}
-          contentContainerStyle={styles.listContent}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefetching && !isFetchingNextPage}
-              onRefresh={refetch}
-              colors={["#1e3a8a"]}
-            />
-          }
-          onEndReached={onEndReached}
-          onEndReachedThreshold={0.4}
-          ListFooterComponent={
-            isFetchingNextPage ? (
-              <ActivityIndicator style={{ marginVertical: 16 }} color="#1e3a8a" />
-            ) : null
-          }
-          ListEmptyComponent={
-            <View style={styles.empty}>
-              <Ionicons name="people-outline" size={48} color="#94a3b8" />
-              <Text style={styles.emptyText}>Không có người dùng phù hợp.</Text>
+        <>
+          <FlatList
+            style={styles.listFlex}
+            data={users}
+            keyExtractor={keyExtractor}
+            renderItem={renderItem}
+            contentContainerStyle={styles.listContent}
+            refreshControl={
+              <RefreshControl
+                refreshing={isFetching && !isLoading && !isPlaceholderData}
+                onRefresh={refetch}
+                colors={["#1e3a8a"]}
+              />
+            }
+            ListEmptyComponent={
+              !isFetching ? (
+                <View style={styles.empty}>
+                  <Ionicons name="people-outline" size={48} color="#94a3b8" />
+                  <Text style={styles.emptyText}>Không có người dùng phù hợp.</Text>
+                </View>
+              ) : null
+            }
+          />
+          <View style={styles.paginationBar}>
+            <Pressable
+              onPress={() => canPrev && setCurrentPage((p) => p - 1)}
+              style={[styles.pageBtn, !canPrev && styles.pageBtnDisabled]}
+              disabled={!canPrev || isFetching}
+            >
+              <Ionicons
+                name="chevron-back"
+                size={22}
+                color={canPrev ? "#1e3a8a" : "#94a3b8"}
+              />
+              <Text style={[styles.pageBtnText, !canPrev && styles.pageBtnTextDisabled]}>
+                Trước
+              </Text>
+            </Pressable>
+            <View style={styles.pageInfo}>
+              {isFetching ? (
+                <ActivityIndicator size="small" color="#1e3a8a" />
+              ) : (
+                <Text style={styles.pageInfoText}>
+                  Trang {currentPage} / {totalPages}
+                </Text>
+              )}
             </View>
-          }
-        />
+            <Pressable
+              onPress={() => canNext && setCurrentPage((p) => p + 1)}
+              style={[styles.pageBtn, !canNext && styles.pageBtnDisabled]}
+              disabled={!canNext || isFetching}
+            >
+              <Text style={[styles.pageBtnText, !canNext && styles.pageBtnTextDisabled]}>
+                Sau
+              </Text>
+              <Ionicons
+                name="chevron-forward"
+                size={22}
+                color={canNext ? "#1e3a8a" : "#94a3b8"}
+              />
+            </Pressable>
+          </View>
+        </>
       )}
     </SafeAreaView>
   );
@@ -185,7 +219,49 @@ const styles = StyleSheet.create({
   chipActive: { backgroundColor: "#1e3a8a" },
   chipText: { fontSize: 13, fontWeight: "600", color: "#475569" },
   chipTextActive: { color: "#fff" },
-  listContent: { paddingHorizontal: 16, paddingBottom: 24 },
+  listFlex: { flex: 1 },
+  listContent: { paddingHorizontal: 16, paddingBottom: 8, flexGrow: 1 },
+  paginationBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingBottom: 16,
+    backgroundColor: "#fff",
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: "#e2e8f0",
+  },
+  pageBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: "#e0e7ff",
+    gap: 4,
+  },
+  pageBtnDisabled: {
+    backgroundColor: "#f1f5f9",
+  },
+  pageBtnText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#1e3a8a",
+  },
+  pageBtnTextDisabled: {
+    color: "#94a3b8",
+  },
+  pageInfo: {
+    minWidth: 120,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pageInfoText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#334155",
+  },
   empty: { alignItems: "center", paddingVertical: 48 },
   emptyText: { marginTop: 8, color: "#64748b", fontSize: 15 },
   errorBox: {

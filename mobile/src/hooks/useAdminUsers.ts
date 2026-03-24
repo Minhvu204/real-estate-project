@@ -1,26 +1,22 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { fetchAdminUsers } from "../services/adminUserService";
 import type { AdminUserRole } from "../types/adminUser";
 
-const PAGE_SIZE = 15;
+export const ADMIN_USERS_PAGE_SIZE = 10;
 
 type RoleFilter = AdminUserRole | "all";
 
-export function useAdminUsers(roleFilter: RoleFilter) {
+export function useAdminUsersPage(roleFilter: RoleFilter, page: number) {
   const roleParam = roleFilter === "all" ? undefined : roleFilter;
 
-  return useInfiniteQuery({
-    queryKey: ["admin", "users", roleParam ?? "all"],
-    initialPageParam: 1,
-    queryFn: ({ pageParam }) =>
+  return useQuery({
+    queryKey: ["admin", "users", "page", roleParam ?? "all", page],
+    queryFn: () =>
       fetchAdminUsers({
         role: roleParam,
-        page: pageParam as number,
-        limit: PAGE_SIZE,
+        page,
+        limit: ADMIN_USERS_PAGE_SIZE,
       }),
-    getNextPageParam: (lastPage) => {
-      const { currentPage, totalPages } = lastPage.meta;
-      return currentPage < totalPages ? currentPage + 1 : undefined;
-    },
+    placeholderData: keepPreviousData,
   });
 }
