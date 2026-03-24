@@ -122,13 +122,13 @@ export default function AdminReviewsScreen() {
             <Text style={styles.title}>Đánh giá từ người mua</Text>
             <Text style={styles.subtitle}>
               {typeof total === "number"
-                ? `${total} đánh giá · ${ADMIN_REVIEWS_PAGE_SIZE} / trang`
-                : "Kiểm soát nội dung hiển thị công khai"}
+                ? `${total} đánh giá (chỉ tài khoản buyer) · ${ADMIN_REVIEWS_PAGE_SIZE} / trang`
+                : "Chỉ review do role buyer gửi — kiểm soát nội dung hiển thị"}
             </Text>
           </View>
         </View>
         <Text style={styles.hintBanner}>
-          Ẩn hoặc xóa khi vi phạm. Lọc theo tin đăng / môi giới để xử lý nhanh.
+          Không gồm đánh giá từ seller/agent/admin. Ẩn / xóa khi vi phạm; lọc theo BĐS hoặc môi giới.
         </Text>
       </View>
 

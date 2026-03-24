@@ -13,7 +13,10 @@ export const listReviews = async (req: Request, res: Response) => {
 
 export const getReviewDetail = async (req: Request, res: Response) => {
   try {
-    const result = await adminReviewService.getReviewDetail(req.params.id);
+    const reviewer_role = req.query.reviewer_role as string | undefined;
+    const result = await adminReviewService.getReviewDetail(req.params.id, {
+      restrictReviewerRole: reviewer_role,
+    });
     return successResponse(req, res, "Lấy chi tiết review thành công", result);
   } catch (err: any) {
     return errorResponse(req, res, err.message, err.status || 500);
@@ -23,7 +26,10 @@ export const getReviewDetail = async (req: Request, res: Response) => {
 
 export const hideReview = async (req: Request, res: Response) => {
   try {
-    const review = await adminReviewService.hide(req.params.id);
+    const reviewer_role = req.query.reviewer_role as string | undefined;
+    const review = await adminReviewService.hide(req.params.id, {
+      restrictReviewerRole: reviewer_role,
+    });
     return successResponse(req, res, "Ẩn review thành công", review);
   } catch (err: any) {
     return errorResponse(req, res, err.message, err.status || 500);
@@ -32,7 +38,10 @@ export const hideReview = async (req: Request, res: Response) => {
 
 export const unhideReview = async (req: Request, res: Response) => {
   try {
-    const review = await adminReviewService.unhide(req.params.id);
+    const reviewer_role = req.query.reviewer_role as string | undefined;
+    const review = await adminReviewService.unhide(req.params.id, {
+      restrictReviewerRole: reviewer_role,
+    });
     return successResponse(req, res, "Bỏ ẩn review thành công", review);
   } catch (err: any) {
     return errorResponse(req, res, err.message, err.status || 500);
@@ -41,7 +50,10 @@ export const unhideReview = async (req: Request, res: Response) => {
 
 export const deleteReview = async (req: Request, res: Response) => {
   try {
-    await adminReviewService.delete(req.params.id);
+    const reviewer_role = req.query.reviewer_role as string | undefined;
+    await adminReviewService.delete(req.params.id, {
+      restrictReviewerRole: reviewer_role,
+    });
     return successResponse(req, res, "Xóa review thành công", null);
   } catch (err: any) {
     return errorResponse(req, res, err.message, err.status || 500);

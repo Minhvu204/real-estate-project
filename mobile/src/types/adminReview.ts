@@ -7,6 +7,8 @@ export type AdminReviewUserRef = {
   fullName?: string;
   email?: string;
   avatar?: string;
+  /** Người viết review — U026 chỉ hiển thị review từ role `buyer` */
+  role?: string;
 };
 
 /** target_id sau populate — property có title object; agent có fullName */
