@@ -23,10 +23,17 @@ export type SellerAgentTabParamList = {
   Profile: undefined;
 };
 
+export type AdminTabParamList = {
+  Users: undefined;
+  Notifications: undefined;
+  Profile: undefined;
+};
+
 export type RootStackParamList = {
   Auth: NavigatorScreenParams<AuthStackParamList>;
   BuyerMain: NavigatorScreenParams<BuyerTabParamList>;
   SellerAgentMain: NavigatorScreenParams<SellerAgentTabParamList>;
+  AdminMain: NavigatorScreenParams<AdminTabParamList>;
   PropertyDetails: { propertyId: string };
   EditProperty: { propertyId: string };
   AgentList: undefined;
