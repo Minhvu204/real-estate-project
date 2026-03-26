@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useAdminUsersPage, ADMIN_USERS_PAGE_SIZE } from "../../hooks/useAdminUsers";
+import { useAdminUsersPage, useUpdateUserStatus, ADMIN_USERS_PAGE_SIZE } from "../../hooks/useAdminUsers";
 import { AdminUserListItem } from "../../components/admin/AdminUserListItem";
 import type { AdminUserRow } from "../../types/adminUser";
 
@@ -42,6 +42,8 @@ export default function AdminUsersScreen() {
     error,
   } = useAdminUsersPage(roleFilter, currentPage);
 
+  const updateStatusMutation = useUpdateUserStatus();
+
   const users = useMemo(() => data?.results ?? [], [data]);
   const meta = data?.meta;
   const total = meta?.totalUsers;
@@ -49,11 +51,28 @@ export default function AdminUsersScreen() {
   const canPrev = currentPage > 1;
   const canNext = currentPage < totalPages;
 
+  const handleToggleStatus = useCallback(
+    (id: string, isActive: boolean) => {
+      updateStatusMutation.mutate({ id, isActive });
+    },
+    [updateStatusMutation]
+  );
+
   const renderItem = useCallback(
-    ({ item }: { item: AdminUserRow }) => (
-      <AdminUserListItem item={item} />
-    ),
-    []
+    ({ item }: { item: AdminUserRow }) => {
+      const isPending =
+        updateStatusMutation.isPending &&
+        (updateStatusMutation.variables as { id: string })?.id === item.id;
+
+      return (
+        <AdminUserListItem
+          item={item}
+          onToggleStatus={handleToggleStatus}
+          isPending={isPending}
+        />
+      );
+    },
+    [handleToggleStatus, updateStatusMutation.isPending, updateStatusMutation.variables]
   );
 
   const keyExtractor = useCallback((item: AdminUserRow) => String(item.id), []);

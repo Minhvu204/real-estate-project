@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, Pressable, Switch, ActivityIndicator, Alert } from "react-native";
 import { Image } from "expo-image";
 import type { AdminUserRow } from "../../types/adminUser";
 
@@ -13,24 +13,44 @@ const ROLE_LABELS: Record<string, string> = {
 type Props = {
   item: AdminUserRow;
   onPress?: (item: AdminUserRow) => void;
+  /** Callback khi toggle trạng thái khóa/mở khóa */
+  onToggleStatus?: (id: string, isActive: boolean) => void;
+  /** Mutation đang pending cho chính user này */
+  isPending?: boolean;
 };
 
-function AdminUserListItemInner({ item, onPress }: Props) {
+function AdminUserListItemInner({ item, onPress, onToggleStatus, isPending = false }: Props) {
   const roleLabel = ROLE_LABELS[item.role] ?? item.role;
   const active = item.isActive !== false;
 
+  const handleToggle = (locked: boolean) => {
+    const targetActive = !locked; // switch value = "bị khóa"
+    Alert.alert(
+      targetActive ? "Mở khóa tài khoản" : "Khóa tài khoản",
+      `Bạn có chắc chắn muốn ${targetActive ? "mở khóa" : "khóa"} tài khoản của ${item.fullName || item.email}?`,
+      [
+        { text: "Hủy", style: "cancel" },
+        {
+          text: "Đồng ý",
+          style: targetActive ? "default" : "destructive",
+          onPress: () => onToggleStatus?.(item.id, targetActive),
+        },
+      ]
+    );
+  };
+
   const content = (
-    <View style={styles.row}>
+    <View style={[styles.row, !active && styles.rowInactive]}>
       <Image
         source={
           item.avatar
             ? { uri: item.avatar }
             : require("../../../assets/default-avatar.png")
         }
-        style={styles.avatar}
+        style={[styles.avatar, !active && styles.dimmed]}
         contentFit="cover"
       />
-      <View style={styles.body}>
+      <View style={[styles.body, !active && styles.dimmed]}>
         <Text style={styles.name} numberOfLines={1}>
           {item.fullName}
         </Text>
@@ -53,6 +73,23 @@ function AdminUserListItemInner({ item, onPress }: Props) {
           </View>
         </View>
       </View>
+
+      {/* Toggle khóa/mở khóa */}
+      {onToggleStatus && (
+        <View style={styles.toggleContainer}>
+          {isPending ? (
+            <ActivityIndicator size="small" color="#1e3a8a" />
+          ) : (
+            <Switch
+              value={!active}
+              onValueChange={handleToggle}
+              disabled={isPending}
+              trackColor={{ false: "#e2e8f0", true: "#fb7185" }}
+              thumbColor={!active ? "#e11d48" : "#fff"}
+            />
+          )}
+        </View>
+      )}
     </View>
   );
 
@@ -72,12 +109,17 @@ export const AdminUserListItem = React.memo(AdminUserListItemInner);
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 12,
     paddingHorizontal: 4,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: "#e2e8f0",
   },
+  rowInactive: {
+    backgroundColor: "#fef2f2",
+  },
   pressed: { opacity: 0.85 },
+  dimmed: { opacity: 0.55 },
   avatar: {
     width: 48,
     height: 48,
@@ -99,4 +141,12 @@ const styles = StyleSheet.create({
   badgeInactive: { backgroundColor: "#fee2e2" },
   badgeText: { fontSize: 11, fontWeight: "600", color: "#1e40af" },
   badgeTextMuted: { fontSize: 11, fontWeight: "600", color: "#334155" },
+  toggleContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: 8,
+    paddingLeft: 12,
+    borderLeftWidth: StyleSheet.hairlineWidth,
+    borderLeftColor: "#e2e8f0",
+  },
 });

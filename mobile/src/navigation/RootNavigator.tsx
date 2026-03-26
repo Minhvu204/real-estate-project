@@ -15,6 +15,7 @@ import AgentListScreen from '../screens/seller/AgentListScreen';
 import AgentDetailScreen from '../screens/seller/AgentDetailScreen';
 import AssignmentListScreen from '../screens/common/AssignmentListScreen';
 import PublicPropertyExploreScreen from '../screens/agent/PublicPropertyExploreScreen';
+import AdminTabNavigator from './AdminTabNavigator';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
