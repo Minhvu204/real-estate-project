@@ -26,6 +26,7 @@ export type SellerAgentTabParamList = {
 /** U006 — Admin xem danh sách người dùng + lọc role; U011 — kiểm duyệt bài đăng */
 export type AdminTabParamList = {
   AdminUsers: undefined;
+  AdminCategories: undefined;
   AdminPropertyModeration: undefined;
   Notifications: undefined;
   Profile: undefined;

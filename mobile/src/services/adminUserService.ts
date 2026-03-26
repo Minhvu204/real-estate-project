@@ -1,5 +1,5 @@
 import { api } from "./api";
-import type { AdminUsersResponse, AdminUserRole } from "../types/adminUser";
+import type { AdminUsersResponse, AdminUserRole, AdminUserRow } from "../types/adminUser";
 
 export type AdminUsersParams = {
   role?: AdminUserRole | "";
@@ -30,4 +30,21 @@ export async function fetchAdminUsers(
     throw new Error("Dữ liệu người dùng không hợp lệ từ server.");
   }
   return payload;
+}
+
+/**
+ * PATCH /api/admin/users/:id/status
+ * Payload: { isActive: boolean }
+ * Khóa hoặc mở khóa tài khoản người dùng.
+ */
+export async function updateUserStatus(
+  id: string,
+  isActive: boolean
+): Promise<AdminUserRow> {
+  const response = await api.patch<{ success?: boolean; data?: AdminUserRow }>(
+    `/admin/users/${id}/status`,
+    { isActive }
+  );
+  // API có thể trả về { success, data } hoặc trực tiếp object
+  return response.data?.data ?? (response.data as unknown as AdminUserRow);
 }
