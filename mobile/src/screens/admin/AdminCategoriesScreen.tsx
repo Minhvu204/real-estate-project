@@ -36,7 +36,6 @@ export default function AdminCategoriesScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
   const [nameVi, setNameVi] = useState("");
-  const [nameEn, setNameEn] = useState("");
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const tabConfig = useMemo(
@@ -59,7 +58,6 @@ export default function AdminCategoriesScreen() {
   const openAddModal = useCallback(() => {
     setEditingItem(null);
     setNameVi("");
-    setNameEn("");
     setModalVisible(true);
   }, []);
 
@@ -68,7 +66,6 @@ export default function AdminCategoriesScreen() {
       setEditingItem(item);
       const name = item[tabConfig.nameKey];
       setNameVi(typeof name === "object" ? name.vi ?? "" : name ?? "");
-      setNameEn(typeof name === "object" ? name.en ?? "" : "");
       setModalVisible(true);
     },
     [tabConfig.nameKey]
@@ -82,13 +79,12 @@ export default function AdminCategoriesScreen() {
   /* ── Submit add/edit ── */
   const handleSubmit = useCallback(() => {
     const vi = nameVi.trim();
-    const en = nameEn.trim();
     if (!vi) {
       Alert.alert("Lỗi", "Tên tiếng Việt không được để trống.");
       return;
     }
 
-    const body = { [tabConfig.nameKey]: { vi, en: en || vi } };
+    const body = { [tabConfig.nameKey]: vi };
 
     if (editingItem) {
       updateMutation.mutate(
@@ -98,7 +94,7 @@ export default function AdminCategoriesScreen() {
     } else {
       createMutation.mutate(body, { onSuccess: closeModal });
     }
-  }, [nameVi, nameEn, tabConfig.nameKey, editingItem, updateMutation, createMutation, closeModal]);
+  }, [nameVi, tabConfig.nameKey, editingItem, updateMutation, createMutation, closeModal]);
 
   /* ── Delete ── */
   const handleDelete = useCallback(
@@ -260,14 +256,6 @@ export default function AdminCategoriesScreen() {
               value={nameVi}
               onChangeText={setNameVi}
               autoFocus
-            />
-
-            <Text style={styles.inputLabel}>Tên tiếng Anh</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Nhập tên tiếng Anh (tuỳ chọn)…"
-              value={nameEn}
-              onChangeText={setNameEn}
             />
 
             <View style={styles.modalActions}>
