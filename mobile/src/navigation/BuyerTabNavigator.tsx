@@ -7,12 +7,12 @@ import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { NotificationScreen } from '../screens/common/NotificationScreen';
 import { useNotifications } from '../hooks/useNotifications';
+import BuyerAppointmentsScreen from '../screens/buyer/BuyerAppointmentsScreen';
 
 const Tab = createBottomTabNavigator<BuyerTabParamList>();
 
-// Placeholders for Favorites and Appointments
+// Placeholder for Favorites
 const FavoritesScreenPlaceholder = () => <View className="flex-1 justify-center items-center"><Text>Favorites</Text></View>;
-const AppointmentsScreenPlaceholder = () => <View className="flex-1 justify-center items-center"><Text>Appointments</Text></View>;
 
 export default function BuyerTabNavigator() {
   const { unreadCountQuery } = useNotifications();
@@ -22,7 +22,7 @@ export default function BuyerTabNavigator() {
     <Tab.Navigator screenOptions={{ headerShown: false, tabBarActiveTintColor: '#3B82F6' }}>
       <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} /> }} />
       <Tab.Screen name="Favorites" component={FavoritesScreenPlaceholder} options={{ tabBarIcon: ({ color, size }) => <Ionicons name="heart" size={size} color={color} /> }} />
-      <Tab.Screen name="Appointments" component={AppointmentsScreenPlaceholder} options={{ tabBarIcon: ({ color, size }) => <Ionicons name="calendar" size={size} color={color} /> }} />
+      <Tab.Screen name="Appointments" component={BuyerAppointmentsScreen} options={{ tabBarLabel: 'Lịch hẹn', tabBarIcon: ({ color, size }) => <Ionicons name="calendar" size={size} color={color} /> }} />
       <Tab.Screen 
         name="Notifications" 
         component={NotificationScreen} 
