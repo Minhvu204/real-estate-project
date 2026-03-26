@@ -16,14 +16,20 @@ export default function AdminTabNavigator() {
   const unreadCount = unreadCountQuery.data || 0;
 
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false, tabBarActiveTintColor: "#1e3a8a" }}>
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: "#1e3a8a",
+        tabBarInactiveTintColor: "#64748b",
+      }}
+    >
       <Tab.Screen
         name="AdminUsers"
         component={AdminUsersScreen}
         options={{
-          tabBarLabel: "Người dùng",
+          tabBarLabel: "User",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="people" size={size} color={color} />
+            <Ionicons name="person-outline" size={size} color={color} />
           ),
         }}
       />
@@ -31,9 +37,9 @@ export default function AdminTabNavigator() {
         name="AdminListingModeration"
         component={AdminPropertyStackNavigator}
         options={{
-          tabBarLabel: "Bài đăng",
+          tabBarLabel: "Properties",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="document-text-outline" size={size} color={color} />
+            <Ionicons name="home-outline" size={size} color={color} />
           ),
         }}
       />
@@ -51,7 +57,7 @@ export default function AdminTabNavigator() {
         name="Notifications"
         component={NotificationScreen}
         options={{
-          tabBarLabel: "Thông báo",
+          tabBarLabel: "Notifications",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="notifications" size={size} color={color} />
           ),
@@ -67,9 +73,9 @@ export default function AdminTabNavigator() {
         name="Profile"
         component={ProfileScreen}
         options={{
-          tabBarLabel: "Hồ sơ",
+          tabBarLabel: "Settings",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
+            <Ionicons name="settings-outline" size={size} color={color} />
           ),
         }}
       />
