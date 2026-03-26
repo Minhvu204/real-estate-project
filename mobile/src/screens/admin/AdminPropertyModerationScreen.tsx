@@ -9,6 +9,7 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  TextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -16,6 +17,7 @@ import type { CompositeNavigationProp } from "@react-navigation/native";
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
 import {
   useAdminPropertiesPage,
   ADMIN_PROPERTIES_PAGE_SIZE,
@@ -24,6 +26,7 @@ import {
 import { AdminPropertyModerationItem } from "../../components/admin/AdminPropertyModerationItem";
 import type { AdminPropertyListRow, AdminPropertyStatusFilter } from "../../types/adminProperty";
 import type { AdminTabParamList, RootStackParamList } from "../../types/navigation";
+import { fetchAdminProperties } from "../../services/adminPropertyService";
 
 const STATUS_OPTIONS: { key: AdminPropertyStatusFilter; label: string }[] = [
   { key: "pending", label: "Chờ duyệt" },
@@ -42,6 +45,7 @@ export default function AdminPropertyModerationScreen() {
   const [statusFilter, setStatusFilter] =
     useState<AdminPropertyStatusFilter>("pending");
   const [currentPage, setCurrentPage] = useState(1);
+  const [keyword, setKeyword] = useState("");
 
   useEffect(() => {
     setCurrentPage(1);
@@ -63,11 +67,66 @@ export default function AdminPropertyModerationScreen() {
       : null;
 
   const rows = useMemo(() => data?.data ?? [], [data]);
+  const filteredRows = useMemo(() => {
+    const q = keyword.trim().toLowerCase();
+    if (!q) return rows;
+    return rows.filter((p) => {
+      const title =
+        p.title?.vi?.toLowerCase() || p.title?.en?.toLowerCase() || "";
+      const address =
+        p.address?.vi?.toLowerCase() || p.address?.en?.toLowerCase() || "";
+      const owner =
+        typeof p.owner_id === "object" && p.owner_id
+          ? (p.owner_id.fullName || p.owner_id.email || "").toLowerCase()
+          : "";
+      return title.includes(q) || address.includes(q) || owner.includes(q);
+    });
+  }, [rows, keyword]);
+
   const pagination = data?.pagination;
   const total = pagination?.total;
   const totalPages = Math.max(1, pagination?.totalPages ?? 1);
   const canPrev = currentPage > 1;
   const canNext = currentPage < totalPages;
+
+  const pendingCountQuery = useQuery({
+    queryKey: ["admin", "properties", "count", "pending"],
+    queryFn: async () => {
+      const res = await fetchAdminProperties({
+        status: "pending",
+        page: 1,
+        limit: 1,
+      });
+      return res.pagination.total;
+    },
+    staleTime: 60_000,
+  });
+
+  const approvedCountQuery = useQuery({
+    queryKey: ["admin", "properties", "count", "approved"],
+    queryFn: async () => {
+      const res = await fetchAdminProperties({
+        status: "approved",
+        page: 1,
+        limit: 1,
+      });
+      return res.pagination.total;
+    },
+    staleTime: 60_000,
+  });
+
+  const rejectedCountQuery = useQuery({
+    queryKey: ["admin", "properties", "count", "rejected"],
+    queryFn: async () => {
+      const res = await fetchAdminProperties({
+        status: "rejected",
+        page: 1,
+        limit: 1,
+      });
+      return res.pagination.total;
+    },
+    staleTime: 60_000,
+  });
 
   const keyExtractor = useCallback(
     (item: AdminPropertyListRow) => String(item._id),
@@ -137,12 +196,56 @@ export default function AdminPropertyModerationScreen() {
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Kiểm duyệt bài đăng</Text>
-        <Text style={styles.subtitle}>
-          {typeof total === "number"
-            ? `Tổng ${total} bài · ${ADMIN_PROPERTIES_PAGE_SIZE} mỗi trang`
-            : "U011 — Phê duyệt hoặc từ chối trước khi công khai"}
-        </Text>
+        <View style={styles.headerRow}>
+          <View style={styles.headerIcon}>
+            <Ionicons name="document-text-outline" size={20} color="#1e3a8a" />
+          </View>
+          <View style={styles.headerTextCol}>
+            <Text style={styles.title}>Properties Moderation</Text>
+            <Text style={styles.subtitle}>
+              Approve / reject listings before public
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.statsGrid}>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Pending</Text>
+            <Text style={styles.statValue}>
+              {typeof pendingCountQuery.data === "number"
+                ? pendingCountQuery.data.toLocaleString("en-US")
+                : "—"}
+            </Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Approved</Text>
+            <Text style={styles.statValue}>
+              {typeof approvedCountQuery.data === "number"
+                ? approvedCountQuery.data.toLocaleString("en-US")
+                : "—"}
+            </Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Rejected</Text>
+            <Text style={styles.statValue}>
+              {typeof rejectedCountQuery.data === "number"
+                ? rejectedCountQuery.data.toLocaleString("en-US")
+                : "—"}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.searchBar}>
+          <Ionicons name="search-outline" size={18} color="#94a3b8" />
+          <TextInput
+            value={keyword}
+            onChangeText={setKeyword}
+            placeholder="Search by title / address..."
+            placeholderTextColor="#94a3b8"
+            style={styles.searchInput}
+            autoCapitalize="none"
+          />
+        </View>
       </View>
 
       <ScrollView
@@ -189,7 +292,7 @@ export default function AdminPropertyModerationScreen() {
         <>
           <FlatList
             style={styles.listFlex}
-            data={rows}
+            data={filteredRows}
             keyExtractor={keyExtractor}
             renderItem={renderItem}
             contentContainerStyle={styles.listContent}
@@ -205,9 +308,11 @@ export default function AdminPropertyModerationScreen() {
                 <View style={styles.empty}>
                   <Ionicons name="folder-open-outline" size={48} color="#94a3b8" />
                   <Text style={styles.emptyText}>
-                    {statusFilter === "pending"
-                      ? "Không có bài nào chờ duyệt."
-                      : "Không có bài đăng phù hợp bộ lọc."}
+                    {keyword.trim()
+                      ? "No matches for your search."
+                      : statusFilter === "pending"
+                        ? "Không có bài nào chờ duyệt."
+                        : "Không có bài đăng phù hợp bộ lọc."}
                   </Text>
                 </View>
               ) : null
@@ -271,9 +376,69 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8fafc",
   },
   muted: { marginTop: 8, color: "#64748b", fontSize: 14 },
-  header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 12 },
-  title: { fontSize: 24, fontWeight: "800", color: "#0f172a" },
-  subtitle: { fontSize: 14, color: "#64748b", marginTop: 4 },
+  header: {
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 14,
+    backgroundColor: "#fff",
+    borderBottomLeftRadius: 22,
+    borderBottomRightRadius: 22,
+    shadowColor: "#0f172a",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.06,
+    shadowRadius: 16,
+    elevation: 3,
+    marginBottom: 8,
+  },
+  headerRow: { flexDirection: "row", gap: 12, alignItems: "center" },
+  headerIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: "#e0e7ff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerTextCol: { flex: 1, minWidth: 0 },
+  title: { fontSize: 22, fontWeight: "900", color: "#0f172a", letterSpacing: -0.3 },
+  subtitle: { fontSize: 13, color: "#64748b", marginTop: 4, lineHeight: 18 },
+  statsGrid: { marginTop: 14, gap: 10, flexDirection: "row", flexWrap: "wrap" },
+  statCard: {
+    flex: 1,
+    minWidth: 110,
+    backgroundColor: "#f8fafc",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+  statLabel: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: "#64748b",
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+  },
+  statValue: { fontSize: 20, fontWeight: "900", color: "#0f172a", marginTop: 6 },
+  searchBar: {
+    marginTop: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingHorizontal: 12,
+    height: 44,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    backgroundColor: "#f8fafc",
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#0f172a",
+  },
   filterBar: { maxHeight: 48, marginBottom: 8 },
   filterScroll: {
     paddingHorizontal: 16,
