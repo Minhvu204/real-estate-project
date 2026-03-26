@@ -7,9 +7,18 @@ import { Property } from '../../types/property';
 interface Props {
   property: Property;
   onPress: () => void;
+  isFavorite?: boolean;
+  isFavoriteLoading?: boolean;
+  onToggleFavorite?: () => void;
 }
 
-export default function PropertyCard({ property, onPress }: Props) {
+export default function PropertyCard({
+  property,
+  onPress,
+  isFavorite = false,
+  isFavoriteLoading = false,
+  onToggleFavorite,
+}: Props) {
   const imageUrl = property.images && property.images.length > 0
     ? property.images[0]
     : 'https://via.placeholder.com/400x300?text=No+Image';
@@ -39,6 +48,28 @@ export default function PropertyCard({ property, onPress }: Props) {
             <Ionicons name="images-outline" size={12} color="#fff" />
             <Text style={styles.imageCountText}>{imageCount}</Text>
           </View>
+        )}
+
+        {onToggleFavorite && (
+          <Pressable
+            style={[
+              styles.favoriteButton,
+              isFavorite && styles.favoriteButtonActive,
+            ]}
+            onPress={(event) => {
+              event.stopPropagation();
+              if (!isFavoriteLoading) onToggleFavorite();
+            }}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="toggle-favorite"
+          >
+            <Ionicons
+              name={isFavorite ? 'heart' : 'heart-outline'}
+              size={18}
+              color={isFavorite ? '#ef4444' : '#0ea5e9'}
+            />
+          </Pressable>
         )}
       </View>
 
@@ -137,6 +168,23 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 11,
     fontWeight: '600',
+  },
+  favoriteButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    borderWidth: 1,
+    borderColor: 'rgba(14,165,233,0.25)',
+  },
+  favoriteButtonActive: {
+    borderColor: 'rgba(239,68,68,0.40)',
+    backgroundColor: 'rgba(255,245,245,0.97)',
   },
   content: {
     padding: 14,

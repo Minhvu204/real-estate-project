@@ -7,21 +7,46 @@ import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { NotificationScreen } from '../screens/common/NotificationScreen';
 import { useNotifications } from '../hooks/useNotifications';
+import { useMyFavorites } from '../hooks/useFavorites';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../store';
+import FavoritesScreen from '../screens/buyer/FavoritesScreen';
 
 const Tab = createBottomTabNavigator<BuyerTabParamList>();
 
-// Placeholders for Favorites and Appointments
-const FavoritesScreenPlaceholder = () => <View className="flex-1 justify-center items-center"><Text>Favorites</Text></View>;
+// Placeholders for Appointments
 const AppointmentsScreenPlaceholder = () => <View className="flex-1 justify-center items-center"><Text>Appointments</Text></View>;
 
 export default function BuyerTabNavigator() {
   const { unreadCountQuery } = useNotifications();
   const unreadCount = unreadCountQuery.data || 0;
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const { data: favoritesData } = useMyFavorites(isAuthenticated);
+  const favoritesTotal = favoritesData?.total ?? 0;
 
   return (
     <Tab.Navigator screenOptions={{ headerShown: false, tabBarActiveTintColor: '#3B82F6' }}>
       <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} /> }} />
-      <Tab.Screen name="Favorites" component={FavoritesScreenPlaceholder} options={{ tabBarIcon: ({ color, size }) => <Ionicons name="heart" size={size} color={color} /> }} />
+      <Tab.Screen
+        name="Favorites"
+        component={FavoritesScreen}
+        options={{
+          tabBarIcon: ({ color, size }) => <Ionicons name="heart" size={size} color={color} />,
+          // Show count under label (like provided UI)
+          tabBarLabel: ({ focused }: any) => (
+            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontSize: 12, fontWeight: '700', color: focused ? '#3B82F6' : '#64748b' }}>
+                Favorites
+              </Text>
+              {favoritesTotal > 0 ? (
+                <Text style={{ fontSize: 10, fontWeight: '900', color: '#ef4444', marginTop: 2 }}>
+                  {favoritesTotal}
+                </Text>
+              ) : null}
+            </View>
+          ),
+        }}
+      />
       <Tab.Screen name="Appointments" component={AppointmentsScreenPlaceholder} options={{ tabBarIcon: ({ color, size }) => <Ionicons name="calendar" size={size} color={color} /> }} />
       <Tab.Screen 
         name="Notifications" 

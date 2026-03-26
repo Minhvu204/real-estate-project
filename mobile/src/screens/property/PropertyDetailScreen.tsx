@@ -28,6 +28,7 @@ import { useSelector } from "react-redux";
 import { RootStackParamList } from "../../types/navigation";
 import { usePropertyDetails } from "../../hooks/useProperties";
 import { useAssignmentMutations } from "../../hooks/useAssignments";
+import { useFavoriteCheck, useFavoriteMutations } from "../../hooks/useFavorites";
 import { RootState } from "../../store";
 import { Property } from "../../types/property";
 import { Alert } from "react-native";
@@ -153,6 +154,36 @@ export default function PropertyDetailScreen() {
   const { data, isLoading, isError } = usePropertyDetails(propertyId);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const { removeAgent, agentRequest } = useAssignmentMutations();
+  const { data: favoriteCheck, isLoading: isFavoriteChecking } =
+    useFavoriteCheck(propertyId);
+  const { addFavorite, removeFavorite } = useFavoriteMutations();
+
+  const isFavorite = Boolean(favoriteCheck);
+  const isFavoriteMutating = addFavorite.isPending || removeFavorite.isPending;
+
+  const handleToggleFavorite = async () => {
+    if (isFavoriteChecking || isFavoriteMutating) return;
+
+    const wasFavorite = isFavorite;
+
+    try {
+      if (isFavorite) {
+        await removeFavorite.mutateAsync(propertyId);
+      } else {
+        await addFavorite.mutateAsync(propertyId);
+      }
+
+      Alert.alert(
+        "Thành công",
+        wasFavorite ? "Đã xóa khỏi yêu thích" : "Đã thêm vào yêu thích",
+      );
+    } catch (err: any) {
+      Alert.alert(
+        "Lỗi",
+        err?.message || "Không thể cập nhật yêu thích. Vui lòng thử lại.",
+      );
+    }
+  };
 
   if (isLoading) {
     return (
@@ -214,6 +245,22 @@ export default function PropertyDetailScreen() {
             <Text style={styles.price}>
               {property.price?.toLocaleString("vi-VN")} VNĐ
             </Text>
+            <Pressable
+              style={[
+                styles.favoriteButton,
+                isFavorite && styles.favoriteButtonActive,
+              ]}
+              onPress={handleToggleFavorite}
+              disabled={isFavoriteChecking || isFavoriteMutating}
+              accessibilityRole="button"
+              accessibilityLabel="Toggle favorite"
+            >
+              <Ionicons
+                name={isFavorite ? "heart" : "heart-outline"}
+                size={20}
+                color={isFavorite ? "#ef4444" : "#0ea5e9"}
+              />
+            </Pressable>
           </View>
 
           {/* Title */}
@@ -663,6 +710,20 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "800",
     color: "#0ea5e9",
+  },
+  favoriteButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(14,165,233,0.10)",
+    borderWidth: 1,
+    borderColor: "rgba(14,165,233,0.25)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  favoriteButtonActive: {
+    backgroundColor: "rgba(239,68,68,0.10)",
+    borderColor: "rgba(239,68,68,0.35)",
   },
   title: {
     fontSize: 22,
