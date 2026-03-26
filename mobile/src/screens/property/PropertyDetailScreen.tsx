@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -11,21 +11,29 @@ import {
   StyleSheet,
   Platform,
   Linking,
-} from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Image } from 'expo-image';
-import { Ionicons } from '@expo/vector-icons';
-import { useRoute, useNavigation, RouteProp, useIsFocused } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
-import { RootStackParamList } from '../../types/navigation';
-import { usePropertyDetails } from '../../hooks/useProperties';
-import { useAssignmentMutations } from '../../hooks/useAssignments';
-import { RootState } from '../../store';
-import { Property } from '../../types/property';
-import { Alert } from 'react-native';
+} from "react-native";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import { Image } from "expo-image";
+import { Ionicons } from "@expo/vector-icons";
+import {
+  useRoute,
+  useNavigation,
+  RouteProp,
+  useIsFocused,
+} from "@react-navigation/native";
+import { useSelector } from "react-redux";
+import { RootStackParamList } from "../../types/navigation";
+import { usePropertyDetails } from "../../hooks/useProperties";
+import { useAssignmentMutations } from "../../hooks/useAssignments";
+import { RootState } from "../../store";
+import { Property } from "../../types/property";
+import { Alert } from "react-native";
 
-type DetailRouteProp = RouteProp<RootStackParamList, 'PropertyDetails'>;
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+type DetailRouteProp = RouteProp<RootStackParamList, "PropertyDetails">;
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const IMAGE_HEIGHT = 300;
 
 // --- Sub-components ---
@@ -34,9 +42,10 @@ function ImageCarousel({ images }: { images: string[] }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
 
-  const displayImages = (images?.length ?? 0) > 0
-    ? images
-    : ['https://via.placeholder.com/800x600?text=Chưa+có+ảnh'];
+  const displayImages =
+    (images?.length ?? 0) > 0
+      ? images
+      : ["https://via.placeholder.com/800x600?text=Chưa+có+ảnh"];
 
   const onViewableItemsChanged = useCallback(({ viewableItems }: any) => {
     if (viewableItems.length > 0) {
@@ -44,7 +53,9 @@ function ImageCarousel({ images }: { images: string[] }) {
     }
   }, []);
 
-  const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
+  const viewabilityConfig = useRef({
+    viewAreaCoveragePercentThreshold: 50,
+  }).current;
 
   return (
     <View>
@@ -63,7 +74,7 @@ function ImageCarousel({ images }: { images: string[] }) {
             style={styles.carouselImage}
             contentFit="cover"
             transition={300}
-            placeholder={{ blurhash: 'LKO2:N%2Tw=w]~RBVZRi};RPxuwH' }}
+            placeholder={{ blurhash: "LKO2:N%2Tw=w]~RBVZRi};RPxuwH" }}
           />
         )}
       />
@@ -92,7 +103,15 @@ function ImageCarousel({ images }: { images: string[] }) {
   );
 }
 
-function StatItem({ icon, label, value }: { icon: keyof typeof Ionicons.glyphMap; label: string; value: string | number }) {
+function StatItem({
+  icon,
+  label,
+  value,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  value: string | number;
+}) {
   return (
     <View style={styles.statItem}>
       <View style={styles.statIconWrapper}>
@@ -104,7 +123,15 @@ function StatItem({ icon, label, value }: { icon: keyof typeof Ionicons.glyphMap
   );
 }
 
-function InfoRow({ icon, label, value }: { icon: keyof typeof Ionicons.glyphMap; label: string; value?: string | number | null }) {
+function InfoRow({
+  icon,
+  label,
+  value,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  value?: string | number | null;
+}) {
   if (!value) return null;
   return (
     <View style={styles.infoRow}>
@@ -140,8 +167,13 @@ export default function PropertyDetailScreen() {
     return (
       <View style={[styles.centerContainer, { paddingTop: insets.top }]}>
         <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
-        <Text style={styles.errorText}>Không thể tải thông tin bất động sản</Text>
-        <Pressable style={styles.retryButton} onPress={() => navigation.goBack()}>
+        <Text style={styles.errorText}>
+          Không thể tải thông tin bất động sản
+        </Text>
+        <Pressable
+          style={styles.retryButton}
+          onPress={() => navigation.goBack()}
+        >
           <Text style={styles.retryText}>Quay lại</Text>
         </Pressable>
       </View>
@@ -150,11 +182,16 @@ export default function PropertyDetailScreen() {
 
   // Cấu trúc: data = { data: { ...fields } } sau khi service bóc 1 lớp (Axios wrapper)
   const property: Property = (data as any)?.data || data;
-  const description = property.description?.vi || property.description?.en || '';
+  const description =
+    property.description?.vi || property.description?.en || "";
 
   return (
     <View style={styles.rootContainer}>
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+      <StatusBar
+        barStyle="light-content"
+        translucent
+        backgroundColor="transparent"
+      />
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
@@ -174,21 +211,23 @@ export default function PropertyDetailScreen() {
         <View style={styles.contentContainer}>
           {/* Price Header (Ẩn Status Badge theo yêu cầu) */}
           <View style={styles.headerRow}>
-             <Text style={styles.price}>
-              {property.price?.toLocaleString('vi-VN')} VNĐ
+            <Text style={styles.price}>
+              {property.price?.toLocaleString("vi-VN")} VNĐ
             </Text>
           </View>
 
           {/* Title */}
           <Text style={styles.title}>
-            {property.title?.vi || property.title?.en || 'Chưa có tiêu đề'}
+            {property.title?.vi || property.title?.en || "Chưa có tiêu đề"}
           </Text>
 
           {/* Address */}
           <View style={styles.addressRow}>
             <Ionicons name="location-sharp" size={16} color="#0ea5e9" />
             <Text style={styles.addressText}>
-              {property.fullAddress || property.address?.vi || 'Chưa cập nhật địa chỉ'}
+              {property.fullAddress ||
+                property.address?.vi ||
+                "Chưa cập nhật địa chỉ"}
             </Text>
           </View>
 
@@ -198,10 +237,26 @@ export default function PropertyDetailScreen() {
           {/* Quick Stats */}
           <Text style={styles.sectionTitle}>Tổng Quan</Text>
           <View style={styles.statsGrid}>
-            <StatItem icon="bed-outline" label="Phòng ngủ" value={property.bedrooms ?? 0} />
-            <StatItem icon="water-outline" label="Phòng tắm" value={property.bathrooms ?? 0} />
-            <StatItem icon="resize-outline" label="Diện tích" value={`${property.area ?? 0} ${property.unit || 'm²'}`} />
-            <StatItem icon="layers-outline" label="Số tầng" value={property.floors ?? 1} />
+            <StatItem
+              icon="bed-outline"
+              label="Phòng ngủ"
+              value={property.bedrooms ?? 0}
+            />
+            <StatItem
+              icon="water-outline"
+              label="Phòng tắm"
+              value={property.bathrooms ?? 0}
+            />
+            <StatItem
+              icon="resize-outline"
+              label="Diện tích"
+              value={`${property.area ?? 0} ${property.unit || "m²"}`}
+            />
+            <StatItem
+              icon="layers-outline"
+              label="Số tầng"
+              value={property.floors ?? 1}
+            />
           </View>
 
           {/* Description */}
@@ -216,9 +271,11 @@ export default function PropertyDetailScreen() {
                 {description}
               </Text>
               {(description?.length ?? 0) > 150 && (
-                <Pressable onPress={() => setShowFullDescription(!showFullDescription)}>
+                <Pressable
+                  onPress={() => setShowFullDescription(!showFullDescription)}
+                >
                   <Text style={styles.readMoreText}>
-                    {showFullDescription ? 'Thu gọn' : 'Xem thêm...'}
+                    {showFullDescription ? "Thu gọn" : "Xem thêm..."}
                   </Text>
                 </Pressable>
               )}
@@ -229,37 +286,75 @@ export default function PropertyDetailScreen() {
           <View style={styles.divider} />
           <Text style={styles.sectionTitle}>Chi Tiết</Text>
           <View style={styles.infoCard}>
-            <InfoRow icon="calendar-outline" label="Năm xây dựng" value={property.yearBuilt} />
-            <InfoRow icon="business-outline" label="Tòa nhà" value={property.building_block} />
-            <InfoRow icon="navigate-outline" label="Tầng" value={property.floor_number} />
-            <InfoRow icon="home-outline" label="Mã căn hộ" value={property.apartment_number} />
-            <InfoRow icon="time-outline" label="Đăng ngày" value={
-              property.createdAt ? new Date(property.createdAt).toLocaleDateString('vi-VN') : null
-            } />
+            <InfoRow
+              icon="calendar-outline"
+              label="Năm xây dựng"
+              value={property.yearBuilt}
+            />
+            <InfoRow
+              icon="business-outline"
+              label="Tòa nhà"
+              value={property.building_block}
+            />
+            <InfoRow
+              icon="navigate-outline"
+              label="Tầng"
+              value={property.floor_number}
+            />
+            <InfoRow
+              icon="home-outline"
+              label="Mã căn hộ"
+              value={property.apartment_number}
+            />
+            <InfoRow
+              icon="time-outline"
+              label="Đăng ngày"
+              value={
+                property.createdAt
+                  ? new Date(property.createdAt).toLocaleDateString("vi-VN")
+                  : null
+              }
+            />
           </View>
 
           {/* Agent Info Section */}
           <View style={styles.divider} />
           <Text style={styles.sectionTitle}>Môi giới quản lý</Text>
           {property.agent_id ? (
-            <Pressable 
+            <Pressable
               style={styles.agentCard}
-              onPress={() => navigation.navigate('AgentDetail' as any, { agentId: (property.agent_id as any)._id || property.agent_id })}
+              onPress={() =>
+                navigation.navigate("AgentDetail" as any, {
+                  agentId: (property.agent_id as any)._id || property.agent_id,
+                })
+              }
             >
-              <Image 
-                source={(property.agent_id as any).avatar ? { uri: (property.agent_id as any).avatar } : require('../../assets/default-avatar.png')} 
-                style={styles.agentAvatar} 
+              <Image
+                source={
+                  (property.agent_id as any).avatar
+                    ? { uri: (property.agent_id as any).avatar }
+                    : require("../../assets/default-avatar.png")
+                }
+                style={styles.agentAvatar}
               />
               <View style={styles.agentInfo}>
-                <Text style={styles.agentName}>{(property.agent_id as any).fullName}</Text>
+                <Text style={styles.agentName}>
+                  {(property.agent_id as any).fullName}
+                </Text>
                 <Text style={styles.agentRole}>Chuyên viên Môi giới</Text>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#cbd5e1" />
             </Pressable>
           ) : (
             <View style={styles.noAgentBox}>
-              <Ionicons name="information-circle-outline" size={20} color="#94a3b8" />
-              <Text style={styles.noAgentText}>Bất động sản này chưa có môi giới quản lý.</Text>
+              <Ionicons
+                name="information-circle-outline"
+                size={20}
+                color="#94a3b8"
+              />
+              <Text style={styles.noAgentText}>
+                Bất động sản này chưa có môi giới quản lý.
+              </Text>
             </View>
           )}
 
@@ -268,24 +363,40 @@ export default function PropertyDetailScreen() {
           <Text style={styles.sectionTitle}>Chủ sở hữu</Text>
           {property.owner_id ? (
             <View style={styles.agentCard}>
-              <Image 
-                source={(property.owner_id as any).avatar ? { uri: (property.owner_id as any).avatar } : require('../../assets/default-avatar.png')} 
-                style={styles.agentAvatar} 
+              <Image
+                source={
+                  (property.owner_id as any).avatar
+                    ? { uri: (property.owner_id as any).avatar }
+                    : require("../../assets/default-avatar.png")
+                }
+                style={styles.agentAvatar}
               />
               <View style={styles.agentInfo}>
-                <Text style={styles.agentName}>{(property.owner_id as any).fullName || 'Người dùng hệ thống'}</Text>
+                <Text style={styles.agentName}>
+                  {(property.owner_id as any).fullName || "Người dùng hệ thống"}
+                </Text>
                 <Text style={styles.agentRole}>Chủ bất động sản</Text>
               </View>
               {(property.owner_id as any).phone && (
-                <Pressable onPress={() => Linking.openURL(`tel:${(property.owner_id as any).phone}`)}>
+                <Pressable
+                  onPress={() =>
+                    Linking.openURL(`tel:${(property.owner_id as any).phone}`)
+                  }
+                >
                   <Ionicons name="call" size={24} color="#22c55e" />
                 </Pressable>
               )}
             </View>
           ) : (
             <View style={styles.noAgentBox}>
-              <Ionicons name="information-circle-outline" size={20} color="#94a3b8" />
-              <Text style={styles.noAgentText}>Không có thông tin chủ sở hữu.</Text>
+              <Ionicons
+                name="information-circle-outline"
+                size={20}
+                color="#94a3b8"
+              />
+              <Text style={styles.noAgentText}>
+                Không có thông tin chủ sở hữu.
+              </Text>
             </View>
           )}
 
@@ -295,64 +406,106 @@ export default function PropertyDetailScreen() {
       </ScrollView>
 
       {/* Bottom Action Bar */}
-      <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        {renderActionButtons(property, user, navigation, removeAgent, agentRequest)}
+      <View
+        style={[
+          styles.bottomBar,
+          { paddingBottom: Math.max(insets.bottom, 16) },
+        ]}
+      >
+        {renderActionButtons(
+          property,
+          user,
+          navigation,
+          removeAgent,
+          agentRequest,
+        )}
       </View>
     </View>
   );
 }
 
 // Helper function to render action buttons based on status & role
-function renderActionButtons(property: any, user: any, navigation: any, removeAgent: any, agentRequest: any) {
-  const isOwner = property.owner_id?._id === user?._id || property.owner_id === user?._id;
-  const isAgent = property.agent_id?._id === user?._id || property.agent_id === user?._id;
+function renderActionButtons(
+  property: any,
+  user: any,
+  navigation: any,
+  removeAgent: any,
+  agentRequest: any,
+) {
+  const isOwner =
+    property.owner_id?._id === user?._id || property.owner_id === user?._id;
+  const isAgent =
+    property.agent_id?._id === user?._id || property.agent_id === user?._id;
   const hasAgent = !!property.agent_id;
 
   if (isOwner) {
     return (
       <>
         {hasAgent ? (
-          <Pressable 
-            style={[styles.actionButton, styles.removeBtn]} 
+          <Pressable
+            style={[styles.actionButton, styles.removeBtn]}
             onPress={() => {
-              Alert.alert('Xác nhận', 'Bạn có chắc chắn muốn gỡ môi giới này khỏi BĐS?', [
-                { text: 'Hủy', style: 'cancel' },
-                { text: 'Gỡ', style: 'destructive', onPress: () => removeAgent.mutate(property._id) }
-              ]);
+              Alert.alert(
+                "Xác nhận",
+                "Bạn có chắc chắn muốn gỡ môi giới này khỏi BĐS?",
+                [
+                  { text: "Hủy", style: "cancel" },
+                  {
+                    text: "Gỡ",
+                    style: "destructive",
+                    onPress: () => removeAgent.mutate(property._id),
+                  },
+                ],
+              );
             }}
           >
             <Ionicons name="person-remove-outline" size={20} color="#fff" />
             <Text style={styles.actionBtnText}>Gỡ Môi giới</Text>
           </Pressable>
         ) : (
-          <Pressable 
-            style={[styles.actionButton, styles.primaryBtn]} 
-            onPress={() => navigation.navigate('AgentList')}
+          <Pressable
+            style={[styles.actionButton, styles.primaryBtn]}
+            onPress={() => navigation.navigate("AgentList")}
           >
             <Ionicons name="person-add-outline" size={20} color="#fff" />
             <Text style={styles.actionBtnText}>Giao quản lý</Text>
           </Pressable>
         )}
-        <Pressable 
-          style={[styles.actionButton, styles.secondaryBtn]} 
-          onPress={() => navigation.navigate('EditProperty', { propertyId: property._id })}
+        <Pressable
+          style={[styles.actionButton, styles.secondaryBtn]}
+          onPress={() =>
+            navigation.navigate("EditProperty", { propertyId: property._id })
+          }
         >
           <Ionicons name="create-outline" size={20} color="#0ea5e9" />
-          <Text style={[styles.actionBtnText, { color: '#0ea5e9' }]}>Chỉnh sửa</Text>
+          <Text style={[styles.actionBtnText, { color: "#0ea5e9" }]}>
+            Chỉnh sửa
+          </Text>
         </Pressable>
       </>
     );
   }
 
-  if (user?.role === 'agent' && !hasAgent) {
+  if (user?.role === "agent" && !hasAgent) {
     return (
-      <Pressable 
-        style={[styles.actionButton, styles.primaryBtn, { flex: 1 }]} 
+      <Pressable
+        style={[styles.actionButton, styles.primaryBtn, { flex: 1 }]}
         onPress={() => {
-          Alert.alert('Yêu cầu quản lý', 'Bạn muốn gửi yêu cầu quản lý BĐS này cho chủ nhà?', [
-            { text: 'Hủy', style: 'cancel' },
-            { text: 'Gửi yêu cầu', onPress: () => agentRequest.mutate({ propertyId: property._id, note: 'Tôi muốn hợp tác quản lý BĐS này.' }) }
-          ]);
+          Alert.alert(
+            "Yêu cầu quản lý",
+            "Bạn muốn gửi yêu cầu quản lý BĐS này cho chủ nhà?",
+            [
+              { text: "Hủy", style: "cancel" },
+              {
+                text: "Gửi yêu cầu",
+                onPress: () =>
+                  agentRequest.mutate({
+                    propertyId: property._id,
+                    note: "Tôi muốn hợp tác quản lý BĐS này.",
+                  }),
+              },
+            ],
+          );
         }}
       >
         <Ionicons name="hand-right-outline" size={20} color="#fff" />
@@ -362,20 +515,35 @@ function renderActionButtons(property: any, user: any, navigation: any, removeAg
   }
 
   // Default contact buttons for buyers/others
+  const isBuyer = user?.role?.toLowerCase() === "buyer";
   return (
-    <>
-      <Pressable style={styles.contactButton} onPress={() => {
-        const phone = property.agent_id?.phone || property.owner_id?.phone;
-        if (phone) Linking.openURL(`tel:${phone}`);
-      }}>
-        <Ionicons name="call-outline" size={20} color="#fff" />
-        <Text style={styles.contactButtonText}>Liên Hệ Ngay</Text>
+    <View style={styles.actionButtonsContainer}>
+      <Pressable
+        style={styles.contactButton}
+        onPress={() => {
+          const phone = property.agent_id?.phone || property.owner_id?.phone;
+          if (phone) Linking.openURL(`tel:${phone}`);
+        }}
+      >
+        <Ionicons name="call-outline" size={18} color="#fff" />
+        <Text style={styles.contactButtonText}>Liên Hệ</Text>
       </Pressable>
+      {isBuyer && (
+        <Pressable
+          style={styles.offerButton}
+          onPress={() =>
+            navigation.navigate("CreateOffer", { propertyId: property._id })
+          }
+        >
+          <Ionicons name="pricetag-outline" size={18} color="#fff" />
+          <Text style={styles.offerButtonText}>Offer</Text>
+        </Pressable>
+      )}
       <Pressable style={styles.appointmentButton}>
-        <Ionicons name="calendar-outline" size={20} color="#0ea5e9" />
-        <Text style={styles.appointmentButtonText}>Đặt Lịch Xem</Text>
+        <Ionicons name="calendar-outline" size={18} color="#0ea5e9" />
+        <Text style={styles.appointmentButtonText}>Lịch Xem</Text>
       </Pressable>
-    </>
+    </View>
   );
 }
 
@@ -384,40 +552,40 @@ function renderActionButtons(property: any, user: any, navigation: any, removeAg
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: "#f8fafc",
   },
   scrollView: {
     flex: 1,
   },
   centerContainer: {
     flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
   },
   loadingText: {
     marginTop: 12,
     fontSize: 15,
-    color: '#64748b',
+    color: "#64748b",
   },
   errorText: {
     marginTop: 12,
     fontSize: 16,
-    color: '#ef4444',
-    fontWeight: '600',
-    textAlign: 'center',
+    color: "#ef4444",
+    fontWeight: "600",
+    textAlign: "center",
   },
   retryButton: {
     marginTop: 16,
-    backgroundColor: '#0ea5e9',
+    backgroundColor: "#0ea5e9",
     paddingHorizontal: 24,
     paddingVertical: 10,
     borderRadius: 10,
   },
   retryText: {
-    color: '#fff',
-    fontWeight: '600',
+    color: "#fff",
+    fontWeight: "600",
     fontSize: 15,
   },
   carouselImage: {
@@ -425,29 +593,29 @@ const styles = StyleSheet.create({
     height: IMAGE_HEIGHT,
   },
   imageCountBadge: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 16,
     right: 16,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    flexDirection: 'row',
-    alignItems: 'center',
+    backgroundColor: "rgba(0,0,0,0.6)",
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 20,
     gap: 4,
   },
   imageCountText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   dotContainer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 16,
     left: 0,
     right: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     gap: 6,
   },
   dot: {
@@ -456,22 +624,22 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   dotActive: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     width: 20,
   },
   dotInactive: {
-    backgroundColor: 'rgba(255,255,255,0.5)',
+    backgroundColor: "rgba(255,255,255,0.5)",
   },
   backButton: {
-    position: 'absolute',
+    position: "absolute",
     left: 16,
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: 'rgba(255,255,255,0.92)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
+    backgroundColor: "rgba(255,255,255,0.92)",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
@@ -480,174 +648,197 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingHorizontal: 20,
     paddingTop: 24,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     marginTop: -30,
   },
   headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 8,
   },
   price: {
     fontSize: 24,
-    fontWeight: '800',
-    color: '#0ea5e9',
+    fontWeight: "800",
+    color: "#0ea5e9",
   },
   title: {
     fontSize: 22,
-    fontWeight: '700',
-    color: '#1e293b',
+    fontWeight: "700",
+    color: "#1e293b",
     marginBottom: 10,
     lineHeight: 30,
   },
   addressRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 6,
     marginBottom: 4,
   },
   addressText: {
     fontSize: 14,
-    color: '#64748b',
+    color: "#64748b",
     flex: 1,
     lineHeight: 20,
   },
   divider: {
     height: 1,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: "#f1f5f9",
     marginVertical: 20,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#1e293b',
+    fontWeight: "700",
+    color: "#1e293b",
     marginBottom: 16,
   },
   statsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   statItem: {
     flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#f8fafc',
+    alignItems: "center",
+    backgroundColor: "#f8fafc",
     paddingVertical: 14,
     marginHorizontal: 4,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: "#f1f5f9",
   },
   statIconWrapper: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#e0f2fe',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#e0f2fe",
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 8,
   },
   statValue: {
     fontSize: 15,
-    fontWeight: '700',
-    color: '#1e293b',
+    fontWeight: "700",
+    color: "#1e293b",
   },
   statLabel: {
     fontSize: 11,
-    color: '#94a3b8',
+    color: "#94a3b8",
     marginTop: 2,
   },
   descriptionText: {
     fontSize: 14,
-    color: '#475569',
+    color: "#475569",
     lineHeight: 22,
   },
   readMoreText: {
     fontSize: 14,
-    color: '#0ea5e9',
-    fontWeight: '600',
+    color: "#0ea5e9",
+    fontWeight: "600",
     marginTop: 6,
   },
   infoCard: {
-    backgroundColor: '#f8fafc',
+    backgroundColor: "#f8fafc",
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: "#f1f5f9",
   },
   infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    borderBottomColor: "#f1f5f9",
     gap: 10,
   },
   infoLabel: {
     flex: 1,
     fontSize: 14,
-    color: '#64748b',
+    color: "#64748b",
   },
   infoValue: {
     fontSize: 14,
-    fontWeight: '700',
-    color: '#1e293b',
+    fontWeight: "700",
+    color: "#1e293b",
   },
   bottomBar: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    flexDirection: 'row',
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderTopWidth: 1,
-    borderTopColor: '#f1f5f9',
-    gap: 12,
-    shadowColor: '#000',
+    borderTopColor: "#f1f5f9",
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 8,
   },
+  actionButtonsContainer: {
+    flexDirection: "row",
+    gap: 10,
+  },
   contactButton: {
     flex: 1,
-    flexDirection: 'row',
-    backgroundColor: '#0ea5e9',
-    paddingVertical: 14,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 8,
+    flexDirection: "row",
+    backgroundColor: "#0ea5e9",
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 6,
+    minHeight: 44,
   },
   contactButtonText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: '700',
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
   },
   appointmentButton: {
     flex: 1,
-    flexDirection: 'row',
-    backgroundColor: '#e0f2fe',
-    paddingVertical: 14,
-    borderRadius: 14,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 8,
+    flexDirection: "row",
+    backgroundColor: "#e0f2fe",
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 6,
+    minHeight: 44,
   },
   appointmentButtonText: {
-    color: '#0ea5e9',
-    fontSize: 15,
-    fontWeight: '700',
+    color: "#0ea5e9",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  offerButton: {
+    flex: 1,
+    flexDirection: "row",
+    backgroundColor: "#10b981",
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 6,
+    minHeight: 44,
+  },
+  offerButtonText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
   },
   agentCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
     borderWidth: 1,
-    borderColor: '#f1f5f9',
+    borderColor: "#f1f5f9",
     borderRadius: 16,
     padding: 12,
   },
@@ -655,7 +846,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#f1f5f9',
+    backgroundColor: "#f1f5f9",
   },
   agentInfo: {
     flex: 1,
@@ -663,48 +854,48 @@ const styles = StyleSheet.create({
   },
   agentName: {
     fontSize: 16,
-    fontWeight: '700',
-    color: '#1e293b',
+    fontWeight: "700",
+    color: "#1e293b",
   },
   agentRole: {
     fontSize: 12,
-    color: '#64748b',
+    color: "#64748b",
     marginTop: 2,
   },
   noAgentBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f8fafc',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f8fafc",
     padding: 12,
     borderRadius: 12,
     gap: 8,
   },
   noAgentText: {
     fontSize: 13,
-    color: '#64748b',
-    fontStyle: 'italic',
+    color: "#64748b",
+    fontStyle: "italic",
   },
   actionButton: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: "row",
     height: 50,
     borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     gap: 8,
   },
   primaryBtn: {
-    backgroundColor: '#0ea5e9',
+    backgroundColor: "#0ea5e9",
   },
   secondaryBtn: {
-    backgroundColor: '#e0f2fe',
+    backgroundColor: "#e0f2fe",
   },
   removeBtn: {
-    backgroundColor: '#ef4444',
+    backgroundColor: "#ef4444",
   },
   actionBtnText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 });
