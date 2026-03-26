@@ -28,7 +28,6 @@ const TABS: { key: TaxonomyResource; label: string; nameKey: string }[] = [
   { key: "categories", label: "Danh mục", nameKey: "category_name" },
   { key: "types", label: "Loại BĐS", nameKey: "type_name" },
   { key: "features", label: "Tiện ích", nameKey: "feature_name" },
-  { key: "cities", label: "Thành phố", nameKey: "city_name" },
 ];
 
 /* ── Main Screen ── */
