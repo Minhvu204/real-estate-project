@@ -30,7 +30,6 @@ export type AdminTabParamList = {
   AdminUsers: undefined;
   AdminCategories: undefined;
   AdminPropertyModeration: undefined;
-  Notifications: undefined;
   Profile: undefined;
 };
 

@@ -27,8 +27,8 @@ import type { AdminPropertyListRow, AdminPropertyStatusFilter } from "../../type
 import type { AdminTabParamList, RootStackParamList } from "../../types/navigation";
 
 const STATUS_OPTIONS: { key: AdminPropertyStatusFilter; label: string }[] = [
-  { key: "pending", label: "PENDING" },
   { key: "all", label: "ALL" },
+  { key: "pending", label: "PENDING" },
   { key: "approved", label: "APPROVED" },
   { key: "rejected", label: "REJECTED" },
 ];

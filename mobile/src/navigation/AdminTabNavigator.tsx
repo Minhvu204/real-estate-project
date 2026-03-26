@@ -6,17 +6,30 @@ import AdminUsersScreen from "../screens/admin/AdminUsersScreen";
 import AdminCategoriesScreen from "../screens/admin/AdminCategoriesScreen";
 import AdminPropertyModerationScreen from "../screens/admin/AdminPropertyModerationScreen";
 import ProfileScreen from "../screens/common/ProfileScreen";
-import { NotificationScreen } from "../screens/common/NotificationScreen";
-import { useNotifications } from "../hooks/useNotifications";
 
 const Tab = createBottomTabNavigator<AdminTabParamList>();
 
 export default function AdminTabNavigator() {
-  const { unreadCountQuery } = useNotifications();
-  const unreadCount = unreadCountQuery.data || 0;
-
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false, tabBarActiveTintColor: "#1e3a8a" }}>
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: "#1e3a8a",
+        tabBarInactiveTintColor: "#9ca3af",
+        tabBarStyle: {
+          height: 64,
+          borderTopColor: "#e5e7eb",
+          borderTopWidth: 1,
+          paddingBottom: 6,
+          paddingTop: 6,
+          backgroundColor: "#ffffff",
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: "700",
+        },
+      }}
+    >
       <Tab.Screen
         name="AdminUsers"
         component={AdminUsersScreen}
@@ -50,22 +63,6 @@ export default function AdminTabNavigator() {
         }}
       />
         
-      <Tab.Screen
-        name="Notifications"
-        component={NotificationScreen}
-        options={{
-          tabBarLabel: "Thông báo",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="notifications" size={size} color={color} />
-          ),
-          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
-          tabBarBadgeStyle: {
-            backgroundColor: "#EF4444",
-            color: "white",
-            fontSize: 10,
-          },
-        }}
-      />
       <Tab.Screen
         name="Profile"
         component={ProfileScreen}
