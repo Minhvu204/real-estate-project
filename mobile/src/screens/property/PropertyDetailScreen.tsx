@@ -371,7 +371,7 @@ function renderActionButtons(property: any, user: any, navigation: any, removeAg
         <Ionicons name="call-outline" size={20} color="#fff" />
         <Text style={styles.contactButtonText}>Liên Hệ Ngay</Text>
       </Pressable>
-      <Pressable style={styles.appointmentButton}>
+      <Pressable style={styles.appointmentButton} onPress={() => navigation.navigate('BookAppointment', { propertyId: property._id })}>
         <Ionicons name="calendar-outline" size={20} color="#0ea5e9" />
         <Text style={styles.appointmentButtonText}>Đặt Lịch Xem</Text>
       </Pressable>
