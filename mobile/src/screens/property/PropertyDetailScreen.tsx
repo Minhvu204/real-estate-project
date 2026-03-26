@@ -605,9 +605,9 @@ function renderActionButtons(
           <Text style={styles.offerButtonText}>Offer</Text>
         </Pressable>
       )}
-      <Pressable style={styles.appointmentButton}>
-        <Ionicons name="calendar-outline" size={18} color="#0ea5e9" />
-        <Text style={styles.appointmentButtonText}>Lịch Xem</Text>
+      <Pressable style={styles.appointmentButton} onPress={() => navigation.navigate('BookAppointment', { propertyId: property._id })}>
+        <Ionicons name="calendar-outline" size={20} color="#0ea5e9" />
+        <Text style={styles.appointmentButtonText}>Đặt Lịch Xem</Text>
       </Pressable>
     </View>
   );
