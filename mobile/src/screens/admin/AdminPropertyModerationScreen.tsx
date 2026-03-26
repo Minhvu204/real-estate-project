@@ -17,7 +17,6 @@ import type { CompositeNavigationProp } from "@react-navigation/native";
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import { useQuery } from "@tanstack/react-query";
 import {
   useAdminPropertiesPage,
   ADMIN_PROPERTIES_PAGE_SIZE,
@@ -26,13 +25,12 @@ import {
 import { AdminPropertyModerationItem } from "../../components/admin/AdminPropertyModerationItem";
 import type { AdminPropertyListRow, AdminPropertyStatusFilter } from "../../types/adminProperty";
 import type { AdminTabParamList, RootStackParamList } from "../../types/navigation";
-import { fetchAdminProperties } from "../../services/adminPropertyService";
 
 const STATUS_OPTIONS: { key: AdminPropertyStatusFilter; label: string }[] = [
-  { key: "pending", label: "Chờ duyệt" },
-  { key: "all", label: "Tất cả" },
-  { key: "approved", label: "Đã duyệt" },
-  { key: "rejected", label: "Từ chối" },
+  { key: "pending", label: "PENDING" },
+  { key: "all", label: "ALL" },
+  { key: "approved", label: "APPROVED" },
+  { key: "rejected", label: "REJECTED" },
 ];
 
 type Nav = CompositeNavigationProp<
@@ -88,45 +86,6 @@ export default function AdminPropertyModerationScreen() {
   const totalPages = Math.max(1, pagination?.totalPages ?? 1);
   const canPrev = currentPage > 1;
   const canNext = currentPage < totalPages;
-
-  const pendingCountQuery = useQuery({
-    queryKey: ["admin", "properties", "count", "pending"],
-    queryFn: async () => {
-      const res = await fetchAdminProperties({
-        status: "pending",
-        page: 1,
-        limit: 1,
-      });
-      return res.pagination.total;
-    },
-    staleTime: 60_000,
-  });
-
-  const approvedCountQuery = useQuery({
-    queryKey: ["admin", "properties", "count", "approved"],
-    queryFn: async () => {
-      const res = await fetchAdminProperties({
-        status: "approved",
-        page: 1,
-        limit: 1,
-      });
-      return res.pagination.total;
-    },
-    staleTime: 60_000,
-  });
-
-  const rejectedCountQuery = useQuery({
-    queryKey: ["admin", "properties", "count", "rejected"],
-    queryFn: async () => {
-      const res = await fetchAdminProperties({
-        status: "rejected",
-        page: 1,
-        limit: 1,
-      });
-      return res.pagination.total;
-    },
-    staleTime: 60_000,
-  });
 
   const keyExtractor = useCallback(
     (item: AdminPropertyListRow) => String(item._id),
@@ -196,51 +155,19 @@ export default function AdminPropertyModerationScreen() {
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       <View style={styles.header}>
-        <View style={styles.headerRow}>
-          <View style={styles.headerIcon}>
-            <Ionicons name="document-text-outline" size={20} color="#1e3a8a" />
-          </View>
-          <View style={styles.headerTextCol}>
-            <Text style={styles.title}>Properties Moderation</Text>
-            <Text style={styles.subtitle}>
-              Approve / reject listings before public
-            </Text>
-          </View>
+        <View style={styles.brandRow}>
+          <Ionicons name="menu" size={16} color="#64748b" />
+          <Text style={styles.brandText}>MODERATION LAB</Text>
+          <Ionicons name="shield-checkmark" size={16} color="#1f2937" />
         </View>
-
-        <View style={styles.statsGrid}>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Pending</Text>
-            <Text style={styles.statValue}>
-              {typeof pendingCountQuery.data === "number"
-                ? pendingCountQuery.data.toLocaleString("en-US")
-                : "—"}
-            </Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Approved</Text>
-            <Text style={styles.statValue}>
-              {typeof approvedCountQuery.data === "number"
-                ? approvedCountQuery.data.toLocaleString("en-US")
-                : "—"}
-            </Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Rejected</Text>
-            <Text style={styles.statValue}>
-              {typeof rejectedCountQuery.data === "number"
-                ? rejectedCountQuery.data.toLocaleString("en-US")
-                : "—"}
-            </Text>
-          </View>
-        </View>
+        <Text style={styles.title}>Property Moderation</Text>
 
         <View style={styles.searchBar}>
           <Ionicons name="search-outline" size={18} color="#94a3b8" />
           <TextInput
             value={keyword}
             onChangeText={setKeyword}
-            placeholder="Search by title / address..."
+            placeholder="Search properties..."
             placeholderTextColor="#94a3b8"
             style={styles.searchInput}
             autoCapitalize="none"
@@ -319,46 +246,45 @@ export default function AdminPropertyModerationScreen() {
             }
           />
           <View style={styles.paginationBar}>
+            <View style={styles.showingBlock}>
+              <Text style={styles.showingLabel}>SHOWING</Text>
+              <Text style={styles.showingValue}>
+                {Math.min((currentPage - 1) * ADMIN_PROPERTIES_PAGE_SIZE + 1, total ?? 0)}-
+                {Math.min(currentPage * ADMIN_PROPERTIES_PAGE_SIZE, total ?? 0)} OF {total ?? 0}
+              </Text>
+            </View>
             <Pressable
               onPress={() => canPrev && setCurrentPage((p) => p - 1)}
               style={[styles.pageBtn, !canPrev && styles.pageBtnDisabled]}
               disabled={!canPrev || isFetching}
             >
-              <Ionicons
-                name="chevron-back"
-                size={22}
-                color={canPrev ? "#1e3a8a" : "#94a3b8"}
-              />
-              <Text
-                style={[styles.pageBtnText, !canPrev && styles.pageBtnTextDisabled]}
-              >
-                Trước
-              </Text>
+              <Ionicons name="chevron-back" size={18} color={canPrev ? "#334155" : "#94a3b8"} />
             </Pressable>
-            <View style={styles.pageInfo}>
-              {isFetching ? (
-                <ActivityIndicator size="small" color="#1e3a8a" />
-              ) : (
-                <Text style={styles.pageInfoText}>
-                  Trang {currentPage} / {totalPages}
-                </Text>
-              )}
+            <View style={styles.pageNumbersWrap}>
+              {buildVisiblePages(currentPage, totalPages).map((p) => (
+                <Pressable
+                  key={p}
+                  onPress={() => setCurrentPage(p)}
+                  style={[styles.pageNumberBtn, p === currentPage && styles.pageNumberBtnActive]}
+                  disabled={isFetching}
+                >
+                  <Text
+                    style={[
+                      styles.pageNumberText,
+                      p === currentPage && styles.pageNumberTextActive,
+                    ]}
+                  >
+                    {p}
+                  </Text>
+                </Pressable>
+              ))}
             </View>
             <Pressable
               onPress={() => canNext && setCurrentPage((p) => p + 1)}
               style={[styles.pageBtn, !canNext && styles.pageBtnDisabled]}
               disabled={!canNext || isFetching}
             >
-              <Text
-                style={[styles.pageBtnText, !canNext && styles.pageBtnTextDisabled]}
-              >
-                Sau
-              </Text>
-              <Ionicons
-                name="chevron-forward"
-                size={22}
-                color={canNext ? "#1e3a8a" : "#94a3b8"}
-              />
+              <Ionicons name="chevron-forward" size={18} color={canNext ? "#334155" : "#94a3b8"} />
             </Pressable>
           </View>
         </>
@@ -367,8 +293,15 @@ export default function AdminPropertyModerationScreen() {
   );
 }
 
+function buildVisiblePages(current: number, total: number): number[] {
+  if (total <= 3) return Array.from({ length: total }, (_, i) => i + 1);
+  if (current <= 2) return [1, 2, 3];
+  if (current >= total - 1) return [total - 2, total - 1, total];
+  return [current - 1, current, current + 1];
+}
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f8fafc" },
+  container: { flex: 1, backgroundColor: "#f3f4f6" },
   center: {
     flex: 1,
     justifyContent: "center",
@@ -377,111 +310,115 @@ const styles = StyleSheet.create({
   },
   muted: { marginTop: 8, color: "#64748b", fontSize: 14 },
   header: {
-    paddingHorizontal: 16,
-    paddingTop: 14,
-    paddingBottom: 14,
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: 12,
     backgroundColor: "#fff",
-    borderBottomLeftRadius: 22,
-    borderBottomRightRadius: 22,
-    shadowColor: "#0f172a",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.06,
-    shadowRadius: 16,
-    elevation: 3,
+    borderBottomLeftRadius: 18,
+    borderBottomRightRadius: 18,
     marginBottom: 8,
   },
-  headerRow: { flexDirection: "row", gap: 12, alignItems: "center" },
-  headerIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
-    backgroundColor: "#e0e7ff",
+  brandRow: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-between",
   },
-  headerTextCol: { flex: 1, minWidth: 0 },
-  title: { fontSize: 22, fontWeight: "900", color: "#0f172a", letterSpacing: -0.3 },
-  subtitle: { fontSize: 13, color: "#64748b", marginTop: 4, lineHeight: 18 },
-  statsGrid: { marginTop: 14, gap: 10, flexDirection: "row", flexWrap: "wrap" },
-  statCard: {
-    flex: 1,
-    minWidth: 110,
-    backgroundColor: "#f8fafc",
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "#e2e8f0",
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-  },
-  statLabel: {
-    fontSize: 11,
-    fontWeight: "800",
+  brandText: {
+    fontSize: 10,
     color: "#64748b",
-    textTransform: "uppercase",
-    letterSpacing: 0.6,
+    fontWeight: "800",
+    letterSpacing: 1.1,
   },
-  statValue: { fontSize: 20, fontWeight: "900", color: "#0f172a", marginTop: 6 },
+  title: { marginTop: 8, fontSize: 30, fontWeight: "900", color: "#1e3a8a", letterSpacing: -0.5 },
   searchBar: {
-    marginTop: 12,
+    marginTop: 10,
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
     paddingHorizontal: 12,
-    height: 44,
-    borderRadius: 14,
+    height: 38,
+    borderRadius: 9,
     borderWidth: 1,
     borderColor: "#e2e8f0",
     backgroundColor: "#f8fafc",
   },
   searchInput: {
     flex: 1,
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: 13,
+    fontWeight: "500",
     color: "#0f172a",
   },
-  filterBar: { maxHeight: 48, marginBottom: 8 },
+  filterBar: { maxHeight: 40, marginBottom: 8 },
   filterScroll: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     gap: 8,
     flexDirection: "row",
     alignItems: "center",
   },
   chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: "#e2e8f0",
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 12,
+    backgroundColor: "#e5e7eb",
   },
   chipActive: { backgroundColor: "#1e3a8a" },
-  chipText: { fontSize: 13, fontWeight: "600", color: "#475569" },
+  chipText: { fontSize: 11, fontWeight: "800", color: "#475569" },
   chipTextActive: { color: "#fff" },
   listFlex: { flex: 1 },
-  listContent: { paddingHorizontal: 16, paddingBottom: 8, flexGrow: 1 },
+  listContent: { paddingHorizontal: 14, paddingBottom: 6, flexGrow: 1 },
   paginationBar: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    paddingBottom: 16,
-    backgroundColor: "#fff",
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "#e2e8f0",
+    justifyContent: "flex-end",
+    flexWrap: "wrap",
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingTop: 8,
+    paddingBottom: 12,
+    backgroundColor: "#f3f4f6",
+  },
+  showingBlock: { marginRight: "auto" },
+  showingLabel: {
+    fontSize: 9,
+    fontWeight: "800",
+    letterSpacing: 0.9,
+    color: "#9ca3af",
+  },
+  showingValue: {
+    marginTop: 2,
+    fontSize: 10,
+    color: "#6b7280",
+    fontWeight: "700",
   },
   pageBtn: {
-    flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    justifyContent: "center",
+    width: 30,
+    height: 30,
     borderRadius: 8,
-    backgroundColor: "#e0e7ff",
-    gap: 4,
+    backgroundColor: "#e5e7eb",
   },
   pageBtnDisabled: { backgroundColor: "#f1f5f9" },
-  pageBtnText: { fontSize: 15, fontWeight: "600", color: "#1e3a8a" },
-  pageBtnTextDisabled: { color: "#94a3b8" },
-  pageInfo: { minWidth: 120, alignItems: "center", justifyContent: "center" },
-  pageInfoText: { fontSize: 15, fontWeight: "600", color: "#334155" },
+  pageNumbersWrap: { flexDirection: "row", gap: 6, alignItems: "center" },
+  pageNumberBtn: {
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#e5e7eb",
+  },
+  pageNumberBtnActive: {
+    backgroundColor: "#1e3a8a",
+  },
+  pageNumberText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#374151",
+  },
+  pageNumberTextActive: {
+    color: "#fff",
+  },
   empty: { alignItems: "center", paddingVertical: 48 },
   emptyText: { marginTop: 8, color: "#64748b", fontSize: 15 },
   errorBox: {

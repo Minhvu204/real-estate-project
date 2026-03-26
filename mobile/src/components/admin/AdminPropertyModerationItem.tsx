@@ -5,7 +5,7 @@ import {
   Pressable,
   StyleSheet,
   ActivityIndicator,
-  Image,
+  ImageBackground,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import type { AdminPropertyListRow, PropertyModerationStatus } from "../../types/adminProperty";
@@ -71,7 +71,7 @@ export function AdminPropertyModerationItem({
       ? owner.fullName || owner.email || "—"
       : "—";
   const chip = statusChipStyle(item.status);
-  const thumb = item.images?.[0];
+  const thumb = item.images?.[0] || "https://via.placeholder.com/640x360?text=No+Image";
   const isPending = item.status === "pending";
   const priceText = useMemo(() => {
     if (item.price == null || Number.isNaN(Number(item.price))) {
@@ -82,32 +82,12 @@ export function AdminPropertyModerationItem({
 
   return (
     <View style={styles.card}>
-      <Pressable
-        onPress={onOpenDetail}
-        style={({ pressed }) => [
-          styles.rowTop,
-          pressed && styles.cardPressed,
-        ]}
-      >
-        {thumb ? (
-          <Image source={{ uri: thumb }} style={styles.thumb} />
-        ) : (
-          <View style={styles.thumbPlaceholder}>
-            <Ionicons name="image-outline" size={28} color="#94a3b8" />
-          </View>
-        )}
-        <View style={styles.main}>
-          <Text style={styles.title} numberOfLines={2}>
-            {title}
-          </Text>
-          {address ? (
-            <Text style={styles.address} numberOfLines={1}>
-              {address}
-            </Text>
-          ) : null}
-          <Text style={styles.meta}>
-            Chủ bài: {ownerName} · {priceText}
-          </Text>
+      <Pressable onPress={onOpenDetail} style={({ pressed }) => pressed && styles.cardPressed}>
+        <ImageBackground
+          source={{ uri: thumb }}
+          style={styles.hero}
+          imageStyle={styles.heroImage}
+        >
           <View
             style={[
               styles.statusChip,
@@ -118,6 +98,43 @@ export function AdminPropertyModerationItem({
               {statusLabel(item.status)}
             </Text>
           </View>
+        </ImageBackground>
+        <View style={styles.main}>
+          <Text style={styles.title} numberOfLines={2}>
+            {title}
+          </Text>
+          <View style={styles.metaList}>
+            <View style={styles.metaRow}>
+              <Ionicons name="person-outline" size={13} color="#64748b" />
+              <Text style={styles.metaText} numberOfLines={1}>
+                {ownerName}
+              </Text>
+            </View>
+            {!!address && (
+              <View style={styles.metaRow}>
+                <Ionicons name="location-outline" size={13} color="#64748b" />
+                <Text style={styles.metaText} numberOfLines={1}>
+                  {address}
+                </Text>
+              </View>
+            )}
+            <View style={styles.metaRow}>
+              <Ionicons name="cash-outline" size={13} color="#64748b" />
+              <Text style={styles.metaText}>{priceText}</Text>
+            </View>
+          </View>
+          <View style={styles.bottomRow}>
+            <Text style={styles.idText}>#{id.slice(-6).toUpperCase()}</Text>
+            <Pressable onPress={onOpenDetail} style={styles.detailsBtn}>
+              <Text style={styles.detailsBtnText}>VIEW DETAILS</Text>
+              <Ionicons name="chevron-forward" size={14} color="#fff" />
+            </Pressable>
+          </View>
+          {!isPending ? (
+            <Text style={styles.hint}>
+              Bài đăng đã xử lý. Chạm VIEW DETAILS để xem thêm.
+            </Text>
+          ) : null}
         </View>
       </Pressable>
       {isPending ? (
@@ -145,9 +162,7 @@ export function AdminPropertyModerationItem({
             <Text style={styles.btnRejectText}>Từ chối</Text>
           </Pressable>
         </View>
-      ) : (
-        <Text style={styles.hint}>Chạm phần trên để xem chi tiết · …{id.slice(-6)}</Text>
-      )}
+      ) : null}
     </View>
   );
 }
@@ -155,51 +170,69 @@ export function AdminPropertyModerationItem({
 const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 14,
+    borderRadius: 14,
     marginBottom: 12,
     borderWidth: 1,
     borderColor: "#e2e8f0",
+    overflow: "hidden",
   },
   cardPressed: { opacity: 0.92 },
-  rowTop: { flexDirection: "row", gap: 12, borderRadius: 8 },
-  thumb: {
-    width: 72,
-    height: 72,
-    borderRadius: 8,
-    backgroundColor: "#f1f5f9",
+  hero: {
+    height: 124,
+    justifyContent: "flex-start",
   },
-  thumbPlaceholder: {
-    width: 72,
-    height: 72,
-    borderRadius: 8,
-    backgroundColor: "#f1f5f9",
-    alignItems: "center",
-    justifyContent: "center",
+  heroImage: {
+    resizeMode: "cover",
   },
-  main: { flex: 1, minWidth: 0 },
+  main: { paddingHorizontal: 12, paddingTop: 10, paddingBottom: 12 },
   title: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "800",
     color: "#0f172a",
-    lineHeight: 22,
+    lineHeight: 18,
   },
-  address: { fontSize: 13, color: "#64748b", marginTop: 4 },
-  meta: { fontSize: 13, color: "#475569", marginTop: 6 },
+  metaList: { marginTop: 8, gap: 4 },
+  metaRow: { flexDirection: "row", alignItems: "center", gap: 6 },
+  metaText: { flex: 1, fontSize: 11, color: "#64748b", fontWeight: "600" },
   statusChip: {
     alignSelf: "flex-start",
     marginTop: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    marginLeft: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 999,
     borderWidth: 1,
   },
-  statusText: { fontSize: 12, fontWeight: "700" },
+  statusText: { fontSize: 10, fontWeight: "800" },
+  bottomRow: {
+    marginTop: 9,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  idText: { fontSize: 10, color: "#94a3b8", fontWeight: "700" },
+  detailsBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+    backgroundColor: "#1e3a8a",
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+  },
+  detailsBtnText: {
+    color: "#fff",
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 0.4,
+  },
   actions: {
     flexDirection: "row",
     gap: 10,
-    marginTop: 14,
-    paddingTop: 12,
+    marginTop: 2,
+    paddingTop: 10,
+    paddingHorizontal: 12,
+    paddingBottom: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: "#e2e8f0",
   },
@@ -209,7 +242,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    paddingVertical: 10,
+    paddingVertical: 8,
     borderRadius: 10,
   },
   btnDisabled: { opacity: 0.55 },
@@ -226,9 +259,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   hint: {
-    marginTop: 10,
-    fontSize: 12,
+    marginTop: 8,
+    fontSize: 10,
     color: "#94a3b8",
-    textAlign: "center",
+    textAlign: "left",
   },
 });
