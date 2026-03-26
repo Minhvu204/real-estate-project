@@ -6,12 +6,31 @@ export type OfferStatus =
   | "rejected"
   | "cancelled";
 
+// User info (for populated fields)
+export interface UserInfo {
+  _id: string;
+  fullName: string;
+  email: string;
+  phone?: string;
+  avatar?: string;
+}
+
+// Property info (for populated fields)
+export interface PropertyInfo {
+  _id: string;
+  title: { en: string; vi: string } | string;
+  price: number;
+  description?: string;
+  address?: string;
+  images?: string[];
+}
+
 export interface Offer {
   _id: string;
-  property_id: string;
-  buyer_id: string;
-  agent_id?: string;
-  seller_id?: string;
+  property_id: string | PropertyInfo;
+  buyer_id: string | UserInfo;
+  agent_id?: string | UserInfo;
+  seller_id?: string | UserInfo;
   amount: number;
   currency: string;
   note?: string;

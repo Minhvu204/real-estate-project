@@ -52,3 +52,65 @@ export const useGetOffer = (offerId: string | undefined, enabled?: boolean) => {
     enabled: enabled !== false && !!offerId,
   });
 };
+
+/**
+ * Hook for getting seller's offers
+ */
+export const useGetSellerOffers = (
+  filters?: OfferFilters,
+  enabled?: boolean,
+) => {
+  return useQuery({
+    queryKey: ["sellerOffers", filters?.status, filters?.page, filters?.limit],
+    queryFn: () => offerService.getSellerOffers(filters),
+    enabled: enabled !== false,
+  });
+};
+
+/**
+ * Hook for accepting an offer
+ */
+export const useAcceptOffer = () => {
+  return useMutation({
+    mutationFn: (offerId: string) => offerService.acceptOffer(offerId),
+  });
+};
+
+/**
+ * Hook for rejecting an offer
+ */
+export const useRejectOffer = () => {
+  return useMutation({
+    mutationFn: (params: { offerId: string; reason?: string }) =>
+      offerService.rejectOffer(params.offerId, params.reason),
+  });
+};
+
+/**
+ * Hook for getting agent's offers
+ */
+export const useGetAgentOffers = (
+  filters?: OfferFilters,
+  enabled?: boolean,
+) => {
+  return useQuery({
+    queryKey: [
+      "agentOffers",
+      filters?.status,
+      filters?.propertyId,
+      filters?.page,
+      filters?.limit,
+    ],
+    queryFn: () => offerService.getAgentOffers(filters),
+    enabled: enabled !== false,
+  });
+};
+
+/**
+ * Hook for forwarding an offer (agent -> seller)
+ */
+export const useForwardOffer = () => {
+  return useMutation({
+    mutationFn: (offerId: string) => offerService.forwardAgentOffer(offerId),
+  });
+};

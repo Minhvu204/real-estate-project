@@ -34,6 +34,9 @@ export const OfferForm: React.FC<OfferFormProps> = ({
   onSubmit,
   isLoading = false,
 }) => {
+  const propertyTitle =
+    (property.title as any)?.vi || (property.title as any)?.en || property.title;
+
   // Set default validity period to 30 days from now
   const defaultExpiryDate = new Date();
   defaultExpiryDate.setDate(defaultExpiryDate.getDate() + 30);
@@ -50,7 +53,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
       const expiresAt = new Date(values.validityPeriod).toISOString();
 
       await onSubmit({
-        id: property._id,
+        propertyId: property._id,
         amount: parseFloat(values.amount),
         note: values.note || undefined,
         currency: "VND",
@@ -75,7 +78,7 @@ export const OfferForm: React.FC<OfferFormProps> = ({
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* Property Info Section */}
       <View style={styles.propertyInfoSection}>
-        <Text style={styles.propertyTitle}>{property.title}</Text>
+        <Text style={styles.propertyTitle}>{propertyTitle}</Text>
 
         <View style={styles.priceBox}>
           <View style={styles.priceIconWrapper}>

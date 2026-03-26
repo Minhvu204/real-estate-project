@@ -86,4 +86,142 @@ export const offerService = {
       throw new Error(errorMessage);
     }
   },
+
+  /**
+   * Get seller's offers for management
+   * GET /api/client/seller/offers
+   */
+  getSellerOffers: async (
+    filters?: OfferFilters,
+  ): Promise<OfferListResponse> => {
+    try {
+      const params = new URLSearchParams();
+      if (filters?.status) params.append("status", filters.status);
+      if (filters?.page) params.append("page", filters.page.toString());
+      if (filters?.limit) params.append("limit", filters.limit.toString());
+
+      const response = await api.get(
+        `/client/seller/offers?${params.toString()}`,
+      );
+
+      const responseData = response.data.data || response.data;
+      return {
+        data: Array.isArray(responseData)
+          ? responseData
+          : responseData.data || [],
+        total: responseData.total,
+        page: responseData.page,
+        limit: responseData.limit,
+      };
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to fetch seller offers";
+      throw new Error(errorMessage);
+    }
+  },
+
+  /**
+   * Accept an offer (seller)
+   * PATCH /api/client/seller/offers/{id}/accept
+   */
+  acceptOffer: async (
+    offerId: string,
+  ): Promise<{ offer: Offer; deal?: any }> => {
+    try {
+      const response = await api.patch(
+        `/client/seller/offers/${offerId}/accept`,
+      );
+      return response.data.data || response.data;
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to accept offer";
+      throw new Error(errorMessage);
+    }
+  },
+
+  /**
+   * Reject an offer (seller)
+   * PATCH /api/client/seller/offers/{id}/reject
+   */
+  rejectOffer: async (offerId: string, reason?: string): Promise<Offer> => {
+    try {
+      const payload = reason ? { reason } : {};
+      const response = await api.patch(
+        `/client/seller/offers/${offerId}/reject`,
+        payload,
+      );
+      return response.data.data || response.data;
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to reject offer";
+      throw new Error(errorMessage);
+    }
+  },
+
+  /**
+   * Get agent's offers
+   * GET /api/client/agent/offers
+   */
+  getAgentOffers: async (
+    filters?: OfferFilters,
+  ): Promise<OfferListResponse> => {
+    try {
+      const params = new URLSearchParams();
+      if (filters?.status) params.append("status", filters.status);
+      if (filters?.propertyId) params.append("propertyId", filters.propertyId);
+      if (filters?.page) params.append("page", filters.page.toString());
+      if (filters?.limit) params.append("limit", filters.limit.toString());
+
+      const response = await api.get(
+        `/client/agent/offers?${params.toString()}`,
+      );
+
+      const responseData = response.data.data || response.data;
+
+      // BE shape: { pagination: {...}, data: offers[] }
+      // FE response type expects: { data, total, page, limit }
+      const offers = Array.isArray(responseData?.data)
+        ? responseData.data
+        : responseData?.data || [];
+      const pagination = responseData?.pagination;
+
+      return {
+        data: offers,
+        total: pagination?.total ?? responseData.total,
+        page: pagination?.page ?? responseData.page,
+        limit: pagination?.limit ?? responseData.limit,
+      };
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to fetch agent offers";
+      throw new Error(errorMessage);
+    }
+  },
+
+  /**
+   * Forward an offer for agent
+   * PATCH /api/client/agent/offers/:id/forward
+   */
+  forwardAgentOffer: async (offerId: string): Promise<any> => {
+    try {
+      const response = await api.patch(
+        `/client/agent/offers/${offerId}/forward`,
+      );
+      return response.data.data || response.data;
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to forward offer";
+      throw new Error(errorMessage);
+    }
+  },
 };
