@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -148,11 +148,20 @@ export default function PropertyDetailScreen() {
   const insets = useSafeAreaInsets();
   const route = useRoute<DetailRouteProp>();
   const navigation = useNavigation<any>();
+  const isFocused = useIsFocused();
   const { propertyId } = route.params;
   const { user } = useSelector((state: RootState) => state.auth);
-  const { data, isLoading, isError } = usePropertyDetails(propertyId);
+  const { data, isLoading, isError, refetch } = usePropertyDetails(propertyId);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const { removeAgent, agentRequest } = useAssignmentMutations();
+
+  // Refetch property data when screen comes into focus
+  // This ensures agent_id is updated after accepting assignment
+  useEffect(() => {
+    if (isFocused) {
+      refetch();
+    }
+  }, [isFocused, refetch]);
 
   if (isLoading) {
     return (
@@ -432,11 +441,21 @@ function renderActionButtons(
   removeAgent: any,
   agentRequest: any,
 ) {
-  const isOwner =
-    property.owner_id?._id === user?._id || property.owner_id === user?._id;
-  const isAgent =
-    property.agent_id?._id === user?._id || property.agent_id === user?._id;
-  const hasAgent = !!property.agent_id;
+  const userId = user?._id ?? user?.id;
+
+  // Normalize populated-or-string foreign keys
+  const ownerId =
+    typeof property?.owner_id === "object"
+      ? property?.owner_id?._id
+      : property?.owner_id;
+  const agentId =
+    typeof property?.agent_id === "object"
+      ? property?.agent_id?._id
+      : property?.agent_id;
+
+  const isOwner = ownerId && userId && ownerId === userId;
+  const isAgent = agentId && userId && agentId === userId;
+  const hasAgent = !!agentId;
 
   if (isOwner) {
     return (

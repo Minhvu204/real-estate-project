@@ -11,7 +11,10 @@ import mongoose from "mongoose";
 import { assignmentService } from "./assignment.service";
 import { createMultilangText } from "../utils/translateHelper";
 import { getFullAddress } from "../utils/addressHelper";
-import { notifyAgentRemoved, createNotification } from "../utils/notificationHelper";
+import {
+  notifyAgentRemoved,
+  createNotification,
+} from "../utils/notificationHelper";
 import { geocodeAddress } from "../utils/geocodingHelper";
 import { SearchCriteria } from "../types/searchCriteria";
 import Deal from "../models/deal.model";
@@ -60,11 +63,11 @@ export const propertyService = {
         .populate("ward_id", "ward_name")
         .populate("category_id", "category_name")
         .populate("type_id", "type_name")
-        .populate("owner_id", "fullName email phone avatar")
-        .populate("agent_id", "fullName email phone avatar")
+        .populate("owner_id", "_id fullName email phone avatar")
+        .populate("agent_id", "_id fullName email phone avatar")
         .populate("features", "feature_name")
-        .populate("assignmentHistory.agent_id", "fullName email")
-        .populate("assignmentHistory.assignedBy", "fullName email")
+        .populate("assignmentHistory.agent_id", "_id fullName email")
+        .populate("assignmentHistory.assignedBy", "_id fullName email")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limitNum)
@@ -91,7 +94,7 @@ export const propertyService = {
   // Lấy property theo owner hoặc agent
   async getPropertiesByOwnerOrAgent(
     user: { id?: string; _id?: string; role?: string },
-    queryParams: any
+    queryParams: any,
   ) {
     const userId = String(user?.id || user?._id);
     if (!userId) {
@@ -126,11 +129,11 @@ export const propertyService = {
         .populate("ward_id", "ward_name")
         .populate("category_id", "category_name")
         .populate("type_id", "type_name")
-        .populate("owner_id", "fullName email phone avatar")
-        .populate("agent_id", "fullName email phone avatar")
+        .populate("owner_id", "_id fullName email phone avatar")
+        .populate("agent_id", "_id fullName email phone avatar")
         .populate("features", "feature_name")
-        .populate("assignmentHistory.agent_id", "fullName email")
-        .populate("assignmentHistory.assignedBy", "fullName email")
+        .populate("assignmentHistory.agent_id", "_id fullName email")
+        .populate("assignmentHistory.assignedBy", "_id fullName email")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limitNum)
@@ -162,11 +165,11 @@ export const propertyService = {
       .populate("ward_id", "ward_name")
       .populate("category_id", "category_name")
       .populate("type_id", "type_name")
-      .populate("owner_id", "fullName email phone avatar")
-      .populate("agent_id", "fullName email phone avatar")
+      .populate("owner_id", "_id fullName email phone avatar")
+      .populate("agent_id", "_id fullName email phone avatar")
       .populate("features", "feature_name")
-      .populate("assignmentHistory.agent_id", "fullName email phone avatar")
-      .populate("assignmentHistory.assignedBy", "fullName email")
+      .populate("assignmentHistory.agent_id", "_id fullName email phone avatar")
+      .populate("assignmentHistory.assignedBy", "_id fullName email")
       .lean();
 
     if (!property) {
@@ -193,7 +196,7 @@ export const propertyService = {
         address: 1,
         price: 1,
         listingType: 1,
-      }
+      },
     );
 
     return properties;
@@ -202,7 +205,7 @@ export const propertyService = {
   async assignAgent(
     propertyId: string,
     agentId: string,
-    options?: { actorId?: string }
+    options?: { actorId?: string },
   ) {
     const property = await Property.findById(propertyId);
     if (!property) {
@@ -235,7 +238,9 @@ export const propertyService = {
     // GỬI NOTIFICATION CHO AGENT ĐƯỢC GÁN
     try {
       if (options?.actorId) {
-        const owner = await User.findById(options.actorId).select("fullName").lean();
+        const owner = await User.findById(options.actorId)
+          .select("fullName")
+          .lean();
         if (owner) {
           await createNotification(
             agentId,
@@ -245,7 +250,7 @@ export const propertyService = {
               type: "property",
               relatedId: String(property._id),
               actionUrl: `/notifications/properties/${property._id}`,
-            }
+            },
           );
         }
       }
@@ -297,13 +302,13 @@ export const propertyService = {
             String(agentToRemoveId),
             owner.fullName,
             property.title.vi,
-            String(property._id)
+            String(property._id),
           );
         }
       } else {
         // Ghi log nếu không có actorId, vì không biết ai đã gỡ
         console.warn(
-          `Cannot send notification: actorId is missing for removeAgent on property ${propertyId}`
+          `Cannot send notification: actorId is missing for removeAgent on property ${propertyId}`,
         );
       }
     } catch (notifyError) {
@@ -320,7 +325,7 @@ export const propertyService = {
       .populate("ward_id", "ward_name")
       .populate("category_id", "category_name")
       .populate("type_id", "type_name")
-      .populate("owner_id", "fullName email phone avatar")
+      .populate("owner_id", "_id fullName email phone avatar")
       .populate("features", "feature_name")
       .sort({ createdAt: -1 })
       .lean();
@@ -353,8 +358,8 @@ export const propertyService = {
       .populate("ward_id", "ward_name")
       .populate("category_id", "category_name")
       .populate("type_id", "type_name")
-      .populate("owner_id", "fullName email phone avatar")
-      .populate("agent_id", "fullName email phone avatar")
+      .populate("owner_id", "_id fullName email phone avatar")
+      .populate("agent_id", "_id fullName email phone avatar")
       .populate("features", "feature_name")
       .sort({ createdAt: -1 })
       .lean();
@@ -440,7 +445,7 @@ export const propertyService = {
       try {
         const fullAddressString = `${address}, ${ward.ward_name.vi}, ${district.district_name.vi}, ${city.city_name.vi}`;
         console.log(
-          `[Geocoding] Đang tìm tọa độ từ địa chỉ: ${fullAddressString}`
+          `[Geocoding] Đang tìm tọa độ từ địa chỉ: ${fullAddressString}`,
         );
 
         const location = await geocodeAddress(fullAddressString); // (trả về { lat, lng })
@@ -452,7 +457,7 @@ export const propertyService = {
           };
         } else {
           console.warn(
-            `Không tìm thấy tọa độ cho: ${fullAddressString}. Tọa độ sẽ là null.`
+            `Không tìm thấy tọa độ cho: ${fullAddressString}. Tọa độ sẽ là null.`,
           );
         }
       } catch (geoError) {
@@ -470,7 +475,7 @@ export const propertyService = {
 
     // Ensure features is an array (multer/form-data with 1 item might be a string)
     let featuresArray = features;
-    if (typeof features === 'string') {
+    if (typeof features === "string") {
       featuresArray = [features];
     } else if (!Array.isArray(features)) {
       featuresArray = [];
@@ -513,7 +518,7 @@ export const propertyService = {
       await assignmentService.createRequest(
         (property._id as mongoose.Types.ObjectId).toString(),
         agent_id,
-        ownerId
+        ownerId,
       );
     }
 
@@ -542,7 +547,17 @@ export const propertyService = {
       throw err;
     }
 
-    const { title, description, address, images, city_id, district_id, ward_id, coordinates, ...rest } = data || {};
+    const {
+      title,
+      description,
+      address,
+      images,
+      city_id,
+      district_id,
+      ward_id,
+      coordinates,
+      ...rest
+    } = data || {};
 
     // Áp dụng cập nhật các trường đơn giản
     Object.assign(property, rest);
@@ -576,8 +591,8 @@ export const propertyService = {
       // Nếu coordinates được gửi dưới dạng { lat, lng } hoặc coordinates[lat], coordinates[lng]
       if (coordinates.lat !== undefined && coordinates.lng !== undefined) {
         property.coordinates = {
-          type: 'Point',
-          coordinates: [coordinates.lng, coordinates.lat] // [lng, lat] format
+          type: "Point",
+          coordinates: [coordinates.lng, coordinates.lat], // [lng, lat] format
         };
       } else if (Array.isArray(coordinates.coordinates)) {
         property.coordinates = coordinates;
@@ -617,7 +632,7 @@ export const propertyService = {
   // Tìm kiếm properties dựa trên tiêu chí AI
   async findPropertiesByAiCriteria(
     criteria: SearchCriteria,
-    centerPoint: { lat: number; lng: number } | null
+    centerPoint: { lat: number; lng: number } | null,
   ) {
     const query: any = {
       status: { $in: ["approved", "available"] },
@@ -717,11 +732,9 @@ export const propertyService = {
       .populate("ward_id")
       .populate("type_id")
       .populate("category_id")
-      .populate("owner_id")
-      .populate("agent_id")
+      .populate("owner_id", "_id fullName email phone avatar")
+      .populate("agent_id", "_id fullName email phone avatar")
       .populate("features")
-      .populate("owner_id", "-password")
-      .populate("agent_id", "-password")
       .lean();
   },
 
@@ -734,12 +747,12 @@ export const propertyService = {
       category,
       keyword,
       minPrice,
-      maxPrice
+      maxPrice,
     } = filters;
 
     const query: any = {
       deleted: false,
-      agent_id: null, 
+      agent_id: null,
       status: { $in: ["approved", "available"] },
     };
 
@@ -754,7 +767,7 @@ export const propertyService = {
     if (minPrice || maxPrice) {
       query.price = {
         ...(minPrice ? { $gte: Number(minPrice) } : {}),
-        ...(maxPrice ? { $lte: Number(maxPrice) } : {})
+        ...(maxPrice ? { $lte: Number(maxPrice) } : {}),
       };
     }
 
@@ -764,10 +777,10 @@ export const propertyService = {
       .populate("ward_id", "ward_name")
       .populate("category_id", "category_name")
       .populate("type_id", "type_name")
-      .populate("owner_id", "fullName phone email avatar")
+      .populate("owner_id", "_id fullName phone email avatar")
       .sort({ createdAt: -1 })
       .lean();
 
     return properties;
-  }
+  },
 };

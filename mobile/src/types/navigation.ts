@@ -19,6 +19,8 @@ export type SellerAgentTabParamList = {
   Home: undefined;
   MyProperties: undefined;
   CreateProperty: undefined;
+  HandleAssignment: undefined;
+  HandleOffer: undefined;
   Notifications: undefined;
   Profile: undefined;
 };
