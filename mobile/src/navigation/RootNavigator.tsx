@@ -18,6 +18,7 @@ import AssignmentListScreen from "../screens/common/AssignmentListScreen";
 import PublicPropertyExploreScreen from "../screens/agent/PublicPropertyExploreScreen";
 import EditProfileScreen from "../screens/common/EditProfileScreen";
 import ChangePasswordScreen from "../screens/common/ChangePasswordScreen";
+import BookAppointmentScreen from "../screens/buyer/BookAppointmentScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -92,6 +93,11 @@ export default function RootNavigator() {
               name="ChangePassword"
               component={ChangePasswordScreen}
               options={{ animation: "slide_from_right" }}
+            />
+            <Stack.Screen
+              name="BookAppointment"
+              component={BookAppointmentScreen}
+              options={{ animation: "slide_from_bottom" }}
             />
           </>
         ) : (
