@@ -8,16 +8,19 @@ import {
   Pressable,
   StyleSheet,
   ScrollView,
+  TextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
 import {
   useAdminReviewsPage,
   ADMIN_REVIEWS_PAGE_SIZE,
 } from "../../hooks/useAdminReviews";
 import { AdminReviewListItem } from "../../components/admin/AdminReviewListItem";
+import { fetchAdminReviews } from "../../services/adminReviewService";
 import type {
   AdminReviewListRow,
   AdminReviewStatusFilter,
@@ -57,6 +60,7 @@ export default function AdminReviewsScreen() {
   const [statusFilter, setStatusFilter] =
     useState<AdminReviewStatusFilter>("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [keyword, setKeyword] = useState("");
 
   useEffect(() => {
     setCurrentPage(1);
@@ -72,11 +76,74 @@ export default function AdminReviewsScreen() {
   } = useAdminReviewsPage(statusFilter, targetFilter, currentPage);
 
   const rows = useMemo(() => data?.data ?? [], [data]);
+  const filteredRows = useMemo(() => {
+    const q = keyword.trim().toLowerCase();
+    if (!q) return rows;
+
+    return rows.filter((r) => {
+      const reviewer =
+        r.user_id && typeof r.user_id === "object"
+          ? `${r.user_id.fullName ?? ""} ${r.user_id.email ?? ""}`
+          : "";
+
+      const t =
+        r.target_id && typeof r.target_id === "object"
+          ? `${r.target_id.title?.vi ?? ""} ${r.target_id.title?.en ?? ""} ${
+              r.target_id.address?.vi ?? ""
+            } ${r.target_id.address?.en ?? ""} ${r.target_id.fullName ?? ""}`
+          : "";
+
+      const c = `${r.comment?.vi ?? ""} ${r.comment?.en ?? ""}`;
+      return `${reviewer} ${t} ${c}`.toLowerCase().includes(q);
+    });
+  }, [rows, keyword]);
   const pagination = data?.pagination;
   const total = pagination?.total;
   const totalPages = Math.max(1, pagination?.totalPages ?? 1);
   const canPrev = currentPage > 1;
   const canNext = currentPage < totalPages;
+
+  const totalCountQuery = useQuery({
+    queryKey: ["admin", "reviews", "count", "all"],
+    queryFn: async () => {
+      const res = await fetchAdminReviews({ page: 1, limit: 1 });
+      return res.pagination.total;
+    },
+    staleTime: 60_000,
+  });
+
+  const pendingCountQuery = useQuery({
+    queryKey: ["admin", "reviews", "count", "pending"],
+    queryFn: async () => {
+      const res = await fetchAdminReviews({
+        page: 1,
+        limit: 1,
+        status: "pending",
+      });
+      return res.pagination.total;
+    },
+    staleTime: 60_000,
+  });
+
+  const approvedCountQuery = useQuery({
+    queryKey: ["admin", "reviews", "count", "approved"],
+    queryFn: async () => {
+      const res = await fetchAdminReviews({
+        page: 1,
+        limit: 1,
+        status: "approved",
+      });
+      return res.pagination.total;
+    },
+    staleTime: 60_000,
+  });
+
+  const approvalRate = useMemo(() => {
+    const total = totalCountQuery.data;
+    const approved = approvedCountQuery.data;
+    if (!total || typeof total !== "number" || !approved || typeof approved !== "number") return 0;
+    return Math.round((approved / total) * 100);
+  }, [totalCountQuery.data, approvedCountQuery.data]);
 
   const keyExtractor = useCallback(
     (item: AdminReviewListRow) => String(item._id),
@@ -127,9 +194,43 @@ export default function AdminReviewsScreen() {
             </Text>
           </View>
         </View>
+        <View style={styles.statsGrid}>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Total</Text>
+            <Text style={styles.statValue}>
+              {typeof totalCountQuery.data === "number"
+                ? totalCountQuery.data.toLocaleString("en-US")
+                : "—"}
+            </Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Pending</Text>
+            <Text style={styles.statValue}>
+              {typeof pendingCountQuery.data === "number"
+                ? pendingCountQuery.data.toLocaleString("en-US")
+                : "—"}
+            </Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Approved rate</Text>
+            <Text style={styles.statValue}>{approvalRate}%</Text>
+          </View>
+        </View>
         <Text style={styles.hintBanner}>
           Không gồm đánh giá từ seller/agent/admin. Ẩn / xóa khi vi phạm; lọc theo BĐS hoặc môi giới.
         </Text>
+        <View style={styles.searchBar}>
+          <Ionicons name="search-outline" size={18} color="#94a3b8" />
+          <TextInput
+            value={keyword}
+            onChangeText={setKeyword}
+            placeholder="Search comment / title / reviewer..."
+            placeholderTextColor="#94a3b8"
+            style={styles.searchInput}
+            autoCorrect={false}
+            autoCapitalize="none"
+          />
+        </View>
       </View>
 
       <View style={styles.filterSection}>
@@ -211,7 +312,7 @@ export default function AdminReviewsScreen() {
         <>
           <FlatList
             style={styles.listFlex}
-            data={rows}
+            data={filteredRows}
             keyExtractor={keyExtractor}
             renderItem={renderItem}
             contentContainerStyle={styles.listContent}
@@ -233,9 +334,13 @@ export default function AdminReviewsScreen() {
                       color="#94a3b8"
                     />
                   </View>
-                  <Text style={styles.emptyTitle}>Không có đánh giá</Text>
+                  <Text style={styles.emptyTitle}>
+                    {keyword.trim() ? "No matches found" : "Không có đánh giá"}
+                  </Text>
                   <Text style={styles.emptyText}>
-                    Thử đổi bộ lọc đối tượng hoặc trạng thái.
+                    {keyword.trim()
+                      ? "Thử từ khóa khác."
+                      : "Thử đổi bộ lọc đối tượng hoặc trạng thái."}
                   </Text>
                 </View>
               ) : null
@@ -348,6 +453,53 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "#e2e8f0",
+  },
+  statsGrid: {
+    marginTop: 14,
+    gap: 10,
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  statCard: {
+    flex: 1,
+    minWidth: 110,
+    backgroundColor: "#f8fafc",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+  statLabel: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: "#64748b",
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: "900",
+    color: "#0f172a",
+    marginTop: 6,
+  },
+  searchBar: {
+    marginTop: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingHorizontal: 12,
+    height: 44,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    backgroundColor: "#f8fafc",
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#0f172a",
   },
   filterSection: { marginTop: 12, paddingHorizontal: 16 },
   filterLabel: {
