@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { AdminTabParamList } from "../types/navigation";
 import AdminUsersScreen from "../screens/admin/AdminUsersScreen";
+import AdminPropertyModerationScreen from "../screens/admin/AdminPropertyModerationScreen";
 import ProfileScreen from "../screens/common/ProfileScreen";
 import { NotificationScreen } from "../screens/common/NotificationScreen";
 import { useNotifications } from "../hooks/useNotifications";
@@ -22,6 +23,16 @@ export default function AdminTabNavigator() {
           tabBarLabel: "Người dùng",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="people" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="AdminPropertyModeration"
+        component={AdminPropertyModerationScreen}
+        options={{
+          tabBarLabel: "Kiểm duyệt",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="shield-checkmark-outline" size={size} color={color} />
           ),
         }}
       />
