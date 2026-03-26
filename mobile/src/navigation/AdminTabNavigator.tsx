@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Ionicons } from "@expo/vector-icons";
 import { AdminTabParamList } from "../types/navigation";
 import AdminUsersScreen from "../screens/admin/AdminUsersScreen";
+import AdminCategoriesScreen from "../screens/admin/AdminCategoriesScreen";
 import ProfileScreen from "../screens/common/ProfileScreen";
 import { NotificationScreen } from "../screens/common/NotificationScreen";
 import { useNotifications } from "../hooks/useNotifications";
@@ -22,6 +23,16 @@ export default function AdminTabNavigator() {
           tabBarLabel: "Người dùng",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="people" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="AdminCategories"
+        component={AdminCategoriesScreen}
+        options={{
+          tabBarLabel: "Danh mục",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="grid" size={size} color={color} />
           ),
         }}
       />
