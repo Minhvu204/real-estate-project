@@ -8,7 +8,8 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  TextInput
+  TextInput,
+  Alert
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -21,6 +22,7 @@ import { Property } from '../../types/property';
 import { RootStackParamList } from '../../types/navigation';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
+import { useMyFavorites, useFavoriteMutations } from '../../hooks/useFavorites';
 
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
 
@@ -120,6 +122,8 @@ const HomeHeader = React.memo(({
 export default function HomeScreen() {
   const navigation = useNavigation<NavProp>();
   const { user } = useSelector((state: RootState) => state.auth);
+  const { data: favoritesData } = useMyFavorites();
+  const { addFavorite, removeFavorite } = useFavoriteMutations();
 
   // States
   const [selectedCat, setSelectedCat] = useState('all');
@@ -151,6 +155,11 @@ export default function HomeScreen() {
     return data?.pages.flatMap(page => (page as any).data) as Property[] || [];
   }, [data]);
 
+  const favoriteIdSet = useMemo(() => {
+    const ids = (favoritesData?.properties ?? []).map((item) => item.id);
+    return new Set(ids.filter(Boolean));
+  }, [favoritesData]);
+
   const handlePropertyPress = useCallback((property: Property) => {
     navigation.navigate('PropertyDetails', {
       propertyId: property.id || property._id || '',
@@ -161,6 +170,38 @@ export default function HomeScreen() {
     setSearchKeyword(tempSearch);
     // useInfiniteQuery sẽ tự động refetch khi searchKeyword (dependency trong queryKey) thay đổi
   }, [tempSearch]);
+
+  const handleToggleFavorite = useCallback(
+    async (property: Property) => {
+      const propertyId = property.id || property._id || '';
+      if (!propertyId) return;
+
+      const wasFavorite = favoriteIdSet.has(propertyId);
+
+      try {
+        if (addFavorite.isPending || removeFavorite.isPending) return;
+
+        if (favoriteIdSet.has(propertyId)) {
+          await removeFavorite.mutateAsync(propertyId);
+        } else {
+          await addFavorite.mutateAsync(propertyId);
+        }
+
+        Alert.alert(
+          "Thành công",
+          wasFavorite
+            ? "Đã xóa khỏi yêu thích"
+            : "Đã thêm vào yêu thích",
+        );
+      } catch (err: any) {
+        Alert.alert(
+          'Lỗi',
+          err?.message || 'Không thể cập nhật yêu thích. Vui lòng thử lại.',
+        );
+      }
+    },
+    [addFavorite, removeFavorite, favoriteIdSet],
+  );
 
   const loadMore = () => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -204,6 +245,9 @@ export default function HomeScreen() {
           <PropertyCard
             property={item}
             onPress={() => handlePropertyPress(item)}
+            isFavorite={favoriteIdSet.has(item.id || item._id || '')}
+            isFavoriteLoading={addFavorite.isPending || removeFavorite.isPending}
+            onToggleFavorite={() => handleToggleFavorite(item)}
           />
         )}
         ListHeaderComponent={
