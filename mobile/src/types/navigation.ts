@@ -1,4 +1,4 @@
-import { NavigatorScreenParams } from '@react-navigation/native';
+import { NavigatorScreenParams } from "@react-navigation/native";
 
 export type AuthStackParamList = {
   Login: undefined;
@@ -38,6 +38,7 @@ export type RootStackParamList = {
   SellerAgentMain: NavigatorScreenParams<SellerAgentTabParamList>;
   AdminMain: NavigatorScreenParams<AdminTabParamList>;
   PropertyDetails: { propertyId: string };
+  CreateOffer: { propertyId: string };
   EditProperty: { propertyId: string };
   AgentList: undefined;
   AgentDetail: { agentId: string };
@@ -50,6 +51,6 @@ export type RootStackParamList = {
 // You can add global typical declarations to React Navigation here
 declare global {
   namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList { }
+    interface RootParamList extends RootStackParamList {}
   }
 }
