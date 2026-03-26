@@ -41,6 +41,8 @@ export type RootStackParamList = {
   AgentDetail: { agentId: string };
   AssignmentList: undefined;
   PublicPropertyExplore: undefined;
+  EditProfile: undefined;
+  ChangePassword: undefined;
 };
 
 // You can add global typical declarations to React Navigation here

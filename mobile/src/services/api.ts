@@ -2,7 +2,7 @@ import axios from "axios";
 import * as SecureStore from 'expo-secure-store';
 
 export const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000/api",
+  baseURL: process.env.EXPO_PUBLIC_API_URL || "http://192.168.1.62:3000/api",
   timeout: 10000,
 });
 
