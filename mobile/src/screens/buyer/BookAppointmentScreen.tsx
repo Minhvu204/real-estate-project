@@ -74,8 +74,8 @@ export default function BookAppointmentScreen() {
   const openDatePicker = useCallback((index: number) => {
     setActiveSlotIndex(index);
     const existingTime = slots[index].time || new Date();
-    setDay(existingTime.getDate().toString());
-    setMonth((existingTime.getMonth() + 1).toString());
+    setDay(existingTime.getDate().toString().padStart(2, "0"));
+    setMonth((existingTime.getMonth() + 1).toString().padStart(2, "0"));
     setYear(existingTime.getFullYear().toString());
     setHour(existingTime.getHours().toString().padStart(2, "0"));
     setMinute(existingTime.getMinutes().toString().padStart(2, "0"));
@@ -157,14 +157,12 @@ export default function BookAppointmentScreen() {
   /* ── Format helper ── */
   const formatDateTime = (date: Date | null) => {
     if (!date) return "Chọn ngày & giờ…";
-    return date.toLocaleString("vi-VN", {
-      weekday: "short",
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    const d = date.getDate().toString().padStart(2, "0");
+    const m = (date.getMonth() + 1).toString().padStart(2, "0");
+    const y = date.getFullYear();
+    const h = date.getHours().toString().padStart(2, "0");
+    const min = date.getMinutes().toString().padStart(2, "0");
+    return `${h}:${min} - ${d}/${m}/${y}`;
   };
 
   /* ── Render ── */
